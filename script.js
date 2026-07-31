@@ -4,6 +4,14 @@
 
 const game = document.getElementById("game");
 
+//==================================
+// 効果音
+//==================================
+
+const tinnitus = new Audio("audio/se/tinnitus.mp3");
+
+tinnitus.volume = 0.5;
+
 let playerName = "";
 
 //==================================
@@ -96,8 +104,10 @@ function flashRed(){
 
     `;
 
-    // ここに耳鳴りを追加予定
-const tinnitus = new Audio("audio/se/tinnitus5.mp3");
+    // 耳鳴り
+    tinnitus.currentTime = 0;
+tinnitus.play();
+
     setTimeout(showBlack, FLASH_TIME);
 
 }

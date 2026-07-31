@@ -92,15 +92,13 @@ function flashRed(){
 
     game.innerHTML = `
 
-    <div style="
-        width:100vw;
-        height:100vh;
-        background:red;
-    "></div>
+    <div class="flash"></div>
 
     `;
 
-    setTimeout(showOpening,300);
+    // ここに耳鳴りを追加予定
+
+    setTimeout(showBlack, FLASH_TIME);
 
 }
 

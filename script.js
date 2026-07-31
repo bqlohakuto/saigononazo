@@ -139,13 +139,11 @@ function showBlack(){
 
 function showFade(){
 
-    game.innerHTML = `
+    showOpening();
 
-    <div class="fade"></div>
+    const opening = document.querySelector(".opening");
 
-    `;
-
-    setTimeout(showOpening, FADE_TIME);
+    opening.classList.add("fade-in");
 
 }
 
@@ -174,11 +172,11 @@ function showOpening(){
 
     `;
 
-    setTimeout(() => {
+setTimeout(() => {
 
-        document.getElementById("dialog").style.display = "block";
+    document.getElementById("dialog").style.display="block";
 
-    }, TEXT_DELAY);
+},FADE_TIME + TEXT_DELAY);
 
 }
 

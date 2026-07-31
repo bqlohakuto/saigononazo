@@ -152,7 +152,6 @@ function showFade(){
 //==================================
 // オープニング
 //==================================
-
 function showOpening(){
 
     game.innerHTML = `
@@ -161,7 +160,7 @@ function showOpening(){
 
         <div id="character-area"></div>
 
-        <div class="dialog">
+        <div class="dialog" id="dialog" style="display:none;">
 
             <p id="speaker"></p>
 
@@ -175,7 +174,14 @@ function showOpening(){
 
     `;
 
+    setTimeout(() => {
+
+        document.getElementById("dialog").style.display = "block";
+
+    }, TEXT_DELAY);
+
 }
+
 
 //==================================
 // 効果音フェードアウト

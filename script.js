@@ -102,6 +102,38 @@ function flashRed(){
 
 }
 
+//==================================
+// 暗転
+//==================================
+
+function showBlack(){
+
+    game.innerHTML = `
+
+    <div class="black"></div>
+
+    `;
+
+    setTimeout(showFade, BLACK_TIME);
+
+}
+
+
+//==================================
+// フェードイン
+//==================================
+
+function showFade(){
+
+    game.innerHTML = `
+
+    <div class="fade"></div>
+
+    `;
+
+    setTimeout(showOpening, FADE_TIME);
+
+}
 
 //==================================
 // オープニング

@@ -8,15 +8,10 @@
     box-sizing:border-box;
 }
 
-/*====================================
-    ゲーム共通設定
-====================================*/
-
 html,
 body{
 
     width:100%;
-
     height:100%;
 
     overflow:hidden;
@@ -34,6 +29,18 @@ body{
 
 }
 
+body{
+
+    background:#000;
+    color:#fff;
+
+    font-family:
+    "Hiragino Mincho ProN",
+    "Yu Mincho",
+    serif;
+
+}
+
 img{
 
     -webkit-user-drag:none;
@@ -46,15 +53,17 @@ img{
 
 button{
 
+    border:none;
+
+    cursor:pointer;
+
     touch-action:manipulation;
 
     -webkit-tap-highlight-color:transparent;
 
 }
 
-/*====================================
-    ゲーム画面
-====================================*/
+
 
 /*====================================
     ゲーム画面
@@ -66,13 +75,13 @@ button{
 
     height:100dvh;
 
-    overflow:hidden;
-
     display:flex;
 
     justify-content:center;
 
     align-items:center;
+
+    overflow:hidden;
 
     background:#000;
 
@@ -82,9 +91,9 @@ button{
 
     width:100%;
 
-    max-width:1920px;
-
     height:100%;
+
+    max-width:1920px;
 
     position:relative;
 
@@ -92,24 +101,6 @@ button{
 
 }
 
-body{
-
-    background:#000;
-    color:#fff;
-
-    font-family:
-    "Hiragino Mincho ProN",
-    "Yu Mincho",
-    serif;
-
-    overflow:hidden;
-
-    touch-action:manipulation;
-
-    -webkit-user-select:none;
-    user-select:none;
-
-}
 
 
 /*====================================
@@ -118,8 +109,9 @@ body{
 
 .title-screen{
 
-    width:100vw;
-    height:100vh;
+    width:100%;
+
+    height:100%;
 
     display:flex;
 
@@ -133,11 +125,43 @@ body{
 
 .title-screen h1{
 
-    font-size:48px;
+    font-size:clamp(30px,6vw,60px);
+
+    font-weight:normal;
+
+    white-space:nowrap;
+
+    text-align:center;
+
+    letter-spacing:.05em;
 
     margin-bottom:70px;
 
+}
+
+.title-screen h2{
+
+    font-size:clamp(22px,4vw,36px);
+
     font-weight:normal;
+
+    margin-bottom:30px;
+
+}
+
+.title-screen input{
+
+    width:260px;
+
+    height:50px;
+
+    font-size:24px;
+
+    text-align:center;
+
+    border-radius:10px;
+
+    border:none;
 
 }
 
@@ -149,12 +173,10 @@ body{
 
     font-size:24px;
 
-    border:none;
-
     border-radius:12px;
 
-    cursor:pointer;
 }
+
 
 
 /*====================================
@@ -163,9 +185,9 @@ body{
 
 .opening{
 
-    width:100vw;
+    width:100%;
 
-    height:100vh;
+    height:100%;
 
     background:#fff;
 
@@ -180,6 +202,23 @@ body{
     animation:fadeIn 3s forwards;
 
 }
+
+
+
+/*====================================
+    キャラクター表示
+====================================*/
+
+#character-area{
+
+    width:100%;
+
+    height:100%;
+
+}
+
+
+
 /*====================================
     会話ウィンドウ
 ====================================*/
@@ -196,11 +235,6 @@ body{
 
 }
 
-
-/*====================================
-    セリフ
-====================================*/
-
 .dialog p{
 
     color:#000;
@@ -209,22 +243,16 @@ body{
 
 }
 
-
-/*====================================
-    文字送り
-====================================*/
-
 .dialog button{
 
     position:absolute;
 
     background:none;
 
-    border:none;
-
-    cursor:pointer;
+    font-size:40px;
 
 }
+
 
 
 /*====================================
@@ -232,12 +260,6 @@ body{
 ====================================*/
 
 @media (max-width:768px){
-
-.title-screen h1{
-
-    font-size:42px;
-
-}
 
 .dialog{
 
@@ -267,11 +289,10 @@ body{
 
     bottom:35px;
 
-    font-size:40px;
-
 }
 
 }
+
 
 
 /*====================================
@@ -279,12 +300,6 @@ body{
 ====================================*/
 
 @media (min-width:769px){
-
-.title-screen h1{
-
-    font-size:60px;
-
-}
 
 .dialog{
 
@@ -314,43 +329,33 @@ body{
 
     bottom:30px;
 
-    font-size:42px;
-
 }
 
 }
+
 
 
 /*====================================
-    フラッシュ・暗転・フェード
+    演出
 ====================================*/
 
 .flash{
 
-    width:100vw;
-    height:100vh;
+    width:100%;
 
-    background:#ff0000;
+    height:100%;
+
+    background:#f00;
 
 }
 
 .black{
 
-    width:100vw;
-    height:100vh;
+    width:100%;
+
+    height:100%;
 
     background:#000;
-
-}
-
-.fade{
-
-    width:100vw;
-    height:100vh;
-
-    background:#fff;
-
-    animation:fadeIn 3s forwards;
 
 }
 

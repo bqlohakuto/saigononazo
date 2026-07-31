@@ -4,26 +4,29 @@
 
 const game = document.getElementById("game");
 
+
 //==================================
 // 効果音
 //==================================
 
 const tinnitus = new Audio("audio/se/tinnitus.mp3");
+tinnitus.volume = 0.5;
 
-tinnitus.volume = 1.0;
+
+//==================================
+// プレイヤー情報
+//==================================
 
 let playerName = "";
+
 
 //==================================
 // 演出時間
 //==================================
 
 const FLASH_TIME = 1000;
-
 const BLACK_TIME = 1000;
-
-const FADE_TIME = 3000;
-
+const FADE_TIME  = 3000;
 const TEXT_DELAY = 2000;
 
 
@@ -40,7 +43,9 @@ function showTitle(){
         <h1>最後の謎が解けるまで</h1>
 
         <button id="startButton">
+
             はじめる
+
         </button>
 
     </div>
@@ -55,7 +60,7 @@ function showTitle(){
 
 
 //==================================
-// 名前入力
+// 名前入力画面
 //==================================
 
 function showNameInput(){
@@ -66,8 +71,6 @@ function showNameInput(){
 
         <h2>あなたの名前を入力してください</h2>
 
-        <br>
-
         <input
             id="playerName"
             type="text"
@@ -77,7 +80,9 @@ function showNameInput(){
         <br><br>
 
         <button id="decideButton">
+
             決定
+
         </button>
 
     </div>
@@ -92,29 +97,35 @@ function showNameInput(){
 
 
 //==================================
-// 赤いフラッシュ
+// 赤フラッシュ
 //==================================
 
 function flashRed(){
 
-    playerName =
-        document.getElementById("playerName").value;
+    playerName = document
+        .getElementById("playerName")
+        .value
+        .trim();
+
+    if(playerName === ""){
+
+        playerName = "主人公";
+
+    }
 
     game.innerHTML = `
 
-    <div class="flash"></div>
+        <div class="flash"></div>
 
     `;
 
     tinnitus.currentTime = 0;
-    tinnitus.volume = 0.5;
     tinnitus.play();
-
-    
 
     setTimeout(showBlack, FLASH_TIME);
 
 }
+
 
 //==================================
 // 暗転
@@ -124,7 +135,7 @@ function showBlack(){
 
     game.innerHTML = `
 
-    <div class="black"></div>
+        <div class="black"></div>
 
     `;
 
@@ -134,37 +145,53 @@ function showBlack(){
 
 
 //==================================
-// フェードイン
+// フェード
 //==================================
 
 function showFade(){
 
     showOpening();
 
-    const opening = document.querySelector(".opening");
-
-    opening.classList.add("fade-in");
+    document
+        .querySelector(".opening")
+        .classList
+        .add("fade-in");
 
 }
+
 
 //==================================
 // オープニング
 //==================================
+
 function showOpening(){
 
     game.innerHTML = `
 
     <div class="opening">
 
-        <div id="character-area"></div>
+        <div id="character-area">
 
-        <div class="dialog" id="dialog" style="display:none;">
+        </div>
+
+        <div
+            class="dialog"
+            id="dialog"
+            style="display:none;">
 
             <p id="speaker"></p>
 
-            <p id="text">……よかった。</p>
+            <p id="text">
 
-            <button id="nextButton">▶</button>
+                ……よかった。
+
+            </p>
+
+            <button id="nextButton">
+
+                ▶
+
+            </button>
 
         </div>
 
@@ -172,50 +199,21 @@ function showOpening(){
 
     `;
 
-tinnitus.onended = () => {
+    tinnitus.onended = () => {
 
-    setTimeout(() => {
+        setTimeout(() => {
 
-        document.getElementById("dialog").style.display = "block";
+            document
+                .getElementById("dialog")
+                .style
+                .display = "block";
 
-    }, TEXT_DELAY);
+        },TEXT_DELAY);
 
-};
-
-}
-
-
-//==================================
-// 効果音フェードアウト
-//==================================
-
-function fadeOutAudio(audio){
-
-    let volume = audio.volume;
-
-    const timer = setInterval(() => {
-
-        volume -= 0.05;
-
-        if(volume <= 0){
-
-            audio.pause();
-
-            audio.currentTime = 0;
-
-            audio.volume = 0.5;
-
-            clearInterval(timer);
-
-        }else{
-
-            audio.volume = volume;
-
-        }
-
-    },250);
+    };
 
 }
+
 
 //==================================
 // ゲーム開始
@@ -223,29 +221,18 @@ function fadeOutAudio(audio){
 
 showTitle();
 
+
 //==================================
-// ダブルタップ・ピンチズーム防止
+// ダブルタップ防止
 //==================================
-
-document.addEventListener("gesturestart", function (e) {
-    e.preventDefault();
-});
-
-document.addEventListener("gesturechange", function (e) {
-    e.preventDefault();
-});
-
-document.addEventListener("gestureend", function (e) {
-    e.preventDefault();
-});
 
 let lastTouchEnd = 0;
 
-document.addEventListener("touchend", function (event) {
+document.addEventListener("touchend",(event)=>{
 
     const now = Date.now();
 
-    if (now - lastTouchEnd <= 300) {
+    if(now-lastTouchEnd<=300){
 
         event.preventDefault();
 
@@ -253,4 +240,27 @@ document.addEventListener("touchend", function (event) {
 
     lastTouchEnd = now;
 
-}, { passive: false });
+},{passive:false});
+
+
+//==================================
+// Safari ピンチ対策
+//==================================
+
+document.addEventListener("gesturestart",(e)=>{
+
+    e.preventDefault();
+
+});
+
+document.addEventListener("gesturechange",(e)=>{
+
+    e.preventDefault();
+
+});
+
+document.addEventListener("gestureend",(e)=>{
+
+    e.preventDefault();
+
+});

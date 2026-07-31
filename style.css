@@ -49,7 +49,7 @@ button{
 
     width:100%;
 
-    height:180px;
+    height:220px;
 
     background:rgba(255,255,255,0.95);
 
@@ -66,14 +66,31 @@ button{
 
     font-size:28px;
 
-    margin:0;
+    line-height:1.6;
+
+    margin-top:20px;
+    margin-left:10px;
 }
 
 .dialog button{
 
     position:absolute;
 
-    right:25px;
+    right:30px;
 
-    bottom:25px;
+    bottom:55px;
+
+    background:none;
+
+    border:none;
+
+    color:black;
+
+    font-size:36px;
+
+    width:auto;
+
+    height:auto;
+
+    cursor:pointer;
 }

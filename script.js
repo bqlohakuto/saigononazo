@@ -97,7 +97,7 @@ function flashRed(){
     `;
 
     // ここに耳鳴りを追加予定
-
+const tinnitus = new Audio("audio/se/tinnitus5.mp3");
     setTimeout(showBlack, FLASH_TIME);
 
 }

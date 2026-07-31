@@ -18,11 +18,11 @@ let playerName = "";
 // 演出時間
 //==================================
 
-const FLASH_TIME = 150;
+const FLASH_TIME = 300;
 
-const BLACK_TIME = 1000;
+const BLACK_TIME = 2000;
 
-const FADE_TIME = 2000;
+const FADE_TIME = 3000;
 
 
 //==================================

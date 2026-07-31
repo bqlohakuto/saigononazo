@@ -104,9 +104,11 @@ function flashRed(){
 
     `;
 
-    // 耳鳴り
     tinnitus.currentTime = 0;
-tinnitus.play();
+    tinnitus.volume = 0.5;
+    tinnitus.play();
+
+    fadeOutAudio(tinnitus);
 
     setTimeout(showBlack, FLASH_TIME);
 
@@ -173,6 +175,37 @@ function showOpening(){
 
 }
 
+//==================================
+// 効果音フェードアウト
+//==================================
+
+function fadeOutAudio(audio){
+
+    let volume = audio.volume;
+
+    const timer = setInterval(() => {
+
+        volume -= 0.05;
+
+        if(volume <= 0){
+
+            audio.pause();
+
+            audio.currentTime = 0;
+
+            audio.volume = 0.5;
+
+            clearInterval(timer);
+
+        }else{
+
+            audio.volume = volume;
+
+        }
+
+    },250);
+
+}
 
 //==================================
 // ゲーム開始

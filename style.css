@@ -1,42 +1,35 @@
 body{
     margin:0;
-    background:#000;
+    background:black;
     color:white;
-    font-family:"Hiragino Mincho ProN", serif;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    height:100vh;
+    font-family:sans-serif;
 }
 
 .title-screen{
-    text-align:center;
+    height:100vh;
+
+    display:flex;
+    flex-direction:column;
+
+    justify-content:center;
+    align-items:center;
 }
 
 h1{
-    font-size:48px;
-    font-weight:normal;
-    line-height:1.6;
-    margin-bottom:80px;
+    font-size:40px;
+    margin-bottom:60px;
 }
 
 button{
-    padding:15px 50px;
-    font-size:22px;
 
-    background:transparent;
-    color:white;
+    width:220px;
+    height:60px;
 
-    border:1px solid white;
+    font-size:24px;
 
-    border-radius:8px;
+    border:none;
+    border-radius:12px;
 
-    cursor:pointer;
-}
-
-button:hover{
     background:white;
     color:black;
 }

@@ -6,6 +6,16 @@ const game = document.getElementById("game");
 
 let playerName = "";
 
+//==================================
+// 演出時間
+//==================================
+
+const FLASH_TIME = 150;
+
+const BLACK_TIME = 1000;
+
+const FADE_TIME = 2000;
+
 
 //==================================
 // タイトル画面

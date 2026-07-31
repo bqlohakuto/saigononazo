@@ -1,100 +1,225 @@
-body{
+/*====================================
+    共通設定
+====================================*/
+
+*{
     margin:0;
-    background:black;
-    color:white;
-    font-family:sans-serif;
+    padding:0;
+    box-sizing:border-box;
 }
 
+body{
+
+    background:#000;
+    color:#fff;
+
+    font-family:
+    "Hiragino Mincho ProN",
+    "Yu Mincho",
+    serif;
+
+    overflow:hidden;
+}
+
+
+/*====================================
+    タイトル画面
+====================================*/
+
 .title-screen{
+
+    width:100vw;
     height:100vh;
 
     display:flex;
+
     flex-direction:column;
 
     justify-content:center;
+
     align-items:center;
+
 }
 
-h1{
-    font-size:40px;
-    margin-bottom:60px;
+.title-screen h1{
+
+    font-size:48px;
+
+    margin-bottom:70px;
+
+    font-weight:normal;
+
 }
 
-button{
+.title-screen button{
 
     width:220px;
+
     height:60px;
 
     font-size:24px;
 
     border:none;
+
     border-radius:12px;
 
-    background:white;
-    color:black;
+    cursor:pointer;
 }
 
+
+/*====================================
+    オープニング
+====================================*/
+
 .opening{
-    background:white;
-    margin:0;
+
+    width:100vw;
+
     height:100vh;
+
+    background:white;
+
     position:relative;
+
 }
+
+
+/*====================================
+    会話ウィンドウ
+====================================*/
 
 .dialog{
 
     position:absolute;
 
-    bottom:40px;
+    background:rgba(255,255,255,.97);
 
-    height:220px;
-    
-    width:95%;
-
-    left:2.5%;
+    border:2px solid #999;
 
     border-radius:15px;
 
-    background:rgba(255,255,255,0.95);
-
-    border-top:3px solid #999;
-
-    box-sizing:border-box;
-
-    padding:25px;
 }
+
+
+/*====================================
+    セリフ
+====================================*/
 
 .dialog p{
 
-    color:black;
+    color:#000;
 
-    font-size:28px;
+    line-height:1.7;
 
-    line-height:1.6;
-
-    margin-top:20px;
-    margin-left:10px;
 }
+
+
+/*====================================
+    文字送り
+====================================*/
 
 .dialog button{
 
     position:absolute;
 
-    right:50px;
-
-    bottom:100px;
-
     background:none;
 
     border:none;
 
-    color:black;
-
-    font-size:50px;
-
-    width:auto;
-
-    height:auto;
-
     cursor:pointer;
+
+}
+
+
+/*====================================
+    スマホ
+====================================*/
+
+@media (max-width:768px){
+
+.title-screen h1{
+
+    font-size:42px;
+
+}
+
+.dialog{
+
+    left:20px;
+
+    right:20px;
+
+    bottom:80px;
+
+    height:220px;
+
+    padding:25px;
+
+}
+
+.dialog p{
+
+    font-size:28px;
+
+    margin-top:20px;
+
+}
+
+.dialog button{
+
+    right:20px;
+
+    bottom:35px;
+
+    font-size:40px;
+
+}
+
+}
+
+
+/*====================================
+    PC
+====================================*/
+
+@media (min-width:769px){
+
+.title-screen h1{
+
+    font-size:60px;
+
+}
+
+.dialog{
+
+    width:900px;
+
+    height:240px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    bottom:30px;
+
+    padding:35px;
+
+}
+
+.dialog p{
+
+    font-size:34px;
+
+}
+
+.dialog button{
+
+    right:30px;
+
+    bottom:30px;
+
+    font-size:42px;
+
+}
+
 }

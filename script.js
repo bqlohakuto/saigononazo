@@ -10,7 +10,7 @@ const game = document.getElementById("game");
 
 const tinnitus = new Audio("audio/se/tinnitus.mp3");
 
-tinnitus.volume = 0.5;
+tinnitus.volume = 1.0;
 
 let playerName = "";
 
@@ -70,7 +70,7 @@ function showNameInput(){
             id="playerName"
             type="text"
             maxlength="8"
-            placeholder="主人公の名前">
+            placeholder="名前">
 
         <br><br>
 

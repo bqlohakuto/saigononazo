@@ -77,13 +77,19 @@ body{
 
     height:100vh;
 
-    background:white;
+    background:#fff;
 
     position:relative;
 
+    opacity:0;
+
 }
 
+.fade-in{
 
+    animation:fadeIn 3s forwards;
+
+}
 /*====================================
     会話ウィンドウ
 ====================================*/

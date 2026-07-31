@@ -38,6 +38,7 @@ function showTitle(){
 // 名前入力画面
 //==============================
 
+
 function showNameInput(){
 
     game.innerHTML = `
@@ -64,8 +65,11 @@ function showNameInput(){
 
     `;
 
-}
+    document
+        .getElementById("decideButton")
+        .addEventListener("click", flashRed);
 
+}
 
 //==============================
 // ゲーム開始

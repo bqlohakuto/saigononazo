@@ -223,3 +223,53 @@ body{
 }
 
 }
+
+
+/*====================================
+    フラッシュ・暗転・フェード
+====================================*/
+
+.flash{
+
+    width:100vw;
+    height:100vh;
+
+    background:#ff0000;
+
+}
+
+.black{
+
+    width:100vw;
+    height:100vh;
+
+    background:#000;
+
+}
+
+.fade{
+
+    width:100vw;
+    height:100vh;
+
+    background:#fff;
+
+    animation:fadeIn 2s forwards;
+
+}
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+    }
+
+    to{
+
+        opacity:1;
+
+    }
+
+}

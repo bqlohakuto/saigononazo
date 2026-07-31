@@ -76,3 +76,50 @@ function showNameInput(){
 //==============================
 
 showTitle();
+
+//==============================
+// 赤いフラッシュ
+//==============================
+
+function flashRed(){
+
+    game.innerHTML = `
+
+    <div style="
+        width:100vw;
+        height:100vh;
+        background:red;
+    "></div>
+
+    `;
+
+    setTimeout(showOpening,300);
+
+}
+
+
+//==============================
+// オープニング
+//==============================
+
+function showOpening(){
+
+    game.innerHTML = `
+
+    <div class="opening">
+
+        <div class="dialog">
+
+            <p id="speaker"></p>
+
+            <p id="text">……よかった。</p>
+
+            <button>▶</button>
+
+        </div>
+
+    </div>
+
+    `;
+
+}

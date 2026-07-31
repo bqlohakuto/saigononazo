@@ -8,6 +8,54 @@
     box-sizing:border-box;
 }
 
+/*====================================
+    ゲーム共通設定
+====================================*/
+
+html,
+body{
+
+    width:100%;
+
+    height:100%;
+
+    overflow:hidden;
+
+    overscroll-behavior:none;
+
+    touch-action:manipulation;
+
+    -webkit-user-select:none;
+    user-select:none;
+
+    -webkit-touch-callout:none;
+
+    -webkit-tap-highlight-color:transparent;
+
+}
+
+img{
+
+    -webkit-user-drag:none;
+
+    user-select:none;
+
+    pointer-events:none;
+
+}
+
+button{
+
+    touch-action:manipulation;
+
+    -webkit-tap-highlight-color:transparent;
+
+}
+
+/*====================================
+    ゲーム画面
+====================================*/
+
 #game{
 
     width:100vw;
@@ -15,6 +63,8 @@
     height:100vh;
 
     overflow:hidden;
+
+    position:relative;
 
 }
 

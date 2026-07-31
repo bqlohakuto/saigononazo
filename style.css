@@ -33,3 +33,47 @@ button{
     background:white;
     color:black;
 }
+
+.opening{
+    background:white;
+    margin:0;
+    height:100vh;
+    position:relative;
+}
+
+.dialog{
+
+    position:absolute;
+
+    bottom:0;
+
+    width:100%;
+
+    height:180px;
+
+    background:rgba(255,255,255,0.95);
+
+    border-top:3px solid #999;
+
+    box-sizing:border-box;
+
+    padding:25px;
+}
+
+.dialog p{
+
+    color:black;
+
+    font-size:28px;
+
+    margin:0;
+}
+
+.dialog button{
+
+    position:absolute;
+
+    right:25px;
+
+    bottom:25px;
+}

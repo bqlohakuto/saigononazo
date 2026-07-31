@@ -110,7 +110,7 @@ function flashRed(){
     tinnitus.volume = 0.5;
     tinnitus.play();
 
-    fadeOutAudio(tinnitus);
+    
 
     setTimeout(showBlack, FLASH_TIME);
 
@@ -172,11 +172,15 @@ function showOpening(){
 
     `;
 
-setTimeout(() => {
+tinnitus.onended = () => {
 
-    document.getElementById("dialog").style.display="block";
+    setTimeout(() => {
 
-},FADE_TIME + TEXT_DELAY);
+        document.getElementById("dialog").style.display = "block";
+
+    }, TEXT_DELAY);
+
+};
 
 }
 

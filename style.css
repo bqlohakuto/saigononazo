@@ -56,7 +56,11 @@ button{
     ゲーム画面
 ====================================*/
 
-#game{
+/*====================================
+    ゲーム画面
+====================================*/
+
+#game-container{
 
     width:100vw;
 
@@ -64,7 +68,27 @@ button{
 
     overflow:hidden;
 
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:#000;
+
+}
+
+#game{
+
+    width:100%;
+
+    max-width:1920px;
+
+    height:100%;
+
     position:relative;
+
+    overflow:hidden;
 
 }
 

@@ -1,13 +1,15 @@
-//==============================
+//==================================
 // ゲーム画面
-//==============================
+//==================================
 
 const game = document.getElementById("game");
 
+let playerName = "";
 
-//==============================
+
+//==================================
 // タイトル画面
-//==============================
+//==================================
 
 function showTitle(){
 
@@ -18,9 +20,7 @@ function showTitle(){
         <h1>最後の謎が解けるまで</h1>
 
         <button id="startButton">
-
             はじめる
-
         </button>
 
     </div>
@@ -34,10 +34,9 @@ function showTitle(){
 }
 
 
-//==============================
-// 名前入力画面
-//==============================
-
+//==================================
+// 名前入力
+//==================================
 
 function showNameInput(){
 
@@ -46,6 +45,8 @@ function showNameInput(){
     <div class="title-screen">
 
         <h2>あなたの名前を入力してください</h2>
+
+        <br>
 
         <input
             id="playerName"
@@ -56,9 +57,7 @@ function showNameInput(){
         <br><br>
 
         <button id="decideButton">
-
             決定
-
         </button>
 
     </div>
@@ -71,17 +70,15 @@ function showNameInput(){
 
 }
 
-//==============================
-// ゲーム開始
-//==============================
 
-showTitle();
-
-//==============================
+//==================================
 // 赤いフラッシュ
-//==============================
+//==================================
 
 function flashRed(){
+
+    playerName =
+        document.getElementById("playerName").value;
 
     game.innerHTML = `
 
@@ -98,9 +95,9 @@ function flashRed(){
 }
 
 
-//==============================
+//==================================
 // オープニング
-//==============================
+//==================================
 
 function showOpening(){
 
@@ -108,13 +105,15 @@ function showOpening(){
 
     <div class="opening">
 
+        <div id="character-area"></div>
+
         <div class="dialog">
 
             <p id="speaker"></p>
 
             <p id="text">……よかった。</p>
 
-            <button>▶</button>
+            <button id="nextButton">▶</button>
 
         </div>
 
@@ -123,3 +122,10 @@ function showOpening(){
     `;
 
 }
+
+
+//==================================
+// ゲーム開始
+//==================================
+
+showTitle();

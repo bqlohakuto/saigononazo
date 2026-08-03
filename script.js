@@ -4,18 +4,29 @@
 
 const game = document.getElementById("game");
 
+
 //==================================
 // 効果音
 //==================================
 
 const tinnitus = new Audio("audio/se/tinnitus.mp3");
+
+// Ver0.6では仮ファイル名です。
+// 後で好きな文字送り音に差し替えてOKです。
+const heroineSe = new Audio("audio/se/text_heroine.mp3");
+const playerSe   = new Audio("audio/se/text_player.mp3");
+
 tinnitus.volume = 0.5;
+heroineSe.volume = 0.4;
+playerSe.volume = 0.4;
+
 
 //==================================
 // プレイヤー情報
 //==================================
 
 let playerName = "";
+
 
 //==================================
 // 会話システム
@@ -24,14 +35,16 @@ let playerName = "";
 let currentScenario = [];
 let currentLine = 0;
 
+
 //==================================
 // 演出時間
 //==================================
 
 const FLASH_TIME = 1000;
 const BLACK_TIME = 1000;
-const FADE_TIME = 3000;
+const FADE_TIME  = 3000;
 const TEXT_DELAY = 2000;
+
 
 //==================================
 // タイトル画面
@@ -55,9 +68,10 @@ function showTitle(){
 
     document
         .getElementById("startButton")
-        .addEventListener("click", showNameInput);
+        .addEventListener("click",showNameInput);
 
 }
+
 
 //==================================
 // 名前入力
@@ -80,7 +94,9 @@ function showNameInput(){
         <br><br>
 
         <button id="decideButton">
+
             決定
+
         </button>
 
     </div>
@@ -89,9 +105,10 @@ function showNameInput(){
 
     document
         .getElementById("decideButton")
-        .addEventListener("click", flashRed);
+        .addEventListener("click",flashRed);
 
 }
+
 
 //==================================
 // 赤フラッシュ
@@ -104,24 +121,25 @@ function flashRed(){
         .value
         .trim();
 
-    if(playerName === ""){
+    if(playerName===""){
 
-        playerName = "主人公";
+        playerName="主人公";
 
     }
 
-    game.innerHTML = `
+    game.innerHTML=`
 
         <div class="flash"></div>
 
     `;
 
-    tinnitus.currentTime = 0;
+    tinnitus.currentTime=0;
     tinnitus.play();
 
-    setTimeout(showBlack, FLASH_TIME);
+    setTimeout(showBlack,FLASH_TIME);
 
 }
+
 
 //==================================
 // 暗転
@@ -129,15 +147,16 @@ function flashRed(){
 
 function showBlack(){
 
-    game.innerHTML = `
+    game.innerHTML=`
 
         <div class="black"></div>
 
     `;
 
-    setTimeout(showFade, BLACK_TIME);
+    setTimeout(showFade,BLACK_TIME);
 
 }
+
 
 //==================================
 // フェード
@@ -154,13 +173,14 @@ function showFade(){
 
 }
 
+
 //==================================
 // オープニング
 //==================================
 
 function showOpening(){
 
-    game.innerHTML = `
+    game.innerHTML=`
 
     <div class="opening">
 
@@ -171,11 +191,13 @@ function showOpening(){
             id="dialog"
             style="display:none;">
 
-            <p id="speaker"></p>
+            <div id="messageArea"></div>
 
-            <p id="text"></p>
+            <button id="nextButton">
 
-            <button id="nextButton">▶</button>
+                ▶
+
+            </button>
 
         </div>
 
@@ -183,14 +205,14 @@ function showOpening(){
 
     `;
 
-    tinnitus.onended = () => {
+    tinnitus.onended=()=>{
 
-        setTimeout(() => {
+        setTimeout(()=>{
 
             document
                 .getElementById("dialog")
                 .style
-                .display = "block";
+                .display="block";
 
             startScenario(openingScenario);
 
@@ -200,24 +222,24 @@ function showOpening(){
 
 }
 
+
 //==================================
 // シナリオ開始
 //==================================
 
 function startScenario(scenario){
 
-    currentScenario = scenario;
+    currentScenario=scenario;
 
-    currentLine = 0;
+    currentLine=0;
 
     showLine();
 
     document
         .getElementById("nextButton")
-        .addEventListener("click", nextLine);
+        .addEventListener("click",nextLine);
 
 }
-
 //==================================
 // セリフ表示
 //==================================
@@ -226,19 +248,36 @@ function showLine(){
 
     const line = currentScenario[currentLine];
 
-    let speaker = line.speaker;
+    const messageArea = document.getElementById("messageArea");
 
-    if(speaker === "主人公"){
+    let messageClass = "heroine";
 
-        speaker = playerName;
+    if(line.speaker === "主人公"){
+
+        messageClass = "player";
+
+        playerSe.currentTime = 0;
+        playerSe.play();
+
+    }else{
+
+        heroineSe.currentTime = 0;
+        heroineSe.play();
 
     }
 
-    document.getElementById("speaker").textContent = speaker;
+    messageArea.innerHTML = `
 
-    document.getElementById("text").textContent = line.text;
+        <div class="message ${messageClass}">
+
+            ${line.text}
+
+        </div>
+
+    `;
 
 }
+
 
 //==================================
 // 次のセリフ
@@ -250,7 +289,7 @@ function nextLine(){
 
     if(currentLine >= currentScenario.length){
 
-        alert("ここから第一部屋へ");
+        endOpening();
 
         return;
 
@@ -260,11 +299,24 @@ function nextLine(){
 
 }
 
+
+//==================================
+// オープニング終了
+//==================================
+
+function endOpening(){
+
+    alert("ここから第一部屋へ");
+
+}
+
+
 //==================================
 // ゲーム開始
 //==================================
 
 showTitle();
+
 
 //==================================
 // ダブルタップ防止
@@ -276,7 +328,7 @@ document.addEventListener("touchend",(event)=>{
 
     const now = Date.now();
 
-    if(now-lastTouchEnd<=300){
+    if(now - lastTouchEnd <= 300){
 
         event.preventDefault();
 
@@ -285,6 +337,7 @@ document.addEventListener("touchend",(event)=>{
     lastTouchEnd = now;
 
 },{passive:false});
+
 
 //==================================
 // Safari ピンチ対策

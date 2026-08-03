@@ -13,8 +13,8 @@ const tinnitus = new Audio("audio/se/tinnitus.mp3");
 
 // Ver0.6では仮ファイル名です。
 // 後で好きな文字送り音に差し替えてOKです。
-const heroineSe = new Audio("audio/se/text_heroine.mp3");
-const playerSe   = new Audio("audio/se/text_player.mp3");
+//const heroineSe = new Audio("audio/se/text_heroine.mp3");
+//const playerSe   = new Audio("audio/se/text_player.mp3");
 
 tinnitus.volume = 0.5;
 heroineSe.volume = 0.4;

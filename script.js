@@ -17,8 +17,8 @@ const tinnitus = new Audio("audio/se/tinnitus.mp3");
 //const playerSe   = new Audio("audio/se/text_player.mp3");
 
 tinnitus.volume = 0.5;
-heroineSe.volume = 0.4;
-playerSe.volume = 0.4;
+//heroineSe.volume = 0.4;
+//playerSe.volume = 0.4;
 
 
 //==================================
@@ -256,13 +256,13 @@ function showLine(){
 
         messageClass = "player";
 
-        playerSe.currentTime = 0;
-        playerSe.play();
+        //playerSe.currentTime = 0;
+        //playerSe.play();
 
     }else{
 
-        heroineSe.currentTime = 0;
-        heroineSe.play();
+        //heroineSe.currentTime = 0;
+        //heroineSe.play();
 
     }
 

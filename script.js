@@ -205,20 +205,13 @@ function showOpening(){
 
     `;
 
-    tinnitus.onended=()=>{
+    setTimeout(() => {
 
-        setTimeout(()=>{
+    document.getElementById("dialog").style.display = "block";
 
-            document
-                .getElementById("dialog")
-                .style
-                .display="block";
+    startScenario(openingScenario);
 
-            startScenario(openingScenario);
-
-        },TEXT_DELAY);
-
-    };
+}, FLASH_TIME + BLACK_TIME + FADE_TIME + TEXT_DELAY);
 
 }
 

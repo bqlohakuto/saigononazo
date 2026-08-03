@@ -21,12 +21,12 @@ const openingScenario = [
 
     {
         speaker: "主人公",
-        text: "あなたは…誰ですか？"
+        text: "あなたは……誰ですか？"
     },
 
     {
         speaker: "？？？",
-        text: "それは今はまだ話せないの。"
+        text: "それは、今はまだ話せないの。"
     },
 
     {

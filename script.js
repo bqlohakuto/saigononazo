@@ -4,7 +4,6 @@
 
 const game = document.getElementById("game");
 
-
 //==================================
 // 効果音
 //==================================
@@ -12,13 +11,18 @@ const game = document.getElementById("game");
 const tinnitus = new Audio("audio/se/tinnitus.mp3");
 tinnitus.volume = 0.5;
 
-
 //==================================
 // プレイヤー情報
 //==================================
 
 let playerName = "";
 
+//==================================
+// 会話システム
+//==================================
+
+let currentScenario = [];
+let currentLine = 0;
 
 //==================================
 // 演出時間
@@ -26,9 +30,8 @@ let playerName = "";
 
 const FLASH_TIME = 1000;
 const BLACK_TIME = 1000;
-const FADE_TIME  = 3000;
+const FADE_TIME = 3000;
 const TEXT_DELAY = 2000;
-
 
 //==================================
 // タイトル画面
@@ -43,9 +46,7 @@ function showTitle(){
         <h1>最後の謎が解けるまで</h1>
 
         <button id="startButton">
-
             はじめる
-
         </button>
 
     </div>
@@ -58,9 +59,8 @@ function showTitle(){
 
 }
 
-
 //==================================
-// 名前入力画面
+// 名前入力
 //==================================
 
 function showNameInput(){
@@ -80,9 +80,7 @@ function showNameInput(){
         <br><br>
 
         <button id="decideButton">
-
             決定
-
         </button>
 
     </div>
@@ -94,7 +92,6 @@ function showNameInput(){
         .addEventListener("click", flashRed);
 
 }
-
 
 //==================================
 // 赤フラッシュ
@@ -126,7 +123,6 @@ function flashRed(){
 
 }
 
-
 //==================================
 // 暗転
 //==================================
@@ -143,7 +139,6 @@ function showBlack(){
 
 }
 
-
 //==================================
 // フェード
 //==================================
@@ -159,7 +154,6 @@ function showFade(){
 
 }
 
-
 //==================================
 // オープニング
 //==================================
@@ -170,9 +164,7 @@ function showOpening(){
 
     <div class="opening">
 
-        <div id="character-area">
-
-        </div>
+        <div id="character-area"></div>
 
         <div
             class="dialog"
@@ -181,17 +173,9 @@ function showOpening(){
 
             <p id="speaker"></p>
 
-            <p id="text">
+            <p id="text"></p>
 
-                ……よかった。
-
-            </p>
-
-            <button id="nextButton">
-
-                ▶
-
-            </button>
+            <button id="nextButton">▶</button>
 
         </div>
 
@@ -208,19 +192,79 @@ function showOpening(){
                 .style
                 .display = "block";
 
+            startScenario(openingScenario);
+
         },TEXT_DELAY);
 
     };
 
 }
 
+//==================================
+// シナリオ開始
+//==================================
+
+function startScenario(scenario){
+
+    currentScenario = scenario;
+
+    currentLine = 0;
+
+    showLine();
+
+    document
+        .getElementById("nextButton")
+        .addEventListener("click", nextLine);
+
+}
+
+//==================================
+// セリフ表示
+//==================================
+
+function showLine(){
+
+    const line = currentScenario[currentLine];
+
+    let speaker = line.speaker;
+
+    if(speaker === "主人公"){
+
+        speaker = playerName;
+
+    }
+
+    document.getElementById("speaker").textContent = speaker;
+
+    document.getElementById("text").textContent = line.text;
+
+}
+
+//==================================
+// 次のセリフ
+//==================================
+
+function nextLine(){
+
+    currentLine++;
+
+    if(currentLine >= currentScenario.length){
+
+        alert("ここから第一部屋へ");
+
+        return;
+
+    }
+
+    showLine();
+
+}
 
 //==================================
 // ゲーム開始
 //==================================
 
 showTitle();
-
 
 //==================================
 // ダブルタップ防止
@@ -241,7 +285,6 @@ document.addEventListener("touchend",(event)=>{
     lastTouchEnd = now;
 
 },{passive:false});
-
 
 //==================================
 // Safari ピンチ対策

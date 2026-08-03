@@ -131,8 +131,6 @@ button{
 
     white-space:nowrap;
 
-    text-align:center;
-
     letter-spacing:.05em;
 
     margin-bottom:70px;
@@ -153,15 +151,15 @@ button{
 
     width:260px;
 
-    height:50px;
+    height:52px;
+
+    border:none;
+
+    border-radius:10px;
 
     font-size:24px;
 
     text-align:center;
-
-    border-radius:10px;
-
-    border:none;
 
 }
 
@@ -171,9 +169,9 @@ button{
 
     height:60px;
 
-    font-size:24px;
-
     border-radius:12px;
+
+    font-size:24px;
 
 }
 
@@ -189,9 +187,9 @@ button{
 
     height:100%;
 
-    background:#fff;
-
     position:relative;
+
+    background:#ffffff;
 
     opacity:0;
 
@@ -216,9 +214,6 @@ button{
     height:100%;
 
 }
-
-
-
 /*====================================
     会話ウィンドウ
 ====================================*/
@@ -227,32 +222,120 @@ button{
 
     position:absolute;
 
-    background:rgba(255,255,255,.97);
+    left:20px;
 
-    border:2px solid #999;
+    right:20px;
 
-    border-radius:15px;
+    bottom:40px;
+
+    min-height:210px;
+
+    padding:25px;
+
+    background:rgba(255,255,255,.96);
+
+    border-radius:20px;
+
+    box-shadow:0 5px 20px rgba(0,0,0,.2);
 
 }
 
-.dialog p{
 
-    color:#000;
+/*====================================
+    メッセージ
+====================================*/
 
-    line-height:1.7;
+.message{
+
+    display:inline-block;
+
+    max-width:72%;
+
+    padding:18px 22px;
+
+    border-radius:18px;
+
+    font-size:30px;
+
+    line-height:1.8;
+
+    word-break:break-word;
 
 }
+
+
+/*====================================
+    彼女
+====================================*/
+
+.message.heroine{
+
+    float:left;
+
+    background:#ffffff;
+
+    color:#222222;
+
+    border:2px solid #d8d8d8;
+
+}
+
+
+/*====================================
+    主人公
+====================================*/
+
+.message.player{
+
+    float:right;
+
+    background:#eef5ff;
+
+    color:#374151;
+
+    border:2px solid #bfd7ff;
+
+    text-align:left;
+
+}
+
+
+/*====================================
+    ボタン
+====================================*/
 
 .dialog button{
 
     position:absolute;
 
+    right:25px;
+
+    bottom:20px;
+
     background:none;
 
-    font-size:40px;
+    border:none;
+
+    font-size:42px;
+
+    color:#444;
 
 }
 
+
+/*====================================
+    float解除
+====================================*/
+
+.dialog::after{
+
+    content:"";
+
+    display:block;
+
+    clear:both;
+
+}
 
 
 /*====================================
@@ -261,38 +344,23 @@ button{
 
 @media (max-width:768px){
 
-.dialog{
+    .dialog{
 
-    left:20px;
+        bottom:70px;
 
-    right:20px;
+        min-height:210px;
 
-    bottom:80px;
+    }
 
-    height:220px;
+    .message{
 
-    padding:25px;
+        max-width:82%;
 
-}
+        font-size:26px;
 
-.dialog p{
-
-    font-size:28px;
-
-    margin-top:20px;
+    }
 
 }
-
-.dialog button{
-
-    right:20px;
-
-    bottom:35px;
-
-}
-
-}
-
 
 
 /*====================================
@@ -301,38 +369,27 @@ button{
 
 @media (min-width:769px){
 
-.dialog{
+    .dialog{
 
-    width:900px;
+        width:900px;
 
-    height:240px;
+        left:50%;
 
-    left:50%;
+        right:auto;
 
-    transform:translateX(-50%);
+        transform:translateX(-50%);
 
-    bottom:30px;
+    }
 
-    padding:35px;
+    .message{
 
-}
+        max-width:70%;
 
-.dialog p{
+        font-size:32px;
 
-    font-size:34px;
-
-}
-
-.dialog button{
-
-    right:30px;
-
-    bottom:30px;
+    }
 
 }
-
-}
-
 
 
 /*====================================
@@ -345,7 +402,7 @@ button{
 
     height:100%;
 
-    background:#f00;
+    background:#ff0000;
 
 }
 
@@ -355,9 +412,10 @@ button{
 
     height:100%;
 
-    background:#000;
+    background:#000000;
 
 }
+
 
 @keyframes fadeIn{
 

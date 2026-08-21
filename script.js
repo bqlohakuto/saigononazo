@@ -263,7 +263,7 @@ function showLine(){
 
         <div class="message ${messageClass}">
 
-            ${line.text}
+            ${line.text.replace(/\n/g,"<br>")}
 
         </div>
 

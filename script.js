@@ -180,7 +180,7 @@ function showFirstRoom(savedState){
       <button class="object hana-object" id="hanaButton" aria-label="ハナに話しかける"><span>ハナ</span></button>
      </div>
      <div class="room-wall" data-wall="right" hidden><button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><span>ポスター</span></button></div>
-     <div class="room-wall" data-wall="back" hidden><button class="object item-object is-locked" id="phoneButton" aria-label="携帯電話を調べる" disabled><span>携帯電話</span></button></div>
+     <div class="room-wall" data-wall="back" hidden><button class="object item-object is-locked" id="phoneButton" aria-label="携帯電話を調べる" disabled><img src="images/items/phone-closed.png" alt="" draggable="false"><span>携帯電話</span></button></div>
      <div class="room-wall" data-wall="left" hidden><button class="object item-object is-locked" id="pianoButton" aria-label="ピアノを調べる" disabled><span>ピアノ</span></button></div>
     </div>
    </div>

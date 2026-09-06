@@ -158,20 +158,34 @@ function endOpening(){
 }
 
 let firstRoomState;
+const firstRoomWalls=[
+ {id:"front",label:"正面",background:"images/background/room1-front.png"},
+ {id:"right",label:"右の壁",background:"images/background/room1-right.png"},
+ {id:"back",label:"後ろの壁",background:"images/background/room1-back.png"},
+ {id:"left",label:"左の壁",background:"images/background/room1-left.png"}
+];
 
 function showFirstRoom(savedState){
- firstRoomState=savedState ? {...savedState,openedInbox:new Set(savedState.openedInbox||[]),openedSent:new Set(savedState.openedSent||[])} : {doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,pianoAttempted:false,melodySolved:false,openedInbox:new Set(),openedSent:new Set()};
+ firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,pianoAttempted:false,melodySolved:false,viewedWall:"front",...savedState,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
+ if(!firstRoomWalls.some(wall=>wall.id===firstRoomState.viewedWall))firstRoomState.viewedWall="front";
  game.innerHTML=`
-  <main class="room" aria-label="第一の部屋">
-   <div class="room-light" aria-hidden="true"></div>
-   <p class="room-label">第一の部屋</p>
-   <button class="object door-object" id="doorButton" aria-label="正面の扉を調べる"><span>正面の扉</span></button>
-   <button class="object question-object is-locked" id="questionButton" aria-label="扉の問題文を調べる" disabled><span>問題文</span></button>
-   <button class="object hana-object" id="hanaButton" aria-label="ハナに話しかける"><span>ハナ</span></button>
-   <button class="object item-object is-locked" id="phoneButton" aria-label="携帯電話を調べる" disabled><span>携帯電話</span></button>
-   <button class="object item-object is-locked" id="pianoButton" aria-label="ピアノを調べる" disabled><span>ピアノ</span></button>
-   <button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><span>ポスター</span></button>
-   <p class="explore-status" id="exploreStatus">気になる場所をクリックしてください。</p>
+  <main class="room ${firstRoomState.doorUnlocked?"is-restored":""}" aria-label="第一の部屋">
+   <header class="room-header"><p class="room-label">第一の部屋</p><p class="room-color-status" id="roomColorStatus">${firstRoomState.doorUnlocked?"色を取り戻した部屋":"淡い記憶の部屋"}</p></header>
+   <div class="room-stage-wrap">
+    <div class="room-stage" id="roomStage" role="group" aria-label="正面">
+     <img class="room-background" id="roomBackground" src="${firstRoomWalls.find(wall=>wall.id===firstRoomState.viewedWall).background}" alt="" draggable="false">
+     <div class="room-wall" data-wall="front" hidden>
+      <button class="object door-object" id="doorButton" aria-label="正面の扉を調べる"><span>正面の扉</span></button>
+      <button class="object question-object is-locked" id="questionButton" aria-label="扉の問題文を調べる" disabled><span>問題文</span></button>
+      <button class="object hana-object" id="hanaButton" aria-label="ハナに話しかける"><span>ハナ</span></button>
+     </div>
+     <div class="room-wall" data-wall="right" hidden><button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><span>ポスター</span></button></div>
+     <div class="room-wall" data-wall="back" hidden><button class="object item-object is-locked" id="phoneButton" aria-label="携帯電話を調べる" disabled><span>携帯電話</span></button></div>
+     <div class="room-wall" data-wall="left" hidden><button class="object item-object is-locked" id="pianoButton" aria-label="ピアノを調べる" disabled><span>ピアノ</span></button></div>
+    </div>
+   </div>
+   <nav class="room-navigation" aria-label="部屋を見回す"><button type="button" id="turnLeftButton" aria-label="左を向く">←<span>左を向く</span></button><p id="wallLabel" aria-live="polite"></p><button type="button" id="turnRightButton" aria-label="右を向く"><span>右を向く</span>→</button></nav>
+   <p class="explore-status" id="exploreStatus" aria-live="polite">気になる場所をクリックしてください。</p>
   </main>`;
  document.getElementById("doorButton").addEventListener("click",inspectDoor);
  document.getElementById("questionButton").addEventListener("click",showDoorQuestion);
@@ -179,6 +193,10 @@ function showFirstRoom(savedState){
  document.getElementById("phoneButton").addEventListener("click",showPhoneScreen);
  document.getElementById("pianoButton").addEventListener("click",showPianoScreen);
  document.getElementById("posterButton").addEventListener("click",showPoster);
+ document.getElementById("turnLeftButton").addEventListener("click",()=>turnFirstRoom(-1));
+ document.getElementById("turnRightButton").addEventListener("click",()=>turnFirstRoom(1));
+ renderFirstRoomWall();
+ firstRoomWalls.forEach(wall=>{const background=new Image();background.src=wall.background});
  if(firstRoomState.doorInspected||firstRoomState.questionSeen){
   const question=document.getElementById("questionButton");
   question.disabled=false;
@@ -186,7 +204,25 @@ function showFirstRoom(savedState){
  }
  if(firstRoomState.questionSeen)unlockRoomItems();
  if(firstRoomState.doorUnlocked)document.getElementById("doorButton").classList.add("is-unlocked");
- if(savedState){showRoomNotice("続きから再開しました。")}else{showRoomDialog(firstRoomScenario.introduction)}
+ if(savedState){
+  showRoomNotice("続きから再開しました。");
+  if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked)showFirstRoomMemory();
+ }else{showRoomDialog(firstRoomScenario.introduction)}
+ saveGame();
+}
+
+function renderFirstRoomWall(){
+ const wall=firstRoomWalls.find(wall=>wall.id===firstRoomState.viewedWall);
+ document.getElementById("roomBackground").setAttribute("src",wall.background);
+ document.getElementById("roomStage").setAttribute("aria-label",wall.label);
+ document.getElementById("wallLabel").textContent=wall.label;
+ document.querySelectorAll(".room-wall").forEach(layer=>{layer.hidden=layer.dataset.wall!==wall.id});
+}
+
+function turnFirstRoom(direction){
+ const current=firstRoomWalls.findIndex(wall=>wall.id===firstRoomState.viewedWall);
+ firstRoomState.viewedWall=firstRoomWalls[(current+direction+firstRoomWalls.length)%firstRoomWalls.length].id;
+ renderFirstRoomWall();
  saveGame();
 }
 
@@ -281,6 +317,7 @@ function showPhoneScreen(){
 }
 
 function showPianoScreen(){
+ if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked){showFirstRoomMemory();return}
  const overlay=document.createElement("div");
  overlay.className="device-overlay";
  overlay.innerHTML=`<section class="piano-screen" aria-label="ピアノ"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>ピアノ</h2><p>演奏する譜面を入力する。</p><label>音階<input id="melodyInput" type="text" inputmode="text" autocomplete="off" placeholder="例：ドレミ" aria-label="演奏する音階"></label><p class="piano-result" aria-live="polite"></p><button type="button" id="playMelodyButton">演奏する</button></section>`;
@@ -289,11 +326,7 @@ function showPianoScreen(){
  let solved=false;
  const finish=()=>{
   overlay.remove();
-  showRoomDialog([
-   {speaker:"ト書き",text:"ピアノが、吹奏楽で演奏した曲の一部を奏でた。"},
-   {speaker:"ト書き",text:"中学時代の思い出の一部が、浮かび上がる。"},
-   {speaker:"主人公",text:"今のは？僕の記憶？？"}
-  ],unlockFirstRoomDoor);
+  showFirstRoomMemory();
  };
  button.addEventListener("click",()=>{
   if(solved){finish();return}
@@ -316,10 +349,20 @@ function showPianoScreen(){
  overlay.querySelector(".device-close").addEventListener("click",()=>overlay.remove());
 }
 
+function showFirstRoomMemory(){
+ showRoomDialog([
+  {speaker:"ト書き",text:"ピアノが、吹奏楽で演奏した曲の一部を奏でた。"},
+  {speaker:"ト書き",text:"中学時代の思い出の一部が、浮かび上がる。"},
+  {speaker:"主人公",text:"今のは？僕の記憶？？"}
+ ],unlockFirstRoomDoor);
+}
+
 function unlockFirstRoomDoor(){
  firstRoomState.doorUnlocked=true;
  saveGame();
  document.getElementById("doorButton").classList.add("is-unlocked");
+ document.querySelector(".room").classList.add("is-restored");
+ document.getElementById("roomColorStatus").textContent="色を取り戻した部屋";
  showRoomNotice("扉の鍵が開いた。 ");
 }
 

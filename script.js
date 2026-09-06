@@ -5,9 +5,6 @@ const doorUnlock=new Audio("audio/se/door_unlock.wav");
 const SAVE_KEY="saigononazo-save-v1",SETTINGS_KEY="saigononazo-settings-v1";
 const defaultSettings={volume:70,textSpeed:45};
 let playerName="";
-let currentScenario=[];
-let currentLine=0;
-let finishCurrentTyping=null;
 let settings=loadSettings();
 const FLASH_TIME=1000,BLACK_TIME=1000,FADE_TIME=3000,TEXT_DELAY=2000;
 
@@ -50,26 +47,8 @@ function expandScenario(lines){
  return lines.flatMap(line=>splitIntoSentences(line.text).map(text=>({...line,text})));
 }
 
-function typeText(element,text,onComplete){
- let index=0,completed=false;
- const finish=()=>{
-  if(completed)return;
-  completed=true;
-  clearInterval(timer);
-  element.textContent=text;
-  if(finishCurrentTyping===finish)finishCurrentTyping=null;
-  if(onComplete)onComplete();
- };
- const timer=setInterval(()=>{
-  index++;
-  element.textContent=text.slice(0,index);
-  if(index>=text.length)finish();
- },settings.textSpeed);
- element.textContent="";
- return finish;
-}
-
 function showTitle(notice=""){
+ Dialogue.stop();
  const hasSave=!!readSavedGame();
  game.innerHTML=`<div class="title-screen"><h1>最後の謎が解けるまで</h1><div class="title-menu"><button id="startButton">はじめから</button><button id="continueButton" ${hasSave?"":"disabled"}>つづきから</button><button id="settingsButton">せってい</button><button id="commentButton">作者のコメント</button></div><p class="title-notice" aria-live="polite">${notice}</p></div>`;
  document.getElementById("startButton").addEventListener("click",showNameInput);
@@ -113,7 +92,7 @@ function flashRed(){
  playerName=document.getElementById("playerName").value.trim()||"主人公";
  game.innerHTML=`<div class="flash"></div>`;
  tinnitus.currentTime=0;
- tinnitus.play();
+ tinnitus.play().catch(()=>{});
  setTimeout(showBlack,FLASH_TIME);
 }
 function showBlack(){
@@ -125,31 +104,16 @@ function showFade(){
  document.querySelector(".opening").classList.add("fade-in");
 }
 function showOpening(){
- game.innerHTML=`<div class="opening"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div id="messageArea"></div><button id="nextButton">▶</button></div></div>`;
+ game.innerHTML=`<div class="opening"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div class="dialog-message-area" id="messageArea"></div><div class="dialog-controls"><button type="button" class="auto-button" id="openingAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="next-button" id="nextButton" aria-label="次へ">▶</button></div></div></div>`;
  setTimeout(()=>{
   const dialog=document.getElementById("dialog");
   if(!dialog)return;
-  dialog.style.display="block";
+  dialog.style.display="flex";
   startScenario(openingScenario);
  },FADE_TIME+TEXT_DELAY);
 }
 function startScenario(scenario){
- if(finishCurrentTyping)finishCurrentTyping();
- currentScenario=expandScenario(scenario); currentLine=0; showLine();
- document.getElementById("nextButton").addEventListener("click",nextLine);
-}
-function showLine(){
- const line=currentScenario[currentLine], area=document.getElementById("messageArea");
- if(!line||!area)return;
- const cls=line.speaker==="主人公"?"player":"heroine";
- area.innerHTML=`<div class="message ${cls}"></div>`;
- finishCurrentTyping=typeText(area.firstElementChild,line.text);
-}
-function nextLine(){
- if(finishCurrentTyping){finishCurrentTyping();return}
- currentLine++;
- if(currentLine>=currentScenario.length){endOpening();return}
- showLine();
+ Dialogue.start({lines:expandScenario(scenario),messageArea:document.getElementById("messageArea"),nextButton:document.getElementById("nextButton"),autoButton:document.getElementById("openingAutoButton"),getTextSpeed:()=>settings.textSpeed,onComplete:endOpening});
 }
 function endOpening(){
  doorUnlock.currentTime=0;
@@ -166,7 +130,8 @@ const firstRoomWalls=[
 ];
 
 function showFirstRoom(savedState){
- firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,pianoAttempted:false,melodySolved:false,viewedWall:"front",...savedState,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
+ Dialogue.stop();
+ firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,viewedWall:"front",...savedState,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
  if(!firstRoomWalls.some(wall=>wall.id===firstRoomState.viewedWall))firstRoomState.viewedWall="front";
  game.innerHTML=`
   <main class="room ${firstRoomState.doorUnlocked?"is-restored":""}" aria-label="第一の部屋">
@@ -190,9 +155,9 @@ function showFirstRoom(savedState){
  document.getElementById("doorButton").addEventListener("click",inspectDoor);
  document.getElementById("questionButton").addEventListener("click",showDoorQuestion);
  document.getElementById("hanaButton").addEventListener("click",talkToHana);
- document.getElementById("phoneButton").addEventListener("click",showPhoneScreen);
- document.getElementById("pianoButton").addEventListener("click",showPianoScreen);
- document.getElementById("posterButton").addEventListener("click",showPoster);
+ document.getElementById("phoneButton").addEventListener("click",()=>inspectRoomItem("phone"));
+ document.getElementById("pianoButton").addEventListener("click",()=>inspectRoomItem("piano"));
+ document.getElementById("posterButton").addEventListener("click",()=>inspectRoomItem("poster"));
  document.getElementById("turnLeftButton").addEventListener("click",()=>turnFirstRoom(-1));
  document.getElementById("turnRightButton").addEventListener("click",()=>turnFirstRoom(1));
  renderFirstRoomWall();
@@ -285,12 +250,76 @@ function hasCheckedAllMail(folder){
  return checked.size===firstRoomScenario.phoneMail[folder].length;
 }
 
+function inspectRoomItem(id){
+ if(!firstRoomState.questionSeen||game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
+ const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ"},poster:{id:"poster",label:"ポスター"}};
+ const item=items[id];if(!item)return;
+ showItemInspection({container:game,item,onContinue:()=>{
+  if(id==="phone"){
+   if(firstRoomState.phoneIntroductionSeen){showPhoneScreen();return}
+   showRoomDialog(firstRoomScenario.phoneIntroduction,()=>{
+    firstRoomState.phoneIntroductionSeen=true;
+    saveGame();
+    showPhoneScreen();
+   });
+  }else if(id==="piano"){showPianoScreen()}else{showPoster()}
+ }});
+}
+
 function showPoster(){
  showRoomDialog([
   {speaker:"ポスター",text:"○○中学校吹奏楽部 演奏会"},
   {speaker:"ポスター",text:"小さなお子さんも楽しめる！"},
   {speaker:"ポスター",text:"演奏曲\n・ドレミの歌\n・ほか"}
  ]);
+}
+
+function activateDeviceModal(overlay,openerId,initialFocus){
+ const room=game.querySelector(".room"),opener=document.getElementById(openerId);
+ const wasInert=room?.inert||false;
+ if(room)room.inert=true;
+ const panel=overlay.querySelector("section"),closeButton=overlay.querySelector(".device-close");
+ panel.setAttribute("role","dialog");
+ panel.setAttribute("aria-modal","true");
+ const controls=()=>[...panel.querySelectorAll("button:not(:disabled),input:not(:disabled)")];
+ let closed=false;
+ const observer=new MutationObserver(()=>{
+  if(!overlay.isConnected)release(false);
+ });
+ function release(restoreFocus){
+  if(closed)return;
+  closed=true;
+  observer.disconnect();
+  document.removeEventListener("keydown",onKeyDown,true);
+  document.removeEventListener("focusin",onFocusIn,true);
+  closeButton.removeEventListener("click",close);
+  overlay.remove();
+  if(room)room.inert=wasInert;
+  if(restoreFocus&&opener?.isConnected&&!opener.disabled&&!opener.closest("[hidden], [inert]"))opener.focus({preventScroll:true});
+ }
+ function close(event){
+  event?.stopPropagation();
+  release(true);
+ }
+ function onKeyDown(event){
+  if(event.key==="Escape"){
+   event.preventDefault();event.stopImmediatePropagation();close();
+  }else if(event.key==="Tab"){
+   event.preventDefault();event.stopImmediatePropagation();
+   const buttons=controls(),index=buttons.indexOf(document.activeElement);
+   const target=index<0?(event.shiftKey?buttons.length-1:0):(index+(event.shiftKey?-1:1)+buttons.length)%buttons.length;
+   buttons[target]?.focus({preventScroll:true});
+  }
+ }
+ function onFocusIn(event){
+  if(!closed&&!panel.contains(event.target))controls()[0]?.focus({preventScroll:true});
+ }
+ closeButton.addEventListener("click",close);
+ document.addEventListener("keydown",onKeyDown,true);
+ document.addEventListener("focusin",onFocusIn,true);
+ observer.observe(document.documentElement,{childList:true,subtree:true});
+ (initialFocus||controls()[0])?.focus({preventScroll:true});
+ return close;
 }
 
 function showPhoneScreen(){
@@ -312,8 +341,8 @@ function showPhoneScreen(){
   }));
  };
  overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.addEventListener("click",()=>{folder=tab.dataset.folder;detail.innerHTML="<p>メールを選んで内容を確認する。</p>";render()}));
- overlay.querySelector(".device-close").addEventListener("click",()=>overlay.remove());
  render();
+ activateDeviceModal(overlay,"phoneButton",overlay.querySelector('[data-folder="inbox"]'));
 }
 
 function showPianoScreen(){
@@ -323,9 +352,10 @@ function showPianoScreen(){
  overlay.innerHTML=`<section class="piano-screen" aria-label="ピアノ"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>ピアノ</h2><p>演奏する譜面を入力する。</p><label>音階<input id="melodyInput" type="text" inputmode="text" autocomplete="off" placeholder="例：ドレミ" aria-label="演奏する音階"></label><p class="piano-result" aria-live="polite"></p><button type="button" id="playMelodyButton">演奏する</button></section>`;
  game.appendChild(overlay);
  const input=overlay.querySelector("#melodyInput"),result=overlay.querySelector(".piano-result"),button=overlay.querySelector("#playMelodyButton");
+ const close=activateDeviceModal(overlay,"pianoButton",input);
  let solved=false;
  const finish=()=>{
-  overlay.remove();
+  close();
   showFirstRoomMemory();
  };
  button.addEventListener("click",()=>{
@@ -346,7 +376,6 @@ function showPianoScreen(){
   input.disabled=true;
   button.textContent="続ける";
  });
- overlay.querySelector(".device-close").addEventListener("click",()=>overlay.remove());
 }
 
 function showFirstRoomMemory(){
@@ -371,26 +400,25 @@ function showRoomNotice(text){
 }
 
 function showRoomDialog(lines,onComplete){
+ const opener=document.activeElement;
+ const room=game.querySelector(".room");
+ if(room)room.inert=true;
  const overlay=document.createElement("div");
  overlay.className="room-dialog-overlay";
- overlay.innerHTML=`<div class="room-dialog"><div id="roomMessage"></div><button type="button" id="roomNextButton" aria-label="次へ">▶</button></div>`;
+ overlay.innerHTML=`<section class="room-dialog" role="dialog" aria-modal="true" aria-label="会話"><div class="dialog-message-area" id="roomMessage"></div><div class="dialog-controls"><button type="button" class="auto-button" id="roomAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="next-button" id="roomNextButton" aria-label="次へ">▶</button></div></section>`;
  game.appendChild(overlay);
- const roomLines=expandScenario(lines);
- let index=0,finishRoomTyping=null;
- const message=overlay.querySelector("#roomMessage"),next=overlay.querySelector("#roomNextButton");
- const render=()=>{
-  const line=roomLines[index];
-  const cls=line.speaker==="主人公" ? "player" : line.speaker==="システム" || line.speaker==="ト書き" || line.speaker==="問題文" ? "system" : "heroine";
-  message.innerHTML=`<p class="speaker ${cls}">${line.speaker==="ト書き" ? "" : line.speaker}</p><div class="message ${cls}"></div>`;
-  finishRoomTyping=typeText(message.querySelector(".message"),line.text,()=>{finishRoomTyping=null});
- };
- next.addEventListener("click",()=>{
-  if(finishRoomTyping){finishRoomTyping();finishRoomTyping=null;return}
-  index++;
-  if(index>=roomLines.length){overlay.remove();if(onComplete)onComplete();return}
-  render();
+ const next=overlay.querySelector("#roomNextButton"),auto=overlay.querySelector("#roomAutoButton");
+ overlay.addEventListener("keydown",event=>{
+  if(event.key!=="Tab")return;
+  if(event.shiftKey&&document.activeElement===auto){event.preventDefault();next.focus()}
+  else if(!event.shiftKey&&document.activeElement===next){event.preventDefault();auto.focus()}
  });
- render();
+ Dialogue.start({lines:expandScenario(lines),messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,getTextSpeed:()=>settings.textSpeed,onComplete:()=>{
+  overlay.remove();
+  if(room)room.inert=false;
+  if(opener?.isConnected&&!opener.disabled)opener.focus({preventScroll:true});
+  if(onComplete)onComplete();
+ }});
 }
 showTitle();
 

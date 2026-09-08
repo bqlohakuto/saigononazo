@@ -5,6 +5,7 @@ const doorUnlock=new Audio("audio/se/door_unlock.wav");
 const SAVE_KEY="saigononazo-save-v1",SETTINGS_KEY="saigononazo-settings-v1";
 const defaultSettings={volume:70,textSpeed:45};
 let playerName="";
+let openingIndex=0;
 let settings=loadSettings();
 const FLASH_TIME=1000,BLACK_TIME=1000,FADE_TIME=3000,TEXT_DELAY=2000;
 
@@ -28,11 +29,25 @@ function readSavedGame(){
 }
 
 function saveGame(){
- if(!firstRoomState)return;
- localStorage.setItem(SAVE_KEY,JSON.stringify({playerName,scene:"firstRoom",state:{...firstRoomState,openedInbox:[...firstRoomState.openedInbox],openedSent:[...firstRoomState.openedSent]}}));
+ const saved={playerName,logs:GameLog.list()};
+ if(firstRoomState){
+  Object.assign(saved,{scene:"firstRoom",state:{...firstRoomState,openedInbox:[...firstRoomState.openedInbox],openedSent:[...firstRoomState.openedSent]}});
+ }else{Object.assign(saved,{scene:"opening",openingIndex})}
+ localStorage.setItem(SAVE_KEY,JSON.stringify(saved));
 }
 
-function clearSave(){localStorage.removeItem(SAVE_KEY)}
+function clearSave(){localStorage.removeItem(SAVE_KEY);GameLog.restore();firstRoomState=undefined;openingIndex=0}
+
+function recordLog(line){
+ GameLog.record(line);
+ saveGame();
+}
+
+// Direct displays (mail, status, puzzle results) use the same registration path.
+function showLoggedText(element,text,logId,logType="investigation",logColor="#333333"){
+ element.textContent=text;
+ recordLog({logId,logType,text,speaker:"システム",logColor});
+}
 
 applySettings();
 
@@ -44,7 +59,7 @@ function splitIntoSentences(text){
 }
 
 function expandScenario(lines){
- return lines.flatMap(line=>splitIntoSentences(line.text).map(text=>({...line,text})));
+ return lines.flatMap(line=>splitIntoSentences(line.text).map((text,index)=>({...line,text,logId:line.logId?`${line.logId}_${String(index+1).padStart(2,"0")}`:undefined})));
 }
 
 function showTitle(notice=""){
@@ -63,8 +78,15 @@ function showNameInput(){
 
 function resumeGame(){
  const saved=readSavedGame();
- if(!saved||saved.scene!=="firstRoom"){showTitle("再開できるデータがありません。");return}
+ if(!saved||!["firstRoom","opening"].includes(saved.scene)){showTitle("再開できるデータがありません。");return}
  playerName=saved.playerName||"主人公";
+ GameLog.restore(saved.logs);
+ if(saved.scene==="opening"){
+  firstRoomState=undefined;
+  showOpening(saved.openingIndex);
+  document.querySelector(".opening").classList.add("fade-in");
+  return;
+ }
  showFirstRoom(saved.state);
 }
 
@@ -103,17 +125,17 @@ function showFade(){
  showOpening();
  document.querySelector(".opening").classList.add("fade-in");
 }
-function showOpening(){
- game.innerHTML=`<div class="opening"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div class="dialog-message-area" id="messageArea"></div><div class="dialog-controls"><button type="button" class="auto-button" id="openingAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="next-button" id="nextButton" aria-label="次へ">▶</button></div></div></div>`;
+function showOpening(startIndex=0){
+ game.innerHTML=`<div class="opening"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div class="dialog-message-area" id="messageArea"></div><div class="dialog-log-area" id="openingLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="openingAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="log-button" id="openingLogButton" aria-pressed="false" aria-expanded="false" aria-controls="openingLogArea">LOG</button><button type="button" class="next-button" id="nextButton" aria-label="次へ">▶</button></div></div></div>`;
  setTimeout(()=>{
   const dialog=document.getElementById("dialog");
   if(!dialog)return;
   dialog.style.display="flex";
-  startScenario(openingScenario);
+  startScenario(openingScenario,startIndex);
  },FADE_TIME+TEXT_DELAY);
 }
-function startScenario(scenario){
- Dialogue.start({lines:expandScenario(scenario),messageArea:document.getElementById("messageArea"),nextButton:document.getElementById("nextButton"),autoButton:document.getElementById("openingAutoButton"),getTextSpeed:()=>settings.textSpeed,onComplete:endOpening});
+function startScenario(scenario,startIndex=0){
+ Dialogue.start({lines:expandScenario(scenario),startIndex,messageArea:document.getElementById("messageArea"),nextButton:document.getElementById("nextButton"),autoButton:document.getElementById("openingAutoButton"),logButton:document.getElementById("openingLogButton"),logArea:document.getElementById("openingLogArea"),dialog:document.getElementById("dialog"),getTextSpeed:()=>settings.textSpeed,onDisplay:(line,index)=>{openingIndex=index;recordLog(line)},onComplete:endOpening});
 }
 function endOpening(){
  doorUnlock.currentTime=0;
@@ -161,6 +183,7 @@ function showFirstRoom(savedState){
  document.getElementById("turnLeftButton").addEventListener("click",()=>turnFirstRoom(-1));
  document.getElementById("turnRightButton").addEventListener("click",()=>turnFirstRoom(1));
  renderFirstRoomWall();
+ showRoomNotice("気になる場所をクリックしてください。","room1_explore_prompt","narration");
  firstRoomWalls.forEach(wall=>{const background=new Image();background.src=wall.background});
  if(firstRoomState.doorInspected||firstRoomState.questionSeen){
   const question=document.getElementById("questionButton");
@@ -170,7 +193,7 @@ function showFirstRoom(savedState){
  if(firstRoomState.questionSeen)unlockRoomItems();
  if(firstRoomState.doorUnlocked)document.getElementById("doorButton").classList.add("is-unlocked");
  if(savedState){
-  showRoomNotice("続きから再開しました。");
+  showRoomNotice("続きから再開しました。","room1_resumed","narration");
   if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked)showFirstRoomMemory();
  }else{showRoomDialog(firstRoomScenario.introduction)}
  saveGame();
@@ -193,28 +216,28 @@ function turnFirstRoom(direction){
 
 function inspectDoor(){
  if(firstRoomState.doorUnlocked){
-  showRoomNotice("扉の鍵が開いている。");
+  showRoomNotice("扉の鍵が開いている。","room1_door_open_checked");
   return;
  }
  if(firstRoomState.doorInspected){
-  showRoomNotice("扉は鍵がかかっている。問題文を調べてみよう。");
+  showRoomNotice("扉は鍵がかかっている。問題文を調べてみよう。","room1_door_locked_checked");
   return;
  }
  showRoomDialog([
-  {speaker:"ト書き",text:"まず、目についた扉を調べた。"},
-  {speaker:"ト書き",text:"ドアノブを回そうとしたが、鍵が閉まっているようだ。"}
+  {logId:"room1_door_first_01",logType:"investigation",speaker:"ト書き",text:"まず、目についた扉を調べた。"},
+  {logId:"room1_door_first_02",logType:"investigation",speaker:"ト書き",text:"ドアノブを回そうとしたが、鍵が閉まっているようだ。"}
  ],()=>{
   firstRoomState.doorInspected=true;
   const question=document.getElementById("questionButton");
   question.disabled=false;
   question.classList.remove("is-locked");
-  document.getElementById("exploreStatus").textContent="扉に書かれた問題文が気になる。";
+  showRoomNotice("扉に書かれた問題文が気になる。","room1_door_question_noticed");
   saveGame();
  });
 }
 
 function showDoorQuestion(){
- showRoomDialog([{speaker:"問題文",text:"会話に隠された音楽を奏でよ"}],()=>{
+ showRoomDialog([{logId:"room1_door_question_01",logType:"investigation",speaker:"問題文",text:"会話に隠された音楽を奏でよ"}],()=>{
   if(!firstRoomState.questionSeen){
    firstRoomState.questionSeen=true;
    unlockRoomItems();
@@ -229,7 +252,7 @@ function unlockRoomItems(){
   item.disabled=false;
   item.classList.remove("is-locked");
  });
- document.getElementById("exploreStatus").textContent="新たに気になる場所が見つかった。";
+ showRoomNotice("新たに気になる場所が見つかった。","room1_items_noticed");
 }
 
 function talkToHana(){
@@ -268,9 +291,9 @@ function inspectRoomItem(id){
 
 function showPoster(){
  showRoomDialog([
-  {speaker:"ポスター",text:"○○中学校吹奏楽部 演奏会"},
-  {speaker:"ポスター",text:"小さなお子さんも楽しめる！"},
-  {speaker:"ポスター",text:"演奏曲\n・ドレミの歌\n・ほか"}
+  {logId:"room1_poster_01",logType:"investigation",speaker:"ポスター",text:"○○中学校吹奏楽部 演奏会"},
+  {logId:"room1_poster_02",logType:"investigation",speaker:"ポスター",text:"小さなお子さんも楽しめる！"},
+  {logId:"room1_poster_03",logType:"investigation",speaker:"ポスター",text:"演奏曲\n・ドレミの歌\n・ほか"}
  ]);
 }
 
@@ -329,6 +352,7 @@ function showPhoneScreen(){
  game.appendChild(overlay);
  let folder="inbox";
  const list=overlay.querySelector(".mail-list"),detail=overlay.querySelector(".mail-detail");
+ recordLog({logId:"room1_phone_select_prompt",logType:"investigation",speaker:"システム",logColor:"#222222",text:"メールを選んで内容を確認する。"});
  const render=()=>{
   overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.classList.toggle("is-active",tab.dataset.folder===folder));
   list.innerHTML=firstRoomScenario.phoneMail[folder].map((mail,index)=>`<button type="button" class="mail-item" data-index="${index}"><strong>${folder==="inbox" ? "差出人" : "宛先"}：${mail.from||mail.to}</strong><span>${mail.time}</span><small>${mail.subject}</small></button>`).join("");
@@ -337,7 +361,8 @@ function showPhoneScreen(){
    (folder==="inbox" ? firstRoomState.openedInbox : firstRoomState.openedSent).add(mail.id);
    saveGame();
    detail.innerHTML=`<p>${folder==="inbox" ? "差出人" : "宛先"}：${mail.from||mail.to}　${mail.time}</p><h3>${mail.subject}</h3><p>${mail.text.replace(/\n/g,"<br>")}</p>`;
-   showRoomNotice(`${folder==="inbox" ? "受信" : "送信"}メールを確認した。`);
+   recordLog({...mail,speaker:"システム",logColor:"#222222",text:`${folder==="inbox" ? "差出人" : "宛先"}：${mail.from||mail.to}　${mail.time}\n${mail.subject}\n${mail.text}`});
+   showRoomNotice(`${folder==="inbox" ? "受信" : "送信"}メールを確認した。`,`room1_phone_${folder}_checked`);
   }));
  };
  overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.addEventListener("click",()=>{folder=tab.dataset.folder;detail.innerHTML="<p>メールを選んで内容を確認する。</p>";render()}));
@@ -351,6 +376,7 @@ function showPianoScreen(){
  overlay.className="device-overlay";
  overlay.innerHTML=`<section class="piano-screen" aria-label="ピアノ"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>ピアノ</h2><p>演奏する譜面を入力する。</p><label>音階<input id="melodyInput" type="text" inputmode="text" autocomplete="off" placeholder="例：ドレミ" aria-label="演奏する音階"></label><p class="piano-result" aria-live="polite"></p><button type="button" id="playMelodyButton">演奏する</button></section>`;
  game.appendChild(overlay);
+ recordLog({logId:"room1_piano_prompt",logType:"investigation",speaker:"システム",logColor:"#222222",text:"演奏する譜面を入力する。"});
  const input=overlay.querySelector("#melodyInput"),result=overlay.querySelector(".piano-result"),button=overlay.querySelector("#playMelodyButton");
  const close=activateDeviceModal(overlay,"pianoButton",input);
  let solved=false;
@@ -364,7 +390,7 @@ function showPianoScreen(){
   saveGame();
   const melody=input.value.replace(/[\s、。・,]/g,"");
   if(melody!=="ソラファミドレドミシ"||!hasCheckedAllMail("inbox")||!hasCheckedAllMail("sent")){
-   result.textContent="違うようだ。";
+   showLoggedText(result,"違うようだ。","room1_piano_incorrect","investigation","#8f1c1c");
    return;
   }
   solved=true;
@@ -372,7 +398,7 @@ function showPianoScreen(){
   saveGame();
   memoryMelody.currentTime=0;
   memoryMelody.play().catch(()=>{});
-  result.textContent="ピアノが、懐かしいメロディを奏でた。";
+  showLoggedText(result,"ピアノが、懐かしいメロディを奏でた。","room1_piano_correct","investigation","#8f1c1c");
   input.disabled=true;
   button.textContent="続ける";
  });
@@ -380,9 +406,9 @@ function showPianoScreen(){
 
 function showFirstRoomMemory(){
  showRoomDialog([
-  {speaker:"ト書き",text:"ピアノが、吹奏楽で演奏した曲の一部を奏でた。"},
-  {speaker:"ト書き",text:"中学時代の思い出の一部が、浮かび上がる。"},
-  {speaker:"主人公",text:"今のは？僕の記憶？？"}
+  {logId:"room1_memory_01",logType:"narration",speaker:"ト書き",text:"ピアノが、吹奏楽で演奏した曲の一部を奏でた。"},
+  {logId:"room1_memory_02",logType:"narration",speaker:"ト書き",text:"中学時代の思い出の一部が、浮かび上がる。"},
+  {logId:"room1_memory_03",logType:"dialogue",speaker:"主人公",text:"今のは？僕の記憶？？"}
  ],unlockFirstRoomDoor);
 }
 
@@ -392,11 +418,11 @@ function unlockFirstRoomDoor(){
  document.getElementById("doorButton").classList.add("is-unlocked");
  document.querySelector(".room").classList.add("is-restored");
  document.getElementById("roomColorStatus").textContent="色を取り戻した部屋";
- showRoomNotice("扉の鍵が開いた。 ");
+ showRoomNotice("扉の鍵が開いた。 ","room1_door_unlocked","narration");
 }
 
-function showRoomNotice(text){
- document.getElementById("exploreStatus").textContent=text;
+function showRoomNotice(text,logId,logType="investigation"){
+ showLoggedText(document.getElementById("exploreStatus"),text,logId,logType,"#5f675a");
 }
 
 function showRoomDialog(lines,onComplete){
@@ -405,15 +431,17 @@ function showRoomDialog(lines,onComplete){
  if(room)room.inert=true;
  const overlay=document.createElement("div");
  overlay.className="room-dialog-overlay";
- overlay.innerHTML=`<section class="room-dialog" role="dialog" aria-modal="true" aria-label="会話"><div class="dialog-message-area" id="roomMessage"></div><div class="dialog-controls"><button type="button" class="auto-button" id="roomAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="next-button" id="roomNextButton" aria-label="次へ">▶</button></div></section>`;
+ overlay.innerHTML=`<section class="room-dialog" role="dialog" aria-modal="true" aria-label="会話"><div class="dialog-message-area" id="roomMessage"></div><div class="dialog-log-area" id="roomLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="roomAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="log-button" id="roomLogButton" aria-pressed="false" aria-expanded="false" aria-controls="roomLogArea">LOG</button><button type="button" class="next-button" id="roomNextButton" aria-label="次へ">▶</button></div></section>`;
  game.appendChild(overlay);
- const next=overlay.querySelector("#roomNextButton"),auto=overlay.querySelector("#roomAutoButton");
+ const next=overlay.querySelector("#roomNextButton"),auto=overlay.querySelector("#roomAutoButton"),log=overlay.querySelector("#roomLogButton"),logArea=overlay.querySelector("#roomLogArea");
  overlay.addEventListener("keydown",event=>{
   if(event.key!=="Tab")return;
-  if(event.shiftKey&&document.activeElement===auto){event.preventDefault();next.focus()}
-  else if(!event.shiftKey&&document.activeElement===next){event.preventDefault();auto.focus()}
+  const controls=[...overlay.querySelectorAll("[tabindex],button")].filter(control=>!control.hidden&&!control.disabled);
+  const first=controls[0],last=controls[controls.length-1];
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
  });
- Dialogue.start({lines:expandScenario(lines),messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,getTextSpeed:()=>settings.textSpeed,onComplete:()=>{
+ Dialogue.start({lines:expandScenario(lines),messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,logButton:log,logArea,dialog:overlay.querySelector(".room-dialog"),onDisplay:recordLog,getTextSpeed:()=>settings.textSpeed,onComplete:()=>{
   overlay.remove();
   if(room)room.inert=false;
   if(opener?.isConnected&&!opener.disabled)opener.focus({preventScroll:true});
@@ -424,6 +452,7 @@ showTitle();
 
 let lastTouchEnd=0;
 document.addEventListener("touchend",event=>{
+ if(event.target.closest?.(".dialog-log-area,.log-button")){lastTouchEnd=0;return}
  const now=Date.now();
  if(now-lastTouchEnd<=300)event.preventDefault();
  lastTouchEnd=now;

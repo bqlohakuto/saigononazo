@@ -24,8 +24,9 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .message.system{max-width:92%;background:#eceeef;color:#333;border-color:#ced2d6}
 .dialog-controls{display:flex;flex:0 0 auto;align-items:center;justify-content:flex-end;gap:14px;padding-top:12px}
 .dialog-controls button{position:static;display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:0;border:1px solid transparent;color:#444;font:inherit;cursor:pointer}
-.dialog-controls .auto-button{min-width:100px;padding:8px 12px;border-color:#b4b8bd;border-radius:8px;background:#fff;font-size:15px;letter-spacing:.04em;white-space:nowrap}
-.dialog-controls .auto-button[aria-pressed=true]{border-color:#697f94;background:#dce9f5;color:#223a51;box-shadow:inset 0 0 0 1px #697f94}
+.dialog-controls .auto-button,.dialog-controls .log-button{padding:8px 12px;border-color:#b4b8bd;border-radius:8px;background:#fff;font-size:15px;letter-spacing:.04em;white-space:nowrap}
+.dialog-controls .auto-button{min-width:100px}.dialog-controls .log-button{min-width:60px}
+.dialog-controls .auto-button[aria-pressed=true],.dialog-controls .log-button[aria-pressed=true]{border-color:#697f94;background:#dce9f5;color:#223a51;box-shadow:inset 0 0 0 1px #697f94}
 .dialog-controls .next-button{min-width:48px;padding:0 6px;background:transparent;font-size:34px;line-height:1}
 .dialog-controls button:hover{filter:brightness(.95)}.dialog-controls button:focus-visible{outline:3px solid #2563eb;outline-offset:2px}.dialog-controls button:disabled{opacity:.45;cursor:not-allowed}
 .flash{width:100%;height:100%;background:#f00}
@@ -64,3 +65,17 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 @media(max-width:768px){.room{padding:12px 10px;gap:8px}.room-label{font-size:15px}.room-color-status{font-size:11px}.room-navigation{gap:8px}.room-navigation button{padding:5px 10px;gap:8px}.room-navigation button span{font-size:12px}.room-navigation p{font-size:13px}.door-object{border-width:3px}.question-object,#posterButton{border-width:2px}#pianoButton{border-width:4px}.object span{bottom:-24px;padding:3px 5px}.room-dialog{margin-bottom:24px}.room-dialog .message{font-size:21px}.inspection-overlay{padding:12px}.inspection-panel{gap:12px;padding:24px 16px 18px}.inspection-title{font-size:21px}.inspection-help{font-size:13px}.inspection-art-button{padding:10px}}
 @media(max-height:500px){.room{grid-template-rows:24px minmax(0,1fr) 44px 32px;gap:5px;padding:6px 12px}.room-stage{width:min(100%,calc((100dvh - 127px)*1.5))}.room-label{font-size:14px}.room-color-status{font-size:11px}.dialog,.room-dialog{min-height:0;max-height:calc(100% - 24px);padding:10px 14px}.dialog{bottom:12px}.room-dialog{margin-bottom:12px}.dialog .message,.room-dialog .message{font-size:18px;padding:8px 12px}.dialog-controls{padding-top:6px}.object span{bottom:-21px;font-size:11px;padding:2px 5px}.inspection-overlay{padding:10px}.inspection-panel{gap:8px;padding:12px 20px}.inspection-title{font-size:19px}.inspection-art-button{height:52dvh;padding:8px}.inspection-help{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.room-background,.item-object{transition:none}}
+
+/* LOG grows the existing bottom-anchored dialogue; only its text region scrolls. */
+.dialog,.room-dialog{--log-edge:40px;--log-side:20px}
+.dialog.is-log-open,.room-dialog.is-log-open{height:min(76dvh,720px);min-height:0;max-height:calc(100% - max(var(--log-edge),env(safe-area-inset-top,0px)) - max(var(--log-edge),env(safe-area-inset-bottom,0px)));width:min(900px,calc(100% - max(var(--log-side),env(safe-area-inset-left,0px)) - max(var(--log-side),env(safe-area-inset-right,0px))))}
+.dialog.is-log-open{bottom:max(var(--log-edge),env(safe-area-inset-bottom,0px))}
+.room-dialog.is-log-open{margin-bottom:max(var(--log-edge),env(safe-area-inset-bottom,0px))}
+.dialog-log-area{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:2px;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+.dialog-log-area[hidden],.dialog-message-area[hidden]{display:none}
+.dialog-log-area .message{white-space:pre-wrap}
+.dialog-log-area .message-row+.message-row{margin-top:14px}
+.log-current-caption{margin:18px 2px 10px;padding-top:12px;border-top:1px solid #d5d9de;color:#66717c;font-size:13px;line-height:1.5;text-align:center}
+.dialog-log-area:focus-visible{outline:2px solid #697f94;outline-offset:-2px;border-radius:4px}
+@media(max-width:768px){.dialog,.room-dialog{--log-edge:24px;--log-side:12px}.dialog-controls{gap:8px}}
+@media(max-height:500px){.dialog,.room-dialog{--log-edge:12px}.dialog.is-log-open,.room-dialog.is-log-open{height:calc(100% - 24px)}}

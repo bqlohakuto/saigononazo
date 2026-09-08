@@ -173,7 +173,7 @@ function harness(saved) {
     clearTimeout: id => timers.delete(id), clearInterval: id => timers.delete(id)
   });
   context.window = context;
-  for (const file of ["scenario.js", "dialogue.js", "inspection.js", "script.js"]) {
+  for (const file of ["scenario.js", "game-log.js", "dialogue.js", "inspection.js", "script.js"]) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), context, { filename: file });
   }
   const run = expression => vm.runInContext(expression, context);

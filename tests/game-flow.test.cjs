@@ -235,7 +235,7 @@ test("old saves restore mail, wall and unlocked state with a safe phone-introduc
   assert.deepEqual(h.state.openedSent, allMail.openedSent);
   assert.equal(h.query(".room").classList.contains("is-restored"), true);
   assert.equal(h.query("#doorButton").classList.contains("is-unlocked"), true);
-  assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room1-left.png");
+  assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/room01_left.png");
   assert.equal(h.query('[data-wall="left"]').hidden, false);
   assert.equal(h.query('[data-wall="front"]').hidden, true);
   assert.equal(h.query("#phoneButton").disabled, false);
@@ -251,6 +251,147 @@ test("invalid saved direction falls back to front; direction changes remain save
   assert.equal(h.saved.state.viewedWall, "left");
   h.click("#turnRightButton");
   assert.equal(h.state.viewedWall, "front");
+});
+
+test("all four accepted backgrounds follow turns and remain the same after unlocking", () => {
+  const h = harness(); h.room({ ...unlockedItems, viewedWall: "front" });
+  const directions = ["front", "right", "back", "left"];
+  for (const restored of [false, true]) {
+    if (restored) h.run("unlockFirstRoomDoor()");
+    assert.equal(h.query(".room").classList.contains("is-restored"), restored);
+    for (const direction of directions) {
+      assert.equal(h.state.viewedWall, direction);
+      assert.equal(h.saved.state.viewedWall, direction);
+      assert.equal(h.query("#roomBackground").getAttribute("src"), `images/background/room01/room01_${direction}.png`);
+      for (const layer of directions) assert.equal(h.query(`[data-wall="${layer}"]`).hidden, layer !== direction);
+      h.click("#turnRightButton");
+    }
+    assert.equal(h.state.viewedWall, "front");
+    h.click("#turnLeftButton");
+    assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/room01_left.png");
+    h.click("#turnRightButton");
+  }
+});
+
+test("closed door preview is manual and cancelable; continuing preserves the original investigation", () => {
+  const h = harness(); h.room();
+  h.query("#doorButton").focus();
+  const before = h.saved, saves = h.saveCount;
+  h.click("#doorButton");
+  assert.equal(h.query(".inspection-image").src, "images/background/room01/room01_door_closeup.png");
+  assert.equal(h.query(".room").inert, true);
+  h.tick(20000);
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+  assert.deepEqual(h.saved, before);
+  assert.equal(h.saveCount, saves);
+  h.key("Escape");
+  assert.equal(h.query(".room").inert, false);
+  assert.equal(h.document.activeElement, h.query("#doorButton"));
+  assert.deepEqual(h.saved, before);
+  assert.equal(h.saveCount, saves);
+  h.click("#doorButton"); h.click(".inspection-art-button");
+  assert.equal(h.game.querySelector(".inspection-overlay"), null);
+  assert.equal(h.query(".room").inert, true);
+  assert.equal(h.state.doorInspected, false);
+  h.finishDialogue();
+  const original = harness(); original.room(); original.run("inspectDoor()"); original.finishDialogue();
+  assert.equal(h.document.activeElement, h.query("#doorButton"));
+  assert.deepEqual(h.saved, original.saved);
+  assert.equal(h.state.doorInspected, true);
+  assert.equal(h.state.questionSeen, false);
+  assert.equal(h.query("#questionButton").disabled, false);
+  assert.equal(h.query("#pianoButton").disabled, true);
+});
+
+test("unlocked door shows closed, half-open and open frames manually without changing progression", () => {
+  const state = { ...unlockedItems, doorUnlocked: true, melodySolved: true, viewedWall: "front" };
+  const frames = ["closeup", "halfopen", "open"];
+  for (let cancelAt = 0; cancelAt < frames.length; cancelAt++) {
+    const h = harness(); h.room(state);
+    h.query("#doorButton").focus();
+    const before = h.saved, saves = h.saveCount;
+    h.click("#doorButton");
+    for (let index = 0; index <= cancelAt; index++) {
+      assert.equal(h.query(".inspection-image").src, `images/background/room01/room01_door_${frames[index]}.png`);
+      h.tick(20000);
+      assert.equal(h.query(".inspection-image").src, `images/background/room01/room01_door_${frames[index]}.png`);
+      assert.equal(h.query(".room").inert, true);
+      assert.deepEqual(h.saved, before);
+      assert.equal(h.saveCount, saves);
+      if (index < cancelAt) h.click(".inspection-art-button");
+    }
+    h.key("Escape");
+    assert.equal(h.game.querySelector(".inspection-overlay"), null);
+    assert.equal(h.query(".room").inert, false);
+    assert.equal(h.document.activeElement, h.query("#doorButton"));
+    assert.deepEqual(h.saved, before);
+    assert.equal(h.saveCount, saves);
+  }
+  const h = harness(); h.room(state); h.query("#doorButton").focus(); h.click("#doorButton");
+  for (const frame of frames) {
+    assert.equal(h.query(".inspection-image").src, `images/background/room01/room01_door_${frame}.png`);
+    h.click(".inspection-art-button");
+  }
+  const original = harness(); original.room(state); original.run("inspectDoor()");
+  assert.equal(h.game.querySelector(".inspection-overlay"), null);
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+  assert.equal(h.query(".room").inert, false);
+  assert.deepEqual(h.saved, original.saved);
+  assert.equal(h.query("#exploreStatus").textContent, "扉の鍵が開いている。");
+  assert.equal(h.document.activeElement, h.query("#doorButton"));
+});
+
+test("shelf and desk previews stay available without consuming progression or writing logs", () => {
+  for (const restored of [false, true]) {
+    for (const [item, wall] of [["shelf", "right"], ["desk", "back"]]) {
+      const h = harness(); h.room({ viewedWall: wall, doorUnlocked: restored, melodySolved: restored });
+      const opener = h.query(`#${item}Button`);
+      assert.equal(opener.disabled, false);
+      opener.focus();
+      const before = h.saved, saves = h.saveCount;
+      h.click(`#${item}Button`);
+      assert.equal(h.query(".inspection-image").src, `images/background/room01/room01_${item}_closeup.png`);
+      assert.equal(h.query(".room").inert, true);
+      h.click("#turnRightButton");
+      assert.equal(h.state.viewedWall, wall);
+      h.tick(20000);
+      assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+      h.key("Tab"); assert.equal(h.document.activeElement, h.query(".inspection-close"));
+      h.key("Tab"); assert.equal(h.document.activeElement, h.query(".inspection-art-button"));
+      h.click(".inspection-art-button");
+      assert.equal(h.game.querySelector(".inspection-overlay"), null);
+      assert.equal(h.query(".room").inert, false);
+      assert.deepEqual(h.saved, before);
+      assert.equal(h.saveCount, saves);
+      assert.equal(h.state.questionSeen, false);
+    }
+  }
+});
+
+test("poster and keyboard use accepted closeups while retaining their question gate and original content", () => {
+  for (const [item, wall, image] of [["poster", "right", "poster"], ["piano", "left", "keyboard"]]) {
+    const h = harness(); h.room({ viewedWall: wall });
+    assert.equal(h.query(`#${item}Button`).disabled, true);
+    h.click(`#${item}Button`);
+    assert.equal(h.game.querySelector(".inspection-overlay"), null);
+    h.room({ ...unlockedItems, viewedWall: wall });
+    h.query(`#${item}Button`).focus();
+    const before = h.saved, saves = h.saveCount;
+    h.click(`#${item}Button`);
+    assert.equal(h.query(".inspection-image").src, `images/background/room01/room01_${image}_closeup.png`);
+    assert.equal(h.query(".room").inert, true);
+    h.key("Escape");
+    assert.equal(h.query(".room").inert, false);
+    assert.equal(h.document.activeElement, h.query(`#${item}Button`));
+    assert.deepEqual(h.saved, before);
+    assert.equal(h.saveCount, saves);
+    h.click(`#${item}Button`); h.click(".inspection-art-button");
+    const original = harness(); original.room({ viewedWall: wall }); original.room({ ...unlockedItems, viewedWall: wall });
+    original.run(item === "poster" ? "showPoster()" : "showPianoScreen()");
+    if (item === "poster") { h.finishDialogue(); original.finishDialogue(); }
+    else assert.equal(h.query("#melodyInput").disabled, false);
+    assert.deepEqual(h.saved, original.saved);
+  }
 });
 
 test("phone enlargement is manual; closing never consumes or saves the first introduction", () => {
@@ -274,7 +415,7 @@ test("phone enlargement is manual; closing never consumes or saves the first int
   assert.equal(h.state.phoneIntroductionSeen, false);
 });
 
-test("first phone use shows exactly two protagonist lines, saves only after completion, then opens inbox", () => {
+test("first phone use logs both protagonist lines but marks the introduction complete only before opening inbox", () => {
   const h = harness(); h.room(unlockedItems);
   const saves = h.saveCount;
   h.click("#phoneButton"); h.click(".inspection-art-button");
@@ -284,15 +425,18 @@ test("first phone use shows exactly two protagonist lines, saves only after comp
   h.click("#roomNextButton");
   assert.equal(h.query(".message").textContent, "携帯電話だ。");
   assert.equal(h.query(".message").classList.contains("player"), true);
-  assert.equal(h.saveCount, saves);
+  assert.equal(h.saved.state.phoneIntroductionSeen, false);
+  assert.equal(h.saved.logs.at(-1).text, "携帯電話だ。");
+  assert.ok(h.saveCount > saves);
   h.click("#roomNextButton"); h.click("#roomNextButton");
   assert.equal(h.query(".message").textContent, "中をしらべてみよう。");
-  assert.equal(h.saveCount, saves);
+  assert.equal(h.saved.state.phoneIntroductionSeen, false);
+  assert.equal(h.saved.logs.at(-1).text, "中をしらべてみよう。");
   assert.equal(h.state.phoneIntroductionSeen, false);
   h.click("#roomNextButton");
   assert.equal(h.state.phoneIntroductionSeen, true);
   assert.equal(h.saved.state.phoneIntroductionSeen, true);
-  assert.equal(h.saveCount, saves + 1);
+  assert.equal(h.saved.logs.at(-1).id, "room1_phone_select_prompt");
   assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
   assert.equal(h.query('[data-folder="inbox"]').classList.contains("is-active"), true);
   assert.equal(h.document.activeElement, h.query('[data-folder="inbox"]'));
@@ -300,10 +444,11 @@ test("first phone use shows exactly two protagonist lines, saves only after comp
   assert.ok(h.query(".phone-screen"));
   h.click(".device-close");
   assert.equal(h.document.activeElement, h.query("#phoneButton"));
+  const completedLogs = h.saved.logs;
   h.click("#phoneButton"); h.click(".inspection-art-button");
   assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
   assert.ok(h.query(".phone-screen"));
-  assert.equal(h.saveCount, saves + 1);
+  assert.deepEqual(h.saved.logs, completedLogs);
   const resumed = harness(h.saved); resumed.click("#continueButton");
   resumed.click("#phoneButton"); resumed.click(".inspection-art-button");
   assert.equal(resumed.game.querySelector(".room-dialog-overlay"), null);
@@ -358,6 +503,7 @@ test("AUTO completes phone introduction but never advances enlargement, mail, or
 
 test("phone modal traps focus and Tab in both directions, saves each read and restores focus on Escape", () => {
   const h = harness(); h.room({ ...unlockedItems, phoneIntroductionSeen: true });
+  const persistentKeyListeners = [...h.document.listeners.get("keydown")];
   h.click("#phoneButton"); h.click(".inspection-art-button");
   assert.equal(h.query(".room").inert, true);
   assert.equal(h.query(".phone-screen").getAttribute("role"), "dialog");
@@ -378,7 +524,7 @@ test("phone modal traps focus and Tab in both directions, saves each read and re
   h.key("Escape");
   assert.equal(h.query(".room").inert, false);
   assert.equal(h.document.activeElement, h.query("#phoneButton"));
-  assert.equal(h.document.listeners.get("keydown").length, 0);
+  assert.deepEqual(h.document.listeners.get("keydown"), persistentKeyListeners);
   assert.equal(h.document.listeners.get("focusin").length, 0);
   assert.equal(h.observers.size, 0);
 });
@@ -401,6 +547,7 @@ test("correct melody still requires all incoming and outgoing mail, and the miss
 
 test("piano closes accessibly; correct play cleans up its modal before memory and unlocks only afterward", () => {
   const h = harness(); h.room({ ...unlockedItems, ...allMail, viewedWall: "left" });
+  const persistentKeyListeners = [...h.document.listeners.get("keydown")];
   h.click("#pianoButton"); h.click(".inspection-art-button");
   assert.equal(h.document.activeElement, h.query("#melodyInput"));
   assert.equal(h.query(".room").inert, true);
@@ -425,7 +572,7 @@ test("piano closes accessibly; correct play cleans up its modal before memory an
   assert.equal(h.document.activeElement, h.query("#playMelodyButton"));
   h.click("#playMelodyButton");
   assert.equal(h.game.querySelector(".device-overlay"), null);
-  assert.equal(h.document.listeners.get("keydown").length, 0);
+  assert.deepEqual(h.document.listeners.get("keydown"), persistentKeyListeners);
   assert.equal(h.document.listeners.get("focusin").length, 0);
   assert.equal(h.observers.size, 0);
   assert.equal(h.query(".room").inert, true); // Now owned by memory dialogue.
@@ -450,13 +597,17 @@ test("partially solved old saves resume memory and unlock after dialogue without
 
 test("externally removed inspection and device overlays release their event ownership", () => {
   const h = harness(); h.room({ ...unlockedItems, phoneIntroductionSeen: true });
-  h.click("#phoneButton"); h.query(".inspection-overlay").remove(); h.flushObservers();
+  const persistentKeyListeners = [...h.document.listeners.get("keydown")];
+  h.click("#phoneButton");
+  assert.equal(h.query(".room").inert, true);
+  h.query(".inspection-overlay").remove(); h.flushObservers();
+  assert.equal(h.query(".room").inert, false);
   assert.equal(h.observers.size, 0);
-  assert.equal(h.document.listeners.get("keydown").length, 0);
+  assert.deepEqual(h.document.listeners.get("keydown"), persistentKeyListeners);
   h.click("#phoneButton"); h.click(".inspection-art-button");
   h.query(".device-overlay").remove(); h.flushObservers();
   assert.equal(h.query(".room").inert, false);
   assert.equal(h.observers.size, 0);
-  assert.equal(h.document.listeners.get("keydown").length, 0);
+  assert.deepEqual(h.document.listeners.get("keydown"), persistentKeyListeners);
   assert.equal(h.document.listeners.get("focusin").length, 0);
 });

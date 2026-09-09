@@ -6,6 +6,11 @@
   if(!container||!item)throw new TypeError("An inspection container and item are required.");
 
   const opener=document.activeElement;
+  const room=container.querySelector(".room");
+  const wasInert=room?.inert||false;
+  if(room)room.inert=true;
+  const frames=item.frames?.length?item.frames:[item];
+  let frameIndex=0;
   const overlay=document.createElement("div");
   overlay.className="inspection-overlay";
 
@@ -31,11 +36,13 @@
   artButton.className="inspection-art-button";
   artButton.setAttribute("aria-label",`${item.label}を確認して次へ`);
 
-  if(item.image){
-   const image=document.createElement("img");
+  let image;
+  if(frames[0].image){
+   image=document.createElement("img");
    image.className="inspection-image";
-   image.src=item.image;
-   image.alt=item.label;
+   image.src=frames[0].image;
+   image.alt=frames[0].label;
+   title.textContent=frames[0].label;
    image.draggable=false;
    artButton.append(image);
   }else{
@@ -73,7 +80,9 @@
    document.removeEventListener("keydown",onKeyDown,true);
    document.removeEventListener("focusin",onFocusIn,true);
    overlay.remove();
+   if(room)room.inert=wasInert;
    if(action==="continue"){
+    restoreOpener();
     if(typeof onContinue==="function")onContinue();
    }else if(action==="close"){
     if(typeof onClose==="function")onClose();
@@ -87,6 +96,13 @@
   }
   function proceed(event){
    event.stopPropagation();
+   if(frameIndex+1<frames.length){
+    const frame=frames[++frameIndex];
+    image.src=frame.image;
+    image.alt=frame.label;
+    title.textContent=frame.label;
+    return;
+   }
    finish("continue");
   }
 

@@ -143,10 +143,10 @@ function endOpening(){
 
 let firstRoomState;
 const firstRoomWalls=[
- {id:"front",label:"正面",background:"images/background/room1-front.png"},
- {id:"right",label:"右の壁",background:"images/background/room1-right.png"},
- {id:"back",label:"後ろの壁",background:"images/background/room1-back.png"},
- {id:"left",label:"左の壁",background:"images/background/room1-left.png"}
+ {id:"front",label:"正面",background:"images/background/room01/room01_front.png"},
+ {id:"right",label:"右の壁",background:"images/background/room01/room01_right.png"},
+ {id:"back",label:"後ろの壁",background:"images/background/room01/room01_back.png"},
+ {id:"left",label:"左の壁",background:"images/background/room01/room01_left.png"}
 ];
 
 function showFirstRoom(savedState){
@@ -165,20 +165,22 @@ function showFirstRoom(savedState){
       <button class="object question-object is-locked" id="questionButton" aria-label="扉の問題文を調べる" disabled><span>問題文</span></button>
       <button class="object hana-object" id="hanaButton" aria-label="ハナに話しかける"><span>ハナ</span></button>
      </div>
-     <div class="room-wall" data-wall="right" hidden><button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><span>ポスター</span></button></div>
-     <div class="room-wall" data-wall="back" hidden><button class="object item-object is-locked" id="phoneButton" aria-label="携帯電話を調べる" disabled><img src="images/items/phone-closed.png" alt="" draggable="false"><span>携帯電話</span></button></div>
+     <div class="room-wall" data-wall="right" hidden><button class="object" id="shelfButton" aria-label="三段棚を調べる"><span>三段棚</span></button><button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><span>ポスター</span></button></div>
+     <div class="room-wall" data-wall="back" hidden><button class="object" id="deskButton" aria-label="勉強机を調べる"><span>勉強机</span></button><button class="object item-object is-locked" id="phoneButton" aria-label="携帯電話を調べる" disabled><img src="images/items/phone-closed.png" alt="" draggable="false"><span>携帯電話</span></button></div>
      <div class="room-wall" data-wall="left" hidden><button class="object item-object is-locked" id="pianoButton" aria-label="ピアノを調べる" disabled><span>ピアノ</span></button></div>
     </div>
    </div>
    <nav class="room-navigation" aria-label="部屋を見回す"><button type="button" id="turnLeftButton" aria-label="左を向く">←<span>左を向く</span></button><p id="wallLabel" aria-live="polite"></p><button type="button" id="turnRightButton" aria-label="右を向く"><span>右を向く</span>→</button></nav>
    <p class="explore-status" id="exploreStatus" aria-live="polite">気になる場所をクリックしてください。</p>
   </main>`;
- document.getElementById("doorButton").addEventListener("click",inspectDoor);
+ document.getElementById("doorButton").addEventListener("click",inspectRoomDoor);
  document.getElementById("questionButton").addEventListener("click",showDoorQuestion);
  document.getElementById("hanaButton").addEventListener("click",talkToHana);
  document.getElementById("phoneButton").addEventListener("click",()=>inspectRoomItem("phone"));
  document.getElementById("pianoButton").addEventListener("click",()=>inspectRoomItem("piano"));
  document.getElementById("posterButton").addEventListener("click",()=>inspectRoomItem("poster"));
+ document.getElementById("shelfButton").addEventListener("click",()=>inspectRoomFurniture("shelf"));
+ document.getElementById("deskButton").addEventListener("click",()=>inspectRoomFurniture("desk"));
  document.getElementById("turnLeftButton").addEventListener("click",()=>turnFirstRoom(-1));
  document.getElementById("turnRightButton").addEventListener("click",()=>turnFirstRoom(1));
  renderFirstRoomWall();
@@ -211,6 +213,26 @@ function turnFirstRoom(direction){
  firstRoomState.viewedWall=firstRoomWalls[(current+direction+firstRoomWalls.length)%firstRoomWalls.length].id;
  renderFirstRoomWall();
  saveGame();
+}
+
+// These closeups only display artwork; the existing door logic runs afterward.
+function inspectRoomDoor(){
+ if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
+ const frames=[{label:"正面の扉（閉）",image:"images/background/room01/room01_door_closeup.png"}];
+ if(firstRoomState.doorUnlocked)frames.push(
+  {label:"正面の扉（半開き）",image:"images/background/room01/room01_door_halfopen.png"},
+  {label:"正面の扉（全開）",image:"images/background/room01/room01_door_open.png"}
+ );
+ showItemInspection({container:game,item:{label:"正面の扉",frames},onContinue:inspectDoor});
+}
+
+function inspectRoomFurniture(id){
+ if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
+ const items={
+  shelf:{label:"三段棚",image:"images/background/room01/room01_shelf_closeup.png"},
+  desk:{label:"勉強机",image:"images/background/room01/room01_desk_closeup.png"}
+ };
+ if(items[id])showItemInspection({container:game,item:items[id]});
 }
 
 function inspectDoor(){
@@ -274,7 +296,7 @@ function hasCheckedAllMail(folder){
 
 function inspectRoomItem(id){
  if(!firstRoomState.questionSeen||game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
- const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ"},poster:{id:"poster",label:"ポスター"}};
+ const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ",image:"images/background/room01/room01_keyboard_closeup.png"},poster:{id:"poster",label:"ポスター",image:"images/background/room01/room01_poster_closeup.png"}};
  const item=items[id];if(!item)return;
  showItemInspection({container:game,item,onContinue:()=>{
   if(id==="phone"){

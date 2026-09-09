@@ -1,7 +1,4 @@
 const game=document.getElementById("game");
-const tinnitus=new Audio("audio/se/tinnitus.mp3");
-const memoryMelody=new Audio("audio/memory_melody_piano.wav");
-const doorUnlock=new Audio("audio/se/door_unlock.wav");
 const SAVE_KEY="saigononazo-save-v1",SETTINGS_KEY="saigononazo-settings-v1";
 const defaultSettings={volume:70,textSpeed:45};
 let playerName="";
@@ -14,9 +11,7 @@ function loadSettings(){
 }
 
 function applySettings(){
- tinnitus.volume=.5*(settings.volume/100);
- memoryMelody.volume=.7*(settings.volume/100);
- doorUnlock.volume=.65*(settings.volume/100);
+ GameAudio.setVolume(Number(settings.volume)/100);
 }
 
 function saveSettings(){
@@ -64,6 +59,7 @@ function expandScenario(lines){
 
 function showTitle(notice=""){
  Dialogue.stop();
+ GameAudio.stopAll();
  const hasSave=!!readSavedGame();
  game.innerHTML=`<div class="title-screen"><h1>最後の謎が解けるまで</h1><div class="title-menu"><button id="startButton">はじめから</button><button id="continueButton" ${hasSave?"":"disabled"}>つづきから</button><button id="settingsButton">せってい</button><button id="commentButton">作者のコメント</button></div><p class="title-notice" aria-live="polite">${notice}</p></div>`;
  document.getElementById("startButton").addEventListener("click",showNameInput);
@@ -79,6 +75,7 @@ function showNameInput(){
 function resumeGame(){
  const saved=readSavedGame();
  if(!saved||!["firstRoom","opening"].includes(saved.scene)){showTitle("再開できるデータがありません。");return}
+ GameAudio.stopAll();
  playerName=saved.playerName||"主人公";
  GameLog.restore(saved.logs);
  if(saved.scene==="opening"){
@@ -113,8 +110,8 @@ function showAuthorComment(){
 function flashRed(){
  playerName=document.getElementById("playerName").value.trim()||"主人公";
  game.innerHTML=`<div class="flash"></div>`;
- tinnitus.currentTime=0;
- tinnitus.play().catch(()=>{});
+ GameAudio.stopAll();
+ GameAudio.play("tinnitus");
  setTimeout(showBlack,FLASH_TIME);
 }
 function showBlack(){
@@ -130,6 +127,7 @@ function showOpening(startIndex=0){
  setTimeout(()=>{
   const dialog=document.getElementById("dialog");
   if(!dialog)return;
+  GameAudio.stop("tinnitus");
   dialog.style.display="flex";
   startScenario(openingScenario,startIndex);
  },FADE_TIME+TEXT_DELAY);
@@ -138,8 +136,8 @@ function startScenario(scenario,startIndex=0){
  Dialogue.start({lines:expandScenario(scenario),startIndex,messageArea:document.getElementById("messageArea"),nextButton:document.getElementById("nextButton"),autoButton:document.getElementById("openingAutoButton"),logButton:document.getElementById("openingLogButton"),logArea:document.getElementById("openingLogArea"),dialog:document.getElementById("dialog"),getTextSpeed:()=>settings.textSpeed,onDisplay:(line,index)=>{openingIndex=index;recordLog(line)},onComplete:endOpening});
 }
 function endOpening(){
- doorUnlock.currentTime=0;
- doorUnlock.play().catch(()=>{});
+ GameAudio.stop("tinnitus");
+ GameAudio.play("doorOpen");
  setTimeout(showFirstRoom,1200);
 }
 
@@ -153,6 +151,7 @@ const firstRoomWalls=[
 
 function showFirstRoom(savedState){
  Dialogue.stop();
+ GameAudio.stop("tinnitus");
  firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,viewedWall:"front",...savedState,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
  if(!firstRoomWalls.some(wall=>wall.id===firstRoomState.viewedWall))firstRoomState.viewedWall="front";
  game.innerHTML=`
@@ -396,8 +395,7 @@ function showPianoScreen(){
   solved=true;
   firstRoomState.melodySolved=true;
   saveGame();
-  memoryMelody.currentTime=0;
-  memoryMelody.play().catch(()=>{});
+  GameAudio.play("memoryMelody");
   showLoggedText(result,"ピアノが、懐かしいメロディを奏でた。","room1_piano_correct","investigation","#8f1c1c");
   input.disabled=true;
   button.textContent="続ける";
@@ -448,6 +446,9 @@ function showRoomDialog(lines,onComplete){
   if(onComplete)onComplete();
  }});
 }
+// Resume Web Audio inside a trusted tap/key gesture, including after app switching.
+document.addEventListener("click",()=>{GameAudio.unlock()},{capture:true});
+document.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" ")GameAudio.unlock()},{capture:true});
 showTitle();
 
 let lastTouchEnd=0;

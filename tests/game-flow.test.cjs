@@ -153,16 +153,21 @@ function harness(saved) {
     observe() { observers.add(this); }
     disconnect() { observers.delete(this); }
   }
-  const audio = [];
-  class Audio {
-    constructor(source) { this.source = source; this.playCount = 0; audio.push(this); }
-    play() { this.playCount++; return Promise.resolve(); }
-  }
+  // The game-flow harness records sound requests; Web Audio lifecycle has its own small test.
+  const audio = [
+    { id: "tinnitus", source: "audio/se/tinnitus.mp3", playCount: 0 },
+    { id: "doorOpen", source: "audio/se/door_open.wav", playCount: 0 },
+    { id: "memoryMelody", source: "audio/memory_melody_piano.wav", playCount: 0 }
+  ];
+  const GameAudio = {
+    unlock: () => Promise.resolve(true), stop() {}, stopAll() {}, setVolume() {},
+    play(id) { audio.find(item => item.id === id).playCount++; return Promise.resolve(true); }
+  };
   const setTimer = (callback, delay, interval) => {
     const id = ++timerId; timers.set(id, { callback, at: now + delay, interval }); return id;
   };
   const context = vm.createContext({
-    document, HTMLElement: Element, MutationObserver, Audio, Image: class {},
+    document, HTMLElement: Element, MutationObserver, GameAudio, Image: class {},
     localStorage: {
       getItem: key => storage.get(key) ?? null,
       setItem: (key, value) => { writes.push({ key, value }); storage.set(key, value); },

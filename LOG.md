@@ -18,7 +18,7 @@ LOG中は次へ・AUTOを停止します。文字送り中に開いた場合は�
 
 ## 保存形式
 
-保存先は既存の `saigononazo-save-v1` のままです。`playerName`、第一の部屋の `scene` / `state` は維持し、トップレベルに `logs` 配列を保存します。
+保存先は既存の `saigononazo-save-v1` のままです。セーブデータ内部は `saveVersion: 2` を持ち、現在位置は `currentScene`、各部屋の状態は `rooms` に保存します。LOGは引き続きトップレベルの `logs` 配列です。詳細は `docs/SAVE_FORMAT.md` を参照してください。
 
 ```js
 {
@@ -33,7 +33,7 @@ LOG中は次へ・AUTOを停止します。文字送り中に開いた場合は�
 }
 ```
 
-オープニング中の履歴も保存するため、`scene: "opening"` と `openingIndex`（現在表示している1文の位置）も扱います。再読み込み後は「つづきから」で復元します。第一の部屋での再開位置は従来通りです。
+オープニング中は `currentScene: "opening"` と `opening.index`、第一の部屋では `currentScene: "room01"` と `rooms.room01` を使って再開します。旧形式の `scene` / `state` / `openingIndex` は読み込み時にv2へ正規化されます。
 
 古いセーブに `logs` がなければ空の履歴として読み込み、その後表示した文章から記録します。既存セーブの `logs` 配列は配列順のまま復元し、同じIDが複数含まれている場合も削除しません。過去に読んだ文章を推測して補完しません。「はじめから」で名前を決定すると既存セーブとLOGを初期化します。
 

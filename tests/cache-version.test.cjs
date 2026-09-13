@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
-const expectedVersion = "20260913-stable07";
+const expectedVersion = "20260913-stable08";
 const expectedAssets = [
   "style.css",
   "scenario.js",

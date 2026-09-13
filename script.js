@@ -4,7 +4,7 @@ const defaultSettings={volume:70,textSpeed:45};
 let playerName="";
 let openingIndex=0;
 let settings=loadSettings();
-const FLASH_TIME=1000,BLACK_TIME=1000,FADE_TIME=3000,TEXT_DELAY=2000;
+const FADE_TIME=3000;
 
 function loadSettings(){
  try{return {...defaultSettings,...JSON.parse(localStorage.getItem(SETTINGS_KEY))}}catch{return {...defaultSettings}}
@@ -80,7 +80,6 @@ function resumeGame(){
  if(saved.scene==="opening"){
   firstRoomState=undefined;
   showOpening(saved.openingIndex);
-  document.querySelector(".opening").classList.add("fade-in");
   return;
  }
  showFirstRoom(saved.state);
@@ -99,34 +98,8 @@ function showSettings(){
  render();
 }
 
-function flashRed(){
- playerName=document.getElementById("playerName").value.trim()||"主人公";
- game.innerHTML=`<div class="flash"></div>`;
- GameAudio.stopAll();
- GameAudio.play("tinnitus");
- setTimeout(showBlack,FLASH_TIME);
-}
-function showBlack(){
- game.innerHTML=`<div class="black"></div>`;
- setTimeout(showFade,BLACK_TIME);
-}
-function showFade(){
- showOpening();
- document.querySelector(".opening").classList.add("fade-in");
-}
-function showOpening(startIndex=0){
- game.innerHTML=`<div class="opening"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div class="dialog-message-area" id="messageArea"></div><div class="dialog-log-area" id="openingLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="openingAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="log-button" id="openingLogButton" aria-pressed="false" aria-expanded="false" aria-controls="openingLogArea">LOG</button><button type="button" class="next-button" id="nextButton" aria-label="次へ">▶</button></div></div></div>`;
- setTimeout(()=>{
-  const dialog=document.getElementById("dialog");
-  if(!dialog)return;
-  GameAudio.stop("tinnitus");
-  dialog.style.display="flex";
-  startScenario(openingScenario,startIndex);
- },FADE_TIME+TEXT_DELAY);
-}
-function startScenario(scenario,startIndex=0){
- Dialogue.start({lines:expandScenario(scenario),startIndex,messageArea:document.getElementById("messageArea"),nextButton:document.getElementById("nextButton"),autoButton:document.getElementById("openingAutoButton"),logButton:document.getElementById("openingLogButton"),logArea:document.getElementById("openingLogArea"),dialog:document.getElementById("dialog"),getTextSpeed:()=>settings.textSpeed,onDisplay:(line,index)=>{openingIndex=index;recordLog(line)},onComplete:endOpening});
-}
+// Opening rendering and progression live in opening-sequence.js.
+// This shared transition remains here because it hands control to room 1.
 function endOpening(){
  GameAudio.stop("tinnitus");
  GameAudio.play("doorOpen");

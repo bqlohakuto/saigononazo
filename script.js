@@ -242,16 +242,26 @@ function unlockRoomItems(){
 }
 
 function talkToHana(){
- firstRoomState.hanaVisits++;
- saveGame();
- if(firstRoomState.hanaVisits===1){showRoomDialog(firstRoomScenario.hanaFirst);return}
+ if(firstRoomState.hanaVisits===0){
+  showRoomDialog(firstRoomScenario.hanaFirst,()=>{
+   firstRoomState.hanaVisits=1;
+   saveGame();
+  });
+  return;
+ }
  if(hasCheckedAllMail("inbox")&&!hasCheckedAllMail("sent")&&firstRoomState.pianoAttempted&&!firstRoomState.mailHintGiven){
-  firstRoomState.mailHintGiven=true;
-  showRoomDialog(firstRoomScenario.hanaMailHint);
+  showRoomDialog(firstRoomScenario.hanaMailHint,()=>{
+   firstRoomState.hanaVisits++;
+   firstRoomState.mailHintGiven=true;
+   saveGame();
+  });
   return;
  }
  const lines=firstRoomState.questionSeen ? firstRoomScenario.hanaAfterQuestion : firstRoomScenario.hanaBeforeQuestion;
- showRoomDialog(lines);
+ showRoomDialog(lines,()=>{
+  firstRoomState.hanaVisits++;
+  saveGame();
+ });
 }
 
 function hasCheckedAllMail(folder){

@@ -351,8 +351,9 @@ function talkToHana(){
 }
 
 function hasCheckedAllMail(folder){
- const checked=folder==="inbox" ? firstRoomState.openedInbox : firstRoomState.openedSent;
- return checked.size===firstRoomScenario.phoneMail[folder].length;
+ const mail=firstRoomScenario.phoneMail[folder];
+ const checked=folder==="inbox" ? firstRoomState.openedInbox : folder==="sent" ? firstRoomState.openedSent : null;
+ return !!checked&&Array.isArray(mail)&&mail.every(item=>checked.has(item.id));
 }
 
 function inspectRoomItem(id){

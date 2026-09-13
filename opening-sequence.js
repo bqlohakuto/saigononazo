@@ -1,91 +1,93 @@
-// Opening cinematic timing layer.
-// Keeps the established 1s red flash -> 1s blackout -> 3s white fade -> 2s pause,
-// while the first two finalized narration lines are shown with those visual beats.
+// Opening visual layer.
+// The red / black / white states now follow the currently displayed text,
+// instead of advancing on fixed timers. Only the black -> white transition
+// keeps a duration as a visual effect; it never blocks dialogue progression.
 
-const openingSequenceLines = expandScenario(openingScenario);
+let openingFreshRun = false;
+let openingWhiteFadeStarted = false;
 
-function renderOpeningCinematic(className, line, index) {
-  Dialogue.stop();
-  openingIndex = index;
+function openingBackgroundForIndex(index) {
+  if (index <= 0) return "#f00";
+  if (index === 1) return "#000";
+  return "#fff";
+}
 
-  game.innerHTML = `<div class="${className}" id="openingCinematicFrame"><div id="openingCinematicCaption"></div></div>`;
+function updateOpeningVisual(index) {
+  const opening = document.querySelector(".opening");
+  if (!opening) return;
 
-  const frame = document.getElementById("openingCinematicFrame");
-  const caption = document.getElementById("openingCinematicCaption");
+  opening.style.opacity = "1";
+  opening.style.animation = "none";
 
-  Object.assign(frame.style, {
-    position: "relative",
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "center",
-    padding: "20px"
-  });
+  if (index === 0) {
+    opening.style.transition = "none";
+    opening.style.backgroundColor = "#f00";
+    return;
+  }
 
-  Object.assign(caption.style, {
-    width: "min(900px, calc(100% - 16px))",
-    marginBottom: "max(20px, env(safe-area-inset-bottom))",
-    padding: "16px 20px",
-    border: "2px solid rgba(220,220,220,.9)",
-    borderRadius: "18px",
-    background: "rgba(248,248,248,.94)",
-    color: "#333",
-    fontSize: "clamp(20px, 3vw, 30px)",
-    lineHeight: "1.8",
-    textAlign: "left",
-    overflowWrap: "anywhere",
-    boxShadow: "0 5px 20px rgba(0,0,0,.2)"
-  });
+  if (index === 1) {
+    opening.style.transition = "none";
+    opening.style.backgroundColor = "#000";
+    return;
+  }
 
-  caption.textContent = line.text;
-  recordLog(line);
+  // When the third line appears, the darkness fades into white.
+  // The text itself remains player/AUTO controlled; this transition does not
+  // schedule or advance any scenario line.
+  if (openingFreshRun && !openingWhiteFadeStarted) {
+    openingWhiteFadeStarted = true;
+    opening.style.transition = `background-color ${FADE_TIME}ms ease`;
+    opening.style.backgroundColor = "#fff";
+    GameAudio.stop("tinnitus");
+    return;
+  }
+
+  // Continue-from-save opens directly at the visual state for that line.
+  if (!openingFreshRun) {
+    opening.style.transition = "none";
+    opening.style.backgroundColor = "#fff";
+    GameAudio.stop("tinnitus");
+  }
 }
 
 function flashRed() {
   playerName = document.getElementById("playerName").value.trim() || "主人公";
   GameAudio.stopAll();
   GameAudio.play("tinnitus");
-  renderOpeningCinematic("flash", openingSequenceLines[0], 0);
-  setTimeout(showBlack, FLASH_TIME);
+  openingFreshRun = true;
+  openingWhiteFadeStarted = false;
+  showOpening(0);
 }
 
-function showBlack() {
-  renderOpeningCinematic("black", openingSequenceLines[1], 1);
-  setTimeout(showFade, BLACK_TIME);
-}
+function showOpening(startIndex = 0) {
+  const initialBackground = openingBackgroundForIndex(startIndex);
 
-function showFade() {
-  // The remaining scenario begins after the white fade has completed and
-  // two seconds of stillness have passed.
-  showOpening(2, { delay: FADE_TIME + TEXT_DELAY, cinematic: true });
-  const opening = document.querySelector(".opening");
-  if (opening) opening.classList.add("fade-in");
+  game.innerHTML = `<div class="opening" style="opacity:1;animation:none;background:${initialBackground}"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div class="dialog-message-area" id="messageArea"></div><div class="dialog-log-area" id="openingLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="openingAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="log-button" id="openingLogButton" aria-pressed="false" aria-expanded="false" aria-controls="openingLogArea">LOG</button><button type="button" class="next-button" id="nextButton" aria-label="次へ">▶</button></div></div></div>`;
 
-  // The tinnitus sound is intended to last five seconds total:
-  // red 1s + black 1s + white fade 3s.
-  setTimeout(() => GameAudio.stop("tinnitus"), FADE_TIME);
-}
+  const dialog = document.getElementById("dialog");
+  if (!dialog) return;
+  dialog.style.display = "flex";
 
-function showOpening(startIndex = 0, options = {}) {
-  const delay = Number.isFinite(options.delay) ? Math.max(0, options.delay) : 0;
-  const cinematic = !!options.cinematic;
-
-  game.innerHTML = `<div class="opening"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div class="dialog-message-area" id="messageArea"></div><div class="dialog-log-area" id="openingLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="openingAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="log-button" id="openingLogButton" aria-pressed="false" aria-expanded="false" aria-controls="openingLogArea">LOG</button><button type="button" class="next-button" id="nextButton" aria-label="次へ">▶</button></div></div></div>`;
-
-  const opening = document.querySelector(".opening");
-  if (!cinematic && opening) {
-    // Continue-from-save should return immediately to the current line,
-    // rather than replaying the five-second opening fade.
-    opening.style.opacity = "1";
-    opening.style.animation = "none";
-  }
-
-  const beginDialogue = () => {
-    const dialog = document.getElementById("dialog");
-    if (!dialog) return;
-    dialog.style.display = "flex";
-    startScenario(openingScenario, startIndex);
-  };
-
-  if (delay > 0) setTimeout(beginDialogue, delay);
-  else beginDialogue();
+  const lines = expandScenario(openingScenario);
+  Dialogue.start({
+    lines,
+    startIndex,
+    messageArea: document.getElementById("messageArea"),
+    nextButton: document.getElementById("nextButton"),
+    autoButton: document.getElementById("openingAutoButton"),
+    logButton: document.getElementById("openingLogButton"),
+    logArea: document.getElementById("openingLogArea"),
+    dialog,
+    getTextSpeed: () => settings.textSpeed,
+    onDisplay: (line, index) => {
+      openingIndex = index;
+      updateOpeningVisual(index);
+      recordLog(line);
+    },
+    onComplete: () => {
+      openingFreshRun = false;
+      openingWhiteFadeStarted = false;
+      endOpening();
+    }
+  });
 }

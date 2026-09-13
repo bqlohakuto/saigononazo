@@ -45,7 +45,7 @@ const openingScenario = [
     { logId: "opening_39", logType: "narration", speaker: "ト書き", text: "その瞬間、扉がひとりでに開く。" },
     { logId: "opening_40", logType: "narration", speaker: "ト書き", text: "扉の向こうへ、身体が吸い込まれていくような感覚に襲われた。" },
     { logId: "opening_41", logType: "narration", speaker: "ト書き", text: "視界が、瞬く間にまばゆい光に包まれていく。" },
-    { logId: "opening_42", logType: "dialogue", speaker: "ハナ", text: "大丈夫。わたしが一緒にいるから" },
+    { logId: "opening_42", logType: "dialogue", speaker: "ハナ", text: "だから、進んで。" },
     { logId: "opening_43", logType: "dialogue", speaker: "ハナ", text: "最後の謎が解けるまで……" }
 ];
 

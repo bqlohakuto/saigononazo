@@ -444,11 +444,12 @@ test("first phone use logs both protagonist lines but marks the introduction com
   assert.ok(h.query(".phone-screen"));
   h.click(".device-close");
   assert.equal(h.document.activeElement, h.query("#phoneButton"));
-  const completedLogs = h.saved.logs;
+  const completedLogCount = h.saved.logs.length;
   h.click("#phoneButton"); h.click(".inspection-art-button");
   assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
   assert.ok(h.query(".phone-screen"));
-  assert.deepEqual(h.saved.logs, completedLogs);
+  assert.equal(h.saved.logs.length, completedLogCount + 1);
+  assert.equal(h.saved.logs.at(-1).id, "room1_phone_select_prompt");
   const resumed = harness(h.saved); resumed.click("#continueButton");
   resumed.click("#phoneButton"); resumed.click(".inspection-art-button");
   assert.equal(resumed.game.querySelector(".room-dialog-overlay"), null);

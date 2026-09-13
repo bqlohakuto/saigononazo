@@ -1,3 +1,5 @@
+// openingScenario / firstRoomScenario に収録するシナリオ本文の実装上の正本はこのファイル。
+// SCENARIO.md は読みやすい原稿ビューとして、この内容に同期する。
 // LOG ID は文章から生成せず、並び替えても既存の ID を維持する。
 // 文章を分割して表示する場合は、共通処理で各部分の連番を ID の末尾に付ける。
 // オープニング
@@ -48,7 +50,7 @@ const openingScenario = [
 ];
 
 // 第一の部屋
-// 謎そのものの内容は未決定のため、ここには確定している導入だけを置く。
+// ここでは会話・メール本文を管理する。扉やピアノなど、操作に密接な表示文は script.js 側で管理する。
 const firstRoomScenario = {
     introduction: [
         { logId: "room1_introduction_01", logType: "narration", speaker: "システム", text: "ここからゲームのはじまりです。\n画面の気になるところをクリックしてください。" }

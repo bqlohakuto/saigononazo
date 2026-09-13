@@ -61,11 +61,10 @@ function showTitle(notice=""){
  Dialogue.stop();
  GameAudio.stopAll();
  const hasSave=!!readSavedGame();
- game.innerHTML=`<div class="title-screen"><h1>最後の謎が解けるまで</h1><div class="title-menu"><button id="startButton">はじめから</button><button id="continueButton" ${hasSave?"":"disabled"}>つづきから</button><button id="settingsButton">せってい</button><button id="commentButton">作者のコメント</button></div><p class="title-notice" aria-live="polite">${notice}</p></div>`;
+ game.innerHTML=`<div class="title-screen title-home"><h1 class="title-logo"><img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"></h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button><button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-notice" aria-live="polite">${notice}</p></div>`;
  document.getElementById("startButton").addEventListener("click",showNameInput);
  document.getElementById("continueButton").addEventListener("click",resumeGame);
  document.getElementById("settingsButton").addEventListener("click",showSettings);
- document.getElementById("commentButton").addEventListener("click",showAuthorComment);
 }
 function showNameInput(){
  game.innerHTML=`<div class="title-screen"><h2>あなたの名前を入力してください</h2><input id="playerName" type="text" maxlength="8" placeholder="名前"><br><br><button id="decideButton">決定</button></div>`;
@@ -100,13 +99,6 @@ function showSettings(){
  render();
 }
 
-function showAuthorComment(){
- const overlay=document.createElement("div");
- overlay.className="menu-overlay";
- overlay.innerHTML=`<section class="menu-panel author-comment"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>作者のコメント</h2><p>準備中です。</p></section>`;
- game.appendChild(overlay);
- overlay.querySelector(".device-close").addEventListener("click",()=>overlay.remove());
-}
 function flashRed(){
  playerName=document.getElementById("playerName").value.trim()||"主人公";
  game.innerHTML=`<div class="flash"></div>`;

@@ -80,3 +80,22 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .dialog-log-area:focus-visible{outline:2px solid #697f94;outline-offset:-2px;border-radius:4px}
 @media(max-width:768px){.dialog,.room-dialog{--log-edge:24px;--log-side:12px}.dialog-controls{gap:8px}}
 @media(max-height:500px){.dialog,.room-dialog{--log-edge:12px}.dialog.is-log-open,.room-dialog.is-log-open{height:calc(100% - 24px)}}
+
+/* Title artwork is kept as supplied; screen blending hides its black JPEG backing. */
+.title-home{position:relative;justify-content:initial;isolation:isolate;background:#211b21 url("images/ui/title-background.jpg") center/cover no-repeat}
+.title-home::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,9,18,.48),transparent 50%),linear-gradient(180deg,rgba(12,9,18,.38),transparent 38%,rgba(12,9,18,.22));pointer-events:none}
+.title-home .title-logo{position:absolute;z-index:1;top:5%;left:50%;width:min(900px,96vw);height:auto;aspect-ratio:1280/190;overflow:hidden;transform:translateX(-50%);margin:0;font-size:0;mix-blend-mode:screen}
+.title-home .title-logo img{position:absolute;top:0;left:0;display:block;width:100%;height:auto;transform:translateY(-35%);pointer-events:none}
+.title-home .title-menu{position:absolute;z-index:1;left:5%;bottom:7%;display:grid;gap:6px;width:min(260px,80vw);mix-blend-mode:screen}
+.title-home .title-menu button{position:relative;display:block;width:100%;height:62px;overflow:hidden;border:0;border-radius:0;background:transparent;cursor:pointer;transition:opacity .2s,filter .2s,transform .2s}
+.title-home .title-menu button img{position:absolute;top:0;left:var(--art-left);display:block;width:var(--art-width);max-width:none;height:auto;transform:translateY(var(--art-y));pointer-events:none}
+.title-home #startButton{--art-width:230%;--art-left:-40%;--art-y:-39%}
+.title-home #continueButton{--art-width:130%;--art-left:-13%;--art-y:-36%}
+.title-home #settingsButton{--art-width:200%;--art-left:-32%;--art-y:-34%}
+.title-home #commentButton{--art-width:220%;--art-left:-45%;--art-y:-39%}
+.title-home .title-menu button:hover:not(:disabled){background:transparent;filter:drop-shadow(0 0 6px #fff);transform:translateX(6px)}
+.title-home .title-menu button:disabled{opacity:.46;cursor:not-allowed}
+.title-home .title-menu button:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+.title-home .title-notice{position:absolute;z-index:1;left:5%;bottom:1%;margin:0;text-shadow:0 1px 4px #000}
+@media(max-width:650px){.title-home{background-position:center}.title-home::before{background:linear-gradient(180deg,rgba(12,9,18,.48),transparent 32%,transparent 55%,rgba(12,9,18,.64))}.title-home .title-logo{top:8%;width:98vw}.title-home .title-menu{left:50%;bottom:5%;width:min(260px,75vw);transform:translateX(-50%);gap:2px}.title-home .title-menu button{height:58px}.title-home .title-notice{left:5%;right:5%;bottom:1%;text-align:center;font-size:13px}}
+@media(max-height:500px){.title-home .title-logo{top:2%;width:min(680px,80vw)}.title-home .title-menu{bottom:2%;gap:0}.title-home .title-menu button{height:45px}.title-home .title-notice{bottom:0;font-size:12px}}

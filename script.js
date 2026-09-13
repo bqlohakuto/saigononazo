@@ -3,8 +3,79 @@ const SAVE_KEY="saigononazo-save-v1",SETTINGS_KEY="saigononazo-settings-v1";
 const defaultSettings={volume:70,textSpeed:45};
 let playerName="";
 let openingIndex=0;
+let currentScene="opening";
+let roomStates={};
 let settings=loadSettings();
 const FADE_TIME=3000;
+
+// SAVE_DATA_START
+const SaveData=(()=>{
+ const VERSION=2;
+ const isObject=value=>!!value&&typeof value==="object"&&!Array.isArray(value);
+ const cleanIndex=value=>Number.isInteger(value)&&value>=0?value:0;
+ const cleanLogs=value=>Array.isArray(value)?value:[];
+ const cleanRooms=value=>{
+  if(!isObject(value))return {};
+  return Object.fromEntries(Object.entries(value).filter(([,state])=>isObject(state)).map(([id,state])=>[id,{...state}]));
+ };
+ function normalize(raw){
+  if(!isObject(raw))return null;
+  if(raw.saveVersion===VERSION){
+   if(typeof raw.currentScene!=="string"||!raw.currentScene)return null;
+   return {
+    saveVersion:VERSION,
+    playerName:typeof raw.playerName==="string"?raw.playerName:"",
+    currentScene:raw.currentScene,
+    opening:{index:cleanIndex(raw.opening?.index)},
+    rooms:cleanRooms(raw.rooms),
+    logs:cleanLogs(raw.logs)
+   };
+  }
+  if(raw.scene==="opening"){
+   return {
+    saveVersion:VERSION,
+    playerName:typeof raw.playerName==="string"?raw.playerName:"",
+    currentScene:"opening",
+    opening:{index:cleanIndex(raw.openingIndex)},
+    rooms:{},
+    logs:cleanLogs(raw.logs)
+   };
+  }
+  if(raw.scene==="firstRoom"){
+   return {
+    saveVersion:VERSION,
+    playerName:typeof raw.playerName==="string"?raw.playerName:"",
+    currentScene:"room01",
+    opening:{index:0},
+    rooms:{room01:isObject(raw.state)?{...raw.state}:{}},
+    logs:cleanLogs(raw.logs)
+   };
+  }
+  return null;
+ }
+ function create({playerName="",currentScene="opening",openingIndex=0,rooms={},logs=[]}={}){
+  const saved={
+   saveVersion:VERSION,
+   playerName:typeof playerName==="string"?playerName:"",
+   currentScene,
+   opening:{index:cleanIndex(openingIndex)},
+   rooms:cleanRooms(rooms),
+   logs:cleanLogs(logs)
+  };
+  // Temporary aliases keep the current first-room build and older tooling compatible.
+  // v2 readers always use currentScene/opening/rooms as the canonical source.
+  if(currentScene==="opening"){
+   saved.scene="opening";
+   saved.openingIndex=saved.opening.index;
+  }else if(currentScene==="room01"){
+   saved.scene="firstRoom";
+   saved.state={...(saved.rooms.room01||{})};
+  }
+  return saved;
+ }
+ return {VERSION,normalize,create};
+})();
+// SAVE_DATA_END
 
 function loadSettings(){
  try{return {...defaultSettings,...JSON.parse(localStorage.getItem(SETTINGS_KEY))}}catch{return {...defaultSettings}}
@@ -20,18 +91,28 @@ function saveSettings(){
 }
 
 function readSavedGame(){
- try{return JSON.parse(localStorage.getItem(SAVE_KEY))}catch{return null}
+ try{return SaveData.normalize(JSON.parse(localStorage.getItem(SAVE_KEY)))}catch{return null}
+}
+
+function serializeFirstRoomState(state=firstRoomState){
+ if(!state)return null;
+ return {...state,openedInbox:[...(state.openedInbox||[])],openedSent:[...(state.openedSent||[])]};
 }
 
 function saveGame(){
- const saved={playerName,logs:GameLog.list()};
- if(firstRoomState){
-  Object.assign(saved,{scene:"firstRoom",state:{...firstRoomState,openedInbox:[...firstRoomState.openedInbox],openedSent:[...firstRoomState.openedSent]}});
- }else{Object.assign(saved,{scene:"opening",openingIndex})}
+ if(firstRoomState)roomStates.room01=serializeFirstRoomState();
+ const saved=SaveData.create({playerName,currentScene,openingIndex,rooms:roomStates,logs:GameLog.list()});
  localStorage.setItem(SAVE_KEY,JSON.stringify(saved));
 }
 
-function clearSave(){localStorage.removeItem(SAVE_KEY);GameLog.restore();firstRoomState=undefined;openingIndex=0}
+function clearSave(){
+ localStorage.removeItem(SAVE_KEY);
+ GameLog.restore();
+ firstRoomState=undefined;
+ openingIndex=0;
+ currentScene="opening";
+ roomStates={};
+}
 
 function recordLog(line){
  GameLog.record(line);
@@ -73,16 +154,20 @@ function showNameInput(){
 
 function resumeGame(){
  const saved=readSavedGame();
- if(!saved||!["firstRoom","opening"].includes(saved.scene)){showTitle("再開できるデータがありません。");return}
+ if(!saved){showTitle("再開できるデータがありません。");return}
+ const loaders={
+  opening:()=>{firstRoomState=undefined;showOpening(saved.opening.index)},
+  room01:()=>showFirstRoom(saved.rooms.room01)
+ };
+ const load=loaders[saved.currentScene];
+ if(!load){showTitle("このセーブデータは現在のバージョンでは再開できません。");return}
  GameAudio.stopAll();
  playerName=saved.playerName||"主人公";
+ openingIndex=saved.opening.index;
+ currentScene=saved.currentScene;
+ roomStates={...saved.rooms};
  GameLog.restore(saved.logs);
- if(saved.scene==="opening"){
-  firstRoomState=undefined;
-  showOpening(saved.openingIndex);
-  return;
- }
- showFirstRoom(saved.state);
+ load();
 }
 
 function showSettings(){
@@ -115,6 +200,7 @@ const firstRoomWalls=[
 ];
 
 function showFirstRoom(savedState){
+ currentScene="room01";
  Dialogue.stop();
  GameAudio.stop("tinnitus");
  firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,viewedWall:"front",...savedState,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};

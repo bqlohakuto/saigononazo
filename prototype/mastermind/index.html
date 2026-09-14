@@ -4,20 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="theme-color" content="#10172a">
-  <title>記号と色のマスターマインド｜テスト版</title>
-  <link rel="stylesheet" href="style.css">
+  <title>いろしるパズル｜最後の謎が解けるまで</title>
+  <link rel="stylesheet" href="style.css?v=20260914-share01">
 </head>
 <body>
   <main class="test-page">
     <header class="page-header">
-      <p class="eyebrow">PUZZLE TEST</p>
-      <h1>記号と色のマスターマインド</h1>
+      <p class="eyebrow">「最後の謎が解けるまで」MINI PUZZLE</p>
+      <h1>いろしるパズル</h1>
       <p>5つの記号を1個ずつ使い、色と順番を当ててください。</p>
+      <a class="main-game-link" href="../../">Web脱出ゲーム「最後の謎が解けるまで」</a>
     </header>
 
     <section class="status-panel" aria-label="ゲーム状況">
       <div><span>挑戦</span><strong id="attempt-count">0 / 8</strong></div>
       <div><span>残り</span><strong id="remaining-count">8回</strong></div>
+      <div><span>ベスト</span><strong id="best-count">--</strong></div>
     </section>
 
     <section class="rule-panel" aria-labelledby="rule-title">
@@ -60,6 +62,12 @@
       <h2 id="result-title"></h2>
       <p id="result-message"></p>
       <div id="secret-answer" class="secret-answer"></div>
+      <div id="clear-record" class="clear-record" hidden>
+        <div><span>試行回数</span><strong id="result-attempts"></strong></div>
+        <div><span>残り手数</span><strong id="result-remaining"></strong></div>
+        <div><span>自己ベスト</span><strong id="result-best"></strong></div>
+      </div>
+      <a id="x-share-button" class="x-share-button" href="#" target="_blank" rel="noopener noreferrer" hidden>Xで結果を投稿</a>
       <button id="retry-button" class="primary-button" type="button">新しい問題に挑戦</button>
     </section>
 
@@ -68,7 +76,7 @@
     </footer>
   </main>
 
-  <script src="logic.js"></script>
-  <script src="app.js"></script>
+  <script src="logic.js?v=20260914-share01"></script>
+  <script src="app.js?v=20260914-share01"></script>
 </body>
 </html>

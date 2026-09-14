@@ -87,6 +87,30 @@
     }));
   }
 
+  function updateStats(current, attempts, maxAttempts = 8) {
+    if (!Number.isInteger(attempts) || attempts < 1 || attempts > maxAttempts) {
+      throw new RangeError("invalid attempt count");
+    }
+    const previousBest = Number.isInteger(current?.bestAttempts) ? current.bestAttempts : null;
+    const clearCount = Number.isInteger(current?.clearCount) && current.clearCount >= 0 ? current.clearCount : 0;
+    return {
+      clearCount: clearCount + 1,
+      bestAttempts: previousBest === null ? attempts : Math.min(previousBest, attempts),
+      latestAttempts: attempts,
+      latestRemaining: maxAttempts - attempts
+    };
+  }
+
+  function shareText(attempts, maxAttempts = 8) {
+    return [
+      `「いろしるパズル」を${attempts}回でクリア！`,
+      `残り${maxAttempts - attempts}手でした。`,
+      "",
+      "Web脱出ゲーム「最後の謎が解けるまで」ミニパズル",
+      "#最後の謎が解けるまで #いろしるパズル"
+    ].join("\n");
+  }
+
   return Object.freeze({
     SYMBOLS,
     COLORS,
@@ -95,6 +119,8 @@
     isValidCode,
     score,
     generateAllCodes,
-    randomCode
+    randomCode,
+    updateStats,
+    shareText
   });
 });

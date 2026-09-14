@@ -36,3 +36,20 @@ test("random code uses every symbol exactly once", () => {
   assert.equal(Logic.isValidCode(generated), true);
   assert.deepEqual(new Set(generated.map(token => token.symbol)).size, 5);
 });
+
+test("clear statistics keep the latest result and best attempt count", () => {
+  const first = Logic.updateStats({ clearCount: 0, bestAttempts: null }, 6, 8);
+  assert.deepEqual(first, { clearCount: 1, bestAttempts: 6, latestAttempts: 6, latestRemaining: 2 });
+  const second = Logic.updateStats(first, 4, 8);
+  assert.deepEqual(second, { clearCount: 2, bestAttempts: 4, latestAttempts: 4, latestRemaining: 4 });
+  const third = Logic.updateStats(second, 7, 8);
+  assert.equal(third.bestAttempts, 4);
+});
+
+test("share text promotes the main game and includes both result values", () => {
+  const text = Logic.shareText(5, 8);
+  assert.match(text, /5回でクリア/);
+  assert.match(text, /残り3手/);
+  assert.match(text, /最後の謎が解けるまで/);
+  assert.match(text, /#いろしるパズル/);
+});

@@ -3,6 +3,7 @@
 
   const Logic = window.MastermindLogic;
   const STORAGE_KEY = "saigononazo-mastermind-test-v1";
+  const STATS_KEY = "saigononazo-mastermind-stats-v1";
   const MAX_ATTEMPTS = 8;
   const HINT_AFTER = 5;
   const symbolById = new Map(Logic.SYMBOLS.map(symbol => [symbol.id, symbol]));
@@ -11,6 +12,7 @@
   const elements = {
     attemptCount: document.getElementById("attempt-count"),
     remainingCount: document.getElementById("remaining-count"),
+    bestCount: document.getElementById("best-count"),
     slots: document.getElementById("answer-slots"),
     palette: document.getElementById("token-palette"),
     message: document.getElementById("message"),
@@ -26,10 +28,16 @@
     resultTitle: document.getElementById("result-title"),
     resultMessage: document.getElementById("result-message"),
     secretAnswer: document.getElementById("secret-answer"),
+    clearRecord: document.getElementById("clear-record"),
+    resultAttempts: document.getElementById("result-attempts"),
+    resultRemaining: document.getElementById("result-remaining"),
+    resultBest: document.getElementById("result-best"),
+    xShare: document.getElementById("x-share-button"),
     retry: document.getElementById("retry-button"),
     reset: document.getElementById("reset-button")
   };
 
+  let stats = loadStats();
   let state = loadState();
   let currentGuess = [];
   let selectedSlot = null;
@@ -47,7 +55,8 @@
       history: [],
       hintUsed: false,
       completed: false,
-      revealed: false
+      revealed: false,
+      clearRecorded: false
     };
   }
 
@@ -70,7 +79,8 @@
         })),
         hintUsed: Boolean(parsed.hintUsed),
         completed: Boolean(parsed.completed),
-        revealed: Boolean(parsed.revealed)
+        revealed: Boolean(parsed.revealed),
+        clearRecorded: Boolean(parsed.clearRecorded)
       };
     } catch (_error) {
       return freshState();
@@ -79,6 +89,40 @@
 
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function loadStats() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(STATS_KEY));
+      return {
+        clearCount: Number.isInteger(parsed?.clearCount) && parsed.clearCount >= 0 ? parsed.clearCount : 0,
+        bestAttempts: Number.isInteger(parsed?.bestAttempts) && parsed.bestAttempts >= 1 && parsed.bestAttempts <= MAX_ATTEMPTS ? parsed.bestAttempts : null,
+        latestAttempts: Number.isInteger(parsed?.latestAttempts) ? parsed.latestAttempts : null,
+        latestRemaining: Number.isInteger(parsed?.latestRemaining) ? parsed.latestRemaining : null
+      };
+    } catch (_error) {
+      return { clearCount: 0, bestAttempts: null, latestAttempts: null, latestRemaining: null };
+    }
+  }
+
+  function saveStats() {
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  }
+
+  function recordClear() {
+    if (!state.completed || state.clearRecorded) return;
+    const attempts = state.history.length;
+    stats = Logic.updateStats(stats, attempts, MAX_ATTEMPTS);
+    state.clearRecorded = true;
+    saveStats();
+    saveState();
+  }
+
+  function shareUrl(attempts) {
+    const text = Logic.shareText(attempts, MAX_ATTEMPTS);
+    const gameUrl = new URL("./", window.location.href).href;
+    const query = new URLSearchParams({ text, url: gameUrl });
+    return `https://twitter.com/intent/tweet?${query.toString()}`;
   }
 
   function tokenText(token) {
@@ -209,10 +253,18 @@
 
   function renderResult() {
     elements.resultPanel.hidden = !state.completed && !state.revealed;
+    elements.clearRecord.hidden = !state.completed;
+    elements.xShare.hidden = !state.completed;
     if (state.completed) {
+      const attempts = state.history.length;
+      const remaining = MAX_ATTEMPTS - attempts;
       elements.resultKicker.textContent = "CLEAR";
-      elements.resultTitle.textContent = "正解です";
-      elements.resultMessage.textContent = `${state.history.length}回でクリアしました。`;
+      elements.resultTitle.textContent = "いろしるパズル クリア！";
+      elements.resultMessage.textContent = `${attempts}回の試行で正解しました。`;
+      elements.resultAttempts.textContent = `${attempts}回`;
+      elements.resultRemaining.textContent = `${remaining}手`;
+      elements.resultBest.textContent = `${stats.bestAttempts}回`;
+      elements.xShare.href = shareUrl(attempts);
       elements.retry.textContent = "別の問題を試す";
     } else if (state.revealed) {
       elements.resultKicker.textContent = "ANSWER";
@@ -227,6 +279,7 @@
     const attempts = state.history.length;
     elements.attemptCount.textContent = `${attempts} / ${MAX_ATTEMPTS}`;
     elements.remainingCount.textContent = `${MAX_ATTEMPTS - attempts}回`;
+    elements.bestCount.textContent = stats.bestAttempts === null ? "--" : `${stats.bestAttempts}回`;
   }
 
   function render() {
@@ -253,7 +306,10 @@
     currentGuess = [];
     selectedSlot = null;
 
-    if (feedback.exact === Logic.SYMBOLS.length) state.completed = true;
+    if (feedback.exact === Logic.SYMBOLS.length) {
+      state.completed = true;
+      recordClear();
+    }
     else if (state.history.length >= MAX_ATTEMPTS) state.revealed = true;
 
     saveState();
@@ -288,5 +344,6 @@
   elements.retry.addEventListener("click", startNewGame);
   elements.reset.addEventListener("click", startNewGame);
 
+  if (state.completed && !state.clearRecorded) recordClear();
   render();
 })();

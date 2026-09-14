@@ -368,7 +368,7 @@ test("shelf and desk previews stay available without consuming progression or wr
   }
 });
 
-test("poster and keyboard use accepted closeups while retaining their question gate and original content", () => {
+test("poster and keyboard use accepted artwork while retaining their question gate and original content", () => {
   for (const [item, wall, image] of [["poster", "right", "poster"], ["piano", "left", "keyboard"]]) {
     const h = harness(); h.room({ viewedWall: wall });
     assert.equal(h.query(`#${item}Button`).disabled, true);
@@ -378,7 +378,10 @@ test("poster and keyboard use accepted closeups while retaining their question g
     h.query(`#${item}Button`).focus();
     const before = h.saved, saves = h.saveCount;
     h.click(`#${item}Button`);
-    assert.equal(h.query(".inspection-image").src, `images/background/room01/room01_${image}_closeup.png`);
+    const expectedImage = item === "poster"
+      ? "images/items/item_poster.png"
+      : `images/background/room01/room01_${image}_closeup.png`;
+    assert.equal(h.query(".inspection-image").src, expectedImage);
     assert.equal(h.query(".room").inert, true);
     h.key("Escape");
     assert.equal(h.query(".room").inert, false);

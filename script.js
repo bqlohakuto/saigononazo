@@ -216,7 +216,7 @@ function showFirstRoom(savedState){
       <button class="object question-object is-locked" id="questionButton" aria-label="扉の問題文を調べる" disabled><span>問題文</span></button>
       <button class="object hana-object" id="hanaButton" aria-label="ハナに話しかける"><span>ハナ</span></button>
      </div>
-     <div class="room-wall" data-wall="right" hidden><button class="object" id="shelfButton" aria-label="三段棚を調べる"><span>三段棚</span></button><button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><span>ポスター</span></button></div>
+     <div class="room-wall" data-wall="right" hidden><button class="object" id="shelfButton" aria-label="三段棚を調べる"><span>三段棚</span></button><button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><img src="images/items/item_poster.png" alt="" draggable="false"><span>ポスター</span></button></div>
      <div class="room-wall" data-wall="back" hidden><button class="object" id="deskButton" aria-label="勉強机を調べる"><span>勉強机</span></button><button class="object item-object is-locked" id="phoneButton" aria-label="携帯電話を調べる" disabled><img src="images/items/phone-closed.png" alt="" draggable="false"><span>携帯電話</span></button></div>
      <div class="room-wall" data-wall="left" hidden><button class="object item-object is-locked" id="pianoButton" aria-label="ピアノを調べる" disabled><span>ピアノ</span></button></div>
     </div>
@@ -358,7 +358,7 @@ function hasCheckedAllMail(folder){
 
 function inspectRoomItem(id){
  if(!firstRoomState.questionSeen||game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
- const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ",image:"images/background/room01/room01_keyboard_closeup.png"},poster:{id:"poster",label:"ポスター",image:"images/background/room01/room01_poster_closeup.png"}};
+ const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ",image:"images/background/room01/room01_keyboard_closeup.png"},poster:{id:"poster",label:"ポスター",image:"images/items/item_poster.png"}};
  const item=items[id];if(!item)return;
  showItemInspection({container:game,item,onContinue:()=>{
   if(id==="phone"){
@@ -374,9 +374,9 @@ function inspectRoomItem(id){
 
 function showPoster(){
  showRoomDialog([
-  {logId:"room1_poster_01",logType:"investigation",speaker:"ポスター",text:"○○中学校吹奏楽部 演奏会"},
-  {logId:"room1_poster_02",logType:"investigation",speaker:"ポスター",text:"小さなお子さんも楽しめる！"},
-  {logId:"room1_poster_03",logType:"investigation",speaker:"ポスター",text:"演奏曲\n・ドレミの歌\n・ほか"}
+  {logId:"room1_poster_01",logType:"investigation",speaker:"ポスター",text:"□□市立第三中学校 吹奏楽部\n第28回 サマーコンサート"},
+  {logId:"room1_poster_02",logType:"investigation",speaker:"ポスター",text:"8月13日（日）18:30 開演\n□□市立第三中学校 体育館"},
+  {logId:"room1_poster_03",logType:"investigation",speaker:"ポスター",text:"演奏曲\n・青春アミーゴ\n・宙船\n・水戸黄門のテーマ\n・きよしのズンドコ節\n・アンパンマンのマーチ\n・ドレミのうた\n・など"}
  ]);
 }
 

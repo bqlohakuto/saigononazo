@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#10172a">
+  <title>記号と色のマスターマインド｜テスト版</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="test-page">
+    <header class="page-header">
+      <p class="eyebrow">PUZZLE TEST</p>
+      <h1>記号と色のマスターマインド</h1>
+      <p>5つの記号を1個ずつ使い、色と順番を当ててください。</p>
+    </header>
+
+    <section class="status-panel" aria-label="ゲーム状況">
+      <div><span>挑戦</span><strong id="attempt-count">0 / 8</strong></div>
+      <div><span>残り</span><strong id="remaining-count">8回</strong></div>
+    </section>
+
+    <section class="rule-panel" aria-labelledby="rule-title">
+      <h2 id="rule-title">判定</h2>
+      <p><b>●</b> 駒と位置が正しい　<b>○</b> 駒は正しいが位置が違う</p>
+      <p class="sub-rule">色と記号の組み合わせを1個の駒として判定します。</p>
+    </section>
+
+    <section class="play-panel" aria-labelledby="answer-title">
+      <div class="section-heading">
+        <h2 id="answer-title">今回の回答</h2>
+        <button id="clear-button" class="text-button" type="button">全消去</button>
+      </div>
+      <p class="operation-help">駒を選んだ順に並びます。並べ替えるときは、入れ替えたい2枠を順にタップします。</p>
+      <div id="answer-slots" class="answer-slots" aria-label="回答欄"></div>
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+      <button id="submit-button" class="primary-button" type="button">この並びで確認</button>
+    </section>
+
+    <section class="palette-panel" aria-labelledby="palette-title">
+      <h2 id="palette-title">駒を選ぶ</h2>
+      <div id="token-palette" class="token-palette"></div>
+    </section>
+
+    <section id="hint-panel" class="hint-panel" hidden>
+      <button id="hint-button" class="secondary-button" type="button">ヒントを見る</button>
+      <p id="hint-text" aria-live="polite"></p>
+    </section>
+
+    <section class="history-panel" aria-labelledby="history-title">
+      <div class="section-heading">
+        <h2 id="history-title">回答履歴</h2>
+        <span id="history-empty">まだ回答はありません</span>
+      </div>
+      <ol id="history-list" class="history-list"></ol>
+    </section>
+
+    <section id="result-panel" class="result-panel" hidden aria-live="assertive">
+      <p id="result-kicker" class="eyebrow"></p>
+      <h2 id="result-title"></h2>
+      <p id="result-message"></p>
+      <div id="secret-answer" class="secret-answer"></div>
+      <button id="retry-button" class="primary-button" type="button">新しい問題に挑戦</button>
+    </section>
+
+    <footer>
+      <button id="reset-button" class="danger-button" type="button">テストを最初からやり直す</button>
+    </footer>
+  </main>
+
+  <script src="logic.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

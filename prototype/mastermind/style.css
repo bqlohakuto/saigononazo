@@ -78,14 +78,6 @@ h1 {
   font-size: 0.9rem;
 }
 
-.main-game-link {
-  display: inline-block;
-  margin-top: 10px;
-  color: var(--accent);
-  font-size: 0.78rem;
-  text-underline-offset: 3px;
-}
-
 .status-panel {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

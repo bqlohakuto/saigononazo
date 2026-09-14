@@ -51,17 +51,6 @@
     return { exact, misplaced: included - exact };
   }
 
-  function feedbackEquals(left, right) {
-    return left.exact === right.exact && left.misplaced === right.misplaced;
-  }
-
-  function isConsistentCode(candidate, history) {
-    if (!isValidCode(candidate) || !Array.isArray(history)) return false;
-    return history.every(entry => (
-      entry && isValidCode(entry.guess) && feedbackEquals(score(candidate, entry.guess), entry.feedback)
-    ));
-  }
-
   function permutations(items) {
     if (items.length === 1) return [items.slice()];
     const output = [];
@@ -105,7 +94,6 @@
     cloneCode,
     isValidCode,
     score,
-    isConsistentCode,
     generateAllCodes,
     randomCode
   });

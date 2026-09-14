@@ -31,13 +31,6 @@ test("a symbol with the wrong color is not the same piece", () => {
   assert.deepEqual(Logic.score(secret, guess), { exact: 0, misplaced: 0 });
 });
 
-test("consistency check rejects a code that contradicts prior feedback", () => {
-  const firstGuess = code(["red", "red", "red", "red", "red"]);
-  const history = [{ guess: firstGuess, feedback: { exact: 0, misplaced: 0 } }];
-  assert.equal(Logic.isConsistentCode(code(["blue", "blue", "blue", "blue", "blue"]), history), true);
-  assert.equal(Logic.isConsistentCode(code(["red", "blue", "blue", "blue", "blue"]), history), false);
-});
-
 test("random code uses every symbol exactly once", () => {
   const generated = Logic.randomCode(() => 0.25);
   assert.equal(Logic.isValidCode(generated), true);

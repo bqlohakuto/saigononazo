@@ -247,11 +247,6 @@
       setMessage("同じ並びはすでに回答しています。", "error");
       return;
     }
-    if (!Logic.isConsistentCode(currentGuess, state.history)) {
-      setMessage("その並びは、これまでの判定結果と矛盾しています。", "error");
-      return;
-    }
-
     const guess = Logic.cloneCode(currentGuess);
     const feedback = Logic.score(state.secret, guess);
     state.history.push({ guess, feedback });

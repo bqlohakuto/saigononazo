@@ -11,7 +11,14 @@ test("mastermind generates all 3,840 valid codes", () => {
   const codes = Logic.generateAllCodes();
   assert.equal(codes.length, 3840);
   assert.equal(new Set(codes.map(item => item.map(Logic.tokenKey).join("|"))).size, 3840);
-  assert.ok(codes.every(Logic.isValidCode));
+  assert.ok(codes.every(item => Logic.isValidCode(item)));
+});
+
+test("easy mode generates all 384 codes with four symbols", () => {
+  const codes = Logic.generateAllCodes(4);
+  assert.equal(codes.length, 384);
+  assert.ok(codes.every(item => Logic.isValidCode(item, 4)));
+  assert.ok(codes.every(item => item.every(token => token.symbol !== "plus")));
 });
 
 test("mastermind scores exact positions", () => {
@@ -47,9 +54,17 @@ test("clear statistics keep the latest result and best attempt count", () => {
 });
 
 test("share text promotes the main game and includes both result values", () => {
-  const text = Logic.shareText(5, 8);
+  const text = Logic.shareText(5, 8, "ふつう 5×2");
   assert.match(text, /5回でクリア/);
   assert.match(text, /残り3手/);
   assert.match(text, /最後の謎が解けるまで/);
   assert.match(text, /#いろしるパズル/);
+  assert.match(text, /ふつう 5×2/);
+});
+
+test("leftmost symbol is revealed only when every color matches on try five", () => {
+  assert.equal(Logic.shouldRevealLeftmost(5, { exact: 2, misplaced: 3 }, 5), true);
+  assert.equal(Logic.shouldRevealLeftmost(4, { exact: 2, misplaced: 3 }, 5), false);
+  assert.equal(Logic.shouldRevealLeftmost(5, { exact: 2, misplaced: 2 }, 5), false);
+  assert.equal(Logic.shouldRevealLeftmost(5, { exact: 1, misplaced: 3 }, 4), true);
 });

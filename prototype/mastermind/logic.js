@@ -29,11 +29,19 @@
     return code.map(token => ({ symbol: token.symbol, color: token.color }));
   }
 
-  function isValidCode(code) {
-    if (!Array.isArray(code) || code.length !== SYMBOLS.length) return false;
+  function activeSymbols(symbolCount = SYMBOLS.length) {
+    if (!Number.isInteger(symbolCount) || symbolCount < 1 || symbolCount > SYMBOLS.length) {
+      throw new RangeError("invalid symbol count");
+    }
+    return SYMBOLS.slice(0, symbolCount);
+  }
+
+  function isValidCode(code, symbolCount = SYMBOLS.length) {
+    const allowedSymbols = new Set(activeSymbols(symbolCount).map(symbol => symbol.id));
+    if (!Array.isArray(code) || code.length !== symbolCount) return false;
     const usedSymbols = new Set();
     for (const token of code) {
-      if (!token || !SYMBOL_IDS.has(token.symbol) || !COLOR_IDS.has(token.color)) return false;
+      if (!token || !SYMBOL_IDS.has(token.symbol) || !allowedSymbols.has(token.symbol) || !COLOR_IDS.has(token.color)) return false;
       if (usedSymbols.has(token.symbol)) return false;
       usedSymbols.add(token.symbol);
     }
@@ -41,7 +49,8 @@
   }
 
   function score(secret, guess) {
-    if (!isValidCode(secret) || !isValidCode(guess)) throw new TypeError("invalid mastermind code");
+    const symbolCount = secret?.length;
+    if (!isValidCode(secret, symbolCount) || !isValidCode(guess, symbolCount)) throw new TypeError("invalid mastermind code");
     let exact = 0;
     for (let index = 0; index < secret.length; index += 1) {
       if (tokenKey(secret[index]) === tokenKey(guess[index])) exact += 1;
@@ -61,11 +70,11 @@
     return output;
   }
 
-  function generateAllCodes() {
+  function generateAllCodes(symbolCount = SYMBOLS.length) {
     const codes = [];
-    const symbolOrders = permutations(SYMBOLS.map(symbol => symbol.id));
+    const symbolOrders = permutations(activeSymbols(symbolCount).map(symbol => symbol.id));
     symbolOrders.forEach(order => {
-      for (let mask = 0; mask < 2 ** SYMBOLS.length; mask += 1) {
+      for (let mask = 0; mask < 2 ** symbolCount; mask += 1) {
         codes.push(order.map((symbol, index) => ({
           symbol,
           color: COLORS[(mask >> index) & 1].id
@@ -75,8 +84,8 @@
     return codes;
   }
 
-  function randomCode(random = Math.random) {
-    const order = SYMBOLS.map(symbol => symbol.id);
+  function randomCode(random = Math.random, symbolCount = SYMBOLS.length) {
+    const order = activeSymbols(symbolCount).map(symbol => symbol.id);
     for (let index = order.length - 1; index > 0; index -= 1) {
       const swapIndex = Math.floor(random() * (index + 1));
       [order[index], order[swapIndex]] = [order[swapIndex], order[index]];
@@ -101,19 +110,28 @@
     };
   }
 
-  function shareText(attempts, maxAttempts = 8) {
+  function shareText(attempts, maxAttempts = 8, difficulty = "ふつう 5×2") {
     return [
       `「いろしるパズル」を${attempts}回でクリア！`,
       `残り${maxAttempts - attempts}手でした。`,
+      `難易度：${difficulty}`,
       "",
       "Web脱出ゲーム「最後の謎が解けるまで」ミニパズル",
       "#最後の謎が解けるまで #いろしるパズル"
     ].join("\n");
   }
 
+  function shouldRevealLeftmost(attemptNumber, feedback, symbolCount, revealAt = 5) {
+    return attemptNumber === revealAt
+      && Number.isInteger(feedback?.exact)
+      && Number.isInteger(feedback?.misplaced)
+      && feedback.exact + feedback.misplaced === symbolCount;
+  }
+
   return Object.freeze({
     SYMBOLS,
     COLORS,
+    activeSymbols,
     tokenKey,
     cloneCode,
     isValidCode,
@@ -121,6 +139,7 @@
     generateAllCodes,
     randomCode,
     updateStats,
-    shareText
+    shareText,
+    shouldRevealLeftmost
   });
 });

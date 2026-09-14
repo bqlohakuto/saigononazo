@@ -108,6 +108,7 @@ h1 {
 }
 
 .rule-panel,
+.difficulty-panel,
 .play-panel,
 .palette-panel,
 .hint-panel,
@@ -124,6 +125,36 @@ h1 {
 h2 {
   margin: 0;
   font-size: 1rem;
+}
+
+.difficulty-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.difficulty-buttons button {
+  min-height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  color: var(--muted);
+  background: #10182a;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.difficulty-buttons button small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.difficulty-buttons button.is-active {
+  border-color: var(--accent);
+  color: #07121d;
+  background: var(--accent);
 }
 
 .rule-panel p {
@@ -154,7 +185,7 @@ h2 {
 
 .answer-slots {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--slot-count, 5), minmax(0, 1fr));
   gap: 6px;
 }
 
@@ -224,7 +255,7 @@ h2 {
 
 .token-palette {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--slot-count, 5), minmax(0, 1fr));
   gap: 7px;
   margin-top: 12px;
 }
@@ -388,7 +419,7 @@ h2 {
 
 .secret-answer {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--slot-count, 5), minmax(0, 1fr));
   gap: 6px;
   margin: 15px 0 4px;
 }
@@ -452,6 +483,7 @@ footer {
   }
 
   .rule-panel,
+  .difficulty-panel,
   .play-panel,
   .palette-panel,
   .hint-panel,

@@ -5,15 +5,23 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="theme-color" content="#10172a">
   <title>いろしるパズル｜最後の謎が解けるまで</title>
-  <link rel="stylesheet" href="style.css?v=20260914-share01">
+  <link rel="stylesheet" href="style.css?v=20260914-difficulty01">
 </head>
 <body>
   <main class="test-page">
     <header class="page-header">
       <p class="eyebrow">「最後の謎が解けるまで」MINI PUZZLE</p>
       <h1>いろしるパズル</h1>
-      <p>5つの記号を1個ずつ使い、色と順番を当ててください。</p>
+      <p id="instruction-text">5つの記号を1個ずつ使い、色と順番を当ててください。</p>
     </header>
+
+    <section class="difficulty-panel" aria-labelledby="difficulty-title">
+      <h2 id="difficulty-title">難易度</h2>
+      <div class="difficulty-buttons">
+        <button id="easy-button" type="button" data-difficulty="easy">やさしい <small>4×2・6回</small></button>
+        <button id="normal-button" type="button" data-difficulty="normal">ふつう <small>5×2・8回</small></button>
+      </div>
+    </section>
 
     <section class="status-panel" aria-label="ゲーム状況">
       <div><span>挑戦</span><strong id="attempt-count">0 / 8</strong></div>
@@ -24,7 +32,7 @@
     <section class="rule-panel" aria-labelledby="rule-title">
       <h2 id="rule-title">判定</h2>
       <p><b>●</b> 駒と位置が正しい　<b>○</b> 駒は正しいが位置が違う</p>
-      <p class="sub-rule">色と記号の組み合わせを1個の駒として判定します。</p>
+      <p class="sub-rule">色と記号の組み合わせを1個の駒として判定します。5回目に各記号の色がすべて一致すると、正解の左端にある記号が開示されます。</p>
     </section>
 
     <section class="play-panel" aria-labelledby="answer-title">
@@ -43,9 +51,9 @@
       <div id="token-palette" class="token-palette"></div>
     </section>
 
-    <section id="hint-panel" class="hint-panel" hidden>
-      <button id="hint-button" class="secondary-button" type="button">ヒントを見る</button>
-      <p id="hint-text" aria-live="polite"></p>
+    <section id="hint-panel" class="hint-panel" hidden aria-live="polite">
+      <p class="eyebrow">5TH TRY BONUS</p>
+      <p id="hint-text"></p>
     </section>
 
     <section class="history-panel" aria-labelledby="history-title">
@@ -75,7 +83,7 @@
     </footer>
   </main>
 
-  <script src="logic.js?v=20260914-share01"></script>
-  <script src="app.js?v=20260914-share01"></script>
+  <script src="logic.js?v=20260914-difficulty01"></script>
+  <script src="app.js?v=20260914-difficulty01"></script>
 </body>
 </html>

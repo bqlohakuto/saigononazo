@@ -4,8 +4,11 @@
   const Logic = window.MastermindLogic;
   const STORAGE_KEY = "saigononazo-mastermind-test-v1";
   const STATS_KEY = "saigononazo-mastermind-stats-v1";
-  const MAX_ATTEMPTS = 8;
   const HINT_AFTER = 5;
+  const DIFFICULTIES = Object.freeze({
+    easy: Object.freeze({ id: "easy", label: "やさしい 4×2", symbolCount: 4, maxAttempts: 6 }),
+    normal: Object.freeze({ id: "normal", label: "ふつう 5×2", symbolCount: 5, maxAttempts: 8 })
+  });
   const symbolById = new Map(Logic.SYMBOLS.map(symbol => [symbol.id, symbol]));
   const colorById = new Map(Logic.COLORS.map(color => [color.id, color]));
 
@@ -13,13 +16,14 @@
     attemptCount: document.getElementById("attempt-count"),
     remainingCount: document.getElementById("remaining-count"),
     bestCount: document.getElementById("best-count"),
+    instruction: document.getElementById("instruction-text"),
+    difficultyButtons: [...document.querySelectorAll("[data-difficulty]")],
     slots: document.getElementById("answer-slots"),
     palette: document.getElementById("token-palette"),
     message: document.getElementById("message"),
     submit: document.getElementById("submit-button"),
     clear: document.getElementById("clear-button"),
     hintPanel: document.getElementById("hint-panel"),
-    hintButton: document.getElementById("hint-button"),
     hintText: document.getElementById("hint-text"),
     historyList: document.getElementById("history-list"),
     historyEmpty: document.getElementById("history-empty"),
@@ -37,8 +41,8 @@
     reset: document.getElementById("reset-button")
   };
 
-  let stats = loadStats();
   let state = loadState();
+  let stats = loadStats(state.difficulty);
   let currentGuess = [];
   let selectedSlot = null;
 
@@ -49,41 +53,50 @@
     return values[0] / 4294967296;
   }
 
-  function freshState() {
+  function config() {
+    return DIFFICULTIES[state?.difficulty] || DIFFICULTIES.normal;
+  }
+
+  function freshState(difficulty = "normal") {
+    const selected = DIFFICULTIES[difficulty] || DIFFICULTIES.normal;
     return {
-      secret: Logic.randomCode(secureRandom),
+      difficulty: selected.id,
+      secret: Logic.randomCode(secureRandom, selected.symbolCount),
       history: [],
-      hintUsed: false,
       completed: false,
       revealed: false,
-      clearRecorded: false
+      clearRecorded: false,
+      leftmostHintRevealed: false
     };
   }
 
   function loadState() {
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      const difficulty = DIFFICULTIES[parsed?.difficulty] ? parsed.difficulty : "normal";
+      const selected = DIFFICULTIES[difficulty];
       const historyIsValid = Array.isArray(parsed?.history) && parsed.history.every(entry => (
-        Logic.isValidCode(entry?.guess)
+        Logic.isValidCode(entry?.guess, selected.symbolCount)
         && Number.isInteger(entry?.feedback?.exact)
         && Number.isInteger(entry?.feedback?.misplaced)
       ));
-      if (!Logic.isValidCode(parsed?.secret) || !historyIsValid || parsed.history.length > MAX_ATTEMPTS) {
-        return freshState();
+      if (!Logic.isValidCode(parsed?.secret, selected.symbolCount) || !historyIsValid || parsed.history.length > selected.maxAttempts) {
+        return freshState(difficulty);
       }
       return {
+        difficulty,
         secret: Logic.cloneCode(parsed.secret),
         history: parsed.history.map(entry => ({
           guess: Logic.cloneCode(entry.guess),
           feedback: { exact: entry.feedback.exact, misplaced: entry.feedback.misplaced }
         })),
-        hintUsed: Boolean(parsed.hintUsed),
         completed: Boolean(parsed.completed),
         revealed: Boolean(parsed.revealed),
-        clearRecorded: Boolean(parsed.clearRecorded)
+        clearRecorded: Boolean(parsed.clearRecorded),
+        leftmostHintRevealed: Boolean(parsed.leftmostHintRevealed)
       };
     } catch (_error) {
-      return freshState();
+      return freshState("normal");
     }
   }
 
@@ -91,12 +104,16 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
-  function loadStats() {
+  function loadStats(difficulty) {
     try {
-      const parsed = JSON.parse(localStorage.getItem(STATS_KEY));
+      const difficultyKey = `${STATS_KEY}-${difficulty}`;
+      const saved = localStorage.getItem(difficultyKey);
+      const legacy = difficulty === "normal" ? localStorage.getItem(STATS_KEY) : null;
+      const parsed = JSON.parse(saved || legacy);
+      const selected = DIFFICULTIES[difficulty];
       return {
         clearCount: Number.isInteger(parsed?.clearCount) && parsed.clearCount >= 0 ? parsed.clearCount : 0,
-        bestAttempts: Number.isInteger(parsed?.bestAttempts) && parsed.bestAttempts >= 1 && parsed.bestAttempts <= MAX_ATTEMPTS ? parsed.bestAttempts : null,
+        bestAttempts: Number.isInteger(parsed?.bestAttempts) && parsed.bestAttempts >= 1 && parsed.bestAttempts <= selected.maxAttempts ? parsed.bestAttempts : null,
         latestAttempts: Number.isInteger(parsed?.latestAttempts) ? parsed.latestAttempts : null,
         latestRemaining: Number.isInteger(parsed?.latestRemaining) ? parsed.latestRemaining : null
       };
@@ -106,20 +123,20 @@
   }
 
   function saveStats() {
-    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+    localStorage.setItem(`${STATS_KEY}-${state.difficulty}`, JSON.stringify(stats));
   }
 
   function recordClear() {
     if (!state.completed || state.clearRecorded) return;
     const attempts = state.history.length;
-    stats = Logic.updateStats(stats, attempts, MAX_ATTEMPTS);
+    stats = Logic.updateStats(stats, attempts, config().maxAttempts);
     state.clearRecorded = true;
     saveStats();
     saveState();
   }
 
   function shareUrl(attempts) {
-    const text = Logic.shareText(attempts, MAX_ATTEMPTS);
+    const text = Logic.shareText(attempts, config().maxAttempts, config().label);
     const gameUrl = new URL("./", window.location.href).href;
     const query = new URLSearchParams({ text, url: gameUrl });
     return `https://twitter.com/intent/tweet?${query.toString()}`;
@@ -154,7 +171,7 @@
     if (existingIndex >= 0) {
       if (currentGuess[existingIndex].color === token.color) currentGuess.splice(existingIndex, 1);
       else currentGuess[existingIndex] = token;
-    } else if (currentGuess.length < Logic.SYMBOLS.length) {
+    } else if (currentGuess.length < config().symbolCount) {
       currentGuess.push(token);
     }
     selectedSlot = null;
@@ -181,7 +198,8 @@
 
   function renderGuess() {
     elements.slots.replaceChildren();
-    for (let index = 0; index < Logic.SYMBOLS.length; index += 1) {
+    elements.slots.style.setProperty("--slot-count", config().symbolCount);
+    for (let index = 0; index < config().symbolCount; index += 1) {
       const slot = document.createElement("button");
       slot.type = "button";
       slot.className = `answer-slot${selectedSlot === index ? " is-selected" : ""}`;
@@ -191,14 +209,15 @@
       slot.addEventListener("click", () => selectSlot(index));
       elements.slots.appendChild(slot);
     }
-    elements.submit.disabled = currentGuess.length !== Logic.SYMBOLS.length || state.completed || state.revealed;
+    elements.submit.disabled = currentGuess.length !== config().symbolCount || state.completed || state.revealed;
     elements.clear.disabled = currentGuess.length === 0 || state.completed || state.revealed;
   }
 
   function renderPalette() {
     elements.palette.replaceChildren();
+    elements.palette.style.setProperty("--slot-count", config().symbolCount);
     Logic.COLORS.forEach(color => {
-      Logic.SYMBOLS.forEach(symbol => {
+      Logic.activeSymbols(config().symbolCount).forEach(symbol => {
         const token = { symbol: symbol.id, color: color.id };
         const selected = currentGuess.some(item => Logic.tokenKey(item) === Logic.tokenKey(token));
         const button = document.createElement("button");
@@ -235,19 +254,15 @@
   }
 
   function renderHint() {
-    const available = state.history.length >= HINT_AFTER && !state.completed && !state.revealed;
-    elements.hintPanel.hidden = !available;
-    elements.hintButton.hidden = state.hintUsed;
-    if (state.hintUsed) {
-      const redCount = state.secret.filter(token => token.color === "red").length;
-      elements.hintText.textContent = `ヒント：正解には赤い駒が${redCount}個使われています。`;
-    } else {
-      elements.hintText.textContent = "";
-    }
+    elements.hintPanel.hidden = !state.leftmostHintRevealed || state.completed || state.revealed;
+    elements.hintText.textContent = state.leftmostHintRevealed
+      ? `${config().symbolCount}種類すべての色が一致しました。左端の記号は「${symbolById.get(state.secret[0].symbol).mark}」です。`
+      : "";
   }
 
   function renderSecret() {
     elements.secretAnswer.replaceChildren();
+    elements.secretAnswer.style.setProperty("--slot-count", config().symbolCount);
     state.secret.forEach(token => elements.secretAnswer.appendChild(createToken(token)));
   }
 
@@ -257,7 +272,7 @@
     elements.xShare.hidden = !state.completed;
     if (state.completed) {
       const attempts = state.history.length;
-      const remaining = MAX_ATTEMPTS - attempts;
+      const remaining = config().maxAttempts - attempts;
       elements.resultKicker.textContent = "CLEAR";
       elements.resultTitle.textContent = "いろしるパズル クリア！";
       elements.resultMessage.textContent = `${attempts}回の試行で正解しました。`;
@@ -268,7 +283,7 @@
       elements.retry.textContent = "別の問題を試す";
     } else if (state.revealed) {
       elements.resultKicker.textContent = "ANSWER";
-      elements.resultTitle.textContent = "8回使い切りました";
+      elements.resultTitle.textContent = `${config().maxAttempts}回使い切りました`;
       elements.resultMessage.textContent = "今回の正解です。確認したら、新しい問題へ挑戦できます。";
       elements.retry.textContent = "新しい問題に挑戦";
     }
@@ -277,12 +292,22 @@
 
   function renderStatus() {
     const attempts = state.history.length;
-    elements.attemptCount.textContent = `${attempts} / ${MAX_ATTEMPTS}`;
-    elements.remainingCount.textContent = `${MAX_ATTEMPTS - attempts}回`;
+    elements.attemptCount.textContent = `${attempts} / ${config().maxAttempts}`;
+    elements.remainingCount.textContent = `${config().maxAttempts - attempts}回`;
     elements.bestCount.textContent = stats.bestAttempts === null ? "--" : `${stats.bestAttempts}回`;
   }
 
+  function renderDifficulty() {
+    elements.instruction.textContent = `${config().symbolCount}つの記号を1個ずつ使い、色と順番を当ててください。`;
+    elements.difficultyButtons.forEach(button => {
+      const active = button.dataset.difficulty === state.difficulty;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+  }
+
   function render() {
+    renderDifficulty();
     renderStatus();
     renderGuess();
     renderPalette();
@@ -292,8 +317,8 @@
   }
 
   function submitGuess() {
-    if (!Logic.isValidCode(currentGuess)) {
-      setMessage("5種類の記号を1個ずつ選んでください。", "error");
+    if (!Logic.isValidCode(currentGuess, config().symbolCount)) {
+      setMessage(`${config().symbolCount}種類の記号を1個ずつ選んでください。`, "error");
       return;
     }
     if (state.history.some(entry => entry.guess.every((token, index) => Logic.tokenKey(token) === Logic.tokenKey(currentGuess[index])))) {
@@ -306,26 +331,41 @@
     currentGuess = [];
     selectedSlot = null;
 
-    if (feedback.exact === Logic.SYMBOLS.length) {
+    if (Logic.shouldRevealLeftmost(state.history.length, feedback, config().symbolCount, HINT_AFTER)) {
+      state.leftmostHintRevealed = true;
+    }
+
+    if (feedback.exact === config().symbolCount) {
       state.completed = true;
       recordClear();
     }
-    else if (state.history.length >= MAX_ATTEMPTS) state.revealed = true;
+    else if (state.history.length >= config().maxAttempts) state.revealed = true;
 
     saveState();
-    setMessage(feedback.exact === Logic.SYMBOLS.length ? "5個すべて正解です。" : `● ${feedback.exact}　○ ${feedback.misplaced}`, feedback.exact === Logic.SYMBOLS.length ? "success" : "");
+    setMessage(feedback.exact === config().symbolCount ? `${config().symbolCount}個すべて正解です。` : `● ${feedback.exact}　○ ${feedback.misplaced}`, feedback.exact === config().symbolCount ? "success" : "");
     render();
     if (state.completed || state.revealed) elements.resultPanel.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   function startNewGame() {
-    state = freshState();
+    state = freshState(state.difficulty);
     currentGuess = [];
     selectedSlot = null;
     saveState();
     setMessage("新しい問題を開始しました。", "success");
     render();
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function selectDifficulty(difficulty) {
+    if (!DIFFICULTIES[difficulty] || difficulty === state.difficulty) return;
+    state = freshState(difficulty);
+    stats = loadStats(difficulty);
+    currentGuess = [];
+    selectedSlot = null;
+    saveState();
+    setMessage(`${config().label}を開始しました。`, "success");
+    render();
   }
 
   elements.submit.addEventListener("click", submitGuess);
@@ -336,11 +376,7 @@
     renderGuess();
     renderPalette();
   });
-  elements.hintButton.addEventListener("click", () => {
-    state.hintUsed = true;
-    saveState();
-    renderHint();
-  });
+  elements.difficultyButtons.forEach(button => button.addEventListener("click", () => selectDifficulty(button.dataset.difficulty)));
   elements.retry.addEventListener("click", startNewGame);
   elements.reset.addEventListener("click", startNewGame);
 

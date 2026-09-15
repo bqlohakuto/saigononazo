@@ -3,6 +3,7 @@ const Dialogue=(()=>{
  let autoEnabled=false,active=null;
  const AUTO_DELAY=2000;
  const kindOf=line=>line.speaker==="主人公"||line.thought?"player":line.speaker==="ハナ"?"heroine":line.speaker==="ト書き"?"narration":"system";
+ const emitAutoChange=()=>document.dispatchEvent(new CustomEvent("dialogue:autochange",{detail:{enabled:autoEnabled}}));
  const stop=()=>{if(active)active.dispose()};
  function start({lines,messageArea,nextButton,autoButton,logButton,logArea,dialog,startIndex=0,getTextSpeed,onDisplay,onComplete}){
   stop();
@@ -64,8 +65,9 @@ const Dialogue=(()=>{
    render();
   }
   function toggleAuto(){
-   if(disposed||logOpen)return;
-   autoEnabled=!autoEnabled;updateAutoButton();scheduleAuto();
+   if(disposed||logOpen)return autoEnabled;
+   autoEnabled=!autoEnabled;updateAutoButton();scheduleAuto();emitAutoChange();
+   return autoEnabled;
   }
   function appendLogEntry(entry){
    const kind=entry.kind||kindOf(entry),row=document.createElement("div"),text=document.createElement("div");
@@ -145,7 +147,7 @@ const Dialogue=(()=>{
    document.removeEventListener("visibilitychange",visibilityChanged);
    if(active===controller)active=null;
   }
-  const controller={advance,dispose};active=controller;
+  const controller={advance,dispose,toggleAuto};active=controller;
   nextButton.disabled=false;autoButton.disabled=false;
   nextButton.addEventListener("click",advance);
   autoButton.addEventListener("click",toggleAuto);
@@ -158,9 +160,14 @@ const Dialogue=(()=>{
    dialog.addEventListener("keydown",logKeyDown);
   }
   document.addEventListener("visibilitychange",visibilityChanged);
+  emitAutoChange();
   if(!lines.length){dispose();if(onComplete)onComplete();return controller}
   render();nextButton.focus({preventScroll:true});
   return controller;
  }
- return {start,stop};
+ function toggleAutoState(){
+  if(active?.toggleAuto)return active.toggleAuto();
+  autoEnabled=!autoEnabled;emitAutoChange();return autoEnabled;
+ }
+ return {start,stop,toggleAuto:toggleAutoState,isAutoEnabled:()=>autoEnabled};
 })();

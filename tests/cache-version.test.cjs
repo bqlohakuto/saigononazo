@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
-const expectedVersion = "20260915-gameplay-ui02";
+const expectedVersion = "20260915-hana-identity01";
 const expectedAssets = [
   "style.css",
   "scenario.js",
@@ -16,7 +16,8 @@ const expectedAssets = [
   "hana-choice.js",
   "opening-sequence.js",
   "manual-save.js",
-  "gameplay-ui.js"
+  "gameplay-ui.js",
+  "hana-identity-ui.js"
 ];
 
 function localAssetReferences() {
@@ -47,6 +48,7 @@ test("script load order remains intentional", () => {
     "hana-choice.js",
     "opening-sequence.js",
     "manual-save.js",
-    "gameplay-ui.js"
+    "gameplay-ui.js",
+    "hana-identity-ui.js"
   ]);
 });

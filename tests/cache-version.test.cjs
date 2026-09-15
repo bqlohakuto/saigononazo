@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
-const expectedVersion = "20260914-poster01";
+const expectedVersion = "20260915-gameplay-ui02";
 const expectedAssets = [
   "style.css",
   "scenario.js",
@@ -13,7 +13,10 @@ const expectedAssets = [
   "dialogue.js",
   "inspection.js",
   "script.js",
-  "opening-sequence.js"
+  "hana-choice.js",
+  "opening-sequence.js",
+  "manual-save.js",
+  "gameplay-ui.js"
 ];
 
 function localAssetReferences() {
@@ -32,7 +35,7 @@ test("all local CSS and JS references share one cache version", () => {
   }
 });
 
-test("script load order remains unchanged", () => {
+test("script load order remains intentional", () => {
   const scripts = [...html.matchAll(/<script src="([^"?]+)(?:\?[^\"]*)?"><\/script>/g)].map(match => match[1]);
   assert.deepEqual(scripts, [
     "scenario.js",
@@ -41,6 +44,9 @@ test("script load order remains unchanged", () => {
     "dialogue.js",
     "inspection.js",
     "script.js",
-    "opening-sequence.js"
+    "hana-choice.js",
+    "opening-sequence.js",
+    "manual-save.js",
+    "gameplay-ui.js"
   ]);
 });

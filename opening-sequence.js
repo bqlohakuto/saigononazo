@@ -6,6 +6,21 @@
 let openingFreshRun = false;
 let openingWhiteFadeStarted = false;
 
+const OPENING_HAND_FONT_STYLE = `
+<style id="opening-hand-font-style">
+@font-face {
+  font-family: "HakutoShujinkoHand";
+  src: url("fonts/HakutoShujinkoHand-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+.opening .message {
+  font-family: "HakutoShujinkoHand", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  letter-spacing: .03em;
+}
+</style>`;
+
 function openingBackgroundForIndex(index) {
   if (index <= 0) return "#f00";
   if (index === 1) return "#000";
@@ -62,7 +77,7 @@ function flashRed() {
 function showOpening(startIndex = 0) {
   const initialBackground = openingBackgroundForIndex(startIndex);
 
-  game.innerHTML = `<div class="opening" style="opacity:1;animation:none;background:${initialBackground}"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div class="dialog-message-area" id="messageArea"></div><div class="dialog-log-area" id="openingLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="openingAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="log-button" id="openingLogButton" aria-pressed="false" aria-expanded="false" aria-controls="openingLogArea">LOG</button><button type="button" class="next-button" id="nextButton" aria-label="次へ">▶</button></div></div></div>`;
+  game.innerHTML = `${OPENING_HAND_FONT_STYLE}<div class="opening" style="opacity:1;animation:none;background:${initialBackground}"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div class="dialog-message-area" id="messageArea"></div><div class="dialog-log-area" id="openingLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="openingAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="log-button" id="openingLogButton" aria-pressed="false" aria-expanded="false" aria-controls="openingLogArea">LOG</button><button type="button" class="next-button" id="nextButton" aria-label="次へ">▶</button></div></div></div>`;
 
   const dialog = document.getElementById("dialog");
   if (!dialog) return;

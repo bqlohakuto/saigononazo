@@ -3,7 +3,9 @@ const Dialogue=(()=>{
  let autoEnabled=false,active=null;
  const AUTO_DELAY=2000;
  const kindOf=line=>line.speaker==="主人公"||line.thought?"player":line.speaker==="ハナ"?"heroine":line.speaker==="ト書き"?"narration":"system";
- const emitAutoChange=()=>document.dispatchEvent(new CustomEvent("dialogue:autochange",{detail:{enabled:autoEnabled}}));
+ const emitAutoChange=()=>{
+  if(typeof document?.dispatchEvent==="function"&&typeof CustomEvent==="function")document.dispatchEvent(new CustomEvent("dialogue:autochange",{detail:{enabled:autoEnabled}}));
+ };
  const stop=()=>{if(active)active.dispose()};
  function start({lines,messageArea,nextButton,autoButton,logButton,logArea,dialog,startIndex=0,getTextSpeed,onDisplay,onComplete}){
   stop();

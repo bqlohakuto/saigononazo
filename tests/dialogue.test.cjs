@@ -82,18 +82,20 @@ function harness() {
     clock,
     document,
     Dialogue,
-    start(lines, textSpeed = 20) {
+    start(lines, textSpeed = 20, readIds = new Set()) {
       const messageArea = new FakeElement();
       const nextButton = new FakeElement();
       const autoButton = new FakeElement();
+      const skipButton = new FakeElement();
       let completions = 0;
       const controller = Dialogue.start({
-        lines, messageArea, nextButton, autoButton,
+        lines, messageArea, nextButton, autoButton, skipButton,
         getTextSpeed: () => textSpeed,
+        isRead: line => readIds.has(line.logId),
         onComplete: () => { completions++; }
       });
       return {
-        messageArea, nextButton, autoButton, controller,
+        messageArea, nextButton, autoButton, skipButton, controller,
         get text() { return messageArea.children[0]?.children.find(child => child.className.startsWith("message "))?.textContent ?? ""; },
         get row() { return messageArea.children[0]; },
         get completions() { return completions; }
@@ -247,14 +249,71 @@ test("speaker and inner-thought classification exposes matching visual and acces
     [{ speaker: "ト書き", thought: true, text: "心" }, "player", "主人公の心の声"]
   ];
   const d = h.start(entries.map(([line]) => line));
-  for (const [, kind, label] of entries) {
-    assert.equal(d.row.className, `message-row ${kind}`);
-    assert.equal(d.row.children[0].className, `message ${kind}`);
+  for (const [line, kind, label] of entries) {
+    assert.equal(d.row.className, `message-row ${kind}${kind === "player" && line.thought ? " thought" : ""}`);
+    const message = d.row.children.find(child => child.className.startsWith("message "));
+    assert.equal(message.className, `message ${kind}${kind === "player" && line.thought ? " thought" : ""}`);
     assert.equal(d.row.getAttribute("aria-label"), label);
+    if (kind === "player") {
+      assert.equal(d.row.children[0].className, "message-speaker");
+      assert.equal(d.row.children[0].textContent, line.thought ? "心の声" : "主人公");
+    }
     d.nextButton.click(); // Reveal the current line.
     d.nextButton.click(); // Advance to the next line.
   }
   assert.equal(d.completions, 1);
+});
+
+test("SKIP is available only for read text and stops at the first unread line", () => {
+  const h = harness();
+  const lines = [
+    { logId: "read-1", speaker: "主人公", text: "既読一" },
+    { logId: "read-2", speaker: "ハナ", text: "既読二" },
+    { logId: "new-1", speaker: "主人公", text: "未読" },
+    { logId: "read-3", speaker: "ハナ", text: "既読三" }
+  ];
+  const d = h.start(lines, 100, new Set(["read-1", "read-2", "read-3"]));
+  assert.equal(d.skipButton.disabled, false);
+  d.autoButton.click();
+  d.skipButton.click();
+  assert.equal(d.skipButton.textContent, "SKIP ON");
+  assert.equal(d.skipButton.getAttribute("aria-pressed"), "true");
+  assert.equal(d.autoButton.textContent, "AUTO OFF");
+  assert.equal(d.text, "既読一");
+  h.clock.tick(80);
+  assert.equal(d.text, "既読二");
+  h.clock.tick(80);
+  assert.equal(d.row.getAttribute("aria-label"), "主人公のセリフ");
+  assert.equal(d.text, "");
+  assert.equal(d.skipButton.textContent, "SKIP");
+  assert.equal(d.skipButton.getAttribute("aria-pressed"), "false");
+  assert.equal(d.skipButton.disabled, true);
+  h.clock.tick(100);
+  assert.equal(d.text, "未");
+  assert.equal(d.completions, 0);
+});
+
+test("SKIP pauses while hidden and a first-time line cannot be skipped", () => {
+  const h = harness();
+  const unread = h.start([{ logId: "new", speaker: "主人公", text: "初見" }], 20);
+  assert.equal(unread.skipButton.disabled, true);
+  unread.skipButton.click();
+  h.clock.tick(5000);
+  assert.equal(unread.completions, 0);
+
+  const read = h.start([
+    { logId: "old-1", speaker: "主人公", text: "前" },
+    { logId: "old-2", speaker: "ハナ", text: "後" }
+  ], 20, new Set(["old-1", "old-2"]));
+  read.skipButton.click();
+  h.setHidden(true);
+  h.clock.tick(1000);
+  assert.equal(read.text, "前");
+  assert.equal(read.completions, 0);
+  h.setHidden(false);
+  h.clock.tick(160);
+  assert.equal(read.completions, 1);
+  assert.equal(h.clock.pending, 0);
 });
 
 test("completion runs exactly once and disables controls even after further calls", () => {

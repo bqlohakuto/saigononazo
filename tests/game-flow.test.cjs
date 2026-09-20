@@ -163,7 +163,6 @@ function harness(saved) {
   // The game-flow harness records sound requests; Web Audio lifecycle has its own small test.
   const audio = [
     { id: "tinnitus", source: "audio/se/tinnitus.mp3", playCount: 0 },
-    { id: "doorOpen", source: "audio/se/door_open.wav", playCount: 0 },
     { id: "memoryMelody", source: "audio/memory_melody_piano.wav", playCount: 0 },
     { id: "memoryBand", source: "audio/memory_band.mp3", playCount: 0 }
   ];
@@ -485,7 +484,30 @@ test("eight stable mail IDs alternate sender, minute and one additional Re. per 
     assert.equal(item.id.startsWith(index % 2 ? "sent-" : "inbox-"), true);
   });
   assert.match(mail.sent[2].text, /レモン味/);
+  assert.match(mail.inbox[2].text, /明日の練習が終わったら/);
+  assert.match(mail.inbox[3].text, /ドーナツいっぱいたべたいな/);
+  assert.match(mail.sent[3].text, /そんなに食べるんですか？笑/);
+  assert.match(mail.sent[3].text, /練習頑張ります！/);
   assert.equal(new Set(chronological.map(item => item.logId)).size, 8);
+});
+
+test("phone list outlines only the selected mail and clears selection when the folder changes", () => {
+  const h = harness(); h.room({ ...unlockedItems, phoneIntroductionSeen: true });
+  h.run("showPhoneScreen()");
+
+  h.click('[data-index="0"]');
+  assert.equal(h.query('[data-index="0"]').classList.contains("is-selected"), true);
+  assert.equal(h.query('[data-index="0"]').getAttribute("aria-current"), "true");
+  assert.match(h.query(".mail-detail").textContent, /件名/);
+
+  h.click('[data-index="1"]');
+  assert.equal(h.query('[data-index="0"]').classList.contains("is-selected"), false);
+  assert.equal(h.query('[data-index="0"]').getAttribute("aria-current"), "false");
+  assert.equal(h.query('[data-index="1"]').classList.contains("is-selected"), true);
+
+  h.click('[data-folder="sent"]');
+  assert.equal(h.game.querySelector(".mail-item.is-selected"), null);
+  assert.equal(h.query(".mail-detail").textContent, "メールを選んで内容を確認する。");
 });
 
 test("AUTO completes phone introduction but never advances enlargement, mail, or piano observation", () => {
@@ -652,20 +674,70 @@ test("externally removed inspection and device overlays release their event owne
   assert.equal(h.document.listeners.get("focusin").length, 0);
 });
 
-test("fresh room introduction commits Hana identity only on completion; legacy identity survives resume", () => {
-  const h = harness(); h.run("showFirstRoom()");
-  assert.ok(h.query(".room-dialog-overlay"));
+test("fresh room waits for a Hana click even with AUTO enabled; identity commits only on completion", () => {
+  const h = harness();
+  h.run("Dialogue.toggleAuto()");
+  h.run("showFirstRoom()");
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
   assert.equal(h.state.hanaIntroduced, false);
   assert.equal(h.saved.state.hanaIntroduced, false);
+  h.tick(20000);
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+  assert.equal(h.state.hanaIntroduced, false);
+
+  h.click("#hanaButton");
+  assert.equal(h.query(".hana-choice-menu").querySelector("h2").textContent.trim(), "どうしたの？");
+  assert.equal(h.query('[data-choice="about-hana"]').classList.contains("is-viewed"), false);
+  h.click('[data-choice="about-hana"]');
+  assert.ok(h.query(".room-dialog-overlay"));
+  assert.equal(h.state.hanaIntroduced, false);
   h.finishDialogue();
   assert.equal(h.state.hanaIntroduced, true);
   assert.equal(h.state.hanaVisits, 1);
   assert.equal(h.saved.state.hanaIntroduced, true);
   h.click("#hanaButton");
   assert.ok(h.query('[data-choice="about-room"]'));
+  assert.equal(h.query('[data-choice="about-hana"]').classList.contains("is-viewed"), true);
+
   const legacy = harness(); legacy.room({ hanaVisits: 3 }); legacy.click("#hanaButton");
   assert.equal(legacy.state.hanaIntroduced, true);
   assert.ok(legacy.query('[data-choice="about-room"]'));
+});
+
+test("completed Hana topics are muted after viewing while なんでもない stays normal across reload", () => {
+  const h = harness(); h.room({ hanaIntroduced: true, hanaVisits: 1 });
+  h.click("#hanaButton");
+  assert.equal(h.query('[data-choice="about-room"]').classList.contains("is-viewed"), false);
+  assert.equal(h.query('[data-choice="cancel"]').classList.contains("is-viewed"), false);
+  h.click('[data-choice="about-room"]');
+  h.finishDialogue();
+
+  h.click("#hanaButton");
+  const viewed = h.query('[data-choice="about-room"]');
+  assert.equal(viewed.classList.contains("is-viewed"), true);
+  assert.match(viewed.getAttribute("aria-label"), /選択済み/);
+  assert.equal(h.query('[data-choice="cancel"]').classList.contains("is-viewed"), false);
+  h.click('[data-choice="cancel"]');
+
+  const resumed = harness(h.saved); resumed.click("#continueButton"); resumed.click("#hanaButton");
+  assert.equal(resumed.query('[data-choice="about-room"]').classList.contains("is-viewed"), true);
+  assert.equal(resumed.query('[data-choice="cancel"]').classList.contains("is-viewed"), false);
+});
+
+test("room SKIP is unavailable on first display and advances a repeated conversation from saved history", () => {
+  const h = harness(); h.room({ hanaIntroduced: true, hanaVisits: 1 });
+  h.click("#hanaButton"); h.click('[data-choice="about-room"]');
+  assert.equal(h.query("#roomSkipButton").disabled, true);
+  h.finishDialogue();
+
+  const resumed = harness(h.saved); resumed.click("#continueButton");
+  resumed.click("#hanaButton"); resumed.click('[data-choice="about-room"]');
+  assert.equal(resumed.query("#roomSkipButton").disabled, false);
+  resumed.click("#roomSkipButton");
+  assert.equal(resumed.query("#roomSkipButton").getAttribute("aria-pressed"), "true");
+  resumed.tick(20000);
+  assert.equal(resumed.game.querySelector(".room-dialog-overlay"), null);
+  assert.equal(resumed.state.hanaVisits, 3);
 });
 
 test("interrupted Hana introduction and hint leave completion flags available on reload", () => {

@@ -3,7 +3,6 @@
 
   const sounds = {
     tinnitus: { url: "audio/se/tinnitus.mp3", gain: 0.5 },
-    doorOpen: { url: "audio/se/door_open.wav", gain: 0.65 },
     memoryMelody: { url: "audio/memory_melody_piano.wav", gain: 0.7 },
     memoryBand: { url: "audio/memory_band.mp3", gain: 0.65 }
   };

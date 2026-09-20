@@ -46,6 +46,18 @@ test("restore keeps repeated IDs from saved history instead of deduplicating the
   assert.deepEqual(restored.map(entry => entry.order), [0, 1, 2]);
 });
 
+test("has reports whether a stable line ID has ever been displayed, including restored history", () => {
+  const GameLog = loadGameLog();
+  assert.equal(GameLog.has("room1_hana_room_01"), false);
+  GameLog.record({ logId: "room1_hana_room_01", text: "一度表示した文" });
+  assert.equal(GameLog.has("room1_hana_room_01"), true);
+  assert.equal(GameLog.has("another-line"), false);
+
+  GameLog.restore([{ id: "restored-line", text: "再開前に表示した文" }]);
+  assert.equal(GameLog.has("room1_hana_room_01"), false);
+  assert.equal(GameLog.has("restored-line"), true);
+});
+
 test("invalid log entries are still ignored", () => {
   const GameLog = loadGameLog();
   assert.equal(GameLog.record({ logId: "", text: "本文" }), false);

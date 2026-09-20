@@ -52,7 +52,7 @@
       html[data-game-text-size="large"] .hana-choice-button{font-size:20px!important}
 
       #game.gameplay-ui-active #manualSaveControl{display:none!important}
-      #game.gameplay-ui-active{--ui-ink:#37312f;--ui-muted:#716a65;--ui-paper:rgba(250,248,244,.94);--ui-border:rgba(128,111,103,.38);--ui-accent:#8b6470;--ui-dark:rgba(32,29,28,.82)}
+      #game.gameplay-ui-active{--ui-ink:#2e424c;--ui-muted:#637984;--ui-paper:rgba(248,253,255,.96);--ui-border:rgba(102,151,173,.42);--ui-accent:#4d829a;--ui-dark:rgba(31,55,67,.86)}
       .gameplay-hud{position:absolute;z-index:28;top:max(10px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));display:flex;align-items:flex-start;justify-content:space-between;gap:12px;pointer-events:none;color:var(--ui-ink)}
       .gameplay-hud-left{display:grid;gap:7px;min-width:0;pointer-events:none}
       .gameplay-room-title{width:max-content;max-width:55vw;padding:6px 12px;border:1px solid var(--ui-border);border-radius:9px;background:var(--ui-paper);font-size:clamp(15px,2vw,20px);letter-spacing:.08em;box-shadow:0 3px 12px rgba(27,22,20,.12);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -64,7 +64,7 @@
       .gameplay-hud-actions{display:flex;gap:6px;pointer-events:auto}
       .gameplay-top-button{min-width:60px;min-height:38px;padding:7px 10px;border:1px solid rgba(255,255,255,.66);border-radius:8px;background:var(--ui-dark);color:#fff;font:inherit;font-size:12px;letter-spacing:.05em;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
       .gameplay-top-button.menu{min-width:42px;font-size:20px;line-height:1}
-      .gameplay-top-button:focus-visible,.gameplay-highlight-toggle:focus-visible,.gameplay-bottom-button:focus-visible{outline:3px solid #9d7782;outline-offset:2px}
+      .gameplay-top-button:focus-visible,.gameplay-highlight-toggle:focus-visible,.gameplay-bottom-button:focus-visible{outline:3px solid #4a91b0;outline-offset:2px}
 
       .room.gameplay-shell{grid-template-rows:minmax(0,1fr) 48px 30px;gap:7px;padding:82px 14px 66px;background:#e9e4dc}
       .room.gameplay-shell .room-header{display:none}
@@ -81,12 +81,13 @@
       .gameplay-bottom-bar{position:absolute;z-index:30;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:6px;border:1px solid var(--ui-border);border-radius:13px;background:rgba(248,246,242,.94);box-shadow:0 8px 24px rgba(28,24,22,.2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:auto}
       .gameplay-bottom-button{min-width:68px;min-height:39px;padding:7px 10px;border:0;border-radius:8px;background:transparent;color:var(--ui-ink);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
       .gameplay-bottom-button:hover{background:#eee8e3}
-      .gameplay-bottom-button[aria-pressed="true"]{background:#eadde1;color:#704b57;box-shadow:inset 0 0 0 1px #b58c98}
-      .gameplay-bottom-button.hana{padding-inline:14px;background:#f1e6e9;color:#754d59;font-weight:bold}
+      .gameplay-bottom-button[aria-pressed="true"]{background:#dceef6;color:#28556a;box-shadow:inset 0 0 0 1px #78abc1}
+      .gameplay-bottom-button:disabled{opacity:.42;cursor:not-allowed}
+      .gameplay-bottom-button.hana{padding-inline:14px;background:#f8e8ee;color:#704557;font-weight:bold}
 
       .gameplay-ui-active .room-dialog-overlay{background:rgba(24,20,19,.3)}
-      .gameplay-ui-active .room-dialog{margin-bottom:64px;border:1px solid rgba(139,112,106,.28);background:rgba(250,248,244,.96);box-shadow:0 12px 32px rgba(28,22,20,.24);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-      .gameplay-ui-active .room-dialog .auto-button,.gameplay-ui-active .room-dialog .log-button{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;min-height:0!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
+      .gameplay-ui-active .room-dialog{margin-bottom:64px;border:2px solid #b9dce9;background:rgba(249,253,255,.98);box-shadow:0 12px 32px rgba(24,62,80,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+      .gameplay-ui-active .room-dialog .auto-button,.gameplay-ui-active .room-dialog .skip-button,.gameplay-ui-active .room-dialog .log-button{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;min-height:0!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
       .gameplay-ui-active .room-dialog .dialog-controls{padding-top:7px}
 
       .gameplay-log-overlay,.gameplay-menu-overlay{position:absolute;inset:0;z-index:72;display:grid;place-items:center;padding:18px;background:rgba(20,18,17,.58);color:var(--ui-ink)}
@@ -96,7 +97,7 @@
       .gameplay-panel-close:hover{background:#ece7e2}
       .gameplay-log-list{display:grid;gap:9px;max-height:65dvh;overflow:auto;padding-right:3px}
       .gameplay-log-row{padding:10px 12px;border:1px solid #ddd6cf;border-radius:9px;background:#fff;line-height:1.65;white-space:pre-wrap}
-      .gameplay-log-row.heroine{border-color:#dec2cb;background:#fff3f6}.gameplay-log-row.player{border-color:#c7d5e6;background:#f2f7ff}.gameplay-log-row.narration{background:#fbfaf7}
+      .gameplay-log-row.heroine{border-color:#c77893;background:#fff1f5}.gameplay-log-row.heroine .gameplay-log-speaker{color:#8a4058}.gameplay-log-row.player{border-color:#a9cce0;background:#eef7fc}.gameplay-log-row.player.thought{border-style:dashed;background:#fbfdff;font-style:italic}.gameplay-log-row.narration{background:#fbfaf7}
       .gameplay-log-speaker{margin-bottom:3px;color:#766e68;font-size:11px;letter-spacing:.06em}.gameplay-log-text{font-size:14px}
       .gameplay-log-empty{padding:26px;text-align:center;color:#77706a}
       .gameplay-menu-list{display:grid;gap:9px}
@@ -110,7 +111,7 @@
         .room.gameplay-shell{padding:72px 8px 62px;grid-template-rows:minmax(0,1fr) 44px 26px;gap:5px}
         .room.gameplay-shell .room-navigation{grid-template-columns:42px 74px 42px}.room.gameplay-shell .room-navigation button{width:40px;height:40px;min-height:40px;font-size:22px}.room.gameplay-shell .room-navigation p{padding:6px 8px;font-size:11px}
         .room.gameplay-shell .explore-status{font-size:10px;padding:3px 7px}
-        .gameplay-bottom-bar{bottom:max(6px,env(safe-area-inset-bottom));gap:3px;padding:4px;border-radius:11px;width:min(calc(100% - 14px),460px);justify-content:space-between}
+        .gameplay-bottom-bar{bottom:max(6px,env(safe-area-inset-bottom));gap:3px;padding:4px;border-radius:11px;width:min(calc(100% - 14px),540px);justify-content:space-between}
         .gameplay-bottom-button{min-width:0;flex:1;min-height:36px;padding:6px 5px;font-size:10px}.gameplay-bottom-button.hana{padding-inline:8px}
         .gameplay-ui-active .room-dialog{margin-bottom:56px;width:calc(100% - 18px)}
         .gameplay-log-overlay,.gameplay-menu-overlay{padding:10px}.gameplay-panel{padding:20px 13px 14px;border-radius:13px}.gameplay-panel h2{font-size:20px}.gameplay-log-text{font-size:12px}.gameplay-menu-item{min-height:45px;font-size:14px}
@@ -156,6 +157,17 @@
     button.setAttribute("aria-pressed", String(enabled));
   }
 
+  function syncSkipButton() {
+    const button = document.getElementById("gameplaySkipButton");
+    if (!button) return;
+    const internal = document.querySelector(".room-dialog-overlay .skip-button");
+    const enabled = internal?.getAttribute("aria-pressed") === "true";
+    button.textContent = enabled ? "SKIP ON" : "SKIP";
+    button.setAttribute("aria-pressed", String(enabled));
+    button.disabled = !internal || internal.disabled;
+    button.title = internal?.title || "表示済みのテキストだけをスキップします";
+  }
+
   function renderStandaloneLog(list) {
     list.replaceChildren();
     const entries = GameLog.list();
@@ -168,7 +180,7 @@
     }
     entries.forEach(entry => {
       const row = document.createElement("article");
-      row.className = `gameplay-log-row ${entry.kind || "system"}`;
+      row.className = `gameplay-log-row ${entry.kind || "system"}${entry.thought ? " thought" : ""}`;
       if (entry.speaker) {
         const speaker = document.createElement("p");
         speaker.className = "gameplay-log-speaker";
@@ -291,13 +303,18 @@
     bar.id = "gameplayBottomBar";
     bar.className = "gameplay-bottom-bar";
     bar.setAttribute("aria-label", "ゲーム操作");
-    bar.innerHTML = `<button type="button" class="gameplay-bottom-button hana" id="gameplayHanaButton">ハナ</button><button type="button" class="gameplay-bottom-button" id="gameplayAutoButton" aria-pressed="false">AUTO</button><button type="button" class="gameplay-bottom-button" id="gameplayLogButton" aria-pressed="false">LOG</button><button type="button" class="gameplay-bottom-button" id="gameplayTextSizeButton">文字 中</button>`;
+    bar.innerHTML = `<button type="button" class="gameplay-bottom-button hana" id="gameplayHanaButton">ハナ</button><button type="button" class="gameplay-bottom-button" id="gameplayAutoButton" aria-pressed="false">AUTO</button><button type="button" class="gameplay-bottom-button" id="gameplaySkipButton" aria-pressed="false" disabled>SKIP</button><button type="button" class="gameplay-bottom-button" id="gameplayLogButton" aria-pressed="false">LOG</button><button type="button" class="gameplay-bottom-button" id="gameplayTextSizeButton">文字 中</button>`;
     game.appendChild(bar);
     bar.querySelector("#gameplayHanaButton").addEventListener("click", () => config.onCompanion?.());
     bar.querySelector("#gameplayAutoButton").addEventListener("click", () => { Dialogue.toggleAuto?.(); syncAutoButton(); });
+    bar.querySelector("#gameplaySkipButton").addEventListener("click", () => {
+      document.querySelector(".room-dialog-overlay .skip-button")?.click();
+      syncSkipButton();
+    });
     bar.querySelector("#gameplayLogButton").addEventListener("click", toggleLog);
     bar.querySelector("#gameplayTextSizeButton").addEventListener("click", cycleTextSize);
     syncAutoButton();
+    syncSkipButton();
     applyTextSize();
   }
 
@@ -367,6 +384,7 @@
   };
 
   document.addEventListener("dialogue:autochange", syncAutoButton);
+  document.addEventListener("dialogue:skipchange", syncSkipButton);
   applyTextSize();
 
   window.GameplayUI = {

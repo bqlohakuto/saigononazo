@@ -9,17 +9,17 @@
     const style = document.createElement("style");
     style.id = STYLE_ID;
     style.textContent = `
-      .hana-choice-overlay{place-items:end center;padding:18px 18px 76px;background:rgba(20,18,17,.38)}
-      .hana-choice-menu{width:min(720px,100%);padding:22px 24px 24px;border:1px solid rgba(151,129,120,.35);border-radius:18px;background:rgba(250,247,242,.97);box-shadow:0 16px 36px rgba(24,20,18,.28);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-      .hana-choice-speaker{margin:0 52px 3px 0;color:#8a5b68;font-size:14px;font-weight:bold;letter-spacing:.08em}
+      .hana-choice-overlay{place-items:end center;padding:18px 18px 76px;background:rgba(20,39,49,.36)}
+      .hana-choice-menu{width:min(720px,100%);padding:22px 24px 24px;border:1px solid #b9d5e2;border-radius:18px;background:rgba(248,253,255,.98);box-shadow:0 16px 36px rgba(22,54,70,.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+      .hana-choice-speaker{margin:0 52px 3px 0;color:#8a4058;font-size:14px;font-weight:bold;letter-spacing:.08em}
       .hana-choice-menu h2{margin:0 52px 8px 0;color:#302b29;font-size:24px;font-weight:normal}
       .hana-choice-lead{margin-bottom:16px;color:#69635f;font-size:14px;line-height:1.6}
       .hana-choice-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
       .hana-choice-list.is-introduction{grid-template-columns:1fr}
-      .hana-choice-button{width:100%;min-height:56px;padding:12px 16px;border:1px solid #c9bdb6;border-radius:10px;background:#fffdfa;color:#38312f;font:inherit;font-size:17px;text-align:left;cursor:pointer;box-shadow:0 2px 8px rgba(41,34,30,.06)}
-      .hana-choice-button:hover{background:#f7efeb;border-color:#a98891}
-      .hana-choice-button:focus-visible{outline:3px solid #9a6f7a;outline-offset:2px}
-      .hana-choice-button.is-cancel{color:#6d6662;background:#f2f0ed}
+      .hana-choice-button{width:100%;min-height:56px;padding:12px 16px;border:1px solid #b8ced9;border-radius:10px;background:#fff;color:#2f414a;font:inherit;font-size:17px;text-align:left;cursor:pointer;box-shadow:0 2px 8px rgba(31,70,89,.06)}
+      .hana-choice-button:hover{background:#eef8fc;border-color:#7fabbf}
+      .hana-choice-button:focus-visible{outline:3px solid #367da0;outline-offset:2px}
+      .hana-choice-button.is-cancel{color:#2f414a;background:#fff}
       .hana-choice-menu .device-close{top:10px;right:12px;color:#4a4541}
       @media(max-width:768px){
         .hana-choice-overlay{padding:10px 10px 66px}
@@ -38,6 +38,14 @@
 
   function displayedHanaName() {
     return hanaHasIntroducedHerself() ? "ハナ" : "？？？";
+  }
+
+  function hasViewedChoice(choice) {
+    if (choice.cancel) return false;
+    const lines = choice.id === "about-hana"
+      ? [...firstRoomScenario.hanaFirst, ...firstRoomScenario.hanaAbout]
+      : choice.lines;
+    return Array.isArray(lines) && expandScenario(lines).some(line => GameLog.has(line.logId));
   }
 
   function getHanaChoices() {
@@ -106,7 +114,7 @@
       <section class="menu-panel hana-choice-menu" aria-label="${speakerName}に聞くことを選ぶ">
         <button type="button" class="device-close" aria-label="閉じる">×</button>
         <p class="hana-choice-speaker">${speakerName}</p>
-        <h2>何を聞く？</h2>
+        <h2>どうしたの？</h2>
         <p class="hana-choice-lead">聞きたいことを選んでください。</p>
         <div class="hana-choice-list${introduced ? "" : " is-introduction"}"></div>
       </section>`;
@@ -115,10 +123,12 @@
     const list = overlay.querySelector(".hana-choice-list");
     choices.forEach(choice => {
       const button = document.createElement("button");
+      const viewed = hasViewedChoice(choice);
       button.type = "button";
-      button.className = `hana-choice-button${choice.cancel ? " is-cancel" : ""}`;
+      button.className = `hana-choice-button${choice.cancel ? " is-cancel" : ""}${viewed ? " is-viewed" : ""}`;
       button.textContent = choice.label;
       button.dataset.choice = choice.id;
+      if (viewed) button.setAttribute("aria-label", `${choice.label}（選択済み）`);
       list.appendChild(button);
     });
 

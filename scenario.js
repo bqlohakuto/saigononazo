@@ -178,14 +178,14 @@ const firstRoomScenario = {
         inbox: [
             { logId: "room1_phone_inbox_01", logType: "investigation", id: "inbox-1", from: "先輩", time: "20:15", subject: "今日の練習お疲れさま！", text: "帰り道に見た空、夕焼けがすごくきれいだったね。\n\n今日も練習お疲れさま！" },
             { logId: "room1_phone_inbox_02", logType: "investigation", id: "inbox-2", from: "先輩", time: "20:17", subject: "Re.Re. 今日の練習お疲れさま！", text: "この調子なら本番も大丈夫！\n\nファイト！" },
-            { logId: "room1_phone_inbox_03", logType: "investigation", id: "inbox-3", from: "先輩", time: "20:19", subject: "Re.Re.Re.Re. 今日の練習お疲れさま！", text: "そうだ！\n\n本番が終わったら、一緒にドーナツ食べに行かない？\n\n駅の近くに新しいお店ができたんだって。" },
-            { logId: "room1_phone_inbox_04", logType: "investigation", id: "inbox-4", from: "先輩", time: "20:21", subject: "Re.Re.Re.Re.Re.Re. 今日の練習お疲れさま！", text: "じゃあ決まり！\n\nドーナツ食べながら、本番の打ち上げしよう！" }
+            { logId: "room1_phone_inbox_03", logType: "investigation", id: "inbox-3", from: "先輩", time: "20:19", subject: "Re.Re.Re.Re. 今日の練習お疲れさま！", text: "そうだ！\n\n明日の練習が終わったら、一緒にドーナツ食べに行かない？\n\n駅の近くに新しいお店ができたんだって。" },
+            { logId: "room1_phone_inbox_04", logType: "investigation", id: "inbox-4", from: "先輩", time: "20:21", subject: "Re.Re.Re.Re.Re.Re. 今日の練習お疲れさま！", text: "じゃあ決まり！\n\nドーナツいっぱいたべたいな！" }
         ],
         sent: [
             { logId: "room1_phone_sent_01", logType: "investigation", id: "sent-1", to: "先輩", time: "20:16", subject: "Re. 今日の練習お疲れさま！", text: "お疲れさまです！\n\nありがとうございます。\n\nトランペット、もっと上手くなれるように頑張ります！" },
             { logId: "room1_phone_sent_02", logType: "investigation", id: "sent-2", to: "先輩", time: "20:18", subject: "Re.Re.Re. 今日の練習お疲れさま！", text: "はい！\n\nみんなと一緒なら、最後まで頑張れそうです。" },
             { logId: "room1_phone_sent_03", logType: "investigation", id: "sent-3", to: "先輩", time: "20:20", subject: "Re.Re.Re.Re.Re. 今日の練習お疲れさま！", text: "行きたいです！\n\nこの前レモン味を食べたんですけど、すごくおいしかったです。" },
-            { logId: "room1_phone_sent_04", logType: "investigation", id: "sent-4", to: "先輩", time: "20:22", subject: "Re.Re.Re.Re.Re.Re.Re. 今日の練習お疲れさま！", text: "ありがとうございます！\n\n先輩たちと一緒に演奏できて、本当に幸せです。\n\n本番も頑張ります！" }
+            { logId: "room1_phone_sent_04", logType: "investigation", id: "sent-4", to: "先輩", time: "20:22", subject: "Re.Re.Re.Re.Re.Re.Re. 今日の練習お疲れさま！", text: "そんなに食べるんですか？笑\n\n先輩たちと一緒に演奏できて、本当に幸せです。\n\n練習頑張ります！" }
         ]
     },
     pianoIntroduction: [

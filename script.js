@@ -187,7 +187,6 @@ function showSettings(){
 // This shared transition remains here because it hands control to room 1.
 function endOpening(){
  GameAudio.stop("tinnitus");
- GameAudio.play("doorOpen");
  setTimeout(showFirstRoom,1200);
 }
 
@@ -248,7 +247,7 @@ function showFirstRoom(savedState){
   showRoomNotice("続きから再開しました。","room1_resumed","narration");
   if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked)showFirstRoomMemory();
   else if(firstRoomState.nextRoomTransitionSeen)showNextRoomBoundary();
- }else{showRoomDialog(firstRoomScenario.hanaFirst,completeHanaIntroduction)}
+ }
  saveGame();
 }
 
@@ -431,14 +430,16 @@ function showPhoneScreen(){
  overlay.className="device-overlay";
  overlay.innerHTML=`<section class="phone-screen" aria-label="携帯電話のメール"><header><p>メール</p><button type="button" class="device-close" aria-label="閉じる">×</button></header><div class="mail-tabs"><button type="button" data-folder="inbox" class="is-active">受信BOX</button><button type="button" data-folder="sent">送信BOX</button></div><div class="mail-list"></div><article class="mail-detail" aria-live="polite"><p>メールを選んで内容を確認する。</p></article></section>`;
  game.appendChild(overlay);
- let folder="inbox";
+ let folder="inbox",selectedMailId=null;
  const list=overlay.querySelector(".mail-list"),detail=overlay.querySelector(".mail-detail");
  recordLog({logId:"room1_phone_select_prompt",logType:"investigation",speaker:"システム",logColor:"#222222",text:"メールを選んで内容を確認する。"});
  const render=()=>{
   overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.classList.toggle("is-active",tab.dataset.folder===folder));
-  list.innerHTML=firstRoomScenario.phoneMail[folder].map((mail,index)=>`<button type="button" class="mail-item" data-index="${index}"><strong>${folder==="inbox" ? "From" : "To"}:先輩</strong><span>${mail.time}</span><small>${mail.subject}</small></button>`).join("");
+  list.innerHTML=firstRoomScenario.phoneMail[folder].map((mail,index)=>`<button type="button" class="mail-item${mail.id===selectedMailId?" is-selected":""}" data-index="${index}"${mail.id===selectedMailId?' aria-current="true"':""}><strong>${folder==="inbox" ? "From" : "To"}:先輩</strong><span>${mail.time}</span><small>${mail.subject}</small></button>`).join("");
   list.querySelectorAll(".mail-item").forEach(button=>button.addEventListener("click",()=>{
    const mail=firstRoomScenario.phoneMail[folder][Number(button.dataset.index)];
+   selectedMailId=mail.id;
+   list.querySelectorAll(".mail-item").forEach(item=>{item.classList.toggle("is-selected",item===button);item.setAttribute("aria-current",String(item===button))});
    (folder==="inbox" ? firstRoomState.openedInbox : firstRoomState.openedSent).add(mail.id);
    saveGame();
    detail.innerHTML=`<p>${folder==="inbox" ? "From" : "To"}:先輩　${mail.time}</p><h3>件名：${mail.subject}</h3><p>${mail.text.replace(/\n/g,"<br>")}</p>`;
@@ -446,7 +447,7 @@ function showPhoneScreen(){
    showRoomNotice(`${folder==="inbox" ? "受信" : "送信"}メールを確認した。`,`room1_phone_${folder}_checked`);
   }));
  };
- overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.addEventListener("click",()=>{folder=tab.dataset.folder;detail.innerHTML="<p>メールを選んで内容を確認する。</p>";render()}));
+ overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.addEventListener("click",()=>{folder=tab.dataset.folder;selectedMailId=null;detail.innerHTML="<p>メールを選んで内容を確認する。</p>";render()}));
  render();
  activateDeviceModal(overlay,"phoneButton",overlay.querySelector('[data-folder="inbox"]'),()=>{
   if(!firstRoomState.phoneReflectionSeen&&hasCheckedAllMail("inbox")&&hasCheckedAllMail("sent")){
@@ -523,7 +524,6 @@ function showUnlockedDoorChoices(){
  });
  overlay.querySelector("#nextRoomButton").addEventListener("click",()=>{
   close();
-  GameAudio.play("doorOpen");
   showRoomDialog(firstRoomScenario.nextRoom,()=>{
    firstRoomState.nextRoomTransitionSeen=true;
    saveGame();
@@ -555,9 +555,9 @@ function showRoomDialog(lines,onComplete,onDisplay){
  if(room)room.inert=true;
  const overlay=document.createElement("div");
  overlay.className="room-dialog-overlay";
- overlay.innerHTML=`<section class="room-dialog" role="dialog" aria-modal="true" aria-label="会話"><div class="dialog-message-area" id="roomMessage"></div><div class="dialog-log-area" id="roomLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="roomAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="log-button" id="roomLogButton" aria-pressed="false" aria-expanded="false" aria-controls="roomLogArea">LOG</button><button type="button" class="next-button" id="roomNextButton" aria-label="次へ">▶</button></div></section>`;
+ overlay.innerHTML=`<section class="room-dialog" role="dialog" aria-modal="true" aria-label="会話"><div class="dialog-message-area" id="roomMessage"></div><div class="dialog-log-area" id="roomLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="roomAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="skip-button" id="roomSkipButton" aria-pressed="false" disabled>SKIP</button><button type="button" class="log-button" id="roomLogButton" aria-pressed="false" aria-expanded="false" aria-controls="roomLogArea">LOG</button><button type="button" class="next-button" id="roomNextButton" aria-label="次へ">▶</button></div></section>`;
  game.appendChild(overlay);
- const next=overlay.querySelector("#roomNextButton"),auto=overlay.querySelector("#roomAutoButton"),log=overlay.querySelector("#roomLogButton"),logArea=overlay.querySelector("#roomLogArea");
+ const next=overlay.querySelector("#roomNextButton"),auto=overlay.querySelector("#roomAutoButton"),skip=overlay.querySelector("#roomSkipButton"),log=overlay.querySelector("#roomLogButton"),logArea=overlay.querySelector("#roomLogArea");
  overlay.addEventListener("keydown",event=>{
   if(event.key!=="Tab")return;
   const controls=[...overlay.querySelectorAll("[tabindex],button")].filter(control=>!control.hidden&&!control.disabled);
@@ -565,7 +565,7 @@ function showRoomDialog(lines,onComplete,onDisplay){
   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
  });
- Dialogue.start({lines:expandScenario(lines),messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,logButton:log,logArea,dialog:overlay.querySelector(".room-dialog"),onDisplay:(line,index)=>{
+ Dialogue.start({lines:expandScenario(lines),messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,skipButton:skip,logButton:log,logArea,dialog:overlay.querySelector(".room-dialog"),isRead:line=>GameLog.has(line.logId),onDisplay:(line,index)=>{
   recordLog(line);
   if(onDisplay)onDisplay(line,index);
  },getTextSpeed:()=>settings.textSpeed,onComplete:()=>{

@@ -86,7 +86,7 @@ test("unlock resumes synchronously; ended and interrupted one-shots never replay
   assert.equal(context.gains[1].disconnected, true);
   await audio.unlock();
   assert.equal(context.sources.length, 1);
-  await audio.play("doorOpen");
+  await audio.play("memoryMelody");
   const second = context.sources[1];
   context.state = "interrupted";
   context.emit("statechange");
@@ -110,7 +110,7 @@ test("stop, hidden, and pagehide cancel a sound waiting for its file", async () 
     assert.equal(await pending, false, action);
     assert.equal(contexts[0].sources.length, 0, action);
     if (action !== "stop") assert.equal(contexts[0].suspends, 1, action);
-    if (action === "hidden") assert.equal(await audio.play("doorOpen"), false);
+    if (action === "hidden") assert.equal(await audio.play("memoryMelody"), false);
     document.hidden = false;
     await audio.unlock();
     assert.equal(contexts[0].sources.length, 0, action);

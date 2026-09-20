@@ -62,7 +62,7 @@ function flashRed() {
 function showOpening(startIndex = 0) {
   const initialBackground = openingBackgroundForIndex(startIndex);
 
-  game.innerHTML = `<div class="opening" style="opacity:1;animation:none;background:${initialBackground}"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div class="dialog-message-area" id="messageArea"></div><div class="dialog-log-area" id="openingLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="openingAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="log-button" id="openingLogButton" aria-pressed="false" aria-expanded="false" aria-controls="openingLogArea">LOG</button><button type="button" class="next-button" id="nextButton" aria-label="次へ">▶</button></div></div></div>`;
+  game.innerHTML = `<div class="opening" style="opacity:1;animation:none;background:${initialBackground}"><div id="character-area"></div><div class="dialog" id="dialog" style="display:none"><div class="dialog-message-area" id="messageArea"></div><div class="dialog-log-area" id="openingLogArea" role="region" aria-label="テキスト履歴" tabindex="0" hidden></div><div class="dialog-controls"><button type="button" class="auto-button" id="openingAutoButton" aria-pressed="false">AUTO OFF</button><button type="button" class="skip-button" id="openingSkipButton" aria-pressed="false" disabled>SKIP</button><button type="button" class="log-button" id="openingLogButton" aria-pressed="false" aria-expanded="false" aria-controls="openingLogArea">LOG</button><button type="button" class="next-button" id="nextButton" aria-label="次へ">▶</button></div></div></div>`;
 
   const dialog = document.getElementById("dialog");
   if (!dialog) return;
@@ -75,10 +75,12 @@ function showOpening(startIndex = 0) {
     messageArea: document.getElementById("messageArea"),
     nextButton: document.getElementById("nextButton"),
     autoButton: document.getElementById("openingAutoButton"),
+    skipButton: document.getElementById("openingSkipButton"),
     logButton: document.getElementById("openingLogButton"),
     logArea: document.getElementById("openingLogArea"),
     dialog,
     getTextSpeed: () => settings.textSpeed,
+    isRead: line => GameLog.has(line.logId),
     onDisplay: (line, index) => {
       openingIndex = index;
       updateOpeningVisual(index);

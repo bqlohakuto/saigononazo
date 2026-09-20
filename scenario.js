@@ -51,7 +51,7 @@ const openingScenario = [
 ];
 
 // 第一の部屋。調査・会話・回想もここを正本とし、script.js には進行だけを持たせる。
-// アップロード原稿の重複する導入は hanaFirst に統合。未支給の吹奏楽音源は本文と分けて管理する。
+// アップロード原稿の重複する導入は hanaFirst に統合。吹奏楽音源の再生タイミングは script.js で管理する。
 const firstRoomScenario = {
     melody: ["ソ", "ラ", "ファ", "ミ", "ド", "レ", "ド", "シ"],
     hanaFirst: [

@@ -27,6 +27,7 @@ function harness(options = {}) {
       Object.assign(this, events());
       this.state = "suspended";
       this.destination = {};
+      this.currentTime = 12;
       this.sources = [];
       this.gains = [];
       this.resumes = 0;
@@ -36,14 +37,20 @@ function harness(options = {}) {
     resume() { this.resumes++; this.state = "running"; return Promise.resolve(); }
     suspend() { this.suspends++; this.state = "suspended"; this.emit("statechange"); return Promise.resolve(); }
     createGain() {
-      const node = { gain: { value: 1 }, connect() {}, disconnect() { this.disconnected = true; } };
+      const gain = {
+        value: 1, events: [],
+        cancelScheduledValues(time) { this.events.push(["cancel", time]); },
+        setValueAtTime(value, time) { this.events.push(["set", value, time]); this.value = value; },
+        linearRampToValueAtTime(value, time) { this.events.push(["ramp", value, time]); }
+      };
+      const node = { gain, connect() {}, disconnect() { this.disconnected = true; } };
       this.gains.push(node);
       return node;
     }
     createBufferSource() {
       const node = {
         loop: true, starts: 0, stops: 0,
-        connect() {}, start() { this.starts++; }, stop() { this.stops++; },
+        connect() {}, start() { this.starts++; }, stop(time) { this.stops++; this.stopAt = time; },
         disconnect() { this.disconnected = true; }
       };
       this.sources.push(node);
@@ -110,6 +117,18 @@ test("stop, hidden, and pagehide cancel a sound waiting for its file", async () 
   }
 });
 
+test("fade cue cancels a memory band that is still loading", async () => {
+  const file = deferred();
+  const { audio, contexts } = harness({
+    fetch: url => url.includes("memory_band") ? file.promise : Promise.resolve(response())
+  });
+  const pending = audio.play("memoryBand");
+  assert.equal(audio.fadeOut("memoryBand", 2000), false);
+  file.resolve(response());
+  assert.equal(await pending, false);
+  assert.equal(contexts[0].sources.length, 0);
+});
+
 test("a repeated sound id replaces its source and stopAll disconnects it", async () => {
   const { audio, contexts } = harness();
   await audio.play("memoryMelody");
@@ -121,6 +140,25 @@ test("a repeated sound id replaces its source and stopAll disconnects it", async
   assert.equal(second.starts, 1);
   audio.stopAll();
   assert.equal(second.disconnected, true);
+});
+
+test("memory band fades to silence and stops at the requested time only while active", async () => {
+  const { audio, contexts } = harness();
+  assert.equal(audio.fadeOut("memoryBand", 1500), false);
+  assert.equal(await audio.play("memoryBand"), true);
+  const context = contexts[0], source = context.sources[0], gain = context.gains[1].gain;
+  assert.equal(audio.fadeOut("memoryBand", 1500), true);
+  assert.deepEqual(gain.events, [
+    ["cancel", 12],
+    ["set", 0.65, 12],
+    ["ramp", 0, 13.5]
+  ]);
+  assert.equal(source.stopAt, 13.5);
+  assert.equal(audio.fadeOut("memoryBand", 1500), true);
+  assert.equal(source.stops, 1);
+  source.onended();
+  assert.equal(source.disconnected, true);
+  assert.equal(audio.fadeOut("memoryBand", 1500), false);
 });
 
 test("master volume supports zero before and during playback and clamps its range", async () => {
@@ -148,6 +186,7 @@ test("missing Web Audio stays silent and every public operation remains safe", a
   audio.setVolume(0);
   audio.stop("tinnitus");
   audio.stopAll();
+  assert.equal(audio.fadeOut("tinnitus", 1500), false);
   window.emit("pagehide");
   assert.equal(contexts.length, 0);
 });

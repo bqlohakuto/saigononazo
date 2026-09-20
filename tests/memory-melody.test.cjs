@@ -1,5 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -46,4 +47,14 @@ test("memory melody assets use the eight-note room-one answer", () => {
   const dataOffset = wav.indexOf(Buffer.from("data"));
   const duration = wav.readUInt32LE(dataOffset + 4) / byteRate;
   assert.ok(duration > 6.5 && duration < 6.6, `unexpected WAV duration: ${duration}`);
+});
+
+test("memory band asset matches the supplied recording", () => {
+  const recording = audio("memory_band.mp3");
+  assert.equal(recording.length, 1604142);
+  assert.equal(recording.subarray(0, 3).toString("ascii"), "ID3");
+  assert.equal(
+    crypto.createHash("sha256").update(recording).digest("hex"),
+    "6267d2788fb9f19879a99d2e52e035d1a84742e390388622247a011732424241"
+  );
 });

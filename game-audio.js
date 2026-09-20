@@ -4,7 +4,8 @@
   const sounds = {
     tinnitus: { url: "audio/se/tinnitus.mp3", gain: 0.5 },
     doorOpen: { url: "audio/se/door_open.wav", gain: 0.65 },
-    memoryMelody: { url: "audio/memory_melody_piano.wav", gain: 0.7 }
+    memoryMelody: { url: "audio/memory_melody_piano.wav", gain: 0.7 },
+    memoryBand: { url: "audio/memory_band.mp3", gain: 0.65 }
   };
   const files = new Map();
   const buffers = new Map();
@@ -40,6 +41,36 @@
 
   function stopAll() {
     Array.from(playing.keys()).forEach(stop);
+  }
+
+  function fadeOut(id, durationMs = 1000) {
+    const entry = playing.get(id);
+    if (!entry) return false;
+    // A queued sound must be invalidated so it cannot begin after this cue.
+    if (!entry.source || !entry.gain || !context) {
+      stop(id);
+      return false;
+    }
+    if (entry.fading) return true;
+    const duration = Number(durationMs);
+    if (!Number.isFinite(duration) || duration <= 0) {
+      stop(id);
+      return true;
+    }
+    try {
+      const now = context.currentTime;
+      const end = now + duration / 1000;
+      const gain = entry.gain.gain;
+      entry.fading = true;
+      gain.cancelScheduledValues(now);
+      gain.setValueAtTime(gain.value, now);
+      gain.linearRampToValueAtTime(0, end);
+      entry.source.stop(end);
+      return true;
+    } catch (_) {
+      stop(id);
+      return false;
+    }
   }
 
   function unlock() {
@@ -130,5 +161,5 @@
   document.addEventListener("visibilitychange", () => { if (document.hidden) pausePage(); });
   global.addEventListener("pagehide", pausePage);
   if (typeof global.fetch === "function") Object.keys(sounds).forEach(loadFile);
-  global.GameAudio = { unlock, play, stop, stopAll, setVolume };
+  global.GameAudio = { unlock, play, stop, stopAll, fadeOut, setVolume };
 })(window);

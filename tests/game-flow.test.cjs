@@ -164,11 +164,19 @@ function harness(saved) {
   const audio = [
     { id: "tinnitus", source: "audio/se/tinnitus.mp3", playCount: 0 },
     { id: "doorOpen", source: "audio/se/door_open.wav", playCount: 0 },
-    { id: "memoryMelody", source: "audio/memory_melody_piano.wav", playCount: 0 }
+    { id: "memoryMelody", source: "audio/memory_melody_piano.wav", playCount: 0 },
+    { id: "memoryBand", source: "audio/memory_band.mp3", playCount: 0 }
   ];
+  const audioEvents = [];
   const GameAudio = {
-    unlock: () => Promise.resolve(true), stop() {}, stopAll() {}, setVolume() {},
-    play(id) { audio.find(item => item.id === id).playCount++; return Promise.resolve(true); }
+    unlock: () => Promise.resolve(true), stopAll() {}, setVolume() {},
+    stop(id) { audioEvents.push({ action: "stop", id }); },
+    fadeOut(id, duration) { audioEvents.push({ action: "fadeOut", id, duration }); return true; },
+    play(id) {
+      audio.find(item => item.id === id).playCount++;
+      audioEvents.push({ action: "play", id });
+      return Promise.resolve(true);
+    }
   };
   const setTimer = (callback, delay, interval) => {
     const id = ++timerId; timers.set(id, { callback, at: now + delay, interval }); return id;
@@ -192,7 +200,7 @@ function harness(saved) {
   const query = selector => { const element = game.querySelector(selector); assert.ok(element, `Missing ${selector}`); return element; };
   const flushObservers = () => [...observers].forEach(observer => observer.callback());
   return {
-    document, game, run, query, audio, writes, timers, observers,
+    document, game, run, query, audio, audioEvents, writes, timers, observers,
     get state() { return JSON.parse(run("JSON.stringify({...firstRoomState,openedInbox:[...firstRoomState.openedInbox],openedSent:[...firstRoomState.openedSent]})")); },
     get saved() { return JSON.parse(storage.get("saigononazo-save-v1")); },
     get saveCount() { return writes.filter(write => write.key === "saigononazo-save-v1").length; },
@@ -584,12 +592,31 @@ test("piano closes accessibly; correct play cleans up its modal before memory an
   h.query(".device-close").focus(); h.key("Tab");
   assert.equal(h.document.activeElement, h.query("#playMelodyButton"));
   h.click("#playMelodyButton");
+  assert.equal(h.audio.find(item => item.id === "memoryBand").playCount, 0);
   assert.equal(h.game.querySelector(".device-overlay"), null);
   assert.deepEqual(h.document.listeners.get("keydown"), persistentKeyListeners);
   assert.equal(h.document.listeners.get("focusin").length, 0);
   assert.equal(h.observers.size, 0);
   assert.equal(h.query(".room").inert, true); // Now owned by memory dialogue.
   assert.equal(h.document.activeElement, h.query("#roomNextButton"));
+  assert.deepEqual(h.audioEvents.filter(event => event.id?.startsWith("memory")), [
+    { action: "play", id: "memoryMelody" }
+  ]);
+  const bandStart = h.run("firstRoomScenario.pianoCorrect[3].text");
+  while (!h.saved.logs.some(entry => entry.text === bandStart)) h.click("#roomNextButton");
+  assert.deepEqual(h.audioEvents.filter(event => event.id?.startsWith("memory")), [
+    { action: "play", id: "memoryMelody" },
+    { action: "stop", id: "memoryMelody" },
+    { action: "play", id: "memoryBand" }
+  ]);
+  const bandFade = h.run("firstRoomScenario.memory[8].text");
+  while (!h.saved.logs.some(entry => entry.text === bandFade)) h.click("#roomNextButton");
+  assert.deepEqual(h.audioEvents.filter(event => event.id?.startsWith("memory")), [
+    { action: "play", id: "memoryMelody" },
+    { action: "stop", id: "memoryMelody" },
+    { action: "play", id: "memoryBand" },
+    { action: "fadeOut", id: "memoryBand", duration: 2000 }
+  ]);
   h.finishDialogue();
   assert.equal(h.state.doorUnlocked, true);
   assert.equal(h.saved.state.doorUnlocked, true);

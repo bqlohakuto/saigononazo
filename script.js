@@ -490,7 +490,16 @@ function showPianoScreen(){
 }
 
 function showFirstRoomMemory(){
- showRoomDialog([...firstRoomScenario.pianoCorrect,...firstRoomScenario.memory,...firstRoomScenario.afterMemory],unlockFirstRoomDoor);
+ showRoomDialog(
+  [...firstRoomScenario.pianoCorrect,...firstRoomScenario.memory,...firstRoomScenario.afterMemory],
+  unlockFirstRoomDoor,
+  line=>{
+   const sourceId=line.logId?.replace(/_\d{2}$/u,"");
+   if(sourceId==="room1_piano_correct_02")GameAudio.stop("memoryMelody");
+   if(sourceId==="room1_piano_correct_04")GameAudio.play("memoryBand");
+   if(sourceId==="room1_memory_music_room_09")GameAudio.fadeOut("memoryBand",2000);
+  }
+ );
 }
 
 function unlockFirstRoomDoor(){
@@ -540,7 +549,7 @@ function showRoomNotice(text,logId,logType="investigation"){
  showLoggedText(document.getElementById("exploreStatus"),text,logId,logType,"#5f675a");
 }
 
-function showRoomDialog(lines,onComplete){
+function showRoomDialog(lines,onComplete,onDisplay){
  const opener=document.activeElement;
  const room=game.querySelector(".room");
  if(room)room.inert=true;
@@ -556,7 +565,10 @@ function showRoomDialog(lines,onComplete){
   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
  });
- Dialogue.start({lines:expandScenario(lines),messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,logButton:log,logArea,dialog:overlay.querySelector(".room-dialog"),onDisplay:recordLog,getTextSpeed:()=>settings.textSpeed,onComplete:()=>{
+ Dialogue.start({lines:expandScenario(lines),messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,logButton:log,logArea,dialog:overlay.querySelector(".room-dialog"),onDisplay:(line,index)=>{
+  recordLog(line);
+  if(onDisplay)onDisplay(line,index);
+ },getTextSpeed:()=>settings.textSpeed,onComplete:()=>{
   overlay.remove();
   if(room)room.inert=false;
   if(opener?.isConnected&&!opener.disabled)opener.focus({preventScroll:true});

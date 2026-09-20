@@ -56,35 +56,37 @@
       }];
     }
 
-    const choices = [];
-    if (firstRoomState.questionSeen) {
-      choices.push({
-        id: "question",
-        label: "問題文について",
-        lines: firstRoomScenario.hanaAfterQuestion
-      });
-    } else {
-      choices.push({
-        id: "door",
-        label: "扉について",
-        lines: firstRoomScenario.hanaBeforeQuestion
-      });
+    const choices = [
+      {id: "about-hana", label: "あなたについて", lines: firstRoomScenario.hanaAbout},
+      {id: "about-room", label: "この部屋について", lines: firstRoomScenario.hanaRoom}
+    ];
+    if (!firstRoomState.questionSeen) {
+      choices.push({id: "first-puzzle", label: "最初の謎について", lines: firstRoomScenario.hanaFirstPuzzle});
     }
-
-    if (
-      firstRoomState.questionSeen &&
-      firstRoomState.pianoAttempted &&
-      hasCheckedAllMail("inbox") &&
-      !hasCheckedAllMail("sent")
-    ) {
-      choices.push({
-        id: "hint",
-        label: firstRoomState.mailHintGiven ? "ヒントをもう一度聞く" : "ヒントがほしい",
-        lines: firstRoomScenario.hanaMailHint,
-        onComplete() {
-          firstRoomState.mailHintGiven = true;
-        }
-      });
+    if (firstRoomState.posterInspected) {
+      choices.push({id: "poster", label: "ポスターについて", lines: firstRoomScenario.hanaPoster});
+    }
+    const mailSeen = firstRoomState.openedInbox.size + firstRoomState.openedSent.size > 0;
+    if (mailSeen) {
+      choices.push({id: "phone", label: "携帯電話について", lines: firstRoomScenario.hanaPhone});
+    }
+    if (firstRoomState.pianoIntroductionSeen || firstRoomState.pianoAttempted) {
+      choices.push({id: "piano", label: "ピアノについて", lines: firstRoomScenario.hanaPiano});
+    }
+    if (firstRoomState.questionSeen && !firstRoomState.doorUnlocked) {
+      const available = firstRoomState.posterInspected && mailSeen
+        ? Math.min(4, Math.max(2, Number(firstRoomState.hintLevel || 0) + 1)) : 1;
+      for (let level = 1; level <= available; level++) {
+        choices.push({
+          id: `hint-${level}`,
+          label: `扉の謎について（ヒント${level}）`,
+          lines: firstRoomScenario.hanaHints[level - 1],
+          onComplete() {
+            firstRoomState.hintLevel = Math.max(Number(firstRoomState.hintLevel || 0), level);
+            if (level >= 3) firstRoomState.mailHintGiven = true;
+          }
+        });
+      }
     }
 
     choices.push({id: "cancel", label: "なんでもない", cancel: true});

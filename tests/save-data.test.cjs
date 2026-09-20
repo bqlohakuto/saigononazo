@@ -64,7 +64,7 @@ test("legacy opening saves migrate their opening index and keep an empty room ma
 
   assert.equal(saved.currentScene, "opening");
   assert.equal(saved.opening.index, 9);
-  assert.deepEqual(saved.rooms, {});
+  assert.deepEqual(Object.keys(saved.rooms), []);
   assert.equal(saved.logs.length, 1);
 });
 

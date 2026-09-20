@@ -94,7 +94,7 @@ function harness() {
       });
       return {
         messageArea, nextButton, autoButton, controller,
-        get text() { return messageArea.children[0]?.children[0]?.textContent ?? ""; },
+        get text() { return messageArea.children[0]?.children.find(child => child.className.startsWith("message "))?.textContent ?? ""; },
         get row() { return messageArea.children[0]; },
         get completions() { return completions; }
       };
@@ -216,6 +216,23 @@ test("system instructions remain manual even with AUTO ON", () => {
   h.clock.tick(20);
   assert.equal(d.text, "次");
   h.clock.tick(2000);
+  assert.equal(d.completions, 1);
+});
+
+test("memory characters expose their names and AUTO advances every character dialogue", () => {
+  const h = harness();
+  const speakers = ["顧問", "部長", "部員全員", "先輩"];
+  const d = h.start(speakers.map(speaker => ({ speaker, logType: "dialogue", text: "声" })));
+  d.autoButton.click();
+  for (const speaker of speakers) {
+    assert.equal(d.row.className, "message-row character");
+    assert.equal(d.row.getAttribute("aria-label"), `${speaker}のセリフ`);
+    assert.equal(d.row.children[0].className, "message-speaker");
+    assert.equal(d.row.children[0].textContent, speaker);
+    h.clock.tick(20);
+    assert.equal(d.text, "声");
+    h.clock.tick(2000);
+  }
   assert.equal(d.completions, 1);
 });
 

@@ -4,7 +4,6 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
-const expectedVersion = "20260915-hana-identity01";
 const expectedAssets = [
   "style.css",
   "scenario.js",
@@ -27,6 +26,8 @@ function localAssetReferences() {
 test("all local CSS and JS references share one cache version", () => {
   const references = localAssetReferences();
   assert.equal(references.length, expectedAssets.length);
+  const expectedVersion = new URLSearchParams(references[0].split("?")[1]).get("v");
+  assert.match(expectedVersion || "", /^\d{8}-[a-z0-9-]+$/, "cache version must be dated and nonempty");
 
   for (const asset of expectedAssets) {
     const reference = references.find(value => value.startsWith(`${asset}?`));

@@ -53,3 +53,14 @@ test("invalid log entries are still ignored", () => {
   assert.equal(GameLog.record({ text: "本文" }), false);
   assert.deepEqual(JSON.parse(JSON.stringify(GameLog.list())), []);
 });
+
+test("memory characters retain their speaker and character kind through saved history", () => {
+  const GameLog = loadGameLog();
+  for (const speaker of ["顧問", "部長", "部員全員", "先輩"]) {
+    assert.equal(GameLog.record({ logId: speaker, logType: "dialogue", speaker, text: "声" }), true);
+  }
+  const before = JSON.parse(JSON.stringify(GameLog.list()));
+  assert.ok(before.every(entry => entry.kind === "character"));
+  GameLog.restore(before);
+  assert.deepEqual(JSON.parse(JSON.stringify(GameLog.list())), before);
+});

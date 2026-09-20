@@ -2,7 +2,7 @@
 const Dialogue=(()=>{
  let autoEnabled=false,active=null;
  const AUTO_DELAY=2000;
- const kindOf=line=>line.speaker==="主人公"||line.thought?"player":line.speaker==="ハナ"?"heroine":line.speaker==="ト書き"?"narration":"system";
+ const kindOf=line=>line.speaker==="主人公"||line.thought?"player":line.speaker==="ハナ"?"heroine":line.speaker==="ト書き"?"narration":line.logType==="dialogue"?"character":"system";
  const emitAutoChange=()=>{
   if(typeof document?.dispatchEvent==="function"&&typeof CustomEvent==="function")document.dispatchEvent(new CustomEvent("dialogue:autochange",{detail:{enabled:autoEnabled}}));
  };
@@ -39,7 +39,10 @@ const Dialogue=(()=>{
    const line=lines[index],kind=kindOf(line);
    const row=document.createElement("div");
    row.className=`message-row ${kind}`;
-   row.setAttribute("aria-label",kind==="player"?(line.thought?"主人公の心の声":"主人公のセリフ"):kind==="heroine"?"ハナのセリフ":kind==="narration"?"地の文":line.speaker||"案内");
+   row.setAttribute("aria-label",kind==="player"?(line.thought?"主人公の心の声":"主人公のセリフ"):kind==="heroine"?"ハナのセリフ":kind==="character"?`${line.speaker}のセリフ`:kind==="narration"?"地の文":line.speaker||"案内");
+   if(kind==="character"){
+    const label=document.createElement("span");label.className="message-speaker";label.textContent=line.speaker;row.appendChild(label);
+   }
    message=document.createElement("div");message.className=`message ${kind}`;
    row.appendChild(message);messageArea.replaceChildren(row);messageArea.scrollTop=0;
    characters=Array.from(line.text);typing=true;
@@ -74,6 +77,9 @@ const Dialogue=(()=>{
   function appendLogEntry(entry){
    const kind=entry.kind||kindOf(entry),row=document.createElement("div"),text=document.createElement("div");
    row.className=`message-row ${kind}`;
+   if(kind==="character"){
+    const label=document.createElement("span");label.className="message-speaker";label.textContent=entry.speaker;row.appendChild(label);
+   }
    text.className=`message ${kind}`;
    text.textContent=entry.text;
    if(entry.color)text.style.color=entry.color;

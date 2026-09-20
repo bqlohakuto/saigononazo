@@ -35,6 +35,6 @@ test("shared game code delegates new-game and resume flow to the canonical openi
   const script = read("script.js");
 
   assert.match(script, /clearSave\(\);flashRed\(\)/);
-  assert.match(script, /showOpening\(saved\.openingIndex\)/);
+  assert.match(script, /showOpening\(saved\.opening\.index\)/);
   assert.match(script, /function\s+endOpening\s*\(/);
 });

@@ -19,6 +19,8 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .message-row{display:flex;width:100%;justify-content:center}.message-row.player{justify-content:flex-end}.message-row.heroine{justify-content:flex-start}
 .message{display:block;max-width:78%;padding:16px 20px;border:2px solid transparent;border-radius:18px;font-size:30px;line-height:1.8;overflow-wrap:anywhere;text-align:left;color:#333}
 .message.heroine{background:#fff0f5;color:#49373e;border-color:#edc6d5}
+.message-row.character{flex-direction:column;align-items:flex-start;gap:5px}.message.character{background:#fff9ed;color:#443c30;border-color:#d8c9ae}.message-speaker{padding-left:10px;font-size:14px;color:#695d4e}
+.room-exit-menu{display:grid;gap:16px;color:#38312f}.room-exit-menu h2{padding-right:28px}.room-exit-menu>button:not(.device-close){padding:14px;border:1px solid #c9bdb6;border-radius:10px;background:#fffdfa;color:#38312f;font:inherit;cursor:pointer}.room-transition-overlay{background:rgba(255,255,255,.96)}
 .message.player{background:#eef5ff;color:#374151;border-color:#bfd7ff}
 .message.narration{max-width:92%;background:#fff;color:#333;border-color:#dedede}
 .message.system{max-width:92%;background:#eceeef;color:#333;border-color:#ced2d6}

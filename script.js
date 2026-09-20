@@ -203,7 +203,7 @@ function showFirstRoom(savedState){
  currentScene="room01";
  Dialogue.stop();
  GameAudio.stop("tinnitus");
- firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,viewedWall:"front",...savedState,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
+ firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,hintLevel:0,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,phoneReflectionSeen:false,posterInspected:false,pianoIntroductionSeen:false,nextRoomTransitionSeen:false,viewedWall:"front",...savedState,hanaIntroduced:savedState?.hanaIntroduced??Number(savedState?.hanaVisits||0)>0,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
  if(!firstRoomWalls.some(wall=>wall.id===firstRoomState.viewedWall))firstRoomState.viewedWall="front";
  game.innerHTML=`
   <main class="room ${firstRoomState.doorUnlocked?"is-restored":""}" aria-label="第一の部屋">
@@ -247,7 +247,8 @@ function showFirstRoom(savedState){
  if(savedState){
   showRoomNotice("続きから再開しました。","room1_resumed","narration");
   if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked)showFirstRoomMemory();
- }else{showRoomDialog(firstRoomScenario.introduction)}
+  else if(firstRoomState.nextRoomTransitionSeen)showNextRoomBoundary();
+ }else{showRoomDialog(firstRoomScenario.hanaFirst,completeHanaIntroduction)}
  saveGame();
 }
 
@@ -288,28 +289,26 @@ function inspectRoomFurniture(id){
 
 function inspectDoor(){
  if(firstRoomState.doorUnlocked){
-  showRoomNotice("扉の鍵が開いている。","room1_door_open_checked");
+  showRoomDialog(firstRoomScenario.unlockedDoor,showUnlockedDoorChoices);
   return;
  }
  if(firstRoomState.doorInspected){
-  showRoomNotice("扉は鍵がかかっている。問題文を調べてみよう。","room1_door_locked_checked");
+  showDoorQuestion();
   return;
  }
- showRoomDialog([
-  {logId:"room1_door_first_01",logType:"investigation",speaker:"ト書き",text:"まず、目についた扉を調べた。"},
-  {logId:"room1_door_first_02",logType:"investigation",speaker:"ト書き",text:"ドアノブを回そうとしたが、鍵が閉まっているようだ。"}
- ],()=>{
+ showRoomDialog([...firstRoomScenario.doorIntroduction,...firstRoomScenario.doorQuestion],()=>{
   firstRoomState.doorInspected=true;
+  firstRoomState.questionSeen=true;
   const question=document.getElementById("questionButton");
   question.disabled=false;
   question.classList.remove("is-locked");
-  showRoomNotice("扉に書かれた問題文が気になる。","room1_door_question_noticed");
+  unlockRoomItems();
   saveGame();
  });
 }
 
 function showDoorQuestion(){
- showRoomDialog([{logId:"room1_door_question_01",logType:"investigation",speaker:"問題文",text:"会話に隠された音楽を奏でよ"}],()=>{
+ showRoomDialog(firstRoomScenario.doorRepeat,()=>{
   if(!firstRoomState.questionSeen){
    firstRoomState.questionSeen=true;
    unlockRoomItems();
@@ -327,26 +326,19 @@ function unlockRoomItems(){
  showRoomNotice("新たに気になる場所が見つかった。","room1_items_noticed");
 }
 
+function completeHanaIntroduction(){
+ firstRoomState.hanaIntroduced=true;
+ firstRoomState.hanaVisits=Number(firstRoomState.hanaVisits||0)+1;
+ saveGame();
+ window.HanaIdentity?.refresh?.();
+}
+
 function talkToHana(){
- if(firstRoomState.hanaVisits===0){
-  showRoomDialog(firstRoomScenario.hanaFirst,()=>{
-   firstRoomState.hanaVisits=1;
-   saveGame();
-  });
-  return;
- }
- if(hasCheckedAllMail("inbox")&&!hasCheckedAllMail("sent")&&firstRoomState.pianoAttempted&&!firstRoomState.mailHintGiven){
-  showRoomDialog(firstRoomScenario.hanaMailHint,()=>{
-   firstRoomState.hanaVisits++;
-   firstRoomState.mailHintGiven=true;
-   saveGame();
-  });
-  return;
- }
- const lines=firstRoomState.questionSeen ? firstRoomScenario.hanaAfterQuestion : firstRoomScenario.hanaBeforeQuestion;
- showRoomDialog(lines,()=>{
-  firstRoomState.hanaVisits++;
-  saveGame();
+ // The topic menu in hana-choice.js owns normal interaction.
+ const introduced=firstRoomState.hanaIntroduced;
+ showRoomDialog(introduced?firstRoomScenario.hanaRoom:firstRoomScenario.hanaFirst,()=>{
+  if(!introduced)completeHanaIntroduction();
+  else{firstRoomState.hanaVisits++;saveGame()}
  });
 }
 
@@ -368,19 +360,24 @@ function inspectRoomItem(id){
     saveGame();
     showPhoneScreen();
    });
-  }else if(id==="piano"){showPianoScreen()}else{showPoster()}
+  }else if(id==="piano"){inspectPiano()}else{showPoster()}
  }});
 }
 
 function showPoster(){
- showRoomDialog([
-  {logId:"room1_poster_01",logType:"investigation",speaker:"ポスター",text:"□□市立第三中学校 吹奏楽部\n第28回 サマーコンサート"},
-  {logId:"room1_poster_02",logType:"investigation",speaker:"ポスター",text:"8月13日（日）18:30 開演\n□□市立第三中学校 体育館"},
-  {logId:"room1_poster_03",logType:"investigation",speaker:"ポスター",text:"演奏曲\n・青春アミーゴ\n・宙船\n・水戸黄門のテーマ\n・きよしのズンドコ節\n・アンパンマンのマーチ\n・ドレミのうた\n・など"}
- ]);
+ showRoomDialog(firstRoomScenario.poster,()=>{firstRoomState.posterInspected=true;saveGame()});
 }
 
-function activateDeviceModal(overlay,openerId,initialFocus){
+function inspectPiano(){
+ if(firstRoomState.pianoIntroductionSeen){showPianoScreen();return}
+ showRoomDialog(firstRoomScenario.pianoIntroduction,()=>{
+  firstRoomState.pianoIntroductionSeen=true;
+  saveGame();
+  showPianoScreen();
+ });
+}
+
+function activateDeviceModal(overlay,openerId,initialFocus,onClose){
  const room=game.querySelector(".room"),opener=document.getElementById(openerId);
  const wasInert=room?.inert||false;
  if(room)room.inert=true;
@@ -402,6 +399,7 @@ function activateDeviceModal(overlay,openerId,initialFocus){
   overlay.remove();
   if(room)room.inert=wasInert;
   if(restoreFocus&&opener?.isConnected&&!opener.disabled&&!opener.closest("[hidden], [inert]"))opener.focus({preventScroll:true});
+  if(restoreFocus)onClose?.();
  }
  function close(event){
   event?.stopPropagation();
@@ -438,60 +436,61 @@ function showPhoneScreen(){
  recordLog({logId:"room1_phone_select_prompt",logType:"investigation",speaker:"システム",logColor:"#222222",text:"メールを選んで内容を確認する。"});
  const render=()=>{
   overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.classList.toggle("is-active",tab.dataset.folder===folder));
-  list.innerHTML=firstRoomScenario.phoneMail[folder].map((mail,index)=>`<button type="button" class="mail-item" data-index="${index}"><strong>${folder==="inbox" ? "差出人" : "宛先"}：${mail.from||mail.to}</strong><span>${mail.time}</span><small>${mail.subject}</small></button>`).join("");
+  list.innerHTML=firstRoomScenario.phoneMail[folder].map((mail,index)=>`<button type="button" class="mail-item" data-index="${index}"><strong>${folder==="inbox" ? "From" : "To"}:先輩</strong><span>${mail.time}</span><small>${mail.subject}</small></button>`).join("");
   list.querySelectorAll(".mail-item").forEach(button=>button.addEventListener("click",()=>{
    const mail=firstRoomScenario.phoneMail[folder][Number(button.dataset.index)];
    (folder==="inbox" ? firstRoomState.openedInbox : firstRoomState.openedSent).add(mail.id);
    saveGame();
-   detail.innerHTML=`<p>${folder==="inbox" ? "差出人" : "宛先"}：${mail.from||mail.to}　${mail.time}</p><h3>${mail.subject}</h3><p>${mail.text.replace(/\n/g,"<br>")}</p>`;
-   recordLog({...mail,speaker:"システム",logColor:"#222222",text:`${folder==="inbox" ? "差出人" : "宛先"}：${mail.from||mail.to}　${mail.time}\n${mail.subject}\n${mail.text}`});
+   detail.innerHTML=`<p>${folder==="inbox" ? "From" : "To"}:先輩　${mail.time}</p><h3>件名：${mail.subject}</h3><p>${mail.text.replace(/\n/g,"<br>")}</p>`;
+   recordLog({...mail,speaker:"システム",logColor:"#222222",text:`${folder==="inbox" ? "From" : "To"}:先輩　${mail.time}\n件名：${mail.subject}\n${mail.text}`});
    showRoomNotice(`${folder==="inbox" ? "受信" : "送信"}メールを確認した。`,`room1_phone_${folder}_checked`);
   }));
  };
  overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.addEventListener("click",()=>{folder=tab.dataset.folder;detail.innerHTML="<p>メールを選んで内容を確認する。</p>";render()}));
  render();
- activateDeviceModal(overlay,"phoneButton",overlay.querySelector('[data-folder="inbox"]'));
+ activateDeviceModal(overlay,"phoneButton",overlay.querySelector('[data-folder="inbox"]'),()=>{
+  if(!firstRoomState.phoneReflectionSeen&&hasCheckedAllMail("inbox")&&hasCheckedAllMail("sent")){
+   showRoomDialog(firstRoomScenario.phoneAfterAllMail,()=>{firstRoomState.phoneReflectionSeen=true;saveGame()});
+  }
+ });
 }
 
 function showPianoScreen(){
  if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked){showFirstRoomMemory();return}
  const overlay=document.createElement("div");
  overlay.className="device-overlay";
- overlay.innerHTML=`<section class="piano-screen" aria-label="ピアノ"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>ピアノ</h2><p>演奏する譜面を入力する。</p><label>音階<input id="melodyInput" type="text" inputmode="text" autocomplete="off" placeholder="例：ドレミ" aria-label="演奏する音階"></label><p class="piano-result" aria-live="polite"></p><button type="button" id="playMelodyButton">演奏する</button></section>`;
+ overlay.innerHTML=`<section class="piano-screen" aria-label="ピアノ"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>ピアノ</h2><p>8音の音階を入力する。</p><label>音階<input id="melodyInput" type="text" inputmode="text" autocomplete="off" placeholder="例：ドレミ" aria-label="演奏する8音の音階"></label><p class="piano-result" aria-live="polite"></p><button type="button" id="playMelodyButton">演奏する</button></section>`;
  game.appendChild(overlay);
- recordLog({logId:"room1_piano_prompt",logType:"investigation",speaker:"システム",logColor:"#222222",text:"演奏する譜面を入力する。"});
+ recordLog({logId:"room1_piano_prompt",logType:"investigation",speaker:"システム",logColor:"#222222",text:"8音の音階を入力する。"});
  const input=overlay.querySelector("#melodyInput"),result=overlay.querySelector(".piano-result"),button=overlay.querySelector("#playMelodyButton");
- const close=activateDeviceModal(overlay,"pianoButton",input);
+ const close=activateDeviceModal(overlay,"pianoButton",input,()=>{
+  if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked)showFirstRoomMemory();
+ });
  let solved=false;
  const finish=()=>{
   close();
-  showFirstRoomMemory();
  };
  button.addEventListener("click",()=>{
   if(solved){finish();return}
   firstRoomState.pianoAttempted=true;
   saveGame();
   const melody=input.value.replace(/[\s、。・,]/g,"");
-  if(melody!=="ソラファミドレドミシ"||!hasCheckedAllMail("inbox")||!hasCheckedAllMail("sent")){
-   showLoggedText(result,"違うようだ。","room1_piano_incorrect","investigation","#8f1c1c");
+  if(melody!==firstRoomScenario.melody.join("")||!hasCheckedAllMail("inbox")||!hasCheckedAllMail("sent")){
+   showLoggedText(result,firstRoomScenario.pianoIncorrect.map(line=>line.text).join("\n"),"room1_piano_incorrect","investigation","#8f1c1c");
    return;
   }
   solved=true;
   firstRoomState.melodySolved=true;
   saveGame();
   GameAudio.play("memoryMelody");
-  showLoggedText(result,"ピアノが、懐かしいメロディを奏でた。","room1_piano_correct","investigation","#8f1c1c");
+  showLoggedText(result,`${firstRoomScenario.melody.join("・")}♪`,"room1_piano_correct","investigation","#8f1c1c");
   input.disabled=true;
-  button.textContent="続ける";
+  button.textContent=firstRoomState.doorUnlocked?"閉じる":"続ける";
  });
 }
 
 function showFirstRoomMemory(){
- showRoomDialog([
-  {logId:"room1_memory_01",logType:"narration",speaker:"ト書き",text:"ピアノが、吹奏楽で演奏した曲の一部を奏でた。"},
-  {logId:"room1_memory_02",logType:"narration",speaker:"ト書き",text:"中学時代の思い出の一部が、浮かび上がる。"},
-  {logId:"room1_memory_03",logType:"dialogue",speaker:"主人公",text:"今のは？僕の記憶？？"}
- ],unlockFirstRoomDoor);
+ showRoomDialog([...firstRoomScenario.pianoCorrect,...firstRoomScenario.memory,...firstRoomScenario.afterMemory],unlockFirstRoomDoor);
 }
 
 function unlockFirstRoomDoor(){
@@ -501,6 +500,40 @@ function unlockFirstRoomDoor(){
  document.querySelector(".room").classList.add("is-restored");
  document.getElementById("roomColorStatus").textContent="色を取り戻した部屋";
  showRoomNotice("扉の鍵が開いた。 ","room1_door_unlocked","narration");
+}
+
+function showUnlockedDoorChoices(){
+ const overlay=document.createElement("div");
+ overlay.className="device-overlay";
+ overlay.innerHTML=`<section class="menu-panel room-exit-menu" aria-label="扉の先へ進む"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>どうする？</h2><button type="button" id="nextRoomButton">次の部屋へ向かう</button><button type="button" id="keepExploringButton">もう少し部屋を調べてみる</button></section>`;
+ game.appendChild(overlay);
+ const close=activateDeviceModal(overlay,"doorButton",overlay.querySelector("#nextRoomButton"));
+ overlay.querySelector("#keepExploringButton").addEventListener("click",()=>{
+  close();
+  showRoomDialog(firstRoomScenario.keepExploring);
+ });
+ overlay.querySelector("#nextRoomButton").addEventListener("click",()=>{
+  close();
+  GameAudio.play("doorOpen");
+  showRoomDialog(firstRoomScenario.nextRoom,()=>{
+   firstRoomState.nextRoomTransitionSeen=true;
+   saveGame();
+   showNextRoomBoundary();
+  });
+ });
+}
+
+function showNextRoomBoundary(){
+ // Room 2 is not authored yet. Keep a resumable room01 checkpoint.
+ const overlay=document.createElement("div");
+ overlay.className="device-overlay room-transition-overlay";
+ overlay.innerHTML=`<section class="menu-panel room-exit-menu" aria-label="第二の部屋へ続く"><button type="button" class="device-close" aria-label="第一の部屋に戻る">×</button><h2>第二の部屋へ続く</h2><p>この先の物語は準備中です。</p><button type="button" id="returnToRoomButton">第一の部屋に戻る</button></section>`;
+ game.appendChild(overlay);
+ const close=activateDeviceModal(overlay,"doorButton",overlay.querySelector("#returnToRoomButton"),()=>{
+  firstRoomState.nextRoomTransitionSeen=false;
+  saveGame();
+ });
+ overlay.querySelector("#returnToRoomButton").addEventListener("click",close);
 }
 
 function showRoomNotice(text,logId,logType="investigation"){

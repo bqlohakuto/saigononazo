@@ -1,9 +1,9 @@
 // Saved history keeps every display event; text is never used as an identity.
 const GameLog=(()=>{
  const types=new Set(["dialogue","investigation","narration"]);
- const kinds=new Set(["player","heroine","narration","system"]);
+ const kinds=new Set(["player","heroine","character","narration","system"]);
  let entries=[];
- const kindOf=line=>line.speaker==="主人公"||line.thought?"player":line.speaker==="ハナ"?"heroine":line.speaker==="ト書き"?"narration":"system";
+ const kindOf=line=>line.speaker==="主人公"||line.thought?"player":line.speaker==="ハナ"?"heroine":line.speaker==="ト書き"?"narration":line.logType==="dialogue"?"character":"system";
  function entryFor(line){
   const entry={id:line.logId,text:line.text,type:types.has(line.logType)?line.logType:line.thought||["ト書き","システム"].includes(line.speaker)?"narration":"dialogue",speaker:line.speaker||"",thought:!!line.thought,kind:kinds.has(line.logKind)?line.logKind:kindOf(line)};
   if(typeof line.logColor==="string"&&/^#[0-9a-f]{6}$/i.test(line.logColor))entry.color=line.logColor;

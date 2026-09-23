@@ -71,6 +71,12 @@
       if (state.attempts) return `第二の部屋・${state.attempts}回挑戦済み`;
       return "第二の部屋";
     }
+    if (saved.currentScene === "room03") {
+      const state = saved.rooms?.room03 || {};
+      if (state.unlocked) return "第三の部屋・謎解きクリア後";
+      if (state.chatRead) return "第三の部屋・顔文字を確認済み";
+      return "第三の部屋";
+    }
     return saved.currentScene || "進行データ";
   }
 
@@ -374,6 +380,13 @@
   const originalShowSecondRoom = showSecondRoom;
   showSecondRoom = function (...args) {
     const result = originalShowSecondRoom.apply(this, args);
+    installDataControls();
+    return result;
+  };
+
+  const originalShowThirdRoom = showThirdRoom;
+  showThirdRoom = function (...args) {
+    const result = originalShowThirdRoom.apply(this, args);
     installDataControls();
     return result;
   };

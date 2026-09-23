@@ -34,7 +34,7 @@ function showSecondRoom(savedState){
  document.getElementById("r2Desk").addEventListener("click",()=>inspectSecondRoomDesk());
  document.getElementById("r2Blocks").addEventListener("click",()=>showSecondRoomPuzzle());
  document.getElementById("r2Hana").addEventListener("click",()=>showSecondRoomHana());
- if(!savedState){showRoomDialog(room2IntroLines)} else {showRoomNotice("続きから再開しました。","room2_resumed")}
+ if(!savedState){showRoomDialog(room2IntroLines)} else if(savedState.nextRoomTransitionSeen){showThirdRoomBoundary()}else {showRoomNotice("続きから再開しました。","room2_resumed")}
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room02",title:"第二の部屋",objective:()=>room2State.unlocked?"扉を調べて次へ進む":"机の謎を解く",onCompanion:showSecondRoomHana,getHighlights:()=>!!room2State.highlightEnabled,setHighlights:enabled=>{room2State.highlightEnabled=!!enabled;saveGame()}});
  saveGame();
 }
@@ -58,7 +58,10 @@ const room2IntroLines=[
 ];
 function inspectSecondRoomDoor(){
  if(room2State.unlocked){showRoomDialog([{logId:"room2_next_door_01",logType:"investigation",speaker:"ト書き",text:"扉は開いている。このまま先へ進めそうだ。"}],()=>showRoomChoices([
-  {label:"次の部屋へ向かう",onSelect:()=>showRoomNotice("第三の部屋への接続を準備中です。","room2_room3_placeholder")},
+  {label:"次の部屋へ向かう",onSelect:()=>showRoomDialog([
+   {logId:"room2_room3_transition_01",logType:"narration",speaker:"主人公",text:"僕はドアノブに手を伸ばした。"},
+   {logId:"room2_room3_transition_02",logType:"narration",speaker:"ト書き",text:"開けようとすると、また扉はひとりでに開いた。扉の向こうへ、身体が吸い込まれていくような感覚に襲われる。視界が、まばゆい光に包まれていく。"}
+  ],showThirdRoomBoundary)},
   {label:"もう少し部屋をしらべてみる",onSelect:()=>showRoomNotice("まだ何か調べられるかもしれない。","room2_transition_stay")}
  ]));return}
  if(room2State.doorInspected){showRoomNotice("扉には『8回以内に、正しい組み合わせを導け』と刻まれている。","room2_door_again");return}

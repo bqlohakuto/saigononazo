@@ -6,6 +6,7 @@ let openingIndex=0;
 let currentScene="opening";
 let roomStates={};
 let room2State;
+let room3State;
 let settings=loadSettings();
 const FADE_TIME=3000;
 
@@ -62,6 +63,9 @@ const SaveData=(()=>{
     logs:cleanLogs(raw.logs)
    };
   }
+  if(raw.scene==="room3"){
+   return {saveVersion:VERSION,playerName:typeof raw.playerName==="string"?raw.playerName:"",currentScene:"room03",opening:{index:0},rooms:{room03:isObject(raw.state)?{...raw.state}:{}},logs:cleanLogs(raw.logs)};
+  }
   return null;
  }
  function create({playerName="",currentScene="opening",openingIndex=0,rooms={},logs=[]}={}){
@@ -84,6 +88,9 @@ const SaveData=(()=>{
   }else if(currentScene==="room02"){
    saved.scene="room2";
    saved.state={...(saved.rooms.room02||{})};
+  }else if(currentScene==="room03"){
+   saved.scene="room3";
+   saved.state={...(saved.rooms.room03||{})};
   }
   return saved;
  }
@@ -116,6 +123,7 @@ function serializeFirstRoomState(state=firstRoomState){
 function saveGame(){
  if(firstRoomState)roomStates.room01=serializeFirstRoomState();
  if(room2State)roomStates.room02={...room2State,answer:room2State.answer.map(piece=>({...piece})),guess:room2State.guess.map(piece=>({...piece})),history:room2State.history.map(entry=>({...entry,guess:entry.guess.map(piece=>({...piece}))}))};
+ if(room3State)roomStates.room03={...room3State};
  const saved=SaveData.create({playerName,currentScene,openingIndex,rooms:roomStates,logs:GameLog.list()});
  localStorage.setItem(SAVE_KEY,JSON.stringify(saved));
 }
@@ -125,6 +133,7 @@ function clearSave(){
  GameLog.restore();
  firstRoomState=undefined;
  room2State=undefined;
+ room3State=undefined;
  openingIndex=0;
  currentScene="opening";
  roomStates={};
@@ -158,10 +167,25 @@ function showTitle(notice=""){
  Dialogue.stop();
  GameAudio.stopAll();
  const hasSave=!!readSavedGame();
- game.innerHTML=`<div class="title-screen title-home"><h1 class="title-logo"><img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"></h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button><button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-notice" aria-live="polite">${notice}</p></div>`;
+ game.innerHTML=`<div class="title-screen title-home"><h1 class="title-logo"><img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"></h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button><button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button><button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-notice" aria-live="polite">${notice}</p></div>`;
  document.getElementById("startButton").addEventListener("click",showNameInput);
  document.getElementById("continueButton").addEventListener("click",resumeGame);
+ document.getElementById("testRoomButton").addEventListener("click",showTestRoomPicker);
  document.getElementById("settingsButton").addEventListener("click",showSettings);
+}
+function showTestRoomPicker(){
+ const overlay=document.createElement("div");overlay.className="test-room-overlay";
+ overlay.innerHTML=`<section class="test-room-panel" role="dialog" aria-modal="true" aria-label="開始する部屋を選択"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>テストする部屋を選択</h2><p>選択した部屋から直接開始します。オートセーブはその部屋の進行で置き換わります。手動セーブは残ります。</p><div class="test-room-options"><button type="button" data-room="room01">第一の部屋</button><button type="button" data-room="room02">第二の部屋</button><button type="button" data-room="room03">第三の部屋</button></div></section>`;
+ game.appendChild(overlay);const close=()=>overlay.remove();overlay.querySelector(".device-close").addEventListener("click",close);overlay.addEventListener("click",event=>{if(event.target===overlay)close()});
+ overlay.querySelectorAll("[data-room]").forEach(button=>button.addEventListener("click",()=>{const scene=button.dataset.room;close();startRoomTest(scene)}));
+ overlay.querySelector("[data-room]")?.focus();
+}
+function startRoomTest(scene){
+ clearSave();playerName=playerName||"主人公";
+ if(scene==="room01"){showFirstRoom();return}
+ if(scene==="room02"){showSecondRoom();return}
+ if(scene==="room03"){showThirdRoom();return}
+ showTitle("開始する部屋を選べませんでした。");
 }
 function showNameInput(){
  game.innerHTML=`<div class="title-screen"><h2>あなたの名前を入力してください</h2><input id="playerName" type="text" maxlength="8" placeholder="名前"><br><br><button id="decideButton">決定</button></div>`;
@@ -175,6 +199,7 @@ function resumeGame(){
   opening:()=>{firstRoomState=undefined;showOpening(saved.opening.index)},
   room01:()=>showFirstRoom(saved.rooms.room01)
   ,room02:()=>showSecondRoom(saved.rooms.room02)
+  ,room03:()=>showThirdRoom(saved.rooms.room03)
  };
  const load=loaders[saved.currentScene];
  if(!load){showTitle("このセーブデータは現在のバージョンでは再開できません。");return}

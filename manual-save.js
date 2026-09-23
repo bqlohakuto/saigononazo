@@ -65,6 +65,12 @@
       if (state.questionSeen) return "第一の部屋・謎解き中";
       return "第一の部屋";
     }
+    if (saved.currentScene === "room02") {
+      const state = saved.rooms?.room02 || {};
+      if (state.unlocked) return "第二の部屋・謎解きクリア後";
+      if (state.attempts) return `第二の部屋・${state.attempts}回挑戦済み`;
+      return "第二の部屋";
+    }
     return saved.currentScene || "進行データ";
   }
 
@@ -359,6 +365,15 @@
   const originalShowFirstRoom = showFirstRoom;
   showFirstRoom = function (...args) {
     const result = originalShowFirstRoom.apply(this, args);
+    installDataControls();
+    return result;
+  };
+
+  // Room 2 is loaded before this module in index.html so its manual save/load
+  // controls can share the same five-slot screen as the opening and room 1.
+  const originalShowSecondRoom = showSecondRoom;
+  showSecondRoom = function (...args) {
+    const result = originalShowSecondRoom.apply(this, args);
     installDataControls();
     return result;
   };

@@ -151,3 +151,12 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .title-home .title-notice{position:absolute;z-index:1;left:5%;bottom:1%;margin:0;text-shadow:0 1px 4px #000}
 @media(max-width:650px){.title-home{background-position:center}.title-home::before{background:linear-gradient(180deg,rgba(12,9,18,.48),transparent 32%,transparent 55%,rgba(12,9,18,.64))}.title-home .title-logo{top:8%;width:98vw}.title-home .title-menu{left:50%;bottom:5%;width:min(260px,75vw);transform:translateX(-50%);gap:2px}.title-home .title-menu button{height:58px}.title-home .title-notice{left:5%;right:5%;bottom:1%;text-align:center;font-size:13px}}
 @media(max-height:500px){.title-home .title-logo{top:2%;width:min(680px,80vw)}.title-home .title-menu{bottom:2%;gap:0}.title-home .title-menu button{height:45px}.title-home .title-notice{bottom:0;font-size:12px}}
+
+/* Room 1 to room 2 door transition and room 2 inline feedback. */
+.room-transition{position:absolute;inset:0;z-index:40;display:grid;place-items:center;background:#211b18;animation:roomDoorTransition 1.1s ease both}.room-transition img{display:block;width:100%;height:100%;object-fit:contain}
+@keyframes roomDoorTransition{0%{opacity:0}12%,78%{opacity:1}100%{opacity:0}}
+.room-two.room2-arriving{animation:room2Arrival 1.35s ease-out both}
+@keyframes room2Arrival{from{opacity:0;filter:brightness(.72)}to{opacity:1;filter:brightness(1)}}
+.room2-reaction{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;margin:8px 0 12px;padding:10px 14px;border:1px solid #b9d5e2;border-radius:12px;background:#eef7fb;color:#2f414a}
+.room2-reaction[hidden]{display:none}.room2-reaction-speaker{grid-column:1/-1;margin:0;color:#8a4058;font-size:13px;font-weight:700}.room2-reaction-text{margin:0;line-height:1.6}.room2-reaction-next{min-width:86px;min-height:40px;padding:7px 12px;border:1px solid #9ab9c7;border-radius:8px;background:#fff;color:#2f414a;font:inherit;cursor:pointer}
+@media(max-width:600px){.room2-reaction{padding:8px 10px;gap:4px 7px}.room2-reaction-text{font-size:13px}.room2-reaction-next{min-width:70px;min-height:36px;padding:6px;font-size:12px}}

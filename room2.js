@@ -16,10 +16,10 @@ function room2RandomAnswer(){
 }
 function showSecondRoom(savedState){
  Dialogue.stop();firstRoomState=undefined;currentScene="room02";
- room2State={doorInspected:false,deskInspected:false,sheetFound:false,hanaHints:0,answer:room2RandomAnswer(),guess:[],attempts:0,run:1,history:[],unlocked:false,flashbackSeen:false,...savedState};
+ room2State={doorInspected:false,deskInspected:false,sheetFound:false,hanaHints:0,answer:room2RandomAnswer(),guess:[],attempts:0,run:1,history:[],unlocked:false,flashbackSeen:false,highlightEnabled:true,...savedState};
  if(!Array.isArray(room2State.answer)||room2State.answer.length!==5||!Array.isArray(room2State.guess))room2State={...room2State,answer:room2RandomAnswer(),guess:[]};
  if(!Array.isArray(room2State.history))room2State.history=[];
- game.innerHTML=`<main class="room room-two ${room2State.unlocked?"is-restored":""}" aria-label="第二の部屋">
+ game.innerHTML=`<main class="room room-two room2-arriving ${room2State.unlocked?"is-restored":""}" aria-label="第二の部屋">
   <header class="room-header"><p class="room-label">第二の部屋</p><p class="room-color-status">${room2State.unlocked?"色を取り戻した部屋":"淡い記憶の部屋"}</p></header>
   <div class="room-stage-wrap"><section class="room-stage room2-stage" aria-label="第二の部屋">
    <div class="room2-door-art" aria-hidden="true"></div><div class="room2-desk-art" aria-hidden="true"></div><div class="room2-window-light" aria-hidden="true"></div>
@@ -81,10 +81,15 @@ function inspectSecondRoomDesk(){
 }
 function showSecondRoomPuzzle(){
  const overlay=document.createElement("div");overlay.className="device-overlay room2-puzzle-overlay";
- overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>記号と色を並べる</h2><p class="room2-rule">駒を選んで5枠を埋めます。同じ駒を選ぶと外れ、色違いを選ぶと色が変わります。枠を2つタップすると順番を入れ替えられます。</p><div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-submit">判定する</button><button type="button" class="room2-hint-paper">ルールの紙</button></div><p class="room2-feedback" aria-live="polite"></p><div class="room2-history" aria-label="これまでの判定"></div></section>`;
+ overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>記号と色を並べる</h2><p class="room2-rule">駒を選んで5枠を埋めます。同じ駒を選ぶと外れ、色違いを選ぶと色が変わります。枠を2つタップすると順番を入れ替えられます。</p><div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-submit">判定する</button><button type="button" class="room2-hint-paper">ルールの紙</button></div><p class="room2-feedback" aria-live="polite"></p><section class="room2-reaction" hidden aria-live="polite"><p class="room2-reaction-speaker"></p><p class="room2-reaction-text"></p><button type="button" class="room2-reaction-next">次へ</button></section><div class="room2-history" aria-label="これまでの判定"></div></section>`;
  game.appendChild(overlay);
- const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback");let selectedSlot=null;
+ const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null;
  const close=()=>overlay.remove();overlay.querySelector(".device-close").addEventListener("click",close);
+ let reactionLines=[],reactionIndex=0,reactionDone=null;
+ const setGuessEnabled=enabled=>overlay.querySelectorAll(".room2-answer-slot,.room2-palette-token,.room2-submit,.room2-hint-paper").forEach(button=>button.disabled=!enabled);
+ const nextReaction=()=>{if(reactionIndex+1<reactionLines.length){reactionIndex++;const line=reactionLines[reactionIndex];reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionIndex===reactionLines.length-1?"推理を続ける":"次へ";recordLog(line);return}reactionPanel.hidden=true;setGuessEnabled(true);reactionDone?.();reactionDone=null};
+ reactionPanel.querySelector(".room2-reaction-next").addEventListener("click",nextReaction);
+ const showReaction=(lines,onDone)=>{reactionLines=lines||[];reactionDone=onDone;reactionIndex=0;if(!reactionLines.length){reactionPanel.hidden=true;reactionDone?.();reactionDone=null;return}setGuessEnabled(false);const line=reactionLines[0];reactionPanel.hidden=false;reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionLines.length===1?"推理を続ける":"次へ";recordLog(line)};
  const render=()=>{
   slots.innerHTML=ROOM2_SYMBOLS.map((_,index)=>{const piece=room2State.guess[index];return `<button type="button" class="room2-answer-slot${selectedSlot===index?" is-selected":""}" data-slot="${index}" aria-label="枠${index+1}${piece?` ${piece.color}${piece.symbol}`:" 空"}" aria-pressed="${selectedSlot===index}">${piece?`<i class="${piece.color==="赤"?"red":"blue"}">${piece.symbol}</i>`:`<span>枠${index+1}</span>`}</button>`}).join("");
   slots.querySelectorAll("[data-slot]").forEach(button=>button.addEventListener("click",()=>{const index=Number(button.dataset.slot);if(!room2State.guess[index])return;if(selectedSlot===null){selectedSlot=index}else if(selectedSlot===index){selectedSlot=null}else{[room2State.guess[selectedSlot],room2State.guess[index]]=[room2State.guess[index],room2State.guess[selectedSlot]];selectedSlot=null;saveGame()}render()}));
@@ -106,8 +111,13 @@ function showSecondRoomPuzzle(){
   feedback.textContent=`${result.hit} HIT　${result.blow} BLOW　（${room2State.attempts}回目）`;
   const pair=ROOM2_DIALOGUES[`${result.hit}H`]?.[result.blow];
   const reaction=pair?.map((text,index)=>({logId:`room2_judge_${room2State.attempts}_${result.hit}_${result.blow}_${index}`,logType:"dialogue",speaker:index===0?"ハナ":"主人公",text}))||[];
-  const followUp=room2State.attempts===8?handleRoom2Limit:room2State.attempts===4||room2State.attempts===6||room2State.attempts===7?()=>showRoomDialog(room2MilestoneLines(room2State.attempts)):null;
-  if(reaction.length||followUp){close();showRoomDialog(reaction,followUp||undefined)}
+  const milestone=[4,6,7].includes(room2State.attempts)?room2MilestoneLines(room2State.attempts):[];
+  const reachedLimit=room2State.attempts===8;
+  const limitLines=reachedLimit?room2LimitLines():[];
+  if(reaction.length||milestone.length||limitLines.length)showReaction([...reaction,...milestone,...limitLines],()=>{if(reachedLimit&&room2State.run>1){close();showRoomChoices([
+   {label:"このまま続ける",onSelect:()=>showSecondRoomPuzzle()},
+   {label:"答えをリセットして、もう一度挑戦する",onSelect:resetRoom2Challenge}
+  ])}});
  });
  render();overlay.querySelector(".device-close").focus();
 }
@@ -120,14 +130,11 @@ function room2MilestoneLines(attempt){
  const sets={4:[["あと4回だね","ハナ"],["もう半分使ったんですね……","主人公"],["でも、最初よりかなり絞れてるんじゃない？","ハナ"],["焦らず、今までの結果を見ながら考えてみよう！","ハナ"],["……そうですね。まだ大丈夫です","主人公"]],6:[["あと2回……！","ハナ"],["さすがに、ちょっと緊張してきました","主人公"],["ここまで来たら、適当に変えちゃダメだよ！","ハナ"],["今までのヒットとブローをもう一回見て、確実なところから考えよう","ハナ"],["……一度整理してみます","主人公"]],7:[["あと一回……！","ハナ"],["ハナさんのほうが緊張してません？","主人公"],["だって、ここまで一緒に考えてきたんだもん！","ハナ"],["大丈夫。最後まで一緒に考えるから","ハナ"],["わかりました。これで決めます","主人公"]]};
  return sets[attempt].map((line,index)=>({logId:`room2_attempt_${attempt}_${index}`,logType:"dialogue",speaker:line[1],text:line[0]}));
 }
-function handleRoom2Limit(){
- if(room2State.run===1){showRoomDialog([
+function room2LimitLines(){
+ if(room2State.run===1)return [
   {logId:"room2_limit_first_01",logType:"dialogue",speaker:"主人公",text:"……終わった"},{logId:"room2_limit_first_02",logType:"dialogue",speaker:"ハナ",text:"終わってないよ？"},{logId:"room2_limit_first_03",logType:"dialogue",speaker:"主人公",text:"え？"},{logId:"room2_limit_first_04",logType:"dialogue",speaker:"ハナ",text:"解けるまでやればいいじゃん。わたしも一緒に考えるから"},{logId:"room2_limit_first_05",logType:"dialogue",speaker:"主人公",text:"……それ、ルールとしていいんですか？"},{logId:"room2_limit_first_06",logType:"dialogue",speaker:"ハナ",text:"いいのいいの！"}
-  ]);return}
- showRoomDialog([{logId:"room2_retry_limit_01",logType:"dialogue",speaker:"ハナ",text:"うーん……8回使っちゃったね"},{logId:"room2_retry_limit_02",logType:"dialogue",speaker:"主人公",text:"あと少しだと思うんですけど……"},{logId:"room2_retry_limit_03",logType:"dialogue",speaker:"ハナ",text:"ここまでの結果を使って、このまま続けてもいいし、一回リセットして最初からやり直してもいいよ"}],()=>showRoomChoices([
-  {label:"このまま続ける",onSelect:()=>showSecondRoomPuzzle()},
-  {label:"答えをリセットして、もう一度挑戦する",onSelect:resetRoom2Challenge}
- ]));
+ ];
+ return [{logId:"room2_retry_limit_01",logType:"dialogue",speaker:"ハナ",text:"うーん……8回使っちゃったね"},{logId:"room2_retry_limit_02",logType:"dialogue",speaker:"主人公",text:"あと少しだと思うんですけど……"},{logId:"room2_retry_limit_03",logType:"dialogue",speaker:"ハナ",text:"ここまでの結果を使って、このまま続けてもいいし、一回リセットして最初からやり直してもいいよ"}];
 }
 function resetRoom2Challenge(){room2State.run++;room2State.answer=room2RandomAnswer();room2State.attempts=0;room2State.history=[];room2State.guess=[];saveGame();showRoomDialog([{logId:`room2_retry_start_${room2State.run}`,logType:"narration",speaker:"システム",text:"問題がリセットされました。"}]);}
 function handleRoom2Correct(close,feedback){
@@ -148,10 +155,17 @@ function completeRoom2(){
  ],()=>{const door=document.getElementById("r2Door");door?.classList.add("is-unlocked");showRoomNotice("扉の鍵が開いた。","room2_unlocked","narration")}));
 }
 function showSecondRoomHana(){
- room2State.hanaHints++;saveGame();
- const lines=room2State.hanaHints===1?[
-  {logId:"room2_hana_01",logType:"dialogue",speaker:"ハナ",text:"今度はあれが謎みたいだね"},
-  {logId:"room2_hana_02",logType:"dialogue",speaker:"ハナ",text:"扉の言葉と机のブロック、どっちも見てみよう"}
- ]:[{logId:`room2_hana_repeat_${room2State.hanaHints}`,logType:"dialogue",speaker:"ハナ",text:"HITは記号・色・位置が全部合っているもの。BLOWは記号と色が合っていて、位置だけ違うものだよ"}];
- showRoomDialog(lines);
+ if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
+ window.HanaChoiceUI?.ensureStyle?.();
+ const topics=[
+  {id:"room",label:"この部屋について",lines:[{logId:"room2_hana_room_01",logType:"dialogue",speaker:"ハナ",text:"机のブロックを使って、扉の鍵を開けるみたいだね"},{logId:"room2_hana_room_02",logType:"dialogue",speaker:"主人公",text:"扉の言葉と机の記録を見て、順番を考えればよさそうですね"}]},
+  {id:"rules",label:"HITとBLOWについて",lines:[{logId:"room2_hana_rules_01",logType:"dialogue",speaker:"ハナ",text:"HITは記号・色・位置が全部合っているもの。BLOWは記号と色が合っていて、位置だけ違うものだよ"},{logId:"room2_hana_rules_02",logType:"dialogue",speaker:"主人公",text:"判定を比べながら、合っている組み合わせを絞っていくんですね"}]}
+ ];
+ if(!room2State.unlocked)topics.push({id:"hint",label:"考え方のヒント",lines:[{logId:`room2_hana_hint_${room2State.attempts}_${room2State.hanaHints}`,logType:"dialogue",speaker:"ハナ",text:"一度にたくさん変えると、どれが合っていたかわからなくなっちゃうよ。まずは一つずつ変えて、前の判定と比べてみよう"}]});
+ const overlay=document.createElement("div");overlay.className="device-overlay hana-choice-overlay";
+ overlay.innerHTML=`<section class="menu-panel hana-choice-menu" aria-label="ハナに聞くことを選ぶ"><button type="button" class="device-close" aria-label="閉じる">×</button><p class="hana-choice-speaker">ハナ</p><h2>どうしたの？</h2><p class="hana-choice-lead">聞きたいことを選んでください。</p><div class="hana-choice-list"></div></section>`;game.appendChild(overlay);
+ const list=overlay.querySelector(".hana-choice-list");
+ [...topics,{id:"cancel",label:"なんでもない",cancel:true}].forEach(topic=>{const button=document.createElement("button");button.type="button";button.className=`hana-choice-button${topic.cancel?" is-cancel":""}`;button.textContent=topic.label;button.dataset.topic=topic.id;list.appendChild(button)});
+ const close=activateDeviceModal(overlay,"r2Hana",list.querySelector("button"));
+ list.querySelectorAll("[data-topic]").forEach(button=>button.addEventListener("click",()=>{const topic=topics.find(item=>item.id===button.dataset.topic);close();if(!topic)return;showRoomDialog(topic.lines,()=>{room2State.hanaHints++;saveGame()})}));
 }

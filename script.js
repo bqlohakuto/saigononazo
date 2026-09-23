@@ -219,7 +219,7 @@ function showFirstRoom(savedState){
  currentScene="room01";
  Dialogue.stop();
  GameAudio.stop("tinnitus");
- firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,hintLevel:0,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,phoneReflectionSeen:false,posterInspected:false,pianoIntroductionSeen:false,nextRoomTransitionSeen:false,viewedWall:"front",...savedState,hanaIntroduced:savedState?.hanaIntroduced??Number(savedState?.hanaVisits||0)>0,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
+ firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,hintLevel:0,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,phoneReflectionSeen:false,posterInspected:false,pianoIntroductionSeen:false,nextRoomTransitionSeen:false,viewedWall:"front",highlightEnabled:true,...savedState,hanaIntroduced:savedState?.hanaIntroduced??Number(savedState?.hanaVisits||0)>0,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
  if(!firstRoomWalls.some(wall=>wall.id===firstRoomState.viewedWall))firstRoomState.viewedWall="front";
  game.innerHTML=`
   <main class="room ${firstRoomState.doorUnlocked?"is-restored":""}" aria-label="第一の部屋">
@@ -287,10 +287,7 @@ function turnFirstRoom(direction){
 function inspectRoomDoor(){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
  const frames=[{label:"正面の扉（閉）",image:"images/background/room01/room01_door_closeup.png"}];
- if(firstRoomState.doorUnlocked)frames.push(
-  {label:"正面の扉（半開き）",image:"images/background/room01/room01_door_halfopen.png"},
-  {label:"正面の扉（全開）",image:"images/background/room01/room01_door_open.png"}
- );
+ if(firstRoomState.doorUnlocked)frames.push({label:"正面の扉（全開）",image:"images/background/room01/room01_door_open.png"});
  showItemInspection({container:game,item:{label:"正面の扉",frames},onContinue:inspectDoor});
 }
 
@@ -493,8 +490,11 @@ function showPianoScreen(){
   firstRoomState.pianoAttempted=true;
   saveGame();
   const melody=input.value.replace(/[\s、。・,]/g,"");
-  if(melody!==firstRoomScenario.melody.join("")||!hasCheckedAllMail("inbox")||!hasCheckedAllMail("sent")){
-   showLoggedText(result,firstRoomScenario.pianoIncorrect.map(line=>line.text).join("\n"),"room1_piano_incorrect","investigation","#8f1c1c");
+  const melodyMatches=melody===firstRoomScenario.melody.join("");
+  const mailComplete=hasCheckedAllMail("inbox")&&hasCheckedAllMail("sent");
+  if(!melodyMatches||!mailComplete||!firstRoomState.hanaIntroduced){
+   const guidance=!firstRoomState.hanaIntroduced?"先にハナに話しかけてみよう。":!mailComplete&&melodyMatches?"携帯電話の受信メールと送信メールを、すべて確認する必要がありそうだ。":firstRoomScenario.pianoIncorrect.map(line=>line.text).join("\n");
+   showLoggedText(result,guidance,"room1_piano_incorrect","investigation","#8f1c1c");
    return;
   }
   solved=true;
@@ -550,8 +550,10 @@ function showUnlockedDoorChoices(){
 }
 
 function showNextRoomBoundary(){
- // The completed transition now enters the authored second room.
- showSecondRoom(roomStates.room02);
+ // Use the half-open door as a brief transition image, never as a clickable inspection frame.
+ Dialogue.stop();
+ game.innerHTML=`<div class="room-transition" aria-label="扉を通って次の部屋へ"><img src="images/background/room01/room01_door_halfopen.png" alt="半開きの扉"></div>`;
+ setTimeout(()=>{if(game.querySelector(".room-transition"))showSecondRoom(roomStates.room02)},1100);
 }
 
 function showRoomNotice(text,logId,logType="investigation"){

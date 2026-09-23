@@ -81,7 +81,7 @@
     if (firstRoomState.pianoIntroductionSeen || firstRoomState.pianoAttempted) {
       choices.push({id: "piano", label: "ピアノについて", lines: firstRoomScenario.hanaPiano});
     }
-    if (firstRoomState.questionSeen && !firstRoomState.doorUnlocked) {
+    if (firstRoomState.questionSeen && !firstRoomState.doorUnlocked && !firstRoomState.melodySolved) {
       const available = firstRoomState.posterInspected && mailSeen
         ? Math.min(4, Math.max(2, Number(firstRoomState.hintLevel || 0) + 1)) : 1;
       for (let level = 1; level <= available; level++) {
@@ -155,5 +155,6 @@
 
   // script.js attaches this function when showFirstRoom() runs, so replacing
   // the global binding here changes only the first-room Hana interaction.
+  window.HanaChoiceUI = { ensureStyle: ensureHanaChoiceStyle };
   talkToHana = showHanaChoiceMenu;
 })();

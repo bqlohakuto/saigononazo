@@ -5,6 +5,7 @@ let playerName="";
 let openingIndex=0;
 let currentScene="opening";
 let roomStates={};
+let room2State;
 let settings=loadSettings();
 const FADE_TIME=3000;
 
@@ -51,6 +52,16 @@ const SaveData=(()=>{
     logs:cleanLogs(raw.logs)
    };
   }
+  if(raw.scene==="room2"){
+   return {
+    saveVersion:VERSION,
+    playerName:typeof raw.playerName==="string"?raw.playerName:"",
+    currentScene:"room02",
+    opening:{index:0},
+    rooms:{room02:isObject(raw.state)?{...raw.state}:{}},
+    logs:cleanLogs(raw.logs)
+   };
+  }
   return null;
  }
  function create({playerName="",currentScene="opening",openingIndex=0,rooms={},logs=[]}={}){
@@ -70,6 +81,9 @@ const SaveData=(()=>{
   }else if(currentScene==="room01"){
    saved.scene="firstRoom";
    saved.state={...(saved.rooms.room01||{})};
+  }else if(currentScene==="room02"){
+   saved.scene="room2";
+   saved.state={...(saved.rooms.room02||{})};
   }
   return saved;
  }
@@ -101,6 +115,7 @@ function serializeFirstRoomState(state=firstRoomState){
 
 function saveGame(){
  if(firstRoomState)roomStates.room01=serializeFirstRoomState();
+ if(room2State)roomStates.room02={...room2State,answer:room2State.answer.map(piece=>({...piece})),guess:room2State.guess.map(piece=>({...piece})),history:room2State.history.map(entry=>({...entry,guess:entry.guess.map(piece=>({...piece}))}))};
  const saved=SaveData.create({playerName,currentScene,openingIndex,rooms:roomStates,logs:GameLog.list()});
  localStorage.setItem(SAVE_KEY,JSON.stringify(saved));
 }
@@ -109,6 +124,7 @@ function clearSave(){
  localStorage.removeItem(SAVE_KEY);
  GameLog.restore();
  firstRoomState=undefined;
+ room2State=undefined;
  openingIndex=0;
  currentScene="opening";
  roomStates={};
@@ -158,6 +174,7 @@ function resumeGame(){
  const loaders={
   opening:()=>{firstRoomState=undefined;showOpening(saved.opening.index)},
   room01:()=>showFirstRoom(saved.rooms.room01)
+  ,room02:()=>showSecondRoom(saved.rooms.room02)
  };
  const load=loaders[saved.currentScene];
  if(!load){showTitle("このセーブデータは現在のバージョンでは再開できません。");return}
@@ -533,16 +550,8 @@ function showUnlockedDoorChoices(){
 }
 
 function showNextRoomBoundary(){
- // Room 2 is not authored yet. Keep a resumable room01 checkpoint.
- const overlay=document.createElement("div");
- overlay.className="device-overlay room-transition-overlay";
- overlay.innerHTML=`<section class="menu-panel room-exit-menu" aria-label="第二の部屋へ続く"><button type="button" class="device-close" aria-label="第一の部屋に戻る">×</button><h2>第二の部屋へ続く</h2><p>この先の物語は準備中です。</p><button type="button" id="returnToRoomButton">第一の部屋に戻る</button></section>`;
- game.appendChild(overlay);
- const close=activateDeviceModal(overlay,"doorButton",overlay.querySelector("#returnToRoomButton"),()=>{
-  firstRoomState.nextRoomTransitionSeen=false;
-  saveGame();
- });
- overlay.querySelector("#returnToRoomButton").addEventListener("click",close);
+ // The completed transition now enters the authored second room.
+ showSecondRoom(roomStates.room02);
 }
 
 function showRoomNotice(text,logId,logType="investigation"){

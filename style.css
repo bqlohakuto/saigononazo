@@ -159,4 +159,5 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 @keyframes room2Arrival{from{opacity:0;filter:brightness(.72)}to{opacity:1;filter:brightness(1)}}
 .room2-reaction{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;margin:8px 0 12px;padding:10px 14px;border:1px solid #b9d5e2;border-radius:12px;background:#eef7fb;color:#2f414a}
 .room2-reaction[hidden]{display:none}.room2-reaction-speaker{grid-column:1/-1;margin:0;color:#8a4058;font-size:13px;font-weight:700}.room2-reaction-text{margin:0;line-height:1.6}.room2-reaction-next{min-width:86px;min-height:40px;padding:7px 12px;border:1px solid #9ab9c7;border-radius:8px;background:#fff;color:#2f414a;font:inherit;cursor:pointer}
+.room2-leftmost-hint{margin:8px 0;padding:10px 13px;border:1px solid #c5aa65;border-radius:9px;background:#fff8df;color:#554519;font-weight:700;text-align:center}.room2-leftmost-hint[hidden]{display:none}
 @media(max-width:600px){.room2-reaction{padding:8px 10px;gap:4px 7px}.room2-reaction-text{font-size:13px}.room2-reaction-next{min-width:70px;min-height:36px;padding:6px;font-size:12px}}

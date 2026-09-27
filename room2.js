@@ -19,6 +19,7 @@ function showSecondRoom(savedState){
  room2State={doorInspected:false,deskInspected:false,sheetFound:false,hanaHints:0,answer:room2RandomAnswer(),guess:[],attempts:0,run:1,history:[],unlocked:false,flashbackSeen:false,highlightEnabled:true,leftmostHintRevealed:false,...savedState};
  if(!Array.isArray(room2State.answer)||room2State.answer.length!==5||!Array.isArray(room2State.guess))room2State={...room2State,answer:room2RandomAnswer(),guess:[]};
  if(!Array.isArray(room2State.history))room2State.history=[];
+ room2State.leftmostHintRevealed=room2ShouldRevealLeftmostHint(room2State.history,room2State.attempts);
  game.innerHTML=`<main class="room room-two room2-arriving ${room2State.unlocked?"is-restored":""}" aria-label="第二の部屋">
   <header class="room-header"><p class="room-label">第二の部屋</p><p class="room-color-status">${room2State.unlocked?"色を取り戻した部屋":"淡い記憶の部屋"}</p></header>
   <div class="room-stage-wrap"><section class="room-stage room2-stage" aria-label="第二の部屋">
@@ -100,7 +101,7 @@ function showSecondRoomPuzzle(){
   palette.querySelectorAll("[data-symbol]").forEach(button=>button.addEventListener("click",()=>{const token={symbol:button.dataset.symbol,color:button.dataset.color};const index=room2State.guess.findIndex(piece=>piece.symbol===token.symbol);if(index>=0){if(room2State.guess[index].color===token.color)room2State.guess.splice(index,1);else room2State.guess[index]=token}else if(room2State.guess.length<5)room2State.guess.push(token);selectedSlot=null;feedback.textContent=room2State.guess.length===5?"":"5つの枠をすべて埋めてください。";saveGame();render()}));
   history.innerHTML=room2State.history.map(entry=>`<div class="room2-history-row"><span>${entry.guess.map(piece=>`<i class="${piece.color=== "赤"?"red":"blue"}">${piece.symbol}</i>`).join("")}</span><b>${entry.hit}H ${entry.blow}B</b></div>`).join("");
   hint.hidden=!room2State.leftmostHintRevealed;
-  hint.textContent=room2State.leftmostHintRevealed?`5つの記号と色はすべて答えに含まれている。左端の記号は「${room2State.answer[0].symbol}」。`:"";
+  hint.textContent=room2State.leftmostHintRevealed?`開示された左端の記号：「${room2State.answer[0].symbol}」`:"";
  };
  overlay.querySelector(".room2-hint-paper").addEventListener("click",()=>{close();showRoomDialog([
   {logId:"room2_rules_01",logType:"investigation",speaker:"紙",text:"ルール"},
@@ -112,12 +113,14 @@ function showSecondRoomPuzzle(){
   if(room2State.guess.length!==5){feedback.textContent="5つの枠をすべて埋めてください。";return}
   const result=room2Evaluate(room2State.guess,room2State.answer);room2State.attempts++;
   room2State.history.push({guess:room2State.guess.map(piece=>({...piece})),...result});room2State.guess=[];
-  if(room2State.attempts>=5&&result.hit+result.blow===ROOM2_SYMBOLS.length)room2State.leftmostHintRevealed=true;
+  const revealLeftmostNow=result.hit!==ROOM2_SYMBOLS.length&&room2State.attempts===5&&room2ShouldRevealLeftmostHint(room2State.history,room2State.attempts);
+  if(revealLeftmostNow)room2State.leftmostHintRevealed=true;
   saveGame();render();
   if(result.hit===5){handleRoom2Correct(close,feedback);return}
   feedback.textContent=`${result.hit} HIT　${result.blow} BLOW　（${room2State.attempts}回目）`;
   const pair=ROOM2_DIALOGUES[`${result.hit}H`]?.[result.blow];
   const reaction=pair?.map((text,index)=>({logId:`room2_judge_${room2State.attempts}_${result.hit}_${result.blow}_${index}`,logType:"dialogue",speaker:index===0?"ハナ":"主人公",text}))||[];
+  if(revealLeftmostNow)reaction.push(...room2LeftmostHintLines(room2State.run,room2State.answer[0].symbol));
   const milestone=[4,6,7].includes(room2State.attempts)?room2MilestoneLines(room2State.attempts):[];
   const reachedLimit=room2State.attempts===8;
   const limitLines=reachedLimit?room2LimitLines():[];
@@ -132,6 +135,18 @@ function room2Evaluate(guess,answer){
  let hit=0,blow=0;
  guess.forEach((piece,index)=>{const target=answer[index];if(piece.symbol===target.symbol&&piece.color===target.color){hit++;return}if(answer.some((candidate,candidateIndex)=>candidateIndex!==index&&candidate.symbol===piece.symbol&&candidate.color===piece.color))blow++});
  return {hit,blow};
+}
+function room2ShouldRevealLeftmostHint(history,attempts){
+ if(!Array.isArray(history)||!Number.isInteger(attempts)||attempts<5||history.length<5)return false;
+ const firstFive=history.slice(0,5);
+ if(firstFive.some(result=>result?.hit===ROOM2_SYMBOLS.length))return false;
+ return firstFive.some(result=>Number.isInteger(result?.hit)&&Number.isInteger(result?.blow)&&result.hit+result.blow===ROOM2_SYMBOLS.length);
+}
+function room2LeftmostHintLines(run,symbol){
+ return [
+  {logId:`room2_leftmost_hint_${run}_01`,logType:"dialogue",speaker:"ハナ",text:"これまでの判定を見返してたら、五つ全部の色が合った回があったよ！"},
+  {logId:`room2_leftmost_hint_${run}_02`,logType:"dialogue",speaker:"ハナ",text:`仕掛けが反応してる……正解の左端は「${symbol}」みたい。`}
+ ];
 }
 function room2MilestoneLines(attempt){
  const sets={4:[["あと4回だね","ハナ"],["もう半分使ったんですね……","主人公"],["でも、最初よりかなり絞れてるんじゃない？","ハナ"],["焦らず、今までの結果を見ながら考えてみよう！","ハナ"],["……そうですね。まだ大丈夫です","主人公"]],6:[["あと2回……！","ハナ"],["さすがに、ちょっと緊張してきました","主人公"],["ここまで来たら、適当に変えちゃダメだよ！","ハナ"],["今までのヒットとブローをもう一回見て、確実なところから考えよう","ハナ"],["……一度整理してみます","主人公"]],7:[["あと一回……！","ハナ"],["ハナさんのほうが緊張してません？","主人公"],["だって、ここまで一緒に考えてきたんだもん！","ハナ"],["大丈夫。最後まで一緒に考えるから","ハナ"],["わかりました。これで決めます","主人公"]]};

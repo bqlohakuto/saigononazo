@@ -57,7 +57,7 @@ function r4Hana(){
  const text=!room4State.door?"まずは扉を見てみたら？ 今回の謎が書いてあるかも":!r4All()?"透明なパネルは五枚必要みたい。展示だけじゃなくて、部屋そのものもよく見てみよう":"五枚は揃ったね。重ねる順番より、それぞれの向きを見た方がよさそうだよ";showRoomDialog([{logId:"r4hint"+r4Count(),logType:"dialogue",speaker:"ハナ",text}]);
 }
 function r4Complete(){
- if(room4State.completed)return;room4State.completed=true;room4State.lightOn=true;saveGame();r4Projection();game.querySelector(".room-four")?.classList.add("is-restored");
+ if(room4State.completed)return;room4State.completed=true;room4State.lightOn=true;saveGame();r4Projection();game.querySelector(".room-four")?.classList.add("is-restored");const status=game.querySelector(".room-four .room-color-status");if(status)status.textContent="記憶を取り戻した部屋";
  showRoomDialog([{logId:"r4ok1",logType:"investigation",speaker:"ト書き",text:"ライトの光が、五枚のパネルを通り抜ける。左の壁に、いくつもの星が映し出された。今までばらばらだった星が、ひとつの形を描いている。"},{logId:"r4ok2",logType:"dialogue",speaker:"主人公",text:"これ……星座だ"},{logId:"r4ok3",logType:"narration",speaker:"ト書き",text:"右の壁にある星座一覧へ目を向ける。"},{logId:"r4ok4",logType:"dialogue",speaker:"主人公",text:"……おとめ座"},{logId:"r4ok5",logType:"narration",speaker:"ト書き",text:"もう一度、壁を見る。その瞬間――おとめ座を形作る星のひとつが、強く輝き始めた。光は次第に強くなり、辺りを白く染めていく。"},{logId:"r4ok6",logType:"dialogue",speaker:"ハナ",text:"……スピカ"},{logId:"r4ok7",logType:"dialogue",speaker:"主人公",text:"え？"},{logId:"r4ok8",logType:"narration",speaker:"ト書き",text:"ハナの方を振り返ろうとした瞬間、視界がまばゆい光に包まれた。"}],r4Memory);
 }
 function r4Memory(){if(room4State.memorySeen)return;showRoomDialog([...room4FlashbackLines,...room4AfterMemoryLines],()=>{room4State.memorySeen=true;saveGame();r4Exit()})}

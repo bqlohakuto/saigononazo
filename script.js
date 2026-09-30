@@ -7,6 +7,7 @@ let currentScene="opening";
 let roomStates={};
 let room2State;
 let room3State;
+let room4State;
 let settings=loadSettings();
 const FADE_TIME=3000;
 
@@ -91,6 +92,9 @@ const SaveData=(()=>{
   }else if(currentScene==="room03"){
    saved.scene="room3";
    saved.state={...(saved.rooms.room03||{})};
+  }else if(currentScene==="room04"){
+   saved.scene="room4";
+   saved.state={...(saved.rooms.room04||{})};
   }
   return saved;
  }
@@ -124,6 +128,7 @@ function saveGame(){
  if(firstRoomState)roomStates.room01=serializeFirstRoomState();
  if(room2State)roomStates.room02={...room2State,answer:room2State.answer.map(piece=>({...piece})),guess:room2State.guess.map(piece=>({...piece})),history:room2State.history.map(entry=>({...entry,guess:entry.guess.map(piece=>({...piece}))}))};
  if(room3State)roomStates.room03={...room3State};
+ if(room4State)roomStates.room04={...room4State,orientations:[...(room4State.orientations||[])],rainbowOrder:Array.isArray(room4State.rainbowOrder)?[...room4State.rainbowOrder]:undefined};
  const saved=SaveData.create({playerName,currentScene,openingIndex,rooms:roomStates,logs:GameLog.list()});
  localStorage.setItem(SAVE_KEY,JSON.stringify(saved));
 }
@@ -134,6 +139,7 @@ function clearSave(){
  firstRoomState=undefined;
  room2State=undefined;
  room3State=undefined;
+ room4State=undefined;
  openingIndex=0;
  currentScene="opening";
  roomStates={};
@@ -175,7 +181,7 @@ function showTitle(notice=""){
 }
 function showTestRoomPicker(){
  const overlay=document.createElement("div");overlay.className="test-room-overlay";
- overlay.innerHTML=`<section class="test-room-panel" role="dialog" aria-modal="true" aria-label="開始する部屋を選択"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>テストする部屋を選択</h2><p>選択した部屋から直接開始します。オートセーブはその部屋の進行で置き換わります。手動セーブは残ります。</p><div class="test-room-options"><button type="button" data-room="room01">第一の部屋</button><button type="button" data-room="room02">第二の部屋</button><button type="button" data-room="room03">第三の部屋</button></div></section>`;
+ overlay.innerHTML=`<section class="test-room-panel" role="dialog" aria-modal="true" aria-label="開始する部屋を選択"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>テストする部屋を選択</h2><p>選択した部屋から直接開始します。オートセーブはその部屋の進行で置き換わります。手動セーブは残ります。</p><div class="test-room-options"><button type="button" data-room="room01">第一の部屋</button><button type="button" data-room="room02">第二の部屋</button><button type="button" data-room="room03">第三の部屋</button><button type="button" data-room="room04">第四の部屋</button></div></section>`;
  game.appendChild(overlay);const close=()=>overlay.remove();overlay.querySelector(".device-close").addEventListener("click",close);overlay.addEventListener("click",event=>{if(event.target===overlay)close()});
  overlay.querySelectorAll("[data-room]").forEach(button=>button.addEventListener("click",()=>{const scene=button.dataset.room;close();startRoomTest(scene)}));
  overlay.querySelector("[data-room]")?.focus();
@@ -185,6 +191,7 @@ function startRoomTest(scene){
  if(scene==="room01"){showFirstRoom();return}
  if(scene==="room02"){showSecondRoom();return}
  if(scene==="room03"){showThirdRoom();return}
+ if(scene==="room04"){showFourthRoom();return}
  showTitle("開始する部屋を選べませんでした。");
 }
 function showNameInput(){
@@ -200,6 +207,7 @@ function resumeGame(){
   room01:()=>showFirstRoom(saved.rooms.room01)
   ,room02:()=>showSecondRoom(saved.rooms.room02)
   ,room03:()=>showThirdRoom(saved.rooms.room03)
+  ,room04:()=>showFourthRoom(saved.rooms.room04)
  };
  const load=loaders[saved.currentScene];
  if(!load){showTitle("このセーブデータは現在のバージョンでは再開できません。");return}

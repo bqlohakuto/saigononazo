@@ -67,6 +67,9 @@ const SaveData=(()=>{
   if(raw.scene==="room3"){
    return {saveVersion:VERSION,playerName:typeof raw.playerName==="string"?raw.playerName:"",currentScene:"room03",opening:{index:0},rooms:{room03:isObject(raw.state)?{...raw.state}:{}},logs:cleanLogs(raw.logs)};
   }
+  if(raw.scene==="room4"){
+   return {saveVersion:VERSION,playerName:typeof raw.playerName==="string"?raw.playerName:"",currentScene:"room04",opening:{index:0},rooms:{room04:isObject(raw.state)?{...raw.state}:{}},logs:cleanLogs(raw.logs)};
+  }
   return null;
  }
  function create({playerName="",currentScene="opening",openingIndex=0,rooms={},logs=[]}={}){
@@ -128,7 +131,7 @@ function saveGame(){
  if(firstRoomState)roomStates.room01=serializeFirstRoomState();
  if(room2State)roomStates.room02={...room2State,answer:room2State.answer.map(piece=>({...piece})),guess:room2State.guess.map(piece=>({...piece})),history:room2State.history.map(entry=>({...entry,guess:entry.guess.map(piece=>({...piece}))}))};
  if(room3State)roomStates.room03={...room3State};
- if(room4State)roomStates.room04={...room4State,orientations:[...(room4State.orientations||[])],rainbowOrder:Array.isArray(room4State.rainbowOrder)?[...room4State.rainbowOrder]:undefined};
+ if(room4State)roomStates.room04={...room4State,angles:Array.isArray(room4State.angles)?[...room4State.angles]:[0,0,0,0,0],rainbow:Array.isArray(room4State.rainbow)?[...room4State.rainbow]:[]};
  const saved=SaveData.create({playerName,currentScene,openingIndex,rooms:roomStates,logs:GameLog.list()});
  localStorage.setItem(SAVE_KEY,JSON.stringify(saved));
 }
@@ -594,6 +597,9 @@ function showRoomNotice(text,logId,logType="investigation"){
 }
 
 function showRoomDialog(lines,onComplete,onDisplay){
+ // Never stack dialogue overlays. Stacking disposes the older Dialogue controller
+ // while leaving its overlay on screen, which makes the conversation impossible to finish.
+ if(game.querySelector(".room-dialog-overlay"))return false;
  const opener=document.activeElement;
  const room=game.querySelector(".room");
  if(room)room.inert=true;
@@ -618,6 +624,7 @@ function showRoomDialog(lines,onComplete,onDisplay){
   if(opener?.isConnected&&!opener.disabled)opener.focus({preventScroll:true});
   if(onComplete)onComplete();
  }});
+ return true;
 }
 // Resume Web Audio inside a trusted tap/key gesture, including after app switching.
 document.addEventListener("click",()=>{GameAudio.unlock()},{capture:true});

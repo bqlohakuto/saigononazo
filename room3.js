@@ -94,9 +94,31 @@ const room3FlashbackLines=[
  {logId:"room3_flashback_70",logType:"dialogue",speaker:"主人公",text:"！……はい！ お願いします！"},
  {logId:"room3_flashback_71",logType:"narration",speaker:"ト書き",text:"差し出された手を握る。そのまま二人で、桜並木を歩き続けた。四月の夜は、肌寒かったはずなのに。繋いだ右手のぬくもりだけは、いつまでもはっきりと感じていた。"},
  {logId:"room3_flashback_72",logType:"narration",speaker:"ト書き",text:"――回想終了。"}
-];function showThirdRoom(savedState){
+];
+const room3AfterMemoryLines=[
+ {logId:"room3_after_01",logType:"narration",speaker:"ト書き",text:"視界が、元の部屋に戻る。"},
+ {logId:"room3_after_02",logType:"dialogue",speaker:"主人公",text:"……"},
+ {logId:"room3_after_03",logType:"narration",speaker:"ト書き",text:"右手を見る。もう誰とも繋いではいない。それでも、あのときのぬくもりがまだ残っているような気がした。"},
+ {logId:"room3_after_04",logType:"dialogue",speaker:"主人公",text:"……思い出した"},
+ {logId:"room3_after_05",logType:"dialogue",speaker:"主人公",text:"あの人と……付き合い始めた日のこと"},
+ {logId:"room3_after_06",logType:"dialogue",speaker:"ハナ",text:"そっか……"},
+ {logId:"room3_after_07",logType:"narration",speaker:"ト書き",text:"ハナは、少し嬉しそうに笑った。"},
+ {logId:"room3_after_08",logType:"dialogue",speaker:"ハナ",text:"ちゃんと思い出せたんだね"},
+ {logId:"room3_after_09",logType:"dialogue",speaker:"主人公",text:"はい"},
+ {logId:"room3_after_10",logType:"dialogue",speaker:"主人公",text:"……なんだか、すごく大事なことだった気がします"},
+ {logId:"room3_after_11",logType:"dialogue",speaker:"ハナ",text:"うん。きっと、大事な思い出だよ"},
+ {logId:"room3_after_12",logType:"narration",speaker:"ト書き",text:"一瞬だけ、ハナが懐かしそうに目を細めたように見えた。"},
+ {logId:"room3_after_13",logType:"narration",speaker:"主人公",thought:true,text:"鍵は開いた。次の部屋に行こう。"}
+];
+const room3NextRoomLines=[
+ {logId:"room3_exit_01",logType:"narration",speaker:"ト書き",text:"僕はドアノブに手を伸ばした。"},
+ {logId:"room3_exit_02",logType:"narration",speaker:"ト書き",text:"開けようとすると、また扉はひとりでに開いた。"},
+ {logId:"room3_exit_03",logType:"narration",speaker:"ト書き",text:"扉の向こうへ、身体が吸い込まれていくような感覚に襲われる。"},
+ {logId:"room3_exit_04",logType:"narration",speaker:"ト書き",text:"視界が、まばゆい光に包まれていく。"}
+];
+function showThirdRoom(savedState){
  Dialogue.stop();firstRoomState=undefined;room2State=undefined;currentScene="room03";
- room3State={doorInspected:false,deskInspected:false,bedInspected:false,shelfInspected:false,trumpetInspected:false,phoneInspected:false,chatRead:false,morseSolved:false,puzzleAttempts:0,hanaVisits:0,hintLevel:0,unlocked:false,highlightEnabled:true,memorySeen:false,...savedState};
+ room3State={doorInspected:false,deskInspected:false,bedInspected:false,shelfInspected:false,trumpetInspected:false,phoneInspected:false,chatRead:false,morseSolved:false,puzzleAttempts:0,hanaVisits:0,hintLevel:0,unlocked:false,highlightEnabled:true,memorySeen:false,nextRoomTransitionSeen:false,...savedState};
  game.innerHTML=`<main class="room room-three room3-arriving ${room3State.unlocked?"is-restored":""}" aria-label="第三の部屋">
   <header class="room-header"><p class="room-label">第三の部屋</p><p class="room-color-status">${room3State.unlocked?"記憶を取り戻した部屋":"大学時代の自室"}</p></header>
   <div class="room-stage-wrap"><section class="room-stage room3-stage" aria-label="大学時代の自室">
@@ -114,12 +136,19 @@ const room3FlashbackLines=[
  document.getElementById("r3Shelf").addEventListener("click",inspectThirdRoomShelf);
  document.getElementById("r3Trumpet").addEventListener("click",inspectThirdRoomTrumpet);
  document.getElementById("r3Hana").addEventListener("click",showThirdRoomHana);
- if(savedState)showRoomNotice("続きから再開しました。","room3_resumed","narration");else showRoomDialog(room3IntroLines);
+ if(savedState){
+  showRoomNotice("続きから再開しました。","room3_resumed","narration");
+  if(room3State.nextRoomTransitionSeen)setTimeout(showFourthRoomBoundary,150);
+  else if(room3State.unlocked&&!room3State.memorySeen)setTimeout(playThirdRoomMemory,150);
+ }else showRoomDialog(room3IntroLines);
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room03",title:"第三の部屋",objective:()=>room3State.unlocked?"開いた扉の先へ進む":"扉の謎を解く",onCompanion:showThirdRoomHana,getHighlights:()=>!!room3State.highlightEnabled,setHighlights:enabled=>{room3State.highlightEnabled=!!enabled;saveGame()}});
  saveGame();
 }
 function inspectThirdRoomDoor(){
- if(room3State.unlocked){showRoomDialog([{logId:"room3_door_open",logType:"investigation",speaker:"ト書き",text:"扉の鍵は開いている。先へ進めそうだ。"}]);return}
+ if(room3State.unlocked){
+  if(!room3State.memorySeen){playThirdRoomMemory();return}
+  showRoomDialog([{logId:"room3_door_open",logType:"investigation",speaker:"ト書き",text:"扉の鍵は開いている。先へ進めそうだ。"}],showThirdRoomExitChoice);return
+ }
  room3State.doorInspected=true;saveGame();document.getElementById("r3Desk").disabled=false;document.getElementById("r3Shelf").disabled=false;
  showRoomDialog([{logId:"room3_door_01",logType:"investigation",speaker:"ト書き",text:"扉には『顔に隠された合図を読み、隠された想いを言葉にせよ』と書かれている。"},{logId:"room3_door_02",logType:"dialogue",speaker:"主人公",text:"顔に隠された合図……？"},{logId:"room3_door_03",logType:"dialogue",speaker:"主人公",text:"今回も、この部屋のどこかに手がかりがあるんだろうな。"}]);
 }
@@ -152,8 +181,20 @@ function showThirdRoomPuzzle(){
  const close=activateDeviceModal(overlay,"r3Board",overlay.querySelector(".room3-answer-input"));const instruction=overlay.querySelector(".room3-puzzle-instruction"),entry=overlay.querySelector(".room3-morse-entry"),board=overlay.querySelector(".room3-letterboard"),finalEntry=overlay.querySelector(".room3-final-entry"),feedback=overlay.querySelector(".room3-puzzle-feedback");
  const render=()=>{entry.hidden=room3State.morseSolved;board.hidden=!room3State.morseSolved;finalEntry.hidden=!room3State.morseSolved||room3State.unlocked;instruction.textContent=room3State.morseSolved?"仮の盤面で「同じ文字の間」を読み取る。配置と操作は正式稿に合わせて差し替えます。":"顔文字を対応表でモールスに直し、15通を上から読んで答えを入力しよう。";board.innerHTML=ROOM3_BOARD.map((row,rowIndex)=>`<div class="room3-board-row" role="row">${row.map((value,columnIndex)=>`<span role="gridcell" aria-label="${rowIndex+1}行${columnIndex+1}列 ${value}">${value}</span>`).join("")}</div>`).join("");if(room3State.unlocked)feedback.textContent="正解！『いつも隣に』という想いが伝わった。"};
  overlay.querySelector(".room3-answer-submit").addEventListener("click",()=>{const answer=overlay.querySelector(".room3-answer-input").value.trim().toUpperCase().replace(/[\s　、。・]/gu,"");room3State.puzzleAttempts++;if(answer==="ONAJIMOJINOAIDA"||answer==="同じ文字の間"||answer==="同じ文字のあいだ"){room3State.morseSolved=true;feedback.textContent="『同じ文字の間』……文字盤を調べよう。";saveGame();render()}else feedback.textContent="顔文字とモールス対応表を、もう一度見比べてみよう。"});
- overlay.querySelector(".room3-final-submit").addEventListener("click",()=>{const answer=overlay.querySelector(".room3-final-input").value.trim().replace(/[\s　、。・]/gu,"").replace(/[ぁ-ゖ]/gu,char=>String.fromCharCode(char.charCodeAt(0)+0x60));room3State.puzzleAttempts++;if(answer==="イツモトナリニ"||answer==="いつも隣に"){room3State.unlocked=true;saveGame();render();close();const room=game.querySelector(".room-three");room?.classList.add("is-restored");const status=room?.querySelector(".room-color-status");if(status)status.textContent="記憶を取り戻した部屋";showRoomDialog(room3FlashbackLines,()=>{room3State.memorySeen=true;saveGame()})}else feedback.textContent="文字盤から読み取った言葉を入力しよう。"});
+ overlay.querySelector(".room3-final-submit").addEventListener("click",()=>{const answer=overlay.querySelector(".room3-final-input").value.trim().replace(/[\s　、。・]/gu,"").replace(/[ぁ-ゖ]/gu,char=>String.fromCharCode(char.charCodeAt(0)+0x60));room3State.puzzleAttempts++;if(answer==="イツモトナリニ"||answer==="いつも隣に"){room3State.unlocked=true;saveGame();render();close();const room=game.querySelector(".room-three");room?.classList.add("is-restored");const status=room?.querySelector(".room-color-status");if(status)status.textContent="記憶を取り戻した部屋";playThirdRoomMemory()}else feedback.textContent="文字盤から読み取った言葉を入力しよう。"});
  render();
+}
+function playThirdRoomMemory(){
+ if(room3State.memorySeen)return;
+ showRoomDialog([...room3FlashbackLines,...room3AfterMemoryLines],()=>{room3State.memorySeen=true;saveGame()});
+}
+function showThirdRoomExitChoice(){
+ if(game.querySelector(".device-overlay,.room-dialog-overlay"))return;
+ const overlay=document.createElement("div");overlay.className="device-overlay";
+ overlay.innerHTML=`<section class="menu-panel room-exit-menu" aria-label="第四の部屋へ進む"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>どうする？</h2><button type="button" id="room3NextButton">次の部屋へ向かう</button><button type="button" id="room3StayButton">もう少し部屋を調べてみる</button></section>`;game.appendChild(overlay);
+ const close=activateDeviceModal(overlay,"r3Door",overlay.querySelector("#room3NextButton"));
+ overlay.querySelector("#room3StayButton").addEventListener("click",()=>close());
+ overlay.querySelector("#room3NextButton").addEventListener("click",()=>{close();showRoomDialog(room3NextRoomLines,()=>{room3State.nextRoomTransitionSeen=true;saveGame();showFourthRoomBoundary()})});
 }
 function inspectThirdRoomTrumpet(){
  room3State.trumpetInspected=true;saveGame();showRoomDialog([{logId:"room3_trumpet_01",logType:"investigation",speaker:"ト書き",text:"大学生になった主人公の部屋に置かれたトランペット。"},{logId:"room3_trumpet_02",logType:"narration",speaker:"主人公",thought:true,text:"記憶の中で使っていたものと同じだ。"}]);

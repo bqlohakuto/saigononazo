@@ -305,7 +305,10 @@
     bar.setAttribute("aria-label", "ゲーム操作");
     bar.innerHTML = `<button type="button" class="gameplay-bottom-button hana" id="gameplayHanaButton">ハナ</button><button type="button" class="gameplay-bottom-button" id="gameplayAutoButton" aria-pressed="false">AUTO</button><button type="button" class="gameplay-bottom-button" id="gameplaySkipButton" aria-pressed="false" disabled>SKIP</button><button type="button" class="gameplay-bottom-button" id="gameplayLogButton" aria-pressed="false">LOG</button><button type="button" class="gameplay-bottom-button" id="gameplayTextSizeButton">文字 中</button>`;
     game.appendChild(bar);
-    bar.querySelector("#gameplayHanaButton").addEventListener("click", () => config.onCompanion?.());
+    bar.querySelector("#gameplayHanaButton").addEventListener("click", () => {
+      if (game.querySelector(".room-dialog-overlay,.device-overlay,.inspection-overlay,.gameplay-menu-overlay,.save-slot-overlay")) return;
+      config.onCompanion?.();
+    });
     bar.querySelector("#gameplayAutoButton").addEventListener("click", () => { Dialogue.toggleAuto?.(); syncAutoButton(); });
     bar.querySelector("#gameplaySkipButton").addEventListener("click", () => {
       document.querySelector(".room-dialog-overlay .skip-button")?.click();

@@ -77,6 +77,14 @@
       if (state.chatRead) return "第三の部屋・顔文字を確認済み";
       return "第三の部屋";
     }
+    if (saved.currentScene === "room04") {
+      const state = saved.rooms?.room04 || {};
+      if (state.memorySeen) return "第四の部屋・記憶回想後";
+      if (state.completed) return "第四の部屋・謎解きクリア後";
+      const count = ["wall","box","star","lightPuzzle","meteors"].filter(key => state[key]).length;
+      if (count) return `第四の部屋・ガラスパネル ${count}/5`;
+      return "第四の部屋";
+    }
     return saved.currentScene || "進行データ";
   }
 
@@ -387,6 +395,13 @@
   const originalShowThirdRoom = showThirdRoom;
   showThirdRoom = function (...args) {
     const result = originalShowThirdRoom.apply(this, args);
+    installDataControls();
+    return result;
+  };
+
+  const originalShowFourthRoom = showFourthRoom;
+  showFourthRoom = function (...args) {
+    const result = originalShowFourthRoom.apply(this, args);
     installDataControls();
     return result;
   };

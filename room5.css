@@ -14,3 +14,5 @@
 .r5-reflection{position:relative;width:150px;height:200px;margin:16px auto;color:#71817b}.r5-reflection svg{width:100%;height:100%}.r5-reflection i{position:absolute;left:38%;top:31%;width:25%;height:23%;border-radius:50%;background:white;filter:blur(5px)}.r5-touch{display:block;margin:auto;min-height:48px;padding:12px 24px;border:1px solid #7f967c;border-radius:8px;background:#e8eee3;font-size:16px}
 @media(max-width:480px){.r5-board-overlay,.r5-inspect-overlay{padding:10px}.r5-board-ui{padding:20px 12px}.r5-frames{gap:6px}.r5-frame{padding:4px}.r5-placed{inset:7px}.r5-board-ui>p{font-size:13px}.r5-stage .object span{font-size:12px}.r5-mirror{min-width:64px}}
 @media(prefers-reduced-motion:reduce){.r5-mirror-art.is-transforming{animation:none;opacity:0}}
+
+.room-five #r5Count{white-space:nowrap}

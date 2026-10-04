@@ -1,0 +1,52 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({headless:true});
+ const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const url=process.env.GAME_TEST_URL||'http://127.0.0.1:8765';
+ const save=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1')));
+ async function finish(){for(let i=0;i<30&&await page.locator('#roomNextButton').count();i++){await page.locator('#roomNextButton').click();await page.waitForTimeout(15);}}
+ await page.goto(url);
+ await page.locator('#testRoomButton').click();
+ await page.locator('[data-room="room05"]').click();
+ assert.equal((await save()).currentScene,'room05');
+ await page.locator('#r5Table').click();
+ assert.equal(await page.locator('.r5-frame').count(),8);
+ assert.equal(await page.locator('.r5-frame.is-filled').count(),1);
+ assert.equal(await page.locator('.r5-tile').count(),0);
+ await page.locator('.device-close').click();
+ await page.locator('#r5Mirror').click();await finish();
+ await page.locator('.r5-touch').click();await page.waitForTimeout(750);await finish();
+ assert.equal((await save()).rooms.room05.mirrorCollected,true);
+ assert.equal((await save()).rooms.room05.mirrorPlaced,false);
+ await page.reload();await page.locator('#continueButton').click();
+ await page.locator('.save-slot-card').last().locator('.save-slot-action').click();
+ await page.locator('#r5Table').click();
+ await page.locator('.r5-tile').click();await page.locator('[data-frame="head"]').click();
+ assert.equal((await save()).rooms.room05.mirrorPlaced,false);
+ assert.equal(await page.locator('.r5-tile').count(),1);
+ await page.locator('.r5-tile').click();await page.locator('[data-frame="face"]').click();
+ assert.equal((await save()).rooms.room05.mirrorPlaced,true);
+ assert.equal(await page.locator('.r5-frame.is-filled').count(),2);
+ assert.equal(await page.locator('.r5-tile').count(),0);
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.screenshot({path:'/tmp/room5-mobile.png'});
+ await page.locator('.device-close').click();
+ await page.locator('[data-action="save"]').click();
+ await page.locator('.save-slot-action').first().click();
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1-slot-1'))?.rooms.room05.mirrorPlaced),true);
+ // Fourth-room boundary and continue preserve the new room; earlier room snapshots remain intact.
+ await page.evaluate(()=>{document.getElementById('saveSlotOverlay')?.remove();clearSave();roomStates.room04={completed:true,memorySeen:true,nextRoomTransitionSeen:true};r4NextPlaceholder();});
+ assert.equal((await save()).currentScene,'room05');assert.equal((await save()).rooms.room04.completed,true);
+ assert.equal((await save()).rooms.room05.mirrorCollected,false);
+ // Browser pointer sequence for drag-to-place on desktop, using the same input handler.
+ await page.setViewportSize({width:1280,height:800});
+ await page.evaluate(()=>{room5State.mirrorCollected=true;saveGame();r5Refresh();r5OpenBoard();});
+ const tile=await page.locator('.r5-tile').boundingBox(),frame=await page.locator('[data-frame="face"]').boundingBox();
+ await page.mouse.move(tile.x+tile.width/2,tile.y+tile.height/2);await page.mouse.down();
+ await page.mouse.move(frame.x+frame.width/2,frame.y+frame.height/2,{steps:8});await page.mouse.up();
+ assert.equal((await save()).rooms.room05.mirrorPlaced,true);
+ assert.deepEqual(errors,[]);
+ await browser.close();console.log('PASS: acquisition, wrong/correct placement, mobile layout, save/resume, manual slot, room4 boundary, drag.');
+})().catch(e=>{console.error(e);process.exit(1)});

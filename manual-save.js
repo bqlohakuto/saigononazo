@@ -85,6 +85,10 @@
       if (count) return `第四の部屋・ガラスパネル ${count}/5`;
       return "第四の部屋";
     }
+    if (saved.currentScene === "room05") {
+      const state = saved.rooms?.room05 || {};
+      return state.mirrorPlaced ? "第五の部屋・鏡のパネル配置済み" : state.mirrorCollected ? "第五の部屋・鏡のパネル入手済み" : "第五の部屋";
+    }
     return saved.currentScene || "進行データ";
   }
 
@@ -406,6 +410,13 @@
     return result;
   };
 
+  const originalShowFifthRoom = showFifthRoom;
+  showFifthRoom = function (...args) {
+    const result = originalShowFifthRoom.apply(this, args);
+    installDataControls();
+    return result;
+  };
+
   // Continue now lets the player choose among the five slots or autosave.
   resumeGame = function () {
     if (!hasAnySave()) {
@@ -421,3 +432,4 @@
   // Re-render once so Continue uses the slot-aware handler and availability state.
   if (document.querySelector(".title-screen")) showTitle();
 })();
+

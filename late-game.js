@@ -31,7 +31,7 @@
 
   function normalizeR5(saved){
     const s=saved&&typeof saved==="object"?saved:{};
-    const legacySkipped=!!s.puzzleSkipped&&!s.codeRevealed&&!s.doorUnlocked;
+    const legacySkipped=(!!s.puzzleSkipped||"mirrorPlaced" in s||"mirrorCollected" in s)&&!s.codeRevealed&&!s.doorUnlocked;
     return {
       collected:Array.isArray(s.collected)?[...new Set(s.collected.filter(id=>R5_ITEMS.some(x=>x[0]===id)))]:[],
       placed:s.placed&&typeof s.placed==="object"&&!Array.isArray(s.placed)?{...s.placed}:{},
@@ -167,6 +167,21 @@
 
   function r5Board(){
     if(room5State.completed){showRoomNotice("完成したパネルが残っている。","r5_board_done");return}
+    if(!room5State.boardIntroSeen&&room5State.collected.length===7){
+      room5State.boardIntroSeen=true;saveGame();
+      showRoomDialog([
+        line("r5_board_intro_01","主人公","これで、全部集まりましたね。"),
+        line("r5_board_intro_02","ト書き","手に入れた七枚のパネルを並べる。鏡。魚。蝶。花。イカ。椅子。大砲。"),
+        line("r5_board_intro_03","主人公","……ウサギに羽。"),
+        line("r5_board_intro_04","ト書き","改めて、完成している絵を見る。"),
+        line("r5_board_intro_05","主人公","一羽……。"),
+        line("r5_board_intro_06","ハナ","何か分かった？"),
+        line("r5_board_intro_07","主人公","たぶん、この絵が見本なんだと思います。"),
+        line("r5_board_intro_08","ト書き","七つの丸枠を見る。"),
+        line("r5_board_intro_09","主人公","数え方を合わせればいいんですね。")
+      ],r5Board);
+      return;
+    }
     const o=document.createElement("div");o.className="device-overlay late-overlay";
     const available=R5_ITEMS.filter(([id])=>room5State.collected.includes(id)&&!room5State.placed[id]);
     const slots=R5_COUNTERS.map(([slot,counter,item])=>{
@@ -190,20 +205,6 @@
     const feedback=o.querySelector("#r5BoardFeedback");
     const tiles=[...o.querySelectorAll("[data-tile]")];
     const slotsEls=[...o.querySelectorAll("[data-counter]")];
-    if(!room5State.boardIntroSeen&&room5State.collected.length===7){
-      room5State.boardIntroSeen=true;saveGame();
-      showRoomDialog([
-        line("r5_board_intro_01","主人公","これで、全部集まりましたね。"),
-        line("r5_board_intro_02","ト書き","手に入れた七枚のパネルを並べる。鏡。魚。蝶。花。イカ。椅子。大砲。"),
-        line("r5_board_intro_03","主人公","……ウサギに羽。"),
-        line("r5_board_intro_04","ト書き","改めて、完成している絵を見る。"),
-        line("r5_board_intro_05","主人公","一羽……。"),
-        line("r5_board_intro_06","ハナ","何か分かった？"),
-        line("r5_board_intro_07","主人公","たぶん、この絵が見本なんだと思います。"),
-        line("r5_board_intro_08","ト書き","七つの丸枠を見る。"),
-        line("r5_board_intro_09","主人公","数え方を合わせればいいんですね。")
-      ]);
-    }
     tiles.forEach(b=>b.onclick=()=>{
       selected=b.dataset.tile;
       tiles.forEach(x=>x.classList.toggle("selected",x===b));
@@ -220,10 +221,20 @@
         return;
       }
       const before=r5PlacedCount();
-      room5State.placed[selected]=counter;saveGame();
-      const placedName=R5_ITEMS.find(x=>x[0]===selected)?.[1]||selected;
+      const placedId=selected;
+      const butterflyLast=placedId==="butterfly"&&before===6;
+      room5State.placed[placedId]=counter;saveGame();
       const isFirst=before===0;
       selected=null;
+      if(butterflyLast){
+        o.remove();
+        showRoomDialog([
+          line("r5_butterfly_hint_06","ト書き","蝶のパネルを置く。正解。"),
+          line("r5_butterfly_hint_07","主人公","……本当に一頭なんですね。"),
+          line("r5_butterfly_hint_08","ハナ","覚えたね。")
+        ],r5CompleteBoard);
+        return;
+      }
       if(isFirst){
         o.remove();
         showRoomDialog([

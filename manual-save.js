@@ -438,6 +438,27 @@
     return result;
   };
 
+  const originalShowSixthRoom = showSixthRoom;
+  showSixthRoom = function (...args) {
+    const result = originalShowSixthRoom.apply(this, args);
+    installDataControls();
+    return result;
+  };
+
+  const originalShowSeventhRoom = showSeventhRoom;
+  showSeventhRoom = function (...args) {
+    const result = originalShowSeventhRoom.apply(this, args);
+    installDataControls();
+    return result;
+  };
+
+  const originalShowEighthRoom = showEighthRoom;
+  showEighthRoom = function (...args) {
+    const result = originalShowEighthRoom.apply(this, args);
+    installDataControls();
+    return result;
+  };
+
   // Continue now lets the player choose among the five slots or autosave.
   resumeGame = function () {
     if (!hasAnySave()) {

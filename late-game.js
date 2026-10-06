@@ -46,7 +46,7 @@
     }
   };
   function renderR5(){
-    game.innerHTML='<main class="late-room r5-full"><header class="room-header"><p class="room-label">第五の部屋</p><p class="room-color-status">同棲していたリビング</p></header>'+
+    game.innerHTML='<main class="room late-room r5-full"><header class="room-header"><p class="room-label">第五の部屋</p><p class="room-color-status">同棲していたリビング</p></header>'+
       '<section class="late-stage living"><div class="late-room-note"><strong>探索</strong><span id="r5Progress"></span></div>'+
       '<div class="late-object-grid" id="r5Objects"></div>'+
       '<button class="late-main-action" id="r5Board">中央パネル</button>'+
@@ -134,7 +134,7 @@
       const current=id===room6State.current?" current":"";
       cells+='<button class="r6-cell '+known+current+'" data-cell="'+id+'"><span>'+id+'</span></button>';
     }
-    game.innerHTML='<main class="late-room"><header class="room-header"><p class="room-label">第六の部屋</p><p class="room-color-status">オセロの部屋</p></header>'+
+    game.innerHTML='<main class="room late-room"><header class="room-header"><p class="room-label">第六の部屋</p><p class="room-color-status">オセロの部屋</p></header>'+
       '<section class="late-stage othello"><div class="r6-map" aria-label="探索地図">'+cells+'</div>'+
       '<div class="late-side"><p>訪問 '+room6State.visited.length+' / 64</p>'+
       '<button class="late-sub-action" id="r6Green">【未確定】緑床を確認</button>'+
@@ -314,7 +314,7 @@
   };
   function renderR7(){
     const bookButtons=R7_BOOKS.map(b=>'<button class="r7-book" data-book="'+b.id+'" '+(room7State.order.includes(b.id)?"disabled":"")+'><strong>'+b.title+'</strong><small>栞のページ：'+b.animals+'</small></button>').join("");
-    game.innerHTML='<main class="late-room"><header class="room-header"><p class="room-label">第七の部屋</p><p class="room-color-status">十二支の部屋</p></header>'+
+    game.innerHTML='<main class="room late-room"><header class="room-header"><p class="room-label">第七の部屋</p><p class="room-color-status">十二支の部屋</p></header>'+
       '<section class="late-stage zodiac"><div class="r7-books"><h3>机の上の6冊</h3>'+bookButtons+
       '<p class="r7-order">並び：<span id="r7OrderText"></span></p><button class="late-sub-action" id="r7OrderReset">並べ直す</button></div>'+
       '<div class="r7-doors '+(room7State.booksSolved?"active":"")+'"><h3>十二の扉</h3>'+R7_ZODIAC.map(z=>'<button data-zodiac="'+z+'" '+(!room7State.booksSolved?"disabled":"")+'>'+z+'</button>').join("")+'<p>正解進行 '+room7State.doorIndex+' / 6</p></div>'+
@@ -432,7 +432,7 @@
     if(!room8State.introSeen){room8State.introSeen=true;saveGame();setTimeout(r8Intro,80)}
   };
   function r8Living(){
-    game.innerHTML='<main class="late-room r8-living"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">リビング</p></header><section class="late-stage living final-living"><div class="r8-table"><span>ダイニングテーブル</span><span>ハナが椅子に座っている</span></div></section></main>';
+    game.innerHTML='<main class="room late-room r8-living"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">リビング</p></header><section class="late-stage living final-living"><div class="r8-table"><span>ダイニングテーブル</span><span>ハナが椅子に座っている</span></div></section></main>';
   }
   function r8Intro(){
     showRoomDialog([
@@ -489,7 +489,7 @@
     ],()=>{room8State.puzzleReady=true;saveGame();r8PuzzleRoom()});
   }
   function r8PuzzleRoom(){
-    game.innerHTML='<main class="late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">何もない部屋</p></header><section class="late-stage empty"><button class="r8-paper" id="r8Paper">一枚の紙</button></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
+    game.innerHTML='<main class="room late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">何もない部屋</p></header><section class="late-stage empty"><button class="r8-paper" id="r8Paper">一枚の紙</button></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
     document.getElementById("r8Paper").onclick=r8Paper;
     setHud("room08","最後の謎",()=>"彼女の名前を思い出す",()=>{},r8IsFinalClue);
     if(room8State.backSeen)r8ArmLogHint();
@@ -578,7 +578,7 @@
     ],()=>{room8State.finalTalkSeen=true;saveGame();r8AfterSolved()});
   }
   function r8AfterSolved(){
-    game.innerHTML='<main class="late-room r8-exit"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">出口</p></header><section class="late-stage empty"><button class="r8-final-door" id="r8FinalDoor">最後の扉を開く</button></section></main>';
+    game.innerHTML='<main class="room late-room r8-exit"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">出口</p></header><section class="late-stage empty"><button class="r8-final-door" id="r8FinalDoor">最後の扉を開く</button></section></main>';
     document.getElementById("r8FinalDoor").onclick=()=>{
       showRoomDialog([
         line("r8_end_01","ト書き","主人公は最後の扉を開いた。"),

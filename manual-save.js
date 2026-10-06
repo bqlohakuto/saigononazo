@@ -88,6 +88,10 @@
     if (saved.currentScene === "room05") {
       const state = saved.rooms?.room05 || {};
       if (state.completed) return "第五の部屋・回想後";
+      if (state.doorUnlocked) return "第五の部屋・扉解錠後";
+      if (state.codeRevealed) return "第五の部屋・暗証番号 8194";
+      const placed = state.placed && typeof state.placed === "object" ? Object.keys(state.placed).length : 0;
+      if (placed) return `第五の部屋・助数詞配置 ${placed}/7`;
       if (Array.isArray(state.collected) && state.collected.length) return `第五の部屋・パネル ${state.collected.length}/7`;
       return "第五の部屋";
     }

@@ -9,6 +9,9 @@ let room2State;
 let room3State;
 let room4State;
 let room5State;
+let room6State;
+let room7State;
+let room8State;
 let settings=loadSettings();
 const FADE_TIME=3000;
 
@@ -133,6 +136,9 @@ function saveGame(){
  if(room2State)roomStates.room02={...room2State,answer:room2State.answer.map(piece=>({...piece})),guess:room2State.guess.map(piece=>({...piece})),history:room2State.history.map(entry=>({...entry,guess:entry.guess.map(piece=>({...piece}))}))};
  if(room3State)roomStates.room03={...room3State};
  if(room5State)roomStates.room05={...room5State};
+ if(room6State)roomStates.room06={...room6State,visited:Array.isArray(room6State.visited)?[...room6State.visited]:[],moves:Array.isArray(room6State.moves)?[...room6State.moves]:[]};
+ if(room7State)roomStates.room07={...room7State,order:Array.isArray(room7State.order)?[...room7State.order]:[]};
+ if(room8State)roomStates.room08={...room8State};
  if(room4State)roomStates.room04={...room4State,angles:Array.isArray(room4State.angles)?[...room4State.angles]:[0,0,0,0,0],rainbow:Array.isArray(room4State.rainbow)?[...room4State.rainbow]:[]};
  const saved=SaveData.create({playerName,currentScene,openingIndex,rooms:roomStates,logs:GameLog.list()});
  localStorage.setItem(SAVE_KEY,JSON.stringify(saved));
@@ -146,6 +152,9 @@ function clearSave(){
  room3State=undefined;
  room4State=undefined;
  room5State=undefined;
+ room6State=undefined;
+ room7State=undefined;
+ room8State=undefined;
  openingIndex=0;
  currentScene="opening";
  roomStates={};
@@ -187,7 +196,7 @@ function showTitle(notice=""){
 }
 function showTestRoomPicker(){
  const overlay=document.createElement("div");overlay.className="test-room-overlay";
- overlay.innerHTML=`<section class="test-room-panel" role="dialog" aria-modal="true" aria-label="開始する部屋を選択"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>テストする部屋を選択</h2><p>選択した部屋から直接開始します。オートセーブはその部屋の進行で置き換わります。手動セーブは残ります。</p><div class="test-room-options"><button type="button" data-room="room01">第一の部屋</button><button type="button" data-room="room02">第二の部屋</button><button type="button" data-room="room03">第三の部屋</button><button type="button" data-room="room04">第四の部屋</button><button type="button" data-room="room05">第五の部屋</button></div></section>`;
+ overlay.innerHTML=`<section class="test-room-panel" role="dialog" aria-modal="true" aria-label="開始する部屋を選択"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>テストする部屋を選択</h2><p>選択した部屋から直接開始します。オートセーブはその部屋の進行で置き換わります。手動セーブは残ります。</p><div class="test-room-options"><button type="button" data-room="room01">第一の部屋</button><button type="button" data-room="room02">第二の部屋</button><button type="button" data-room="room03">第三の部屋</button><button type="button" data-room="room04">第四の部屋</button><button type="button" data-room="room05">第五の部屋</button><button type="button" data-room="room06">第六の部屋</button><button type="button" data-room="room07">第七の部屋</button><button type="button" data-room="room08">第八の部屋</button></div></section>`;
  game.appendChild(overlay);const close=()=>overlay.remove();overlay.querySelector(".device-close").addEventListener("click",close);overlay.addEventListener("click",event=>{if(event.target===overlay)close()});
  overlay.querySelectorAll("[data-room]").forEach(button=>button.addEventListener("click",()=>{const scene=button.dataset.room;close();startRoomTest(scene)}));
  overlay.querySelector("[data-room]")?.focus();
@@ -199,6 +208,9 @@ function startRoomTest(scene){
  if(scene==="room03"){showThirdRoom();return}
  if(scene==="room04"){showFourthRoom();return}
  if(scene==="room05"){showFifthRoom();return}
+ if(scene==="room06"){showSixthRoom();return}
+ if(scene==="room07"){showSeventhRoom();return}
+ if(scene==="room08"){showEighthRoom();return}
  showTitle("開始する部屋を選べませんでした。");
 }
 function showNameInput(){
@@ -216,6 +228,9 @@ function resumeGame(){
   ,room03:()=>showThirdRoom(saved.rooms.room03)
   ,room04:()=>showFourthRoom(saved.rooms.room04)
   ,room05:()=>showFifthRoom(saved.rooms.room05)
+  ,room06:()=>showSixthRoom(saved.rooms.room06)
+  ,room07:()=>showSeventhRoom(saved.rooms.room07)
+  ,room08:()=>showEighthRoom(saved.rooms.room08)
  };
  const load=loaders[saved.currentScene];
  if(!load){showTitle("このセーブデータは現在のバージョンでは再開できません。");return}
@@ -224,6 +239,9 @@ function resumeGame(){
  openingIndex=saved.opening.index;
  currentScene=saved.currentScene;
  room5State=undefined;
+ room6State=undefined;
+ room7State=undefined;
+ room8State=undefined;
  roomStates={...saved.rooms};
  GameLog.restore(saved.logs);
  load();

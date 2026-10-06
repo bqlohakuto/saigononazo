@@ -625,7 +625,7 @@ function showRoomDialog(lines,onComplete,onDisplay){
  // while leaving its overlay on screen, which makes the conversation impossible to finish.
  if(game.querySelector(".room-dialog-overlay"))return false;
  const opener=document.activeElement;
- const room=game.querySelector(".room");
+ const room=game.querySelector(".room,.late-room");
  if(room)room.inert=true;
  const overlay=document.createElement("div");
  overlay.className="room-dialog-overlay";

@@ -425,7 +425,8 @@
   window.showEighthRoom=function(savedState){
     Dialogue.stop();currentScene="room08";room8State=normalizeR8(savedState);saveGame();
     if(room8State.ended){r8EndScreen();return}
-    if(room8State.solved){r8AfterSolved();return}
+    if(room8State.solved&&room8State.finalTalkSeen){r8AfterSolved();return}
+    if(room8State.solved&&!room8State.finalTalkSeen){r8PuzzleRoom();setTimeout(r8SolvedDialogue,80);return}
     if(room8State.puzzleReady){r8PuzzleRoom();return}
     r8Living();
     setHud("room08","第八の部屋",()=>"花音との最後の時間",()=>{});

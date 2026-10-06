@@ -19,88 +19,584 @@
 
   // ---------- Room 5 ----------
   const R5_ITEMS=[
-    ["mirror","鏡"],["fish","魚"],["butterfly","蝶"],["flower","花"],
-    ["squid","イカ"],["chair","椅子"],["cannon","大砲"]
+    ["mirror","鏡","面","姿見"],["fish","魚","尾","冷蔵庫"],["butterfly","蝶","頭","窓際"],
+    ["flower","花","輪","花瓶"],["squid","イカ","杯","冷蔵庫"],["chair","椅子","脚","ダイニング"],
+    ["cannon","大砲","門","テレビ台"]
   ];
+  const R5_COUNTERS=[
+    ["feather","羽","うさぎ"],["face","面","鏡"],["tail","尾","魚"],["head","頭","蝶"],
+    ["ring","輪","花"],["cup","杯","イカ"],["leg","脚","椅子"],["gate","門","大砲"]
+  ];
+  const R5_TARGET={mirror:"面",fish:"尾",butterfly:"頭",flower:"輪",squid:"杯",chair:"脚",cannon:"門"};
+
   function normalizeR5(saved){
     const s=saved&&typeof saved==="object"?saved:{};
+    const legacySkipped=!!s.puzzleSkipped&&!s.codeRevealed&&!s.doorUnlocked;
     return {
-      collected:Array.isArray(s.collected)?[...new Set(s.collected)]:[],
-      puzzleSkipped:!!s.puzzleSkipped,memorySeen:!!s.memorySeen,completed:!!s.completed,
+      collected:Array.isArray(s.collected)?[...new Set(s.collected.filter(id=>R5_ITEMS.some(x=>x[0]===id)))]:[],
+      placed:s.placed&&typeof s.placed==="object"&&!Array.isArray(s.placed)?{...s.placed}:{},
+      boardIntroSeen:!!s.boardIntroSeen,
+      butterflyHintSeen:!!s.butterflyHintSeen,
+      codeRevealed:legacySkipped?false:!!s.codeRevealed,
+      doorUnlocked:legacySkipped?false:!!s.doorUnlocked,
+      memorySeen:legacySkipped?false:!!s.memorySeen,
+      completed:legacySkipped?false:!!s.completed,
       introSeen:!!s.introSeen
     };
   }
+
+  function r5PlacedCount(){return Object.keys(room5State.placed||{}).length}
+  function r5Objective(){
+    if(room5State.completed)return "第六の部屋へ進む";
+    if(room5State.doorUnlocked)return "中央パネルの羽の生えたウサギを調べる";
+    if(room5State.codeRevealed)return "扉のテンキーに4桁の数字を入力する";
+    if(room5State.collected.length===7)return "7枚のパネルを正しい数え方へ配置する";
+    return "部屋から7つのパネルを集める";
+  }
+
   showFifthRoom=function(savedState){
     Dialogue.stop();currentScene="room05";room5State=normalizeR5(savedState);
-    renderR5();
-    setHud("room05","第五の部屋",()=>room5State.completed?"第六の部屋へ進む":room5State.collected.length===7?"中央パネルを確認する":"部屋から7つのパネルを集める",()=>showRoomNotice("ハナは部屋の様子を静かに見ている。","r5_hana_watch"));
-    saveGame();
+    renderR5();saveGame();
     if(!room5State.introSeen){
       room5State.introSeen=true;saveGame();
       showRoomDialog([
-        pending("第5の部屋導入の具体的なト書き。舞台が同棲リビングであることは確定。"),
-        line("r5_intro_01","ト書き","視界が開ける。そこは、どこか生活の気配が残るリビングだった。"),
-        line("r5_intro_02","主人公","……この部屋"),
-        line("r5_intro_03","ト書き","鏡、冷蔵庫、窓際、花瓶、ダイニングの椅子。部屋のあちこちに気になるものがある。"),
-        line("r5_intro_04","ト書き","中央には、八つの位置を持つ絵合わせのパネルが置かれている。")
+        pending("第5入室時の最終セリフ・ト書きは未確定。現在は確定している部屋構成からプレイを開始します。"),
+        line("r5_intro_room","ト書き","同棲を始めた二人のアパートを模した、まだ少し殺風景なリビング。中央のダイニングテーブルには、大きなパネルが置かれている。")
       ]);
     }
   };
+
   function renderR5(){
-    game.innerHTML='<main class="room late-room r5-full"><header class="room-header"><p class="room-label">第五の部屋</p><p class="room-color-status">同棲していたリビング</p></header>'+
+    const keypadButton=room5State.codeRevealed&&!room5State.doorUnlocked?'<button class="late-main-action r5-door-keypad" id="r5Keypad">扉の4桁テンキー</button>':'';
+    const rabbitButton=room5State.doorUnlocked&&!room5State.memorySeen?'<button class="late-main-action r5-rabbit-memory" id="r5Rabbit">羽の生えたウサギを調べる</button>':'';
+    game.innerHTML='<main class="room late-room r5-full"><header class="room-header"><p class="room-label">第五の部屋</p><p class="room-color-status">同棲を始めたアパートのリビング</p></header>'+
       '<section class="late-stage living"><div class="late-room-note"><strong>探索</strong><span id="r5Progress"></span></div>'+
       '<div class="late-object-grid" id="r5Objects"></div>'+
-      '<button class="late-main-action" id="r5Board">中央パネル</button>'+
+      '<div class="r5-actions"><button class="late-main-action" id="r5Board">中央パネル</button>'+keypadButton+rabbitButton+'</div>'+
       (room5State.completed?'<button class="late-next" id="r5Next">第六の部屋へ</button>':'')+
       '</section><p class="explore-status" id="exploreStatus">気になるものを調べてください。</p></main>';
     const box=document.getElementById("r5Objects");
-    box.innerHTML=R5_ITEMS.map(([id,name])=>'<button class="late-object '+(room5State.collected.includes(id)?"done":"")+'" data-item="'+id+'">'+name+(room5State.collected.includes(id)?" ✓":"")+'</button>').join("");
+    box.innerHTML=R5_ITEMS.map(([id,name,,where])=>'<button class="late-object '+(room5State.collected.includes(id)?"done":"")+'" data-item="'+id+'" '+(room5State.collected.includes(id)?"disabled":"")+'><small>'+where+'</small><strong>'+name+'</strong>'+(room5State.collected.includes(id)?" ✓":"")+'</button>').join("");
     box.querySelectorAll("[data-item]").forEach(b=>b.onclick=()=>r5Collect(b.dataset.item));
     document.getElementById("r5Board").onclick=r5Board;
+    document.getElementById("r5Keypad")?.addEventListener("click",r5Keypad);
+    document.getElementById("r5Rabbit")?.addEventListener("click",r5RabbitMemoryStart);
     document.getElementById("r5Next")?.addEventListener("click",()=>transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06)));
-    document.getElementById("r5Progress").textContent="パネル "+room5State.collected.length+" / 7（うさぎ＋羽は基準）";
-    setHud("room05","第五の部屋",()=>room5State.completed?"第六の部屋へ進む":room5State.collected.length===7?"中央パネルを確認する":"部屋から7つのパネルを集める",()=>showRoomNotice("ハナは部屋の様子を静かに見ている。","r5_hana_watch"));
+    const placed=r5PlacedCount();
+    document.getElementById("r5Progress").textContent=room5State.completed?"記憶を取り戻した":room5State.doorUnlocked?"扉解錠済み":room5State.codeRevealed?"暗証番号 8194":room5State.collected.length<7?"パネル "+room5State.collected.length+" / 7":"配置 "+placed+" / 7";
+    setHud("room05","第五の部屋",r5Objective,()=>showRoomNotice("ハナは、主人公が部屋を調べる様子を静かに見ている。","r5_hana_watch"));
   }
+
   function r5Collect(id){
-    if(room5State.collected.includes(id)){showRoomNotice("ここから回収できるものは、もうない。","r5_repeat_"+id);return;}
-    const name=R5_ITEMS.find(x=>x[0]===id)?.[1]||id;
-    const lines=[];
+    if(room5State.collected.includes(id)){showRoomNotice("ここから回収できるものは、もうない。","r5_repeat_"+id);return}
+    const item=R5_ITEMS.find(x=>x[0]===id);if(!item)return;
+    const [,name]=item;
+    const first=room5State.collected.length===0;
+    let lines=[];
     if(id==="mirror"){
-      lines.push(line("r5_mirror_face","ト書き","姿見には、部屋もハナも、自分の身体も映っている。けれど、自分の顔だけが白く滲んで見えない。"));
+      lines=[
+        line("r5_mirror_01","ト書き","部屋の隅に置かれた姿見を調べる。"),
+        line("r5_mirror_02","主人公","……鏡ですね。"),
+        line("r5_mirror_03","ト書き","鏡の中には、部屋の様子が映っている。中央のダイニングテーブル。窓際。少し離れた場所にいるハナさん。そして――自分。"),
+        line("r5_mirror_04","主人公","……？"),
+        line("r5_mirror_05","ト書き","もう一度、鏡を見る。身体は映っている。服も、手も、髪も。なのに。顔だけが、ぼんやりと白く滲んでいる。"),
+        line("r5_mirror_06","主人公","顔が……映ってない。"),
+        line("r5_mirror_07","ハナ","え？"),
+        line("r5_mirror_08","ト書き","ハナが隣から鏡を覗き込む。ハナの姿は、普通に映っている。"),
+        line("r5_mirror_09","主人公","ハナさんは映ってますね。"),
+        line("r5_mirror_10","ハナ","ほんとだ。"),
+        line("r5_mirror_11","主人公","……どういうことなんでしょう。"),
+        line("r5_mirror_12","ト書き","鏡面へ手を伸ばす。指先が触れた瞬間――。周囲の音が消えた。鏡面に、水面のような波紋が広がる。姿見の輪郭が淡く光る。厚みが失われていき――すうっと縮んでいく。"),
+        line("r5_mirror_13","ト書き","やがて、手の中に一枚のパネルだけが残った。"),
+        line("r5_mirror_14","主人公","……鏡が。"),
+        line("r5_mirror_15","ハナ","パネルになったね。"),
+        line("r5_get_mirror","システム","【鏡のパネルを手に入れた】"),
+        line("r5_mirror_16","主人公","これを、あのテーブルに使うんでしょうか。"),
+        line("r5_mirror_17","ハナ","たぶんね。")
+      ];
+    }else if(id==="fish"){
+      lines=[
+        line("r5_fish_01","ト書き","冷蔵庫を開ける。飲み物や調味料、いくつかの食材が入っている。棚の奥に、魚とイカが置かれていた。"),
+        line("r5_fish_02","主人公","……魚とイカ。"),
+        line("r5_fish_03","ト書き","魚に触れる。輪郭が淡く光り、一枚のパネルへ変化した。"),
+        line("r5_get_fish","システム","【魚のパネルを手に入れた】")
+      ];
+    }else if(id==="squid"){
+      lines=[
+        line("r5_squid_01","ト書き","冷蔵庫の中のイカに触れる。輪郭が淡く光り、一枚のパネルへ変化した。"),
+        line("r5_get_squid","システム","【イカのパネルを手に入れた】")
+      ];
+    }else if(id==="butterfly"){
+      lines=[
+        line("r5_butterfly_01","ト書き","窓際を調べる。カーテンのそばに、一匹の蝶が止まっている。近づいても、逃げる様子はない。"),
+        line("r5_butterfly_02","主人公","……蝶。"),
+        line("r5_butterfly_03","ト書き","そっと触れる。蝶の輪郭が淡く光り、そのまま一枚のパネルへ変化した。"),
+        line("r5_get_butterfly","システム","【蝶のパネルを手に入れた】")
+      ];
     }else if(id==="flower"){
-      lines.push(line("r5_final_flower","ト書き","花瓶に花が飾られている。触れると、その姿が一枚のパネルへ変わった。"));
-    }else{
-      lines.push(pending(name+"を調べた時の具体的なト書き。以下は進行確認用の仮表示。"));
-      lines.push(line("r5_collect_"+id,"ト書き",name+"に触れると、その姿が縮み、一枚のパネルへ変わった。"));
+      lines=[
+        line("r5_flower_01","ト書き","窓際の花瓶を調べる。一輪の花が生けられている。"),
+        line("r5_final_flower","ト書き","花に触れる。一瞬だけ光を帯び、薄い一枚のパネルへ姿を変えた。"),
+        line("r5_get_flower","システム","【花のパネルを手に入れた】"),
+        line("r5_flower_02","ト書き","花瓶だけが、その場に残った。")
+      ];
+    }else if(id==="chair"){
+      lines=[
+        line("r5_chair_01","ト書き","ダイニングテーブルの椅子を調べる。"),
+        line("r5_chair_02","主人公","これも……でしょうか。"),
+        line("r5_chair_03","ト書き","背もたれに触れる。椅子全体の輪郭が光り、みるみる厚みを失っていく。大きかった椅子は、手の中に収まる一枚のパネルへ変わった。"),
+        line("r5_get_chair","システム","【椅子のパネルを手に入れた】"),
+        line("r5_chair_04","ト書き","椅子が一脚なくなり、テーブルの周りが少しだけ寂しくなった。")
+      ];
+    }else if(id==="cannon"){
+      lines=[
+        line("r5_cannon_01","ト書き","テレビ台の前を調べる。小さな大砲の模型が置かれている。"),
+        line("r5_cannon_02","主人公","……大砲？"),
+        line("r5_cannon_03","ト書き","リビングには少し似つかわしくない。模型に触れる。淡い光とともに、その姿が一枚のパネルへ変わった。"),
+        line("r5_get_cannon","システム","【大砲のパネルを手に入れた】")
+      ];
     }
-    lines.push(line("r5_get_"+id,"システム","【"+name+"のパネルを手に入れた】"));
-    showRoomDialog(lines,()=>{room5State.collected.push(id);saveGame();renderR5()});
+    if(first&&id!=="mirror"){
+      lines.unshift(line("r5_first_transform","ト書き","手で触れる。一瞬、周囲の音が消える。対象の輪郭が淡く光り、厚みが失われていく。立体だった物体が、手の中に収まる一枚のパネルへ変化する。"));
+    }
+    showRoomDialog(lines,()=>{
+      room5State.collected.push(id);saveGame();renderR5();
+      if(room5State.collected.length===7)showRoomNotice("7枚すべてのパネルが集まった。中央パネルを確認しよう。","r5_all_collected","narration");
+    });
   }
+
   function r5Board(){
-    if(room5State.completed){showRoomNotice("完成した絵が残っている。","r5_board_done");return;}
-    if(room5State.collected.length<7){
-      showRoomNotice("まだ空いている場所がある。部屋をもう少し調べよう。","r5_board_more");return;
-    }
+    if(room5State.completed){showRoomNotice("完成したパネルが残っている。","r5_board_done");return}
     const o=document.createElement("div");o.className="device-overlay late-overlay";
-    o.innerHTML='<section class="late-panel"><button class="device-close" aria-label="閉じる">×</button><h2>助数詞パズル</h2>'+
-      '<p>基準：<strong>うさぎ → 羽</strong></p><p>集めた7枚を、ものの「数え方」を手掛かりに正しく配置する。</p>'+
-      '<div class="late-pending"><strong>【未確定】</strong><br>現在の確定データでは、7枚すべての最終配置（特に「大砲」の助数詞）が確定していません。<br>プレイ確認を続けるため、この部分だけテスト用に完成扱いにできます。</div>'+
-      '<button class="late-main-action" id="r5TestComplete">テスト用：完成扱いで回想へ</button></section>';
-    game.appendChild(o);activateDeviceModal(o,"r5Board",o.querySelector("#r5TestComplete"));
-    o.querySelector("#r5TestComplete").onclick=()=>{o.remove();room5State.puzzleSkipped=true;saveGame();r5Memory()};
+    const available=R5_ITEMS.filter(([id])=>room5State.collected.includes(id)&&!room5State.placed[id]);
+    const slots=R5_COUNTERS.map(([slot,counter,item])=>{
+      if(slot==="feather")return '<button class="r5-counter-slot fixed" disabled><span class="counter">羽</span><strong>うさぎ</strong><small>一羽</small></button>';
+      const placedId=Object.keys(room5State.placed).find(id=>room5State.placed[id]===counter);
+      const placedItem=placedId?R5_ITEMS.find(x=>x[0]===placedId)?.[1]:"";
+      return '<button class="r5-counter-slot '+(placedId?"filled":"")+'" data-counter="'+counter+'" '+(placedId?"disabled":"")+'><span class="counter">'+counter+'</span><strong>'+(placedItem||"？")+'</strong><small>'+(placedId?"正解":"ここへ配置")+'</small></button>';
+    }).join("");
+    const inventory=available.length?available.map(([id,name])=>'<button class="r5-inventory-tile" data-tile="'+id+'">'+name+'</button>').join(""):'<p class="r5-empty-inventory">配置できるパネルはありません。</p>';
+    o.innerHTML='<section class="late-panel r5-board-panel"><button class="device-close" aria-label="閉じる">×</button><h2>中央パネル</h2>'+
+      '<p class="r5-problem">描かれたものを正しく数え、あるべき場所へ導け。</p>'+
+      '<div class="r5-art-note">【未確定：助数詞側の正式な絵素材】現在は「羽・面・尾・頭・輪・杯・脚・門」を文字で仮表示しています。</div>'+
+      '<div class="r5-counter-grid">'+slots+'</div>'+
+      '<h3>手に入れたパネル</h3><div class="r5-inventory">'+inventory+'</div>'+
+      '<p class="r5-board-feedback" id="r5BoardFeedback"></p>'+
+      (room5State.codeRevealed?'<div class="r5-code-reveal"><small>完成した線が示した数字</small><strong>8194</strong></div>':'')+
+      '</section>';
+    game.appendChild(o);
+    activateDeviceModal(o,"r5Board",o.querySelector(".r5-inventory-tile")||o.querySelector(".device-close"));
+    let selected=null;
+    const feedback=o.querySelector("#r5BoardFeedback");
+    const tiles=[...o.querySelectorAll("[data-tile]")];
+    const slotsEls=[...o.querySelectorAll("[data-counter]")];
+    if(!room5State.boardIntroSeen&&room5State.collected.length===7){
+      room5State.boardIntroSeen=true;saveGame();
+      showRoomDialog([
+        line("r5_board_intro_01","主人公","これで、全部集まりましたね。"),
+        line("r5_board_intro_02","ト書き","手に入れた七枚のパネルを並べる。鏡。魚。蝶。花。イカ。椅子。大砲。"),
+        line("r5_board_intro_03","主人公","……ウサギに羽。"),
+        line("r5_board_intro_04","ト書き","改めて、完成している絵を見る。"),
+        line("r5_board_intro_05","主人公","一羽……。"),
+        line("r5_board_intro_06","ハナ","何か分かった？"),
+        line("r5_board_intro_07","主人公","たぶん、この絵が見本なんだと思います。"),
+        line("r5_board_intro_08","ト書き","七つの丸枠を見る。"),
+        line("r5_board_intro_09","主人公","数え方を合わせればいいんですね。")
+      ]);
+    }
+    tiles.forEach(b=>b.onclick=()=>{
+      selected=b.dataset.tile;
+      tiles.forEach(x=>x.classList.toggle("selected",x===b));
+      const name=R5_ITEMS.find(x=>x[0]===selected)?.[1]||selected;
+      feedback.textContent=name+"のパネルを選んだ。置く場所を選ぼう。";
+    });
+    slotsEls.forEach(b=>b.onclick=()=>{
+      if(!selected){feedback.textContent="先に、置くパネルを選ぼう。";return}
+      const counter=b.dataset.counter;
+      const expected=R5_TARGET[selected];
+      if(counter!==expected){
+        feedback.textContent="違いますね。";
+        showRoomNotice("違いますね。","r5_wrong_"+selected+"_"+counter,"dialogue","主人公");
+        return;
+      }
+      const before=r5PlacedCount();
+      room5State.placed[selected]=counter;saveGame();
+      const placedName=R5_ITEMS.find(x=>x[0]===selected)?.[1]||selected;
+      const isFirst=before===0;
+      selected=null;
+      if(isFirst){
+        o.remove();
+        showRoomDialog([
+          line("r5_place_first_01","ト書き","パネルが淡く光る。丸枠へ吸い込まれるように重なり、二つの絵が一つの合体絵へ切り替わる。"),
+          line("r5_place_first_02","主人公","……合ってる。"),
+          line("r5_place_first_03","ハナ","みたいだね。")
+        ],()=>{if(r5PlacedCount()===7)r5CompleteBoard();else{renderR5();r5ButterflyHintIfNeeded()}});
+        return;
+      }
+      if(r5PlacedCount()===7){o.remove();r5CompleteBoard();return}
+      o.remove();renderR5();r5ButterflyHintIfNeeded();
+    });
   }
-  function r5Memory(){
+
+  function r5ButterflyHintIfNeeded(){
+    if(room5State.butterflyHintSeen||r5PlacedCount()!==6||room5State.placed.butterfly)return;
+    const remaining=R5_ITEMS.filter(([id])=>room5State.collected.includes(id)&&!room5State.placed[id]);
+    if(remaining.length!==1||remaining[0][0]!=="butterfly")return;
+    room5State.butterflyHintSeen=true;saveGame();
     showRoomDialog([
-      line("r5_memory_blank","ト書き","完成した絵を見つめていると、目の前の紙が白紙になった。"),
-      line("r5_memory_fridge","ト書き","冷蔵庫の低い音が聞こえる。"),
-      line("r5_memory_dishes","ト書き","食器の触れ合う音が重なる。"),
-      line("r5_final_humming","ト書き","その向こうから、楽しそうな鼻歌が聞こえてくる。"),
-      pending("第5回想本編の具体的な会話・ト書き。引っ越し直後のダイニングを描くことまでは確定。"),
-      line("r5_after_rabbit","ト書き","回想が途切れる。気づくと、手元には同じうさぎの絵が残っていた。"),
-      line("r5_after_doubt","主人公","……ハナさんが描いたんですか？")
-    ],()=>{
-      room5State.memorySeen=true;room5State.completed=true;saveGame();renderR5();
-      showRoomNotice("扉の鍵が開いた。","r5_unlocked","narration");
+      line("r5_butterfly_hint_01","主人公","……残っているのは、これだけ。"),
+      line("r5_butterfly_hint_02","ト書き","蝶のパネルを見る。"),
+      line("r5_butterfly_hint_03","主人公","蝶って……一頭って数えるんでしょうか。"),
+      line("r5_butterfly_hint_04","ト書き","少し迷う。"),
+      line("r5_butterfly_hint_05","主人公","試してみます。")
+    ]);
+  }
+
+  function r5CompleteBoard(){
+    room5State.codeRevealed=true;saveGame();
+    showRoomDialog([
+      line("r5_board_complete_01","ト書き","――カチッ。"),
+      line("r5_board_complete_02","ト書き","八つの完成した絵が、一斉に淡く光る。"),
+      line("r5_board_complete_03","主人公","……？"),
+      line("r5_board_complete_04","ト書き","それぞれの絵に仕込まれていた細い線が浮かび上がる。線は中央へ伸びていき――"),
+      line("r5_board_complete_05","システム","8194"),
+      line("r5_board_complete_06","主人公","……8194。"),
+      line("r5_board_complete_07","ト書き","正面の扉へ細い光の筋が走る。何もなかった扉の表面がゆっくりと変化し、四桁のテンキーが浮かび上がる。"),
+      line("r5_board_complete_08","主人公","入力しろ、ということですね。"),
+      line("r5_board_complete_09","ハナ","そうみたい。"),
+      pending("8194を作る線・模様の正確なビジュアル配置は未確定。現在は数字を直接表示しています。")
+    ],renderR5);
+  }
+
+  function r5Keypad(){
+    if(!room5State.codeRevealed||room5State.doorUnlocked)return;
+    const o=document.createElement("div");o.className="device-overlay late-overlay";
+    o.innerHTML='<section class="late-panel r5-keypad-panel"><button class="device-close" aria-label="閉じる">×</button><h2>扉のテンキー</h2>'+
+      '<div class="r5-keypad-display" id="r5KeypadDisplay">----</div><div class="r5-keypad-grid">'+
+      [1,2,3,4,5,6,7,8,9].map(n=>'<button data-digit="'+n+'">'+n+'</button>').join("")+
+      '<button data-key="clear">C</button><button data-digit="0">0</button><button data-key="enter">決定</button></div><p id="r5KeypadFeedback"></p></section>';
+    game.appendChild(o);activateDeviceModal(o,"r5Keypad",o.querySelector('[data-digit="1"]'));
+    let value="";
+    const display=o.querySelector("#r5KeypadDisplay"),fb=o.querySelector("#r5KeypadFeedback");
+    const draw=()=>display.textContent=(value+"----").slice(0,4);
+    o.querySelectorAll("[data-digit]").forEach(b=>b.onclick=()=>{if(value.length<4){value+=b.dataset.digit;draw()}});
+    o.querySelector('[data-key="clear"]').onclick=()=>{value="";fb.textContent="";draw()};
+    o.querySelector('[data-key="enter"]').onclick=()=>{
+      if(value!=="8194"){fb.textContent="……違う。";value="";draw();return}
+      o.remove();room5State.doorUnlocked=true;saveGame();
+      showRoomDialog([
+        line("r5_keypad_ok_01","ト書き","――ピッ。"),
+        line("r5_keypad_ok_02","ト書き","――カチッ。"),
+        line("r5_keypad_ok_03","ト書き","扉のロックが外れる。")
+      ],renderR5);
+    };
+    draw();
+  }
+
+  function r5RabbitMemoryStart(){
+    if(!room5State.doorUnlocked||room5State.memorySeen)return;
+    showRoomDialog([
+      line("r5_rabbit_01","主人公","……。"),
+      line("r5_rabbit_02","ト書き","なぜだろう。この絵を見ていると、妙に胸の奥がざわつく。"),
+      line("r5_rabbit_03","主人公","この絵……。"),
+      line("r5_rabbit_04","ト書き","そっと手を伸ばす。指先が触れる。その瞬間――。"),
+      line("r5_memory_paper","ト書き","紙を擦るような音。目の前にあったウサギの絵が、ゆっくりと白い紙へと変わっていく。"),
+      line("r5_memory_fridge","ト書き","遠くで低い機械音。――ブゥン……。冷蔵庫の音。"),
+      line("r5_memory_dishes","ト書き","続いて、食器の触れ合う小さな音。"),
+      line("r5_final_humming","ト書き","そして。「ふん、ふふーん♪」聞き覚えのある女性の鼻歌。"),
+      line("r5_memory_light","ト書き","視界が明るくなり、同棲時代の記憶へ入っていく。")
+    ],r5Memory);
+  }
+
+  const R5_MEMORY_LINES=[
+    line("r5m001","ト書き","気がつくと、俺はダイニングテーブルの前に座っていた。まだ段ボールの残る部屋。壁際には、開封されたばかりの家具。床には、片付け途中の荷物がいくつも置かれている。引っ越してきて、まだそれほど経っていない頃だ。"),
+    line("r5m002","ト書き","俺の目の前には、一枚の紙が置かれていた。そこには――妙に耳の長い、謎の生き物が描かれている。"),
+    line("r5m003","主人公","……これ、何？"),
+    line("r5m004","ト書き","向かいに座っていた彼女が、きょとんとした顔をする。"),
+    line("r5m005","彼女","ウサギ。"),
+    line("r5m006","主人公","…………。"),
+    line("r5m007","彼女","なに、その間。"),
+    line("r5m008","主人公","いや……ウサギなんだ。"),
+    line("r5m009","彼女","どう見てもウサギでしょ！"),
+    line("r5m010","主人公","耳が四本ない？"),
+    line("r5m011","彼女","下の二本は足！"),
+    line("r5m012","主人公","なるほど……。"),
+    line("r5m013","彼女","その『なるほど』絶対納得してないでしょ。"),
+    line("r5m014","ト書き","俺はもう一度、紙を見る。言われてみれば、ウサギに――。"),
+    line("r5m015","主人公","……見えなくもない、かな。"),
+    line("r5m016","彼女","ほら！"),
+    line("r5m017","主人公","ギリギリね。"),
+    line("r5m018","彼女","もういい！"),
+    line("r5m019","ト書き","彼女は紙を取り返そうと手を伸ばす。俺は少しだけ紙を持ち上げて、それを避けた。"),
+    line("r5m020","主人公","で、なんで急にウサギ？"),
+    line("r5m021","彼女","問題。"),
+    line("r5m022","主人公","問題？"),
+    line("r5m023","彼女","そう。"),
+    line("r5m024","ト書き","彼女は楽しそうに笑う。"),
+    line("r5m025","彼女","私が作った初めての謎解きなの！！"),
+    line("r5m026","主人公","自分で作ったの？"),
+    line("r5m027","彼女","そう！ ねえ、解いてみて。"),
+    line("r5m028","主人公","……謎解きか。"),
+    line("r5m029","彼女","自信作なんだ～"),
+    line("r5m030","主人公","……これ一枚だけ？"),
+    line("r5m031","彼女","そうだよ、ちゃんと問題文読んでね！"),
+    line("r5m032","主人公","解く方専門だと思ってた。"),
+    line("r5m033","彼女","作る方も好きだよ！"),
+    line("r5m034","ト書き","彼女はテーブルの横に置かれていたノートを取る。開かれたページには、数字、矢印、丸や四角。途中で消された文章。意味の分からない図。そして、その隅には別の謎の生き物が描かれていた。"),
+    line("r5m035","主人公","……これは？"),
+    line("r5m036","彼女","カニ。"),
+    line("r5m037","主人公","…………。"),
+    line("r5m038","彼女","その間やめて！"),
+    line("r5m039","ト書き","俺は思わず笑った。"),
+    line("r5m040","彼女","笑ったなー？"),
+    line("r5m041","主人公","いや、だって……。"),
+    line("r5m042","彼女","じゃあ自分で描いてみてよ！"),
+    line("r5m043","主人公","……いいですよ"),
+    line("r5m044","ト書き","俺は謎の生物の横にカニの絵を描いた。絵を描くのは好きだ。"),
+    line("r5m045","彼女","ずるい。"),
+    line("r5m046","ト書き","俺の描いたカニを見た彼女は、ほほを膨らませながらノートを閉じる。"),
+    line("r5m047","主人公","でも、意外だな。"),
+    line("r5m048","彼女","何が？"),
+    line("r5m049","主人公","謎解きが好きなのは知ってたけど、作るのも好きだったんだ。"),
+    line("r5m050","彼女","あー。"),
+    line("r5m051","ト書き","少しだけ考えてから、彼女は言った。"),
+    line("r5m052","彼女","作る方が楽しいかも。"),
+    line("r5m053","主人公","そうだったの？"),
+    line("r5m054","彼女","だって。"),
+    line("r5m055","ト書き","彼女は、さっきまで怒っていたのが嘘みたいに笑う。"),
+    line("r5m056","彼女","解いた人が『あっ！』ってなる瞬間、見られるじゃん。"),
+    line("r5m057","主人公","……それが楽しいの？"),
+    line("r5m058","彼女","うん。"),
+    line("r5m059","彼女","自分だけ分かってて、相手が悩んでるの見るのも楽しいし。"),
+    line("r5m060","主人公","性格悪いな。"),
+    line("r5m061","彼女","そこは言わなくていいの。"),
+    line("r5m062","主人公","でも、作るの難しくなかった？"),
+    line("r5m063","彼女","難しいよ。"),
+    line("r5m064","主人公","頑張ったんだ。"),
+    line("r5m065","彼女","楽しいから。"),
+    line("r5m066","主人公","……先輩らしいな。"),
+    line("r5m067","彼女","また先輩って言った。"),
+    line("r5m068","主人公","あ。"),
+    line("r5m069","彼女","もう一緒に住んでるんだからさ。"),
+    line("r5m070","主人公","つい、癖でさ……。"),
+    line("r5m071","彼女","やっと、敬語は無くなってきたのに、いつまで先輩って呼ぶの？"),
+    line("r5m072","主人公","……。"),
+    line("r5m073","彼女","名前で呼んでくれてもいいのに。"),
+    line("r5m074","主人公","それは……。"),
+    line("r5m075","彼女","ほら、また困ってる。"),
+    line("r5m076","主人公","急に言われても無理で、無理だよ。"),
+    line("r5m077","彼女","別に急じゃないけど。"),
+    line("r5m078","主人公","……そのうち。"),
+    line("r5m079","彼女","はいはい。"),
+    line("r5m080","ト書き","彼女は少し呆れたように笑う。それから、テーブルの上の紙を指で軽く叩いた。"),
+    line("r5m081","彼女","じゃ、まずこれ。"),
+    line("r5m082","主人公","今から？"),
+    line("r5m083","彼女","当然。"),
+    line("r5m084","主人公","お腹すいてない？"),
+    line("r5m085","彼女","先に食べるね。"),
+    line("r5m086","主人公","え。"),
+    line("r5m087","彼女","冷める前に解いてね。"),
+    line("r5m088","主人公","解けるまで食べれないの？？"),
+    line("r5m089","彼女","頑張れ。"),
+    line("r5m090","主人公","怒らせたかな……。"),
+    line("r5m091","ト書き","彼女は声を上げて笑った。その笑い声を聞きながら、俺はもう一度、紙を見る。下手なウサギ。意味の分からない数字。妙に楽しそうな彼女。"),
+    line("r5m092","ト書き","――こんな人だったんだ。知っているつもりだった。長い間、一緒にいた。それでも。一緒に暮らして初めて知ることが、まだこんなにあった。"),
+
+    line("r5m100","ト書き","一緒に暮らし始めてから、分かったことがある。まず――。朝が、弱い。"),
+    line("r5m101","ト書き","目覚ましの音で目を覚ます。隣を見る。彼女はいない。リビングへ向かうと、ソファで彼女が丸くなって眠っていた。"),
+    line("r5m102","主人公","何してるの？"),
+    line("r5m103","彼女","……起きてる。"),
+    line("r5m104","主人公","寝てるじゃん。"),
+    line("r5m105","彼女","起きたよ……。"),
+    line("r5m106","主人公","じゃあなんでソファで寝てるの？"),
+    line("r5m107","彼女","ベッドからは……起きた。"),
+    line("r5m108","主人公","そういう問題？"),
+    line("r5m109","彼女","あと五分……。"),
+    line("r5m110","主人公","それ、ベッドで言うやつだから。"),
+
+    line("r5m120","ト書き","料理は、意外と得意だった。ただし――。"),
+    line("r5m121","主人公","今、何入れた？"),
+    line("r5m122","彼女","醤油。"),
+    line("r5m123","主人公","どのくらい？"),
+    line("r5m124","彼女","これくらい。"),
+    line("r5m125","主人公","“これくらい”って。"),
+    line("r5m126","彼女","見たら分かるでしょ。"),
+    line("r5m127","主人公","分からないから聞いてるんだけど。"),
+    line("r5m128","ト書き","彼女は鍋を一度味見する。"),
+    line("r5m129","彼女","……ちょっと薄い。"),
+    line("r5m130","ト書き","さらに醤油を入れる。"),
+    line("r5m131","主人公","計らないの？"),
+    line("r5m132","彼女","料理なんて感覚だよ。"),
+    line("r5m133","主人公","レシピは？"),
+    line("r5m134","彼女","見た。"),
+    line("r5m135","主人公","過去形なんだ。"),
+    line("r5m136","彼女","大体覚えたから。"),
+    line("r5m137","主人公","怖いな……。"),
+    line("r5m138","彼女","でも美味しいでしょ？"),
+    line("r5m139","主人公","……美味しい。"),
+    line("r5m140","彼女","ほら。"),
+    line("r5m141","ト書き","悔しいけど、美味しい。"),
+
+    line("r5m150","ト書き","新しく買った家電が届いた日。箱を開けた彼女は、説明書を横に置いた。"),
+    line("r5m151","主人公","読まないの？"),
+    line("r5m152","彼女","大丈夫。"),
+    line("r5m153","主人公","何が？"),
+    line("r5m154","彼女","こういうのは触れば分かるから。"),
+    line("r5m155","ト書き","数分後。"),
+    line("r5m156","彼女","……ねえ。"),
+    line("r5m157","主人公","何？"),
+    line("r5m158","彼女","これ、どうやるの？"),
+    line("r5m159","主人公","説明書。"),
+    line("r5m160","彼女","どこ？"),
+    line("r5m161","主人公","さっき自分で横に置いたでしょ。"),
+    line("r5m162","彼女","あった。"),
+    line("r5m163","主人公","最初から読めばいいのに。"),
+    line("r5m164","彼女","説明書って長いじゃん。"),
+    line("r5m165","主人公","必要だから長いんだよ。"),
+    line("r5m166","彼女","じゃあ読んで。"),
+    line("r5m167","主人公","俺が？"),
+    line("r5m168","彼女","得意でしょ？"),
+    line("r5m169","主人公","そういう問題じゃ……。"),
+    line("r5m170","ト書き","気がつけば、俺が設定をしていた。彼女は隣で楽しそうに画面を覗き込んでいる。"),
+    line("r5m171","主人公","自分でも覚えてよ。"),
+    line("r5m172","彼女","次から覚える。"),
+    line("r5m173","主人公","絶対覚えないやつ。"),
+    line("r5m174","彼女","失礼だなー。"),
+
+    line("r5m180","ト書き","予定のない休日。昼過ぎ。俺はソファで本を読んでいた。"),
+    line("r5m181","彼女","ねえ。"),
+    line("r5m182","主人公","ん？"),
+    line("r5m183","彼女","出かけよ。"),
+    line("r5m184","主人公","どこに？"),
+    line("r5m185","彼女","まだ決めてない。"),
+    line("r5m186","主人公","じゃあなんで出かけるの。"),
+    line("r5m187","彼女","天気いいから。"),
+    line("r5m188","主人公","理由それだけ？"),
+    line("r5m189","彼女","十分でしょ。"),
+    line("r5m190","主人公","どこ行く？"),
+    line("r5m191","彼女","外に出てから考える。"),
+    line("r5m192","主人公","行き当たりばったりだな。"),
+    line("r5m193","彼女","楽しいよ？"),
+    line("r5m194","主人公","……まあ、いいけど。"),
+    line("r5m195","彼女","やった。"),
+    line("r5m196","ト書き","結局その日は、近所を歩いただけだった。入ったことのない店に寄って。知らない道を通って。公園で缶ジュースを飲んだ。"),
+    line("r5m197","彼女","今日楽しかったね。"),
+    line("r5m198","ト書き","何をしたわけでもない。それでも彼女は満足そうだった。"),
+
+    line("r5m200","ト書き","そして。彼女は、妙なところによく気がついた。仕事から帰った夜。"),
+    line("r5m201","主人公","ただいま。"),
+    line("r5m202","彼女","おかえり。"),
+    line("r5m203","ト書き","いつも通りのつもりだった。靴を脱いで、鞄を置いて、部屋に入る。"),
+    line("r5m204","彼女","今日さ。"),
+    line("r5m205","主人公","ん？"),
+    line("r5m206","彼女","ご飯食べたら散歩しよ。"),
+    line("r5m207","主人公","今日？"),
+    line("r5m208","彼女","うん。"),
+    line("r5m209","主人公","なんで？"),
+    line("r5m210","彼女","なんとなく。"),
+    line("r5m211","主人公","昼も出かけたんじゃなかった？"),
+    line("r5m212","彼女","いいじゃん。"),
+    line("r5m213","主人公","まあ……いいけど。"),
+    line("r5m214","ト書き","夕食を終えて、二人で外へ出た。彼女は何も聞かなかった。仕事で何があったのか。どうして疲れているのか。何も聞かずに、隣を歩いている。"),
+    line("r5m215","主人公","……俺、そんなに分かりやすかった？"),
+    line("r5m216","彼女","何が？"),
+    line("r5m217","主人公","今日。"),
+    line("r5m218","彼女","別に。"),
+    line("r5m219","主人公","じゃあなんで散歩？"),
+    line("r5m220","ト書き","彼女は少しだけ笑った。"),
+    line("r5m221","彼女","毎日見てるから。"),
+    line("r5m222","主人公","……それだけ？"),
+    line("r5m223","彼女","それだけ。"),
+    line("r5m224","ト書き","それ以上は何も言わなかった。でも、その日は少しだけ楽になっていた。"),
+    line("r5m225","ト書き","一緒に暮らすまで知らなかった。朝が弱いこと。料理は全部感覚でやること。説明書を読まないこと。予定がなくても外へ出たがること。そして、俺が何も言わなくても気づくこと。"),
+    line("r5m226","ト書き","知っているつもりだった。だけど――。彼女のことを知るのは、まだ途中だった。"),
+
+    line("r5m230","ト書き","それからしばらくして。彼女の作る謎は、少しずつ凝ったものになっていった。ある日の夜。夕食を終えると、彼女が棚から大きめの台紙を取り出した。"),
+    line("r5m231","主人公","また作ったの？"),
+    line("r5m232","彼女","新作！"),
+    line("r5m233","主人公","今日はずいぶん本格的だな。"),
+    line("r5m234","彼女","今回は頑張ったよ。"),
+    line("r5m235","ト書き","テーブルの上には、八枚のカード。うさぎ、鏡、魚、蝶、花、イカ、椅子、大砲。どれも彼女が描いたものらしい。"),
+    line("r5m236","主人公","……このウサギ、まだ使うんだ。"),
+    line("r5m237","彼女","お気に入りだから。"),
+    line("r5m238","主人公","そうなんだ……。"),
+    line("r5m239","彼女","その顔やめて。"),
+    line("r5m240","ト書き","台紙にも、いくつかの絵が描かれている。中央には短い問題文。"),
+    line("r5m241","システム","描かれたものを正しく数え、あるべき場所へ導け。"),
+    line("r5m242","主人公","数え方、か。"),
+    line("r5m243","彼女","それ以上はノーヒント。"),
+    line("r5m244","主人公","まだ聞いてないよ。"),
+    line("r5m245","彼女","聞きそうだったから。"),
+    line("r5m246","ト書き","カードを一枚ずつ眺める。数え方。描かれた絵。台紙にある別の絵。しばらく考えて――。"),
+    line("r5m247","主人公","……なるほど。"),
+    line("r5m248","ト書き","一枚を置く。続けてもう一枚。少しずつ、置くべき場所が分かってくる。彼女は向かい側から、黙ってこちらを見ていた。"),
+    line("r5m249","主人公","……その顔やめて。"),
+    line("r5m250","彼女","何も言ってないよ。"),
+    line("r5m251","主人公","俺が悩んでるの楽しんでるでしょ。"),
+    line("r5m252","彼女","ちょっとだけ。"),
+    line("r5m253","主人公","やっぱり。"),
+    line("r5m254","ト書き","最後に残ったカードを見る。蝶。"),
+    line("r5m255","主人公","……蝶って、こう数えるんだ。"),
+    line("r5m256","彼女","私も作るまで知らなかった。"),
+    line("r5m257","主人公","知らなかったんだ。"),
+    line("r5m258","彼女","調べた。"),
+    line("r5m259","主人公","そこまでして作ったの？"),
+    line("r5m260","彼女","楽しいから。"),
+    line("r5m261","ト書き","最後の一枚を置く。すると、今まで意味のなかった模様が一つにつながった。"),
+    line("r5m262","主人公","……あ。"),
+    line("r5m263","彼女","！"),
+    line("r5m264","主人公","これ、数字になってる。"),
+    line("r5m265","彼女","正解！"),
+    line("r5m266","主人公","結構すごいな、これ。"),
+    line("r5m267","彼女","でしょ！"),
+    line("r5m268","主人公","作るの大変だったんじゃない？"),
+    line("r5m269","彼女","大変だったよ。"),
+    line("r5m270","主人公","何回か失敗した？"),
+    line("r5m271","彼女","……いっぱい。"),
+    line("r5m272","主人公","だろうね。"),
+    line("r5m273","彼女","でも。"),
+    line("r5m274","ト書き","彼女は嬉しそうに笑う。"),
+    line("r5m275","彼女","今、『あっ』ってなったでしょ？"),
+    line("r5m276","主人公","なった。"),
+    line("r5m277","彼女","じゃあ成功。"),
+    line("r5m278","主人公","やっぱりそれが見たいんだ。"),
+    line("r5m279","彼女","うん。"),
+    line("r5m280","ト書き","しばらく完成した謎を眺めたあと、彼女は部屋を見回した。"),
+    line("r5m281","彼女","次はさ。"),
+    line("r5m282","主人公","まだ作るの？"),
+    line("r5m283","彼女","紙だけじゃなくて、もっと大きいの作りたい。"),
+    line("r5m284","主人公","大きいの？"),
+    line("r5m285","彼女","この部屋全部使ったり。"),
+    line("r5m286","主人公","部屋全部？"),
+    line("r5m287","彼女","棚にヒント隠したり、物を調べたら問題が出たり。"),
+    line("r5m288","主人公","脱出ゲームみたいな？"),
+    line("r5m289","彼女","そう！"),
+    line("r5m290","ト書き","目を輝かせる。"),
+    line("r5m291","彼女","全部自分で作れたら絶対楽しいよ。"),
+    line("r5m292","主人公","で、解くのは？"),
+    line("r5m293","彼女","君。"),
+    line("r5m294","主人公","やっぱり。"),
+    line("r5m295","彼女","一番最初に解かせてあげる。"),
+    line("r5m296","主人公","実験台じゃなくて？"),
+    line("r5m297","彼女","テストプレイヤー。"),
+    line("r5m298","主人公","言い方変えただけじゃん。"),
+    line("r5m299","ト書き","彼女は楽しそうに笑った。彼女が謎を作る。俺がそれを解く。"),
+    line("r5m300","ト書き","それが僕たちの日常だった。")
+  ];
+
+  function r5Memory(){
+    showRoomDialog(R5_MEMORY_LINES,()=>{
+      showRoomDialog([
+        line("r5_after_01","ト書き","視界が、ゆっくりと元の部屋へ戻っていく。冷蔵庫の音も。食器の音も。彼女の笑い声も。少しずつ遠ざかっていく。"),
+        line("r5_after_02","ト書き","気がつくと、俺はまたダイニングテーブルの前に立っていた。"),
+        line("r5_after_03","ト書き","手元を見る。そこには――記憶の中で彼女が描いていたものと、まったく同じウサギの絵。妙に長い耳。少し崩れた輪郭。見間違えるはずがない。"),
+        line("r5_after_04","主人公","……ハナさん。"),
+        line("r5_after_05","ハナ","ん？"),
+        line("r5_after_06","主人公","この絵って、ハナさんが描いたんですか？"),
+        pending("この質問に対してハナがどこまで答えるかの最終台詞は未確定。ここでは明確な答えを避け、第6へ疑念を持ち越します。")
+      ],()=>{
+        room5State.memorySeen=true;room5State.completed=true;saveGame();renderR5();
+      });
     });
   }
 

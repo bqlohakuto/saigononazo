@@ -34,7 +34,7 @@ function r4Stand(){
  const draw=()=>{grid.innerHTML=room4State.angles.map((a,i)=>`<article><h3>パネル ${i+1}</h3><div class="r4-glass" style="transform:rotate(${a}deg)"><i></i><i></i><i></i></div><p>${a}°</p><button data-i="${i}">90°回転</button></article>`).join("");grid.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{let i=+b.dataset.i;room4State.angles[i]=(room4State.angles[i]+90)%360;saveGame();draw()})};draw();
  o.querySelector(".r4-shine").onclick=()=>{room4State.lightOn=true;saveGame();if(r4Correct()){close();r4Complete()}else fb.textContent="星は映ったが、まだ何の形か分からない。向きを見直そう。"};
 }
-function r4Const(){showRoomDialog([{logId:"r4c1",logType:"investigation",speaker:"ト書き",text:"いくつかの星座と、その形が描かれたパネルが並んでいる。星の位置と名前を確認できる。おとめ座の図もある。"},{logId:"r4c2",logType:"dialogue",speaker:"主人公",text:"これを見れば、星の形から星座を調べられそうだ"}])}
+function r4Const(){showRoomDialog([{logId:"r4c1",logType:"investigation",speaker:"ト書き",text:"いくつかの星座と、その形が描かれたパネルが並んでいる。星の位置と名前を確認できる。おとめ座の図もある。"},{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"},{logId:"r4c2",logType:"dialogue",speaker:"主人公",text:"これを見れば、星の形から星座を調べられそうだ"}])}
 function r4Meteor(){showRoomDialog([{logId:"r4m1",logType:"investigation",speaker:"ト書き",text:"流れ星についての展示だ。流れ星は、宇宙空間の小さなちりや岩石が大気に飛び込み、高温になって光って見える現象らしい。地球が彗星の残したちりの中を通ると、流星群が見られることもある。"},{logId:"r4m2",logType:"dialogue",speaker:"主人公",text:"こんな小さいものが、あんなに明るく見えるんだな"}])}
 function r4WordPuzzle(kind){
  const solved=kind==="STAR"?room4State.star:room4State.lightPuzzle;if(solved){showRoomNotice("この謎は解き終えている。","r4done"+kind);return}

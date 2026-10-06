@@ -108,7 +108,7 @@
   function normalizeR6(saved){
     const s=saved&&typeof saved==="object"?saved:{};
     return {
-      visited:Array.isArray(s.visited)?[...new Set(s.visited)]:["A8"],
+      visited:Array.isArray(s.visited)?[...new Set(s.visited)]:["A8"],current:typeof s.current==="string"?s.current:"A8",
       greenSeen:!!s.greenSeen,interview4:!!s.interview4,mapEvent:!!s.mapEvent,
       othelloKnown:!!s.othelloKnown,moves:Array.isArray(s.moves)?[...s.moves]:[],
       memorySeen:!!s.memorySeen,completed:!!s.completed,introSeen:!!s.introSeen
@@ -131,7 +131,8 @@
     for(let r=1;r<=8;r++)for(let c=0;c<8;c++){
       const id=String.fromCharCode(65+c)+r;
       const known=id==="A8"?"white":id==="B8"?"black":room6State.visited.includes(id)?"visited":"unknown";
-      cells+='<button class="r6-cell '+known+'" data-cell="'+id+'"><span>'+id+'</span></button>';
+      const current=id===room6State.current?" current":"";
+      cells+='<button class="r6-cell '+known+current+'" data-cell="'+id+'"><span>'+id+'</span></button>';
     }
     game.innerHTML='<main class="late-room"><header class="room-header"><p class="room-label">第六の部屋</p><p class="room-color-status">オセロの部屋</p></header>'+
       '<section class="late-stage othello"><div class="r6-map" aria-label="探索地図">'+cells+'</div>'+
@@ -141,7 +142,7 @@
       (room6State.completed?'<button class="late-next" id="r6Next">第七の部屋へ</button>':'')+
       '<div class="late-pending"><strong>【未確定】</strong><br>64マスの正式な初期配色と緑床座標が現行データにありません。A8＝白、B8＝黒、探索条件と9手の使用マスは確定済みです。</div></div>'+
       '</section><p class="explore-status" id="exploreStatus">マスをタップして探索してください。</p></main>';
-    document.querySelectorAll(".r6-cell").forEach(b=>b.onclick=()=>r6Visit(b.dataset.cell));
+    document.querySelectorAll(".r6-cell").forEach(b=>{b.disabled=!r6Neighbor(room6State.current,b.dataset.cell)&&b.dataset.cell!==room6State.current;b.onclick=()=>r6Visit(b.dataset.cell)});
     document.getElementById("r6Green").onclick=()=>{
       if(room6State.greenSeen){showRoomNotice("緑の床は確認済みだ。","r6_green_repeat");return}
       room6State.greenSeen=true;saveGame();
@@ -151,7 +152,14 @@
     document.getElementById("r6Next")?.addEventListener("click",()=>transition("第七の部屋へ",()=>showSeventhRoom(roomStates.room07)));
     window.GameplayUI?.updateObjective();
   }
+  function r6Neighbor(a,b){
+    const ax=a.charCodeAt(0)-65,ay=Number(a.slice(1))-1,bx=b.charCodeAt(0)-65,by=Number(b.slice(1))-1;
+    return Math.abs(ax-bx)+Math.abs(ay-by)===1;
+  }
   function r6Visit(id){
+    if(id===room6State.current)return;
+    if(!r6Neighbor(room6State.current,id))return;
+    room6State.current=id;
     const fresh=!room6State.visited.includes(id);
     if(fresh)room6State.visited.push(id);
     const lines=[];
@@ -160,8 +168,8 @@
     if(!lines.length)lines.push(line("r6_visit_"+id,"ト書き",id+"の部屋を確認した。"));
     const after=()=>{
       saveGame();
-      if(fresh&&room6State.visited.length>=4&&!room6State.interview4){room6State.interview4=true;saveGame();r6Interview4();return}
-      if(fresh&&room6State.visited.length>=6&&!room6State.mapEvent){room6State.mapEvent=true;saveGame();r6MapEvent();return}
+      if(fresh&&room6State.visited.filter(x=>x!=="A8").length>=4&&!room6State.interview4){room6State.interview4=true;saveGame();r6Interview4();return}
+      if(fresh&&room6State.visited.filter(x=>x!=="A8").length>=6&&!room6State.mapEvent){room6State.mapEvent=true;saveGame();r6MapEvent();return}
       r6CheckDiscovery();
     };
     showRoomDialog(lines,after);
@@ -514,7 +522,7 @@
     const o=document.createElement("div");o.className="device-overlay late-overlay";
     o.innerHTML='<section class="late-panel r8-clue-log"><button class="device-close" aria-label="閉じる">×</button><h2>LOG</h2><p>過去のログの該当箇所が強調されている。</p>'+
       R8_CLUES.map(c=>'<div><span>'+c[0]+'</span><strong>'+c[1]+'</strong><strong>'+c[2]+'</strong></div>').join("")+
-      '<p class="late-pending">※第1〜4の一部伏線は既存シナリオへの追記同期中。ここでは最終謎の確認用として強調対象を一覧表示しています。</p></section>';
+      '<p>太字になっている内容の共通点を探す。</p></section>';
     game.appendChild(o);activateDeviceModal(o,"gameplayLogButton",o.querySelector(".device-close"));
   }
   function r8SolvedDialogue(){

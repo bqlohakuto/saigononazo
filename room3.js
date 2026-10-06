@@ -25,7 +25,7 @@ const room3FlashbackLines=[
  {logId:"room3_flashback_01",logType:"narration",speaker:"ト書き",text:"引っ越しを終えて、ようやく部屋の片付けも落ち着いた。段ボールもほとんど片付き、殺風景だった部屋も少しだけ生活感が出てきた。"},
  {logId:"room3_flashback_02",logType:"narration",speaker:"ト書き",text:"主人公は部屋を見回すと、スマートフォンを取り出して一枚写真を撮った。その写真を、先輩に送る。【トーク画面】"},
  {logId:"room3_flashback_03",logType:"dialogue",speaker:"主人公",text:"先輩、見てください！ 僕の部屋、完成しました！"},
- {logId:"room3_flashback_04",logType:"narration",speaker:"ト書き",text:"送信してしばらくすると、スマートフォンが震える。画面には、先輩からの着信が表示されていた。通話に出る。"},
+ {logId:"room3_flashback_04",logType:"narration",speaker:"ト書き",text:"送信してしばらくすると、スマートフォンが震える。画面には、先輩からの着信が表示されていた。通話に出る。"},{logId:"room3_final_ringtone",logType:"narration",speaker:"ト書き",text:"短い着信音が、部屋に響いていた。"},
  {logId:"room3_flashback_05",logType:"dialogue",speaker:"先輩",text:"おー！ きれいじゃん。ちゃんと片付いてる！"},
  {logId:"room3_flashback_06",logType:"dialogue",speaker:"主人公",text:"ありがとうございます"},
  {logId:"room3_flashback_07",logType:"dialogue",speaker:"先輩",text:"……でもさ。なんか、女の子ウケ狙ってない？"},

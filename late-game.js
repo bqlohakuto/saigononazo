@@ -58,7 +58,7 @@
     document.getElementById("r5Board").onclick=r5Board;
     document.getElementById("r5Next")?.addEventListener("click",()=>transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06)));
     document.getElementById("r5Progress").textContent="パネル "+room5State.collected.length+" / 7（うさぎ＋羽は基準）";
-    window.GameplayUI?.updateObjective();
+    setHud("room05","第五の部屋",()=>room5State.completed?"第六の部屋へ進む":room5State.collected.length===7?"中央パネルを確認する":"部屋から7つのパネルを集める",()=>showRoomNotice("ハナは部屋の様子を静かに見ている。","r5_hana_watch"));
   }
   function r5Collect(id){
     if(room5State.collected.includes(id)){showRoomNotice("ここから回収できるものは、もうない。","r5_repeat_"+id);return;}
@@ -150,7 +150,7 @@
     };
     document.getElementById("r6Play")?.addEventListener("click",r6OpenMoves);
     document.getElementById("r6Next")?.addEventListener("click",()=>transition("第七の部屋へ",()=>showSeventhRoom(roomStates.room07)));
-    window.GameplayUI?.updateObjective();
+    setHud("room06","第六の部屋",()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"部屋を探索し、構造と床の色を確かめる",()=>showRoomNotice("ハナは少し離れたところから探索を見守っている。","r6_hana_watch"));
   }
   function r6Neighbor(a,b){
     const ax=a.charCodeAt(0)-65,ay=Number(a.slice(1))-1,bx=b.charCodeAt(0)-65,by=Number(b.slice(1))-1;
@@ -325,7 +325,7 @@
     document.querySelectorAll("[data-zodiac]").forEach(b=>b.onclick=()=>r7Door(b.dataset.zodiac));
     document.getElementById("r7Next")?.addEventListener("click",()=>transition("第八の部屋へ",()=>showEighthRoom(roomStates.room08)));
     document.getElementById("r7OrderText").textContent=room7State.order.map(id=>R7_BOOKS.find(b=>b.id===id)?.title).join(" → ")||"未選択";
-    window.GameplayUI?.updateObjective();
+    setHud("room07","第七の部屋",()=>room7State.completed?"第八の部屋へ":room7State.booksSolved?"正しい十二支の扉を順に選ぶ":"6冊を五十音順に並べる",()=>showRoomNotice("ハナは十二の扉を見回している。","r7_hana_watch"));
   }
   function r7AddBook(id){
     room7State.order.push(id);saveGame();

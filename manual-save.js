@@ -87,7 +87,28 @@
     }
     if (saved.currentScene === "room05") {
       const state = saved.rooms?.room05 || {};
-      return state.mirrorPlaced ? "第五の部屋・鏡のパネル配置済み" : state.mirrorCollected ? "第五の部屋・鏡のパネル入手済み" : "第五の部屋";
+      if (state.completed) return "第五の部屋・回想後";
+      if (Array.isArray(state.collected) && state.collected.length) return `第五の部屋・パネル ${state.collected.length}/7`;
+      return "第五の部屋";
+    }
+    if (saved.currentScene === "room06") {
+      const state = saved.rooms?.room06 || {};
+      if (state.completed) return "第六の部屋・回想後";
+      if (state.othelloKnown) return `第六の部屋・オセロ ${Array.isArray(state.moves)?state.moves.length:0}/9手`;
+      return "第六の部屋・探索中";
+    }
+    if (saved.currentScene === "room07") {
+      const state = saved.rooms?.room07 || {};
+      if (state.completed) return "第七の部屋・事故の記憶後";
+      if (state.booksSolved) return `第七の部屋・十二支 ${state.doorIndex||0}/6`;
+      return "第七の部屋";
+    }
+    if (saved.currentScene === "room08") {
+      const state = saved.rooms?.room08 || {};
+      if (state.ended) return "エンディング";
+      if (state.solved) return "第八の部屋・花音";
+      if (state.puzzleReady) return "第八の部屋・最後の謎";
+      return "第八の部屋";
     }
     return saved.currentScene || "進行データ";
   }

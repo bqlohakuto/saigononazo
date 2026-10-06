@@ -322,7 +322,7 @@
   }
 
   function applyHighlightState() {
-    const room = game.querySelector(".room");
+    const room = game.querySelector(".room,.late-room");
     const button = document.getElementById("gameplayHighlightButton");
     if (!room || !button || !activeConfig) return;
     const enabled = !!activeConfig.getHighlights?.();
@@ -342,7 +342,7 @@
     ensureStyle();
     activeConfig = config;
     game.classList.add("gameplay-ui-active");
-    const room = game.querySelector(".room");
+    const room = game.querySelector(".room,.late-room");
     if (!room) return;
     room.classList.add("gameplay-shell");
     createHud(config);

@@ -6,6 +6,8 @@ const path = require("node:path");
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 const expectedAssets = [
   "style.css",
+  "room5.css",
+  "late-game.css",
   "scenario.js",
   "game-audio.js",
   "game-log.js",
@@ -14,6 +16,14 @@ const expectedAssets = [
   "script.js",
   "hana-choice.js",
   "opening-sequence.js",
+  "room2-flashback.js",
+  "room2-after-flashback.js",
+  "room2.js",
+  "room3.js",
+  "room4-scenario.js",
+  "room4.js",
+  "room5.js",
+  "late-game.js",
   "manual-save.js",
   "gameplay-ui.js",
   "hana-identity-ui.js"
@@ -48,6 +58,14 @@ test("script load order remains intentional", () => {
     "script.js",
     "hana-choice.js",
     "opening-sequence.js",
+    "room2-flashback.js",
+    "room2-after-flashback.js",
+    "room2.js",
+    "room3.js",
+    "room4-scenario.js",
+    "room4.js",
+    "room5.js",
+    "late-game.js",
     "manual-save.js",
     "gameplay-ui.js",
     "hana-identity-ui.js"

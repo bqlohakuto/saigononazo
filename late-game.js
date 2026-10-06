@@ -4,10 +4,10 @@
 (() => {
   const line=(logId,speaker,text,extra={})=>({logId,logType:speaker==="ト書き"?"narration":speaker==="システム"?"narration":"dialogue",speaker,text,...extra});
   const pending=text=>line("pending_"+Math.random().toString(36).slice(2),"システム","【未確定】"+text);
-  const setHud=(sceneId,title,objective,onCompanion)=>{
+  const setHud=(sceneId,title,objective,onCompanion,highlightLogEntry)=>{
     if(!window.GameplayUI)return;
     GameplayUI.installRoom({
-      sceneId,title,objective,onCompanion,
+      sceneId,title,objective,onCompanion,highlightLogEntry,
       getHighlights:()=>true,setHighlights:()=>{}
     });
   };
@@ -491,7 +491,7 @@
   function r8PuzzleRoom(){
     game.innerHTML='<main class="late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">何もない部屋</p></header><section class="late-stage empty"><button class="r8-paper" id="r8Paper">一枚の紙</button></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
     document.getElementById("r8Paper").onclick=r8Paper;
-    setHud("room08","最後の謎",()=>"彼女の名前を思い出す",()=>{});
+    setHud("room08","最後の謎",()=>"彼女の名前を思い出す",()=>{},r8IsFinalClue);
     if(room8State.backSeen)r8ArmLogHint();
   }
   function r8Paper(){
@@ -509,21 +509,21 @@
       o.remove();room8State.solved=true;saveGame();r8SolvedDialogue();
     };
   }
+  const R8_FINAL_LOG_IDS=[
+    "room1_poster_03","room1_piano","room2_final_hanamaru","room2_memory_003",
+    "room3_final_ringtone","room3_flashback_34","r4f01","r4_final_zodiac_flowers",
+    "r5_final_humming","r5_final_flower","r6_final_signal","r6_final_lavender",
+    "r7_final_bremen","r7_final_pressed_flower"
+  ];
+  function r8IsFinalClue(entry){
+    const id=entry?.id||"";
+    return R8_FINAL_LOG_IDS.some(prefix=>id.startsWith(prefix));
+  }
   function r8ArmLogHint(){
     const btn=document.getElementById("gameplayLogButton");
-    if(!btn||btn.dataset.finalHintArmed==="1")return;
-    btn.dataset.finalHintArmed="1";btn.classList.add("late-log-pulse");
-    btn.addEventListener("click",event=>{
-      if(currentScene!=="room08"||!room8State?.backSeen||room8State?.solved)return;
-      event.preventDefault();event.stopImmediatePropagation();r8ClueLog();
-    },true);
-  }
-  function r8ClueLog(){
-    const o=document.createElement("div");o.className="device-overlay late-overlay";
-    o.innerHTML='<section class="late-panel r8-clue-log"><button class="device-close" aria-label="閉じる">×</button><h2>LOG</h2><p>過去のログの該当箇所が強調されている。</p>'+
-      R8_CLUES.map(c=>'<div><span>'+c[0]+'</span><strong>'+c[1]+'</strong><strong>'+c[2]+'</strong></div>').join("")+
-      '<p>太字になっている内容の共通点を探す。</p></section>';
-    game.appendChild(o);activateDeviceModal(o,"gameplayLogButton",o.querySelector(".device-close"));
+    if(!btn)return;
+    btn.classList.add("late-log-pulse");
+    btn.title="過去のLOGに変化がある";
   }
   function r8SolvedDialogue(){
     showRoomDialog([

@@ -57,3 +57,5 @@
  .r7-book{display:block}.r7-book small{display:block;margin-top:4px}
 }
 @media(prefers-reduced-motion:reduce){.late-log-pulse{animation:none!important;outline:3px solid #d87828}}
+
+.r6-cell.current{outline:3px solid #c26b21;outline-offset:-3px;font-weight:700}.r6-cell:disabled{opacity:.48;cursor:not-allowed}.r6-cell.current:disabled{opacity:1}

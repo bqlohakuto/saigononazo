@@ -38,6 +38,7 @@
     if(!room5State.introSeen){
       room5State.introSeen=true;saveGame();
       showRoomDialog([
+        pending("第5の部屋導入の具体的なト書き。舞台が同棲リビングであることは確定。"),
         line("r5_intro_01","ト書き","視界が開ける。そこは、どこか生活の気配が残るリビングだった。"),
         line("r5_intro_02","主人公","……この部屋"),
         line("r5_intro_03","ト書き","鏡、冷蔵庫、窓際、花瓶、ダイニングの椅子。部屋のあちこちに気になるものがある。"),
@@ -69,6 +70,7 @@
     }else if(id==="flower"){
       lines.push(line("r5_final_flower","ト書き","花瓶に花が飾られている。触れると、その姿が一枚のパネルへ変わった。"));
     }else{
+      lines.push(pending(name+"を調べた時の具体的なト書き。以下は進行確認用の仮表示。"));
       lines.push(line("r5_collect_"+id,"ト書き",name+"に触れると、その姿が縮み、一枚のパネルへ変わった。"));
     }
     lines.push(line("r5_get_"+id,"システム","【"+name+"のパネルを手に入れた】"));
@@ -120,6 +122,7 @@
     if(!room6State.introSeen){
       room6State.introSeen=true;saveGame();
       showRoomDialog([
+        pending("第6の部屋導入の具体的なト書き。A8開始・白床・壁文は確定。"),
         line("r6_intro_01","ト書き","白い床の小部屋。いくつもの扉が、隣の部屋へ続いている。"),
         line("r6_intro_02","問題文","最後の影が消える時、閉ざされた道は開かれる。"),
         line("r6_intro_03","ト書き","開始地点はA8。今いる床は白い。")
@@ -306,6 +309,7 @@
     if(!room7State.introSeen){
       room7State.introSeen=true;saveGame();
       showRoomDialog([
+        pending("第7の部屋導入の具体的なト書き。12角形・十二支の扉・机上の6冊は確定。"),
         line("r7_intro_01","ト書き","十二角形の部屋。十二の壁それぞれに、干支を示す扉がある。"),
         line("r7_intro_02","問題文","物語が導くのは、あなたの進む軌跡。"),
         line("r7_final_pressed_flower","ト書き","中央の机には六冊の絵本がバラバラに置かれ、どの本にも押し花の栞が挟まっている。")

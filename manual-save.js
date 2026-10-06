@@ -468,6 +468,8 @@
     openSlotPanel("load", document.getElementById("continueButton"));
   };
 
+  window.ManualSaveUI = { open: (mode, opener) => openSlotPanel(mode, opener), install: installDataControls };
+
   migrateLegacySave();
 
   // script.js rendered the first title screen before this enhancement loaded.

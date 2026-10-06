@@ -180,7 +180,7 @@
     }
     entries.forEach(entry => {
       const row = document.createElement("article");
-      row.className = `gameplay-log-row ${entry.kind || "system"}${entry.thought ? " thought" : ""}`;
+      row.className = `gameplay-log-row ${entry.kind || "system"}${entry.thought ? " thought" : ""}${activeConfig?.highlightLogEntry?.(entry) ? " final-clue" : ""}`;
       if (entry.speaker) {
         const speaker = document.createElement("p");
         speaker.className = "gameplay-log-speaker";

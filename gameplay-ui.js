@@ -146,6 +146,10 @@
       source.click();
       return true;
     }
+    if (window.ManualSaveUI?.open) {
+      window.ManualSaveUI.open(mode, document.activeElement);
+      return true;
+    }
     return false;
   }
 

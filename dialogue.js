@@ -3,7 +3,7 @@ const Dialogue=(()=>{
  let autoEnabled=false,active=null;
  const AUTO_DELAY=2000;
  const SKIP_DELAY=80;
- const kindOf=line=>line.speaker==="主人公"||line.thought?"player":line.speaker==="ハナ"?"heroine":line.speaker==="ト書き"?"narration":line.logType==="dialogue"?"character":"system";
+ const kindOf=line=>line.speaker==="主人公"||line.thought?"player":["ハナ","花音"].includes(line.speaker)?"heroine":line.speaker==="ト書き"?"narration":line.logType==="dialogue"?"character":"system";
  const emitAutoChange=()=>{
   if(typeof document?.dispatchEvent==="function"&&typeof CustomEvent==="function")document.dispatchEvent(new CustomEvent("dialogue:autochange",{detail:{enabled:autoEnabled}}));
  };
@@ -63,7 +63,7 @@ const Dialogue=(()=>{
    if(skipEnabled&&!currentWasRead)skipEnabled=false;
    const row=document.createElement("div");
    row.className=`message-row ${kind}${kind==="player"&&line.thought?" thought":""}`;
-   row.setAttribute("aria-label",kind==="player"?(line.thought?"主人公の心の声":"主人公のセリフ"):kind==="heroine"?"ハナのセリフ":kind==="character"?`${line.speaker}のセリフ`:kind==="narration"?"地の文":line.speaker||"案内");
+   row.setAttribute("aria-label",kind==="player"?(line.thought?"主人公の心の声":"主人公のセリフ"):kind==="heroine"?`${line.speaker||"ハナ"}のセリフ`:kind==="character"?`${line.speaker}のセリフ`:kind==="narration"?"地の文":line.speaker||"案内");
    if(kind==="character"||kind==="player"){
     const label=document.createElement("span");label.className="message-speaker";label.textContent=kind==="player"?(line.thought?"心の声":"主人公"):line.speaker;row.appendChild(label);
    }
@@ -116,7 +116,7 @@ const Dialogue=(()=>{
   function appendLogEntry(entry){
    const kind=entry.kind||kindOf(entry),row=document.createElement("div"),text=document.createElement("div");
    row.className=`message-row ${kind}${kind==="player"&&entry.thought?" thought":""}`;
-   row.setAttribute("aria-label",kind==="player"?(entry.thought?"主人公の心の声":"主人公のセリフ"):kind==="heroine"?"ハナのセリフ":kind==="character"?`${entry.speaker}のセリフ`:kind==="narration"?"地の文":entry.speaker||"案内");
+   row.setAttribute("aria-label",kind==="player"?(entry.thought?"主人公の心の声":"主人公のセリフ"):kind==="heroine"?`${entry.speaker||"ハナ"}のセリフ`:kind==="character"?`${entry.speaker}のセリフ`:kind==="narration"?"地の文":entry.speaker||"案内");
    if(kind==="character"||kind==="player"){
     const label=document.createElement("span");label.className="message-speaker";label.textContent=kind==="player"?(entry.thought?"心の声":"主人公"):entry.speaker;row.appendChild(label);
    }

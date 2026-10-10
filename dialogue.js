@@ -14,6 +14,7 @@ const Dialogue=(()=>{
  function start({lines,messageArea,nextButton,autoButton,skipButton,logButton,logArea,dialog,startIndex=0,getTextSpeed,isRead,onDisplay,onComplete}){
   stop();
   if(typeof window!=="undefined"&&window.DesignUI)lines=window.DesignUI.paginateDialogue(lines,isRead);
+  if(startIndex>0&&lines.some(line=>line.sourceIndex!==undefined))startIndex=Math.max(0,lines.findIndex(line=>line.sourceIndex===startIndex));
   let index=Number.isInteger(startIndex)?Math.max(0,Math.min(startIndex,lines.length-1)):0;
   let typingTimer=null,autoTimer=null,skipTimer=null,typing=false,disposed=false,logOpen=false,messageScrollTop=0,skipEnabled=false,currentWasRead=false,paused=false,typingTick=null;
   const hasLog=!!(logButton&&logArea&&dialog);
@@ -55,6 +56,7 @@ const Dialogue=(()=>{
    if(disposed)return;
    message.textContent=characters.join("");
    typing=false;
+   if(typeof window!=="undefined")window.HanaIdentity?.onLineComplete(lines[index].logSource||lines[index]);
    if(skipEnabled)scheduleSkip();else scheduleAuto();
   };
   function render(){
@@ -62,11 +64,12 @@ const Dialogue=(()=>{
    const line=lines[index],kind=kindOf(line);
    currentWasRead=line.uiWasRead??(typeof isRead==="function"&&isRead(line)===true);
    if(skipEnabled&&!currentWasRead)skipEnabled=false;
+   const displayedSpeaker=typeof window!=="undefined"&&line.speaker==="ハナ"?(window.HanaIdentity?.getName()||line.speaker):line.speaker;
    const row=document.createElement("div");
    row.className=`message-row ${kind}${kind==="player"&&line.thought?" thought":""}`;
-   row.setAttribute("aria-label",kind==="player"?(line.thought?"主人公の心の声":"主人公のセリフ"):kind==="heroine"?`${line.speaker||"ハナ"}のセリフ`:kind==="character"?`${line.speaker}のセリフ`:kind==="narration"?"地の文":line.speaker||"案内");
+   row.setAttribute("aria-label",kind==="player"?(line.thought?"主人公の心の声":"主人公のセリフ"):kind==="heroine"?`${displayedSpeaker||"ハナ"}のセリフ`:kind==="character"?`${line.speaker}のセリフ`:kind==="narration"?"地の文":line.speaker||"案内");
    if(kind==="character"||kind==="heroine"){
-    const label=document.createElement("span");label.className="message-speaker";label.textContent=line.speaker;row.appendChild(label);
+    const label=document.createElement("span");label.className="message-speaker";label.textContent=displayedSpeaker;row.appendChild(label);
    }
    message=document.createElement("div");message.className=`message ${kind}${kind==="player"&&line.thought?" thought":""}`;
    row.appendChild(message);messageArea.replaceChildren(row);messageArea.scrollTop=0;
@@ -74,7 +77,7 @@ const Dialogue=(()=>{
    updateAutoButton();updateSkipButton();
    if(typeof window!=="undefined")window.DesignUI?.displayLine(line,kind);
    if(onDisplay)onDisplay(line,index);
-   if(skipEnabled&&currentWasRead){message.textContent=characters.join("");typing=false;scheduleSkip();return}
+   if(skipEnabled&&currentWasRead){finishTyping();return}
    let count=0;
    const speed=Number(getTextSpeed());
    if(speed===0){finishTyping();return}

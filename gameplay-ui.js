@@ -346,8 +346,8 @@
     activeConfig = config;
     game.classList.add("gameplay-ui-active");
     const room = game.querySelector(".room,.late-room");
-    if (!room) return;
-    room.classList.add("gameplay-shell");
+    if (!room && config.sceneId !== "opening") return;
+    room?.classList.add("gameplay-shell");
     createHud(config);
     createBottomBar(config);
     applyHighlightState();

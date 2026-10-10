@@ -1,8 +1,10 @@
-// Keeps Hana anonymous until the first-room introduction dialogue is completed.
+// Reveals Hana after the protagonist acknowledges her name in the introduction.
 // This layer only changes displayed identity; dialogue styling and scenario data stay intact.
 (() => {
   function isHanaIdentified() {
+    if (currentScene !== "room01" && currentScene !== "opening") return true;
     if (!firstRoomState) return false;
+    if (firstRoomState.hanaNameKnown) return true;
     if (typeof firstRoomState.hanaIntroduced === "boolean") return firstRoomState.hanaIntroduced;
     // Compatibility with saves created before hanaIntroduced was added.
     return Number(firstRoomState.hanaVisits || 0) > 0;
@@ -58,6 +60,13 @@
   window.HanaIdentity = {
     isIdentified: isHanaIdentified,
     getName: displayName,
-    refresh: refreshIdentityUi
+    refresh: refreshIdentityUi,
+    onLineComplete(line) {
+      if (currentScene === "room01" && /^room1_hana_first_05(?:_|$)/.test(line.logId || line.id || "") && !firstRoomState.hanaNameKnown) {
+        firstRoomState.hanaNameKnown = true;
+        saveGame();
+        refreshIdentityUi();
+      }
+    }
   };
 })();

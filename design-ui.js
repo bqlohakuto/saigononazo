@@ -35,7 +35,7 @@
   }
   function paginateDialogue(lines,isRead){
     const area=game.querySelector('.room-dialog .dialog-message-area');if(!area)return lines;
-    const width=Math.max(120,area.getBoundingClientRect().width*.70);
+    const width=Math.max(120,area.getBoundingClientRect().width*.65);
     const w=game.getBoundingClientRect().width,large=document.documentElement.dataset.gameTextSize==='large';
     const size=large?Math.max(18,Math.min(32,w*.022)):Math.max(15,Math.min(26,w*.018));
     return lines.flatMap((line,index)=>splitText(line.text,width,`${size}px "Yu Gothic", Meiryo, sans-serif`,Math.max(1,Math.min(3,Math.floor((area.clientHeight-(line.speaker==='ハナ'||line.speaker==='花音'?size:0))/(size*1.55))))).map((text,uiPage)=>({...line,text,logSource:line,uiPage,sourceIndex:index,uiWasRead:!!isRead?.(line)})));
@@ -109,11 +109,18 @@
     const p=document.createElement('div');p.className='design-use-prompt';const text=paragraph(item.name+'を使う場所を選んでください。');p.append(text,button('キャンセル',cancelUse));game.append(p);document.getElementById(item.target)?.classList.add('is-use-target');p.querySelector('button').focus({preventScroll:true});
   }
   function pickup(item){const m=panel('入手'),art=paragraph(item.art||'◇');art.className='design-item-art';m.content.append(art,paragraph(item.name),paragraph(item.description));m.content.append(button('受け取る',m.close));m.content.addEventListener('click',e=>{if(!e.target.closest('button'))m.close()});recordLog({logId:'ui-item-'+currentScene+'-'+item.id,logType:'investigation',speaker:'ト書き',text:item.name+'\n'+item.description});saveGame()}
-  function help(){const m=panel('操作説明');pageText(m.content,'黄色の輪は未調査、緑の輪は調査済みです。輪のある場所をクリック / タップして調べます。\n\n会話パネルを押すと文字をすべて表示し、もう一度押すと次へ進みます。Space / Enter でも送れます。\n\n記録・持ち物・ヒント・設定は右上から開けます。ウィンドウは「閉じる」または Esc で閉じます。\n\nいろしるパズル：候補を押した順に１〜５へ入ります。同じ候補で取り消し、同じ記号の別の色で入れ替え。入力済みの枠を２つ押すと交換できます。「解答」で判定します。\n\nスマホは横向きでプレイしてください。入力欄では解答ボタンを押して送信します。')}
-  function investigationRevision(){const s=roomStates[currentScene]||{};return ['doorUnlocked','unlocked','completed','memorySeen'].map(k=>String(!!s[k])).join(':')}
+  function help(){
+    const m=panel('操作説明');
+    let text='会話パネルを押すと文字をすべて表示し、もう一度押すと次へ進みます。Space / Enter でも送れます。\n\n記録・持ち物・ヒント・設定は右上から開けます。ウィンドウは「閉じる」または Esc で閉じます。';
+    if(currentScene!=='opening')text='黄色の輪は未調査、緑の輪は調査済みです。輪のある場所をクリック / タップして調べます。\n\n'+text;
+    if(currentScene==='room02')text+='\n\nいろしるパズル：候補を押した順に１〜５へ入ります。同じ候補で取り消し、同じ記号の別の色で入れ替え。入力済みの枠を２つ押すと交換できます。「解答」で判定します。';
+    if(game.querySelector('.device-overlay input,.device-overlay textarea,.room input,.late-room input'))text+='\n\n入力欄では解答ボタンを押して送信します。';
+    text+='\n\nスマホは横向きでプレイしてください。';pageText(m.content,text);
+  }
+  function investigationRevision(el){const s=roomStates[currentScene]||{};const base=['doorUnlocked','unlocked','completed','memorySeen'].map(k=>String(!!s[k])).join(':');return el?.id==='hanaButton'?base+'|topics:'+window.HanaChoiceUI.getAvailableChoiceIds().join(','):base}
   function syncHud(){
     const actions=game.querySelector('.gameplay-hud-actions');if(actions&&!actions.dataset.design){actions.dataset.design='true';actions.replaceChildren(button('持ち物',inventory,'gameplay-top-button'),button('記録',records,'gameplay-top-button'),button('ヒント',hints,'gameplay-top-button'),button('設定',options,'gameplay-top-button'))}
-    game.querySelectorAll('.object,.late-object,#r5Board').forEach(el=>{const key=currentScene+':'+(el.id||el.dataset.item||el.textContent.trim());const seen=state().investigated[key];el.classList.toggle('is-investigated',seen===true||seen===investigationRevision());if(hooked.has(el))return;hooked.add(el);el.addEventListener('click',event=>{if(pendingUse){if(el.id!==pendingUse.target){event.preventDefault();event.stopImmediatePropagation();const p=game.querySelector('.design-use-prompt p');if(p)p.textContent='ここでは使えません。使う場所を選ぶか、キャンセルしてください。';return}const item=pendingUse;cancelUse();setTimeout(()=>game.querySelector(`[data-tile="${item.id}"]`)?.click(),0)}inspectionTarget=el.querySelector('span,strong')?.textContent||el.getAttribute('aria-label')||el.textContent.trim();state().investigated[key]=investigationRevision();el.classList.add('is-investigated');saveGame()},{capture:true})});
+    game.querySelectorAll('.object,.late-object,#r5Board').forEach(el=>{const key=currentScene+':'+(el.id||el.dataset.item||el.textContent.trim());const seen=state().investigated[key];el.classList.toggle('is-investigated',seen===true||seen===investigationRevision(el));if(hooked.has(el))return;hooked.add(el);el.addEventListener('click',event=>{if(pendingUse){if(el.id!==pendingUse.target){event.preventDefault();event.stopImmediatePropagation();const p=game.querySelector('.design-use-prompt p');if(p)p.textContent='ここでは使えません。使う場所を選ぶか、キャンセルしてください。';return}const item=pendingUse;cancelUse();setTimeout(()=>game.querySelector(`[data-tile="${item.id}"]`)?.click(),0)}inspectionTarget=el.querySelector('span,strong')?.textContent||el.getAttribute('aria-label')||el.textContent.trim();state().investigated[key]=investigationRevision(el);el.classList.add('is-investigated');saveGame()},{capture:true})});
     game.querySelectorAll('.hana-choice-button,[data-choice]').forEach(el=>{if(choiceHooked.has(el))return;choiceHooked.add(el);const born=performance.now();el.addEventListener('click',e=>{if(performance.now()-born<250){e.preventDefault();e.stopImmediatePropagation()}},{capture:true})});
     game.querySelectorAll('.device-overlay section').forEach(section=>{if(section.querySelector('.design-op-button')||!section.querySelector('input,.room2-palette,.r4-panels,.r5-counter-grid,.r6-othello,.room3-letterboard'))return;section.append(button('操作説明',help,'design-op-button'))});
     game.querySelectorAll('.device-close,.inspection-close').forEach(el=>{if(el.textContent==='×')el.textContent='閉じる'});
@@ -138,6 +145,8 @@
     if(line.expression)expression=Math.max(0,portraitExpressions.indexOf(line.expression));else if(kind==='heroine'){expression=/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}
     decorateDialogue(game.querySelector('.room-dialog-overlay')||document.createElement('div'));
     const p=game.querySelector('.hana-portrait');if(p){p.hidden=!portraitVisible;setExpression(p)}
+    const row=game.querySelector('.message-row'),message=row?.querySelector('.message');
+    if(row&&message){const ctx=document.createElement('canvas').getContext('2d');if(ctx){const css=getComputedStyle(message);ctx.font=`${css.fontSize} ${css.fontFamily}`;const available=row.parentElement.clientWidth*(kind==='player'?.65:kind==='narration'||kind==='system'?.80:.72);row.style.width=Math.min(available,Math.max(...line.text.split('\n').map(t=>ctx.measureText(t).width))+2)+'px'}}
     if(orientation.matches)Dialogue.suspend();
     // Effects are visual captions only. No independent sound record category.
   }

@@ -37,7 +37,7 @@
   }
 
   function displayedHanaName() {
-    return hanaHasIntroducedHerself() ? "ハナ" : "？？？";
+    return window.HanaIdentity?.getName() || (hanaHasIntroducedHerself() ? "ハナ" : "？？？");
   }
 
   function hasViewedChoice(choice) {
@@ -155,6 +155,6 @@
 
   // script.js attaches this function when showFirstRoom() runs, so replacing
   // the global binding here changes only the first-room Hana interaction.
-  window.HanaChoiceUI = { ensureStyle: ensureHanaChoiceStyle };
+  window.HanaChoiceUI = { ensureStyle: ensureHanaChoiceStyle, getAvailableChoiceIds: () => getHanaChoices().filter(choice => !choice.cancel).map(choice => choice.id) };
   talkToHana = showHanaChoiceMenu;
 })();

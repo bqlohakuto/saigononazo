@@ -33,18 +33,18 @@ body{background:#171b19!important;font-family:"Yu Gothic",Meiryo,sans-serif}
 #game .room .object.is-investigated::after,#game .late-object.is-investigated::after{border-color:#72b68a!important;background:#79bf921a!important}
 #game .object:disabled::after,#game .late-object:disabled::after{display:none}
 #game .object>span{display:none}
-#game .object:hover>span,#game .object:focus-visible>span{display:block!important;position:absolute;top:calc(50% + 18px);left:50%;transform:translateX(-50%);background:var(--paper);border:1px solid var(--paper-line);padding:4px 8px;color:var(--ink);font-size:12px;white-space:nowrap;z-index:12}
+#game .object:hover>span,#game .object:focus-visible>span{display:block!important;position:absolute;top:calc(50% + 18px);left:50%;transform:translateX(-50%);background:var(--paper);border:1px solid var(--paper-line);bottom:auto!important;width:max-content;height:auto;padding:3px 6px;color:var(--ink);font-size:12px;white-space:nowrap;z-index:12}
 #game .object:hover::after{box-shadow:0 0 0 4px #f9efc966!important}
 #game.has-dialogue .object::after,#game.has-dialogue .late-object::after,#game.has-dialogue .room-navigation{visibility:hidden}
 /* One paper panel, different text positions INSIDE its lower-screen bounds. */
 #game .room-dialog-overlay{background:transparent!important;z-index:78;pointer-events:none;padding:0!important}
-#game .room-dialog{position:absolute;bottom:0;left:2%;width:96%!important;height:30%;margin:0!important;padding:clamp(9px,1.5cqw,22px) 3% 38px!important;background:var(--paper)!important;border:1px solid var(--gold)!important;border-radius:7px 7px 0 0!important;box-shadow:0 -5px 25px #1a211d22;pointer-events:auto}
+#game .room-dialog{position:absolute;transform:none;bottom:0;left:2%;width:96%!important;height:30%;margin:0!important;padding:clamp(9px,1.5cqw,22px) 3% 38px!important;background:var(--paper)!important;border:1px solid var(--gold)!important;border-radius:7px 7px 0 0!important;box-shadow:0 -5px 25px #1a211d22;pointer-events:auto}
 #game .dialog-message-area{height:100%;max-height:none;overflow:hidden;display:flex;align-items:flex-start;padding:0!important}
 #game .message-row{position:relative;flex-direction:column;gap:3px;width:max-content;max-width:72%;margin:0;text-align:left;align-items:flex-start}
 #game .message-row.heroine,#game .message-row.character{margin-left:22%;align-self:flex-start}
-#game .message-row.player{margin-left:auto;align-self:flex-end}
+#game .message-row.player{margin-left:30%;margin-right:auto;max-width:65%;align-self:flex-end}
 #game .message-row.narration,#game .message-row.system{margin:auto auto 0;align-self:flex-end;max-width:80%}
-#game .room-dialog .message{padding:0!important;margin:0;background:transparent!important;color:var(--ink)!important;border:0!important;border-radius:0;font-style:normal!important;text-align:left;line-height:1.55;overflow-wrap:anywhere;font-size:clamp(15px,1.8cqw,26px)!important;max-width:100%;max-height:none}
+#game .room-dialog .message{padding:0!important;margin:0;background:transparent!important;color:var(--ink)!important;border:0!important;border-radius:0;font-style:normal!important;text-align:left;white-space:pre-wrap;width:100%;line-height:1.55;overflow-wrap:anywhere;font-size:clamp(15px,1.8cqw,26px)!important;max-width:100%;max-height:none}
 html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px,2.2cqw,32px)!important}
 #game .message-speaker{font-size:clamp(11px,1.15cqw,17px);padding:0;color:#74603c}
 #game .room-dialog .dialog-controls{position:absolute;bottom:5px;left:10px;right:10px;padding:0;display:flex;gap:6px;justify-content:flex-start}

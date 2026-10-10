@@ -255,8 +255,7 @@ test("speaker and inner-thought classification exposes matching visual and acces
     assert.equal(message.className, `message ${kind}${kind === "player" && line.thought ? " thought" : ""}`);
     assert.equal(d.row.getAttribute("aria-label"), label);
     if (kind === "player") {
-      assert.equal(d.row.children[0].className, "message-speaker");
-      assert.equal(d.row.children[0].textContent, line.thought ? "心の声" : "主人公");
+      assert.equal(d.row.children.some(child => child.className === "message-speaker"), false);
     }
     d.nextButton.click(); // Reveal the current line.
     d.nextButton.click(); // Advance to the next line.

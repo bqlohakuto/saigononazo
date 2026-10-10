@@ -1,7 +1,7 @@
-// Five manual save slots plus the existing autosave.
+// Three manual save slots plus the existing autosave.
 // SAVE / LOAD are available while playing, and Continue opens the same load picker.
 (() => {
-  const SLOT_COUNT = 5;
+  const SLOT_COUNT = 3;
   const SLOT_PREFIX = `${SAVE_KEY}-slot-`;
   const STYLE_ID = "manual-save-style";
   const CONTROL_ID = "manualSaveControl";
@@ -32,7 +32,7 @@
   }
 
   function hasAnyManualSlot() {
-    for (let slot = 1; slot <= SLOT_COUNT; slot++) {
+    for (let slot = 1; slot <= 5; slot++) {
       if (readSlot(slot)) return true;
     }
     return false;
@@ -137,7 +137,8 @@
       slotMeta: {
         ...(current.raw.slotMeta || {}),
         savedAt: new Date().toISOString(),
-        slot
+        slot,
+        preview:window.DesignUI?.savePreview?.()||null
       }
     };
     localStorage.setItem(slotKey(slot), JSON.stringify(snapshot));
@@ -153,11 +154,11 @@
   }
 
   // Keep the original autosave as the active-session data. If autosave is absent,
-  // title-screen availability can still be determined from the five manual slots.
+  // title-screen availability can still be determined from the three manual slots.
   readSavedGame = function () {
     const auto = originalReadSavedGame();
     if (auto) return auto;
-    for (let slot = 1; slot <= SLOT_COUNT; slot++) {
+    for (let slot = 1; slot <= 5; slot++) {
       const entry = readSlot(slot);
       if (entry) return entry.saved;
     }
@@ -238,6 +239,8 @@
     action.disabled = disabled;
     if (onAction) action.addEventListener("click", () => onAction(action));
 
+    const preview=entry?.raw?.slotMeta?.preview;
+    if(preview){const image=document.createElement("img");image.className="save-slot-preview";image.src=preview;image.alt="保存した部屋";card.append(image)}
     card.append(text, action);
     return card;
   }
@@ -259,6 +262,9 @@
       </section>`;
     game.appendChild(overlay);
 
+    Dialogue.suspend?.();
+    const inertBefore=[...game.children].filter(el=>el!==overlay).map(el=>[el,el.inert]);
+    inertBefore.forEach(([el])=>el.inert=true);
     const panel = overlay.querySelector(".save-slot-panel");
     const list = overlay.querySelector(".save-slot-list");
     const status = overlay.querySelector(".save-slot-status");
@@ -270,6 +276,8 @@
       clearTimeout(confirmTimer);
       document.removeEventListener("keydown", onKeyDown, true);
       overlay.remove();
+      inertBefore.forEach(([el,inert])=>el.inert=inert);
+      Dialogue.resume?.();
       if (opener?.isConnected && !opener.disabled) opener.focus({ preventScroll: true });
     }
 
@@ -301,6 +309,10 @@
       });
     }
 
+    function confirmedLoad(key,entry,button){
+      if(confirmSlot!==key){confirmSlot=key;resetConfirmButtons();button.classList.add("is-confirm");button.textContent="読み込む";status.textContent="現在の画面を終了し、この保存データを読み込みます。もう一度押してください。";return}
+      close();loadData(entry);
+    }
     function render() {
       list.replaceChildren();
 
@@ -344,7 +356,7 @@
             entry,
             actionLabel: "ロード",
             disabled: !entry,
-            onAction: () => entry && loadData(entry)
+            onAction: button => entry && confirmedLoad(slot,entry,button)
           }));
         }
       }
@@ -360,17 +372,15 @@
           entry: auto,
           actionLabel: "ロード",
           disabled: !auto,
-          onAction: () => auto && loadData(auto)
+          onAction: button => auto && confirmedLoad("auto",auto,button)
         });
-        if (auto) autoCard.querySelector(".save-slot-time").textContent = "現在の進行を自動保存";
+        // Autosave displays its actual saved date, just like manual slots.
         list.appendChild(autoCard);
+        for(let legacy=4;legacy<=5;legacy++){const entry=readSlot(legacy);if(entry)list.appendChild(createSlotCard({title:`旧 SLOT ${legacy}`,entry,actionLabel:"ロード",onAction:button=>confirmedLoad(legacy,entry,button)}))}
       }
     }
 
     closeButton.addEventListener("click", close);
-    overlay.addEventListener("click", event => {
-      if (event.target === overlay) close();
-    });
     document.addEventListener("keydown", onKeyDown, true);
     render();
     closeButton.focus({ preventScroll: true });

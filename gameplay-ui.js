@@ -3,7 +3,7 @@
 // with their own title, objective resolver and companion action.
 (() => {
   const UI_SETTINGS_KEY = "saigononazo-gameplay-ui-v1";
-  const TEXT_SIZES = ["small", "medium", "large"];
+  const TEXT_SIZES = ["medium", "large"];
   let activeConfig = null;
   let uiSettings = loadUiSettings();
 
@@ -220,7 +220,6 @@
       }
     };
     closeButton.addEventListener("click", close);
-    overlay.addEventListener("click", event => { if (event.target === overlay) close(); });
     document.addEventListener("keydown", onKeyDown, true);
     renderStandaloneLog(list);
     closeButton.focus({preventScroll:true});
@@ -261,7 +260,6 @@
       }
     };
     closeButton.addEventListener("click", close);
-    overlay.addEventListener("click", event => { if (event.target === overlay) close(); });
     document.addEventListener("keydown", onKeyDown, true);
     overlay.querySelectorAll("[data-menu]").forEach(button => button.addEventListener("click", () => {
       const action = button.dataset.menu;
@@ -343,6 +341,7 @@
   }
 
   function installRoom(config) {
+    window.DesignUI?.onInstall(config);
     ensureStyle();
     activeConfig = config;
     game.classList.add("gameplay-ui-active");
@@ -399,6 +398,7 @@
     updateObjective,
     openLog: openStandaloneLog,
     openDataMenu: openSaveLoad,
-    applyTextSize
+    applyTextSize,
+    setTextSize(value){if(!TEXT_SIZES.includes(value))return;uiSettings.textSize=value;saveUiSettings();applyTextSize()}
   };
 })();

@@ -13,8 +13,9 @@ const Dialogue=(()=>{
  const stop=()=>{if(active)active.dispose()};
  function start({lines,messageArea,nextButton,autoButton,skipButton,logButton,logArea,dialog,startIndex=0,getTextSpeed,isRead,onDisplay,onComplete}){
   stop();
+  if(typeof window!=="undefined"&&window.DesignUI)lines=window.DesignUI.paginateDialogue(lines,isRead);
   let index=Number.isInteger(startIndex)?Math.max(0,Math.min(startIndex,lines.length-1)):0;
-  let typingTimer=null,autoTimer=null,skipTimer=null,typing=false,disposed=false,logOpen=false,messageScrollTop=0,skipEnabled=false,currentWasRead=false;
+  let typingTimer=null,autoTimer=null,skipTimer=null,typing=false,disposed=false,logOpen=false,messageScrollTop=0,skipEnabled=false,currentWasRead=false,paused=false,typingTick=null;
   const hasLog=!!(logButton&&logArea&&dialog);
   let message=null,characters=[];
   const clearAuto=()=>{clearTimeout(autoTimer);autoTimer=null};
@@ -35,15 +36,15 @@ const Dialogue=(()=>{
   };
   const scheduleAuto=()=>{
    clearAuto();
-   if(disposed||logOpen||typing||!autoEnabled||document.hidden||kindOf(lines[index])==="system")return;
+   if(disposed||paused||logOpen||typing||!autoEnabled||document.hidden||kindOf(lines[index])==="system")return;
    autoTimer=setTimeout(()=>{
     autoTimer=null;
     if(!disposed&&!logOpen&&!typing&&autoEnabled&&!document.hidden)advance();
-   },AUTO_DELAY);
+   },typeof window!=="undefined"&&window.DesignUI?Math.max(1800,characters.length*100):AUTO_DELAY);
   };
   const scheduleSkip=()=>{
    clearSkip();
-   if(disposed||logOpen||typing||!skipEnabled||!currentWasRead||document.hidden)return;
+   if(disposed||paused||logOpen||typing||!skipEnabled||!currentWasRead||document.hidden)return;
    skipTimer=setTimeout(()=>{
     skipTimer=null;
     if(!disposed&&!logOpen&&!typing&&skipEnabled&&currentWasRead&&!document.hidden)advance();
@@ -59,36 +60,41 @@ const Dialogue=(()=>{
   function render(){
    clearAuto();clearSkip();clearInterval(typingTimer);typingTimer=null;
    const line=lines[index],kind=kindOf(line);
-   currentWasRead=typeof isRead==="function"&&isRead(line)===true;
+   currentWasRead=line.uiWasRead??(typeof isRead==="function"&&isRead(line)===true);
    if(skipEnabled&&!currentWasRead)skipEnabled=false;
    const row=document.createElement("div");
    row.className=`message-row ${kind}${kind==="player"&&line.thought?" thought":""}`;
    row.setAttribute("aria-label",kind==="player"?(line.thought?"主人公の心の声":"主人公のセリフ"):kind==="heroine"?`${line.speaker||"ハナ"}のセリフ`:kind==="character"?`${line.speaker}のセリフ`:kind==="narration"?"地の文":line.speaker||"案内");
-   if(kind==="character"||kind==="player"){
-    const label=document.createElement("span");label.className="message-speaker";label.textContent=kind==="player"?(line.thought?"心の声":"主人公"):line.speaker;row.appendChild(label);
+   if(kind==="character"||kind==="heroine"){
+    const label=document.createElement("span");label.className="message-speaker";label.textContent=line.speaker;row.appendChild(label);
    }
    message=document.createElement("div");message.className=`message ${kind}${kind==="player"&&line.thought?" thought":""}`;
    row.appendChild(message);messageArea.replaceChildren(row);messageArea.scrollTop=0;
    characters=Array.from(line.text);typing=true;
    updateAutoButton();updateSkipButton();
+   if(typeof window!=="undefined")window.DesignUI?.displayLine(line,kind);
    if(onDisplay)onDisplay(line,index);
    if(skipEnabled&&currentWasRead){message.textContent=characters.join("");typing=false;scheduleSkip();return}
    let count=0;
    const speed=Number(getTextSpeed());
-   typingTimer=setInterval(()=>{
+   if(speed===0){finishTyping();return}
+   typingTick=()=>{
     if(disposed)return;
     count++;
     message.textContent=characters.slice(0,count).join("");
     if(count>=characters.length)finishTyping();
-   },Number.isFinite(speed)?Math.max(15,Math.min(100,speed)):45);
+   };
+   if(paused)return;
+   typingTimer=setInterval(typingTick,Number.isFinite(speed)?Math.max(15,Math.min(100,speed)):45);
   }
   function advance(){
-   if(disposed||logOpen)return;
+   if(disposed||paused||logOpen)return;
    clearAuto();
    if(typing){finishTyping();return}
    index++;
    if(index>=lines.length){
     dispose();nextButton.disabled=true;autoButton.disabled=true;
+    autoEnabled=false;emitAutoChange();
     if(onComplete)onComplete();
     return;
    }
@@ -117,8 +123,8 @@ const Dialogue=(()=>{
    const kind=entry.kind||kindOf(entry),row=document.createElement("div"),text=document.createElement("div");
    row.className=`message-row ${kind}${kind==="player"&&entry.thought?" thought":""}`;
    row.setAttribute("aria-label",kind==="player"?(entry.thought?"主人公の心の声":"主人公のセリフ"):kind==="heroine"?`${entry.speaker||"ハナ"}のセリフ`:kind==="character"?`${entry.speaker}のセリフ`:kind==="narration"?"地の文":entry.speaker||"案内");
-   if(kind==="character"||kind==="player"){
-    const label=document.createElement("span");label.className="message-speaker";label.textContent=kind==="player"?(entry.thought?"心の声":"主人公"):entry.speaker;row.appendChild(label);
+   if(kind==="character"||kind==="heroine"){
+    const label=document.createElement("span");label.className="message-speaker";label.textContent=entry.speaker;row.appendChild(label);
    }
    text.className=`message ${kind}${kind==="player"&&entry.thought?" thought":""}`;
    text.textContent=entry.text;
@@ -197,7 +203,7 @@ const Dialogue=(()=>{
    emitSkipChange(false,false);
    if(active===controller)active=null;
   }
-  const controller={advance:manualAdvance,dispose,toggleAuto,toggleSkip};active=controller;
+  const controller={advance:manualAdvance,dispose,toggleAuto,toggleSkip,suspend(){paused=true;clearAuto();clearSkip();clearInterval(typingTimer);typingTimer=null},resume(){if(disposed||!paused)return;paused=false;if(typing&&typingTick)typingTimer=setInterval(typingTick,Math.max(15,Number(getTextSpeed())||45));else if(skipEnabled)scheduleSkip();else scheduleAuto()}};active=controller;
   nextButton.disabled=false;autoButton.disabled=false;
   nextButton.addEventListener("click",manualAdvance);
   autoButton.addEventListener("click",toggleAuto);
@@ -220,5 +226,5 @@ const Dialogue=(()=>{
   if(active?.toggleAuto)return active.toggleAuto();
   autoEnabled=!autoEnabled;emitAutoChange();return autoEnabled;
  }
- return {start,stop,toggleAuto:toggleAutoState,isAutoEnabled:()=>autoEnabled};
+ return {start,stop,suspend:()=>active?.suspend(),resume:()=>active?.resume(),advance:()=>active?.advance(),toggleAuto:toggleAutoState,isAutoEnabled:()=>autoEnabled};
 })();

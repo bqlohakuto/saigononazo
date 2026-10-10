@@ -107,6 +107,7 @@
   }
 
   function onKeyDown(event){
+   if(document.querySelector(".design-overlay,.save-slot-overlay"))return;
    if(event.key==="Escape"){
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -122,6 +123,7 @@
   }
 
   function onFocusIn(event){
+   if(document.querySelector(".design-overlay,.save-slot-overlay"))return;
    if(!finished&&!panel.contains(event.target))artButton.focus({preventScroll:true});
   }
 

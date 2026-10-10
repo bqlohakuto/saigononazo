@@ -1,0 +1,165 @@
+/* Confirmed UI direction, 2026-10-11. Scenario and puzzle colors are independent. */
+:root{--paper:#faf7ee;--ink:#35332e;--gold:#ae9157;--paper-line:#d9ccb0;--ui-duration:150ms}
+body{background:#171b19!important;font-family:"Yu Gothic",Meiryo,sans-serif}
+#game-container{width:min(100vw,177.7778svh)!important;height:min(56.25vw,100svh)!important;max-width:none!important;max-height:none!important;aspect-ratio:16/9;position:relative;margin:auto;overflow:hidden;container-type:inline-size}
+#game{width:100%;height:100%;position:relative}
+#game.gameplay-ui-active{--ui-ink:var(--ink);--ui-muted:#7b7568;--ui-paper:var(--paper);--ui-border:var(--paper-line);--ui-accent:var(--gold);--ui-dark:var(--paper)}
+#game button:not(.title-button):not(.object):not(.late-object){font-family:inherit;border-radius:5px;touch-action:manipulation}
+#game :is(.gameplay-panel,.menu-panel,.phone-screen,.piano-screen,.room2-puzzle,.room3-puzzle-panel,.room3-chat-panel,.r4-mini,.r4-light-panel,.late-panel,.inspection-panel,.save-slot-panel){background:var(--paper)!important;color:var(--ink)!important;border:1px solid var(--gold)!important;border-radius:8px!important;max-height:92%;box-shadow:0 14px 45px #10161055;padding:clamp(12px,2cqw,30px);overflow:auto}
+#game :is(.device-overlay,.inspection-overlay,.menu-overlay,.save-slot-overlay,.gameplay-log-overlay,.gameplay-menu-overlay,.design-overlay){background:#111b1766!important;padding:3%;z-index:70}
+#game h2,#game .gameplay-room-title{font-family:"Yu Mincho",serif;font-weight:500}
+#game :is(.device-close,.inspection-close,.save-slot-close,.gameplay-panel-close){color:var(--ink);background:var(--paper);border:1px solid var(--paper-line);min-width:44px;min-height:36px;font-size:14px!important;z-index:2;width:auto!important;padding:5px 10px}
+#game :is(input,select){font:inherit;color:var(--ink);background:#fffdf8;border:1px solid var(--paper-line);border-radius:4px;min-height:36px}
+#game button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#game .gameplay-hud{z-index:65;top:2%;left:2%;right:2%;align-items:center}
+#game .gameplay-room-title{background:#faf7eee8;box-shadow:none;font-size:clamp(12px,1.5cqw,22px);border-radius:4px;padding:5px 10px;max-width:35cqw}
+#game .gameplay-goal-row,#game .gameplay-highlight-toggle{display:none}
+#game .gameplay-hud-actions{gap:6px}
+#game .gameplay-top-button{color:var(--ink);background:#faf7eef5;border:1px solid var(--paper-line);box-shadow:none;min-height:36px;min-width:54px;padding:5px 10px;font-size:clamp(11px,1.15cqw,16px)}
+#game .gameplay-top-button[aria-pressed=true]{border-color:var(--gold)}
+#game .room.gameplay-shell{padding:0!important;display:block;background:#eee9de;height:100%}
+#game .room-stage-wrap{height:100%;width:100%;display:block;padding:0}
+#game .room-stage{height:100%!important;width:100%!important;max-width:none!important;aspect-ratio:16/9;border-radius:0!important;box-shadow:none!important}
+#game .room-background{object-fit:cover}
+#game .room-navigation{position:absolute;inset:50% 2% auto;transform:translateY(-50%);width:96%;max-width:none;display:flex;justify-content:space-between;pointer-events:none;z-index:20}
+#game .room-navigation button{pointer-events:auto;border:1px solid var(--paper-line);border-radius:5px!important;background:#faf7eee8;width:40px;height:44px;padding:0}
+#game .room-navigation p{position:absolute;left:50%;top:calc(28cqw - 48px);transform:translateX(-50%);font-size:12px;white-space:nowrap;background:#faf7eedd}
+#game .room-navigation button span{display:none}
+#game .explore-status{position:absolute;bottom:2%;left:50%;transform:translateX(-50%);width:70%;background:#faf7eee8;border-radius:4px;color:#686251;font-size:clamp(10px,1.1cqw,15px);padding:4px;z-index:15;pointer-events:none}
+#game .late-room .late-stage{height:100%;padding-top:7%;background-color:#eee9de}
+#game .gameplay-bottom-bar{display:none!important}
+/* Static investigation rings, with hover labels and large hit areas. */
+#game .room .object::after,#game .late-object::after,#game .r8-paper::after{content:""!important;position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%);border:2px solid #e9c36a!important;border-radius:50%;background:#fff8d51a!important;box-shadow:0 0 0 2px #35332e66!important;animation:none!important;pointer-events:none}
+#game .room .object.is-investigated::after,#game .late-object.is-investigated::after{border-color:#72b68a!important;background:#79bf921a!important}
+#game .object:disabled::after,#game .late-object:disabled::after{display:none}
+#game .object>span{display:none}
+#game .object:hover>span,#game .object:focus-visible>span{display:block!important;position:absolute;top:calc(50% + 18px);left:50%;transform:translateX(-50%);background:var(--paper);border:1px solid var(--paper-line);padding:4px 8px;color:var(--ink);font-size:12px;white-space:nowrap;z-index:12}
+#game .object:hover::after{box-shadow:0 0 0 4px #f9efc966!important}
+#game.has-dialogue .object::after,#game.has-dialogue .late-object::after,#game.has-dialogue .room-navigation{visibility:hidden}
+/* One paper panel, different text positions INSIDE its lower-screen bounds. */
+#game .room-dialog-overlay{background:transparent!important;z-index:78;pointer-events:none;padding:0!important}
+#game .room-dialog{position:absolute;bottom:0;left:2%;width:96%!important;height:30%;margin:0!important;padding:clamp(9px,1.5cqw,22px) 3% 38px!important;background:var(--paper)!important;border:1px solid var(--gold)!important;border-radius:7px 7px 0 0!important;box-shadow:0 -5px 25px #1a211d22;pointer-events:auto}
+#game .dialog-message-area{height:100%;max-height:none;overflow:hidden;display:flex;align-items:flex-start;padding:0!important}
+#game .message-row{position:relative;flex-direction:column;gap:3px;width:max-content;max-width:72%;margin:0;text-align:left;align-items:flex-start}
+#game .message-row.heroine,#game .message-row.character{margin-left:22%;align-self:flex-start}
+#game .message-row.player{margin-left:auto;align-self:flex-end}
+#game .message-row.narration,#game .message-row.system{margin:auto auto 0;align-self:flex-end;max-width:80%}
+#game .room-dialog .message{padding:0!important;margin:0;background:transparent!important;color:var(--ink)!important;border:0!important;border-radius:0;font-style:normal!important;text-align:left;line-height:1.55;overflow-wrap:anywhere;font-size:clamp(15px,1.8cqw,26px)!important;max-width:100%;max-height:none}
+html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px,2.2cqw,32px)!important}
+#game .message-speaker{font-size:clamp(11px,1.15cqw,17px);padding:0;color:#74603c}
+#game .room-dialog .dialog-controls{position:absolute;bottom:5px;left:10px;right:10px;padding:0;display:flex;gap:6px;justify-content:flex-start}
+#game .room-dialog .next-button{margin-left:auto;background:transparent;color:var(--gold);border:0;min-height:30px;min-width:36px;font-size:16px}
+#game .room-dialog .dialog-controls>.auto-button,#game .room-dialog .dialog-controls>.skip-button,#game .room-dialog .dialog-controls>.log-button{display:none!important}
+#game .design-controls{position:absolute;bottom:4px;left:12px;right:50px;display:flex;gap:6px;pointer-events:auto;z-index:3}
+#game .design-controls button{background:transparent;border:1px solid transparent;color:#746c5e;min-height:28px;padding:3px 8px;font-size:clamp(10px,1cqw,14px)}
+#game .design-controls button[aria-pressed=true]{border-color:var(--gold);background:#eee4cb}
+#game .hana-portrait{position:absolute;pointer-events:none;left:1%;bottom:21%;height:66%;aspect-ratio:1;max-width:38%;background-image:url(images/characters/hana-expressions.png);background-size:300% 200%;background-position:0% 0%;z-index:-1;animation:none}
+#game .hana-portrait[hidden]{display:none}
+#game .room-dialog.dialog-hidden{background:transparent!important;border:0!important;box-shadow:none;pointer-events:none}
+#game .room-dialog.dialog-hidden .dialog-message-area,#game .room-dialog.dialog-hidden .dialog-controls,#game .room-dialog.dialog-hidden .design-controls{visibility:hidden}
+#game .dialogue-restore{position:absolute;inset:0;border:0;background:transparent;pointer-events:auto;z-index:0}
+#game .dialogue-restore[hidden]{display:none}
+#game .design-overlay{position:absolute;inset:0;display:grid;place-items:center;z-index:95;color:var(--ink)}
+#game .design-panel{background:var(--paper);border:1px solid var(--gold);border-radius:7px;width:92%;height:90%;padding:2%;display:flex;flex-direction:column;gap:10px;box-shadow:0 12px 32px #17221955;min-height:0;overflow:hidden}
+#game .design-panel>header{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;border-bottom:1px solid var(--paper-line);padding-bottom:8px}
+#game .design-panel>header h2{margin:0;font-size:clamp(16px,2cqw,28px)}
+#game .design-panel button{min-height:34px;padding:5px 12px;background:#fffdf7;border:1px solid var(--paper-line);color:var(--ink);font-size:clamp(11px,1.2cqw,17px)}
+#game .design-panel button[aria-pressed=true]{border-color:var(--gold);background:#eee4cb}
+#game .design-tabs{display:flex;gap:5px;flex-wrap:wrap}
+#game .design-content{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:8px;font-size:clamp(13px,1.5cqw,21px);line-height:1.7}
+#game .design-content>p{margin:0}
+#game .design-page{white-space:pre-wrap;flex:1;min-height:0;overflow:hidden;margin:0;line-height:1.7;font-size:inherit}
+#game .design-pager{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-shrink:0;font-size:12px}
+#game .design-record{width:100%;text-align:left;display:flex;justify-content:space-between;gap:8px;min-height:38px!important}
+#game .design-record small{color:#83775f;font-size:11px}
+#game .final-clue,#game mark{background:#eee1bb!important;text-decoration:underline;text-decoration-color:var(--gold);color:var(--ink)}
+#game .design-clue-dot{color:var(--gold)}
+#game .design-items{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+#game .design-item-art{font-size:clamp(28px,5cqw,70px);margin:auto;text-align:center}
+#game .design-settings{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;align-content:start;font-size:clamp(12px,1.25cqw,18px)}
+#game .design-settings label{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#game .design-settings input[type=range]{width:60%;height:24px;min-height:24px;accent-color:var(--gold)}
+#game .design-actions{display:flex;gap:8px;flex-wrap:wrap}
+#game .save-slot-card{grid-template-columns:80px minmax(0,1fr) auto;min-height:75px}
+#game .save-slot-card:not(:has(.save-slot-preview)){grid-template-columns:minmax(0,1fr) auto}
+#game .save-slot-preview{width:80px;height:45px;object-fit:cover;border:1px solid var(--paper-line);grid-row:1/4}
+#game .save-slot-action{grid-column:-2;grid-row:1/4}
+#game .device-overlay section{position:relative}
+#game .room2-puzzle{width:94%;height:92%;display:grid;grid-template-columns:1.05fr 1fr;grid-template-rows:auto auto auto 1fr auto;gap:8px 3%;padding-top:3%}
+#game .room2-puzzle h2{grid-column:1;grid-row:1;margin:0}
+#game .room2-rule{grid-column:1;grid-row:2;font-size:clamp(10px,1.1cqw,15px);margin:0}
+#game .room2-answer-slots{grid-column:1;grid-row:3;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:0}
+#game .room2-palette{grid-column:1;grid-row:4;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr);gap:5px;min-height:0;margin:0}
+#game .room2-answer-slot,#game .room2-palette-token{background:#fffdf7!important;color:var(--ink);border:1px solid var(--paper-line);min-height:38px;padding:3px;border-radius:4px}
+#game .room2-answer-slot.is-selected,#game .room2-palette-token.is-active{border:2px solid var(--gold);background:#f0e7d4!important}
+#game .room2-palette-token.is-active:after{content:"✓";color:var(--gold)}
+#game .room2-palette-token i,#game .room2-answer-slot i{font-size:clamp(21px,3cqw,44px);font-style:normal}
+#game .room2-palette-token small{font-size:10px}
+#game .room2-history{grid-column:2;grid-row:2/5;min-height:0;max-height:none;border-left:1px solid var(--paper-line);padding:8px 0 0 14px;margin:0;overflow:auto}
+#game .room2-history-row{font-size:clamp(11px,1.3cqw,18px);padding:8px 0;border-bottom:1px solid var(--paper-line);background:transparent}
+#game .room2-history-row i{font-size:clamp(15px,2cqw,27px)}
+#game .room2-puzzle-actions{grid-column:1/3;grid-row:5;display:flex;justify-content:flex-start;padding:0;margin:0;border-top:1px solid var(--paper-line)}
+#game .room2-submit{order:3;margin-left:auto!important;background:#eee2c5!important;border-color:var(--gold)!important}
+#game .room2-feedback,#game .room2-leftmost-hint{grid-column:2;grid-row:1;font-size:12px;padding-right:55px;margin:0}
+#game .room2-reaction{position:absolute;left:2%;right:2%;bottom:1%;background:var(--paper);border:1px solid var(--gold);padding:12px;z-index:3}
+#game .room2-reaction[hidden]{display:none}
+#game .design-submit{display:block;margin-left:auto!important;min-width:100px;background:#eee2c5!important;border-color:var(--gold)!important}
+#game .hana-choice-menu{position:absolute;bottom:32%;left:32%;width:60%;max-height:60%;overflow:auto}
+#game .hana-choice-button{background:var(--paper);color:var(--ink);border-color:var(--paper-line)}
+#game .design-op-button{font-size:11px;position:absolute;left:16px;bottom:8px}
+#game .design-orientation{position:absolute;inset:0;z-index:200;display:none;place-items:center;background:#202820;color:var(--paper);text-align:center;padding:24px}
+#game .design-orientation h2{margin:12px;font-size:24px}
+#game .design-orientation p{font-size:15px}
+#game .design-sound-caption{position:absolute;bottom:34%;left:30%;right:5%;z-index:90;pointer-events:none;text-align:center;background:#faf7eeec;border:1px solid var(--paper-line);border-radius:4px;padding:5px;font-size:clamp(11px,1.2cqw,17px)}
+#game .design-sound-caption[hidden]{display:none}
+#game .is-keyboard-open{max-height:100%;overflow:auto}
+#game .is-keyboard-open input:focus{scroll-margin:20px}
+@media(orientation:portrait) and (pointer:coarse){#game .design-orientation{display:grid}#game-container{width:100vw!important;height:100svh!important;aspect-ratio:auto}}
+@media(max-height:550px){#game .room-dialog{height:34%;padding-bottom:32px!important}#game .hana-portrait{bottom:25%;height:67%}#game .design-panel{gap:5px;padding:1.5%}#game .design-content{gap:4px}#game .design-panel>header{padding-bottom:4px}#game .design-panel button{min-height:30px}#game .design-settings{gap:5px 15px}#game .room2-rule{font-size:10px}#game .room2-answer-slot,#game .room2-palette-token{min-height:34px}#game .room2-puzzle{gap:5px 3%}#game .save-slot-card{min-height:54px;padding:7px}#game .save-slot-guide{margin:0;font-size:11px}}
+@media(prefers-reduced-motion:no-preference){#game :is(.device-overlay,.inspection-overlay,.design-overlay){animation:designFade var(--ui-duration) ease-out}@keyframes designFade{from{opacity:0}to{opacity:1}}}
+@media(prefers-reduced-motion:reduce){#game *{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+/* Use the approved spirit-world portrait in exploration as well as dialogue. */
+#game :is(.hana-object,.room2-hana,.room3-hana,.r4hana){background:transparent!important;opacity:1;border-radius:0}
+#game :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:200%;aspect-ratio:1;background:url(images/characters/hana-expressions.png) 0 0/300% 200% no-repeat;pointer-events:none}
+#game.has-dialogue :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{visibility:hidden}
+#game :is(.device-close,.inspection-close){position:absolute;right:12px;top:10px}
+#game .design-orientation{pointer-events:auto}
+/* Size every room against the game canvas, including letterboxed phones. */
+#game .room-dialog{min-height:0!important;max-height:none!important}
+#game .late-room .late-stage{width:100%;height:100%;min-height:0;margin:0;border:0;border-radius:0;padding:70px 3% 46px;overflow:hidden}
+#game .late-stage.othello{grid-template-columns:minmax(0,calc(56.25cqw - 116px)) minmax(0,1fr);gap:3%}
+#game .r6-map{grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));height:100%;aspect-ratio:1;gap:3px}
+#game .r6-cell{min-height:0!important;min-width:0;aspect-ratio:auto;padding:0;font-size:clamp(9px,1cqw,15px)}
+#game .late-side{min-width:0;min-height:0;overflow:auto;font-size:clamp(11px,1.3cqw,18px)}
+#game .late-pending{margin:4px 0;padding:8px;font-size:clamp(10px,1.1cqw,15px)}
+#game .late-stage.zodiac{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3%}
+#game .r7-books,#game .r7-doors{min-height:0;overflow:auto;padding:8px}
+#game .r7-book{display:flex;min-height:34px;margin:3px 0;padding:5px 8px;font-size:clamp(11px,1.2cqw,17px)}
+#game .r7-doors{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+#game .r7-doors button{min-height:34px;padding:5px}
+#game .late-object{position:relative}
+#game .late-object::after{left:calc(100% - 18px);top:18px;width:16px;height:16px}
+#game .late-object-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#game .late-room-note{font-size:clamp(12px,1.4cqw,20px)}
+#game :is(.late-main-action,.late-sub-action,.late-next,.late-row button){min-height:34px;padding:5px 10px;font-size:clamp(12px,1.3cqw,18px)}
+#game .final-living{min-height:0;height:100%}
+#game .r8-table{min-height:0;height:52%;width:72%;padding:15px;font-size:clamp(12px,1.5cqw,22px)}
+#game .late-ending,#game .late-transition{min-height:0;height:100%}
+#game .design-op-button{position:absolute;left:auto;right:100px;top:10px;bottom:auto;min-height:30px;font-size:11px;background:var(--paper);border:1px solid var(--paper-line);padding:5px 8px}
+#game .design-panel .design-op-button{position:static}
+@media(max-height:550px){
+ #game .late-room .late-stage{padding-top:55px;padding-bottom:38px}
+ #game .late-stage.othello{grid-template-columns:minmax(0,calc(56.25cqw - 93px)) minmax(0,1fr)}
+ #game .late-object{min-height:54px;padding:6px;font-size:14px}
+ #game .late-object small{font-size:10px;margin-bottom:1px}
+ #game .room2-puzzle h2{font-size:18px}
+ #game .room2-answer-slot i,#game .room2-palette-token i{min-height:30px;min-width:0}
+ #game .room2-puzzle-actions button{min-height:34px;padding:5px 10px;font-size:12px}
+}
+#game .gameplay-hud{z-index:85}
+#game :is(.device-overlay,.inspection-overlay,.save-slot-overlay){padding:55px 3% 2%}
+#game .room2-puzzle{height:100%;max-height:100%}
+#game .late-panel{max-width:100%}
+#game .design-use-prompt{position:absolute;bottom:6%;left:20%;right:20%;z-index:86;background:var(--paper);border:1px solid var(--gold);padding:8px 12px;border-radius:5px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:clamp(11px,1.2cqw,17px)}
+#game .design-use-prompt button{background:var(--paper);border:1px solid var(--paper-line);min-height:32px;padding:5px 12px;white-space:nowrap}
+#game .is-use-target{outline:3px solid var(--gold)!important;outline-offset:3px}

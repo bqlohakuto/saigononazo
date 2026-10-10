@@ -310,7 +310,7 @@ test("closed door preview is manual and cancelable; continuing preserves the ori
   h.finishDialogue();
   const original = harness(); original.room(); original.run("inspectDoor()"); original.finishDialogue();
   assert.equal(h.document.activeElement, h.query("#doorButton"));
-  assert.deepEqual(h.saved, original.saved);
+  assert.deepEqual({...h.saved,slotMeta:undefined}, {...original.saved,slotMeta:undefined});
   assert.equal(h.state.doorInspected, true);
   assert.equal(h.state.questionSeen, true);
   assert.equal(h.query("#questionButton").disabled, false);
@@ -350,7 +350,7 @@ test("unlocked door shows closed, half-open and open frames manually without cha
   assert.equal(h.game.querySelector(".inspection-overlay"), null);
   assert.ok(h.query(".room-dialog-overlay"));
   assert.equal(h.query(".room").inert, true);
-  assert.deepEqual(h.saved, original.saved);
+  assert.deepEqual({...h.saved,slotMeta:undefined}, {...original.saved,slotMeta:undefined});
   assert.equal(h.state.nextRoomTransitionSeen, false);
 });
 
@@ -461,7 +461,7 @@ test("first phone use logs the introduction and commits it only before opening i
   h.click("#phoneButton"); h.click(".inspection-art-button");
   assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
   assert.ok(h.query(".phone-screen"));
-  assert.equal(h.saved.logs.length, completedLogCount + 1);
+  assert.equal(h.saved.logs.length, completedLogCount);
   assert.equal(h.saved.logs.at(-1).id, "room1_phone_select_prompt");
   const resumed = harness(h.saved); resumed.click("#continueButton");
   resumed.click("#phoneButton"); resumed.click(".inspection-art-button");

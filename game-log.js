@@ -7,11 +7,13 @@ const GameLog=(()=>{
  function entryFor(line){
   const entry={id:line.logId,text:line.text,type:types.has(line.logType)?line.logType:line.thought||["ト書き","システム"].includes(line.speaker)?"narration":"dialogue",speaker:line.speaker||"",thought:!!line.thought,kind:kinds.has(line.logKind)?line.logKind:kindOf(line)};
   if(typeof line.logColor==="string"&&/^#[0-9a-f]{6}$/i.test(line.logColor))entry.color=line.logColor;
+  for(const [field,value] of [["room",line.logRoom],["group",line.logGroup],["target",line.logTarget]])if(typeof value==="string"&&value)entry[field]=value;
   return entry;
  }
  function record(line){
   const entry=entryFor(line);
   if(typeof entry.id!=="string"||!entry.id||typeof entry.text!=="string"||!entry.text)return false;
+  if(entry.type==="investigation"&&entries.some(saved=>saved.id===entry.id&&saved.text===entry.text))return false;
   entries.push({...entry,order:entries.length});
   seenIds.add(entry.id);
   return true;
@@ -22,7 +24,7 @@ const GameLog=(()=>{
   // Array order is canonical. Preserve repeated IDs and normalize optional/malformed fields from older saves.
   for(const entry of saved){
    if(!entry||typeof entry!=="object")continue;
-   record({logId:entry.id,text:entry.text,logType:entry.type,speaker:typeof entry.speaker==="string"?entry.speaker:"",thought:entry.thought===true,logKind:entry.kind,logColor:entry.color});
+   record({logId:entry.id,text:entry.text,logType:entry.type,speaker:typeof entry.speaker==="string"?entry.speaker:"",thought:entry.thought===true,logKind:entry.kind,logColor:entry.color,logRoom:entry.room,logGroup:entry.group,logTarget:entry.target});
   }
  }
  return {record,restore,entryFor,has:id=>seenIds.has(id),list:()=>entries.map(entry=>({...entry}))};

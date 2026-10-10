@@ -79,7 +79,7 @@ function showOpening(startIndex = 0) {
     logButton: document.getElementById("openingLogButton"),
     logArea: document.getElementById("openingLogArea"),
     dialog,
-    getTextSpeed: () => settings.textSpeed,
+    getTextSpeed: () => settings.instantText ? 0 : settings.textSpeed,
     isRead: line => GameLog.has(line.logId),
     onDisplay: (line, index) => {
       openingIndex = index;

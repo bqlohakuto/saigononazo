@@ -1,6 +1,6 @@
 const game=document.getElementById("game");
 const SAVE_KEY="saigononazo-save-v1",SETTINGS_KEY="saigononazo-settings-v1";
-const defaultSettings={volume:70,textSpeed:45};
+const defaultSettings={volume:70,bgmVolume:70,seVolume:70,textSpeed:45,instantText:false,soundCaptions:false};
 let playerName="";
 let openingIndex=0;
 let currentScene="opening";
@@ -110,11 +110,12 @@ const SaveData=(()=>{
 // SAVE_DATA_END
 
 function loadSettings(){
- try{return {...defaultSettings,...JSON.parse(localStorage.getItem(SETTINGS_KEY))}}catch{return {...defaultSettings}}
+ try{const raw=JSON.parse(localStorage.getItem(SETTINGS_KEY))||{};return {...defaultSettings,bgmVolume:raw.volume??70,seVolume:raw.volume??70,...raw}}catch{return {...defaultSettings}}
 }
 
 function applySettings(){
- GameAudio.setVolume(Number(settings.volume)/100);
+ GameAudio.setVolume(1);
+ GameAudio.setCategoryVolumes?.(Number(settings.bgmVolume)/100,Number(settings.seVolume)/100);
 }
 
 function saveSettings(){
@@ -141,6 +142,7 @@ function saveGame(){
  if(room8State)roomStates.room08={...room8State};
  if(room4State)roomStates.room04={...room4State,angles:Array.isArray(room4State.angles)?[...room4State.angles]:[0,0,0,0,0],rainbow:Array.isArray(room4State.rainbow)?[...room4State.rainbow]:[]};
  const saved=SaveData.create({playerName,currentScene,openingIndex,rooms:roomStates,logs:GameLog.list()});
+ saved.slotMeta={savedAt:new Date().toISOString(),preview:window.DesignUI?.savePreview()||""};
  localStorage.setItem(SAVE_KEY,JSON.stringify(saved));
 }
 
@@ -161,7 +163,7 @@ function clearSave(){
 }
 
 function recordLog(line){
- GameLog.record(line);
+ GameLog.record({...line,logRoom:line.logRoom||currentScene,logGroup:line.logGroup||window.DesignUI?.dialogueGroup||null,logTarget:line.logTarget||window.DesignUI?.inspectionTarget||null});
  saveGame();
 }
 
@@ -479,6 +481,7 @@ function activateDeviceModal(overlay,openerId,initialFocus,onClose){
   release(true);
  }
  function onKeyDown(event){
+  if(game.querySelector(".design-overlay,.save-slot-overlay"))return;
   if(event.key==="Escape"){
    event.preventDefault();event.stopImmediatePropagation();close();
   }else if(event.key==="Tab"){
@@ -489,6 +492,7 @@ function activateDeviceModal(overlay,openerId,initialFocus,onClose){
   }
  }
  function onFocusIn(event){
+  if(game.querySelector(".design-overlay,.save-slot-overlay"))return;
   if(!closed&&!panel.contains(event.target))controls()[0]?.focus({preventScroll:true});
  }
  closeButton.addEventListener("click",close);
@@ -563,7 +567,8 @@ function showPianoScreen(){
   GameAudio.play("memoryMelody");
   showLoggedText(result,`${firstRoomScenario.melody.join("・")}♪`,"room1_piano_correct","investigation","#8f1c1c");
   input.disabled=true;
-  button.textContent=firstRoomState.doorUnlocked?"閉じる":"続ける";
+  button.disabled=true;
+  setTimeout(finish,600);
  });
 }
 
@@ -624,6 +629,7 @@ function showRoomDialog(lines,onComplete,onDisplay){
  // Never stack dialogue overlays. Stacking disposes the older Dialogue controller
  // while leaving its overlay on screen, which makes the conversation impossible to finish.
  if(game.querySelector(".room-dialog-overlay"))return false;
+ window.DesignUI?.beginDialogue(lines);
  const opener=document.activeElement;
  const room=game.querySelector(".room,.late-room");
  if(room)room.inert=true;
@@ -640,12 +646,13 @@ function showRoomDialog(lines,onComplete,onDisplay){
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
  });
  Dialogue.start({lines:expandScenario(lines),messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,skipButton:skip,logButton:log,logArea,dialog:overlay.querySelector(".room-dialog"),isRead:line=>GameLog.has(line.logId),onDisplay:(line,index)=>{
-  recordLog(line);
-  if(onDisplay)onDisplay(line,index);
- },getTextSpeed:()=>settings.textSpeed,onComplete:()=>{
+  if(!line.logSource||line.uiPage===0)recordLog(line.logSource||line);
+  if(!line.logSource||line.uiPage===0){if(onDisplay)onDisplay(line.logSource||line,line.sourceIndex??index);}
+ },getTextSpeed:()=>settings.instantText?0:settings.textSpeed,onComplete:()=>{
   overlay.remove();
   if(room)room.inert=false;
   if(opener?.isConnected&&!opener.disabled)opener.focus({preventScroll:true});
+  window.DesignUI?.endDialogue();
   if(onComplete)onComplete();
  }});
  return true;

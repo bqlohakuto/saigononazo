@@ -11,6 +11,8 @@
   const playing = new Map();
   let context, master;
   let volume = 1;
+  let categoryVolumes={bgm:1,se:1};
+  const category=id=>id==="memoryBand"?"bgm":"se";
 
   function loadFile(id) {
     if (!files.has(id)) {
@@ -132,13 +134,14 @@
       entry.gain = context.createGain();
       entry.source.buffer = buffer;
       entry.source.loop = false;
-      entry.gain.gain.value = sounds[id].gain;
+      entry.gain.gain.value = sounds[id].gain*categoryVolumes[category(id)];
       entry.source.connect(entry.gain);
       entry.gain.connect(master);
       entry.source.onended = () => {
         if (playing.get(id) === entry) stop(id);
       };
       entry.source.start();
+      if(typeof document.dispatchEvent==="function"&&typeof global.CustomEvent==="function")document.dispatchEvent(new global.CustomEvent("game:sound",{detail:{id}}));
       return true;
     } catch (_) {
       if (playing.get(id) === entry) stop(id);
@@ -152,6 +155,10 @@
     if (master) master.gain.value = volume;
   }
 
+  function setCategoryVolumes(bgm,se){
+    categoryVolumes={bgm:Number.isFinite(bgm)?Math.min(1,Math.max(0,bgm)):1,se:Number.isFinite(se)?Math.min(1,Math.max(0,se)):1};
+    playing.forEach((entry,id)=>{if(entry.gain&&!entry.fading)entry.gain.gain.value=sounds[id].gain*categoryVolumes[category(id)]});
+  }
   function pausePage() {
     stopAll();
     try { if (context && context.state !== "closed") context.suspend().catch(() => {}); } catch (_) {}
@@ -160,5 +167,5 @@
   document.addEventListener("visibilitychange", () => { if (document.hidden) pausePage(); });
   global.addEventListener("pagehide", pausePage);
   if (typeof global.fetch === "function") Object.keys(sounds).forEach(loadFile);
-  global.GameAudio = { unlock, play, stop, stopAll, fadeOut, setVolume };
+  global.GameAudio = { unlock, play, stop, stopAll, fadeOut, setVolume,setCategoryVolumes };
 })(window);

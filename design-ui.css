@@ -178,7 +178,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
   left:1%;
 }
 #game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{
-  background-image:url("images/characters/hana-v2/full.png?v=20261011-hana-v2-05");
+  background-image:url("images/characters/hana-v2/full.png?v=20261011-hana-v2-06");
   background-size:contain;
   background-position:center bottom;
   background-repeat:no-repeat;
@@ -198,9 +198,12 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 
 #game .late-room .hana-v2-world{
  position:absolute;left:1.5%;bottom:2%;height:66%;width:23%;
- background:url("images/characters/hana-v2/full.png?v=20261011-hana-v2-05") center bottom/contain no-repeat;
+ background:url("images/characters/hana-v2/full.png?v=20261011-hana-v2-06") center bottom/contain no-repeat;
  z-index:8;pointer-events:none;opacity:.96;
 }
 #game.has-dialogue .hana-v2-world{visibility:hidden}
 @media(max-height:550px){#game .late-room .hana-v2-world{height:65%;width:20%;left:.5%}}
+#game .late-room:has(.othello,.zodiac) .hana-v2-world{
+ left:auto;right:7%;bottom:5%;height:45%;width:18%;
+}
 

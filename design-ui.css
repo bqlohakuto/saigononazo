@@ -164,3 +164,29 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 #game .design-use-prompt{position:absolute;bottom:6%;left:20%;right:20%;z-index:86;background:var(--paper);border:1px solid var(--gold);padding:8px 12px;border-radius:5px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:clamp(11px,1.2cqw,17px)}
 #game .design-use-prompt button{background:var(--paper);border:1px solid var(--paper-line);min-height:32px;padding:5px 12px;white-space:nowrap}
 #game .is-use-target{outline:3px solid var(--gold)!important;outline-offset:3px}
+
+/* Hana v2: full-body exploration and individually rendered facial PNGs.
+   Activate only after each image successfully loads, keeping the previous atlas as fallback. */
+#game .hana-portrait.hana-v2-portrait{
+  background-repeat:no-repeat;
+  background-position:center bottom!important;
+  background-size:contain!important;
+  aspect-ratio:2/3;
+  height:74%;
+  max-width:36%;
+  bottom:21%;
+  left:1%;
+}
+#game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{
+  background-image:url("images/characters/hana-v2/full.png");
+  background-size:contain;
+  background-position:center bottom;
+  background-repeat:no-repeat;
+  width:160%;
+  height:210%;
+  aspect-ratio:auto;
+  bottom:-12%;
+}
+@media(max-height:550px){
+ #game .hana-portrait.hana-v2-portrait{height:73%;bottom:25%}
+}

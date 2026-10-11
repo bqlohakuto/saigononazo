@@ -270,31 +270,36 @@ function endOpening(){
 }
 
 let firstRoomState;
+let firstRoomArtworkObserver;
+const firstRoomKeyboard={image:"images/background/room01/pixel/keyboard.svg",rect:[.263,.437,.472,.056]};
+const firstRoomPoster={image:"images/items/item_poster.png",rect:[.559,.189,.153,.321],paper:true};
 const firstRoomWalls=[
- {id:"front",label:"正面",background:"images/background/room01/room01_front.png"},
- {id:"right",label:"右の壁",background:"images/background/room01/room01_right.png"},
- {id:"back",label:"後ろの壁",background:"images/background/room01/room01_back.png"},
- {id:"left",label:"左の壁",background:"images/background/room01/room01_left.png"}
+ {id:"front",label:"正面",background:"images/background/room01/pixel/room01_front.png"},
+ {id:"right",label:"右の壁",background:"images/background/room01/pixel/room01_right.png"},
+ {id:"back",label:"後ろの壁",background:"images/background/room01/pixel/room01_back.png"},
+ {id:"left",label:"左の壁",background:"images/background/room01/pixel/room01_left.png"}
 ];
 
 function showFirstRoom(savedState){
  currentScene="room01";
+ firstRoomArtworkObserver?.disconnect();
  Dialogue.stop();
  GameAudio.stop("tinnitus");
  firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,hintLevel:0,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,phoneReflectionSeen:false,posterInspected:false,pianoIntroductionSeen:false,nextRoomTransitionSeen:false,viewedWall:"front",highlightEnabled:true,...savedState,hanaIntroduced:savedState?.hanaIntroduced??Number(savedState?.hanaVisits||0)>0,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
  if(!firstRoomWalls.some(wall=>wall.id===firstRoomState.viewedWall))firstRoomState.viewedWall="front";
  game.innerHTML=`
-  <main class="room ${firstRoomState.doorUnlocked?"is-restored":""}" aria-label="第一の部屋">
+  <main class="room first-room ${firstRoomState.doorUnlocked?"is-restored":""}" aria-label="第一の部屋">
    <header class="room-header"><p class="room-label">第一の部屋</p><p class="room-color-status" id="roomColorStatus">${firstRoomState.doorUnlocked?"色を取り戻した部屋":"淡い記憶の部屋"}</p></header>
    <div class="room-stage-wrap">
     <div class="room-stage" id="roomStage" role="group" aria-label="正面">
      <img class="room-background" id="roomBackground" src="${firstRoomWalls.find(wall=>wall.id===firstRoomState.viewedWall).background}" alt="" draggable="false">
+     <img class="first-room-keyboard" id="roomKeyboard" src="${firstRoomKeyboard.image}" alt="" draggable="false" hidden>
      <div class="room-wall" data-wall="front" hidden>
       <button class="object door-object" id="doorButton" aria-label="正面の扉を調べる"><span>正面の扉</span></button>
       <button class="object question-object is-locked" id="questionButton" aria-label="扉の問題文を調べる" disabled><span>問題文</span></button>
       <button class="object hana-object" id="hanaButton" aria-label="ハナに話しかける"><span>ハナ</span></button>
      </div>
-     <div class="room-wall" data-wall="right" hidden><button class="object" id="shelfButton" aria-label="三段棚を調べる"><span>三段棚</span></button><button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><img src="images/items/item_poster.png" alt="" draggable="false"><span>ポスター</span></button></div>
+     <div class="room-wall" data-wall="right" hidden><button class="object" id="shelfButton" aria-label="三段棚を調べる"><span>三段棚</span></button><button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><span class="first-room-poster-paper"><img src="images/items/item_poster.png" alt="" draggable="false"></span><span>ポスター</span></button></div>
      <div class="room-wall" data-wall="back" hidden><button class="object" id="deskButton" aria-label="勉強机を調べる"><span>勉強机</span></button><button class="object item-object is-locked" id="phoneButton" aria-label="携帯電話を調べる" disabled><img src="images/items/phone-closed.png" alt="" draggable="false"><span>携帯電話</span></button></div>
      <div class="room-wall" data-wall="left" hidden><button class="object item-object is-locked" id="pianoButton" aria-label="ピアノを調べる" disabled><span>ピアノ</span></button></div>
     </div>
@@ -312,6 +317,7 @@ function showFirstRoom(savedState){
  document.getElementById("deskButton").addEventListener("click",()=>inspectRoomFurniture("desk"));
  document.getElementById("turnLeftButton").addEventListener("click",()=>turnFirstRoom(-1));
  document.getElementById("turnRightButton").addEventListener("click",()=>turnFirstRoom(1));
+ if(typeof ResizeObserver!=="undefined"){firstRoomArtworkObserver=new ResizeObserver(positionFirstRoomKeyboard);firstRoomArtworkObserver.observe(document.getElementById("roomStage"))}
  renderFirstRoomWall();
  showRoomNotice("気になる場所をクリックしてください。","room1_explore_prompt","narration");
  firstRoomWalls.forEach(wall=>{const background=new Image();background.src=wall.background});
@@ -330,11 +336,23 @@ function showFirstRoom(savedState){
  saveGame();
 }
 
+function positionFirstRoomKeyboard(){
+ const stage=document.getElementById("roomStage"),keyboard=document.getElementById("roomKeyboard");
+ if(!stage||!keyboard)return;
+ keyboard.hidden=firstRoomState.viewedWall!=="left";
+ if(keyboard.hidden)return;
+ const width=stage.clientWidth,height=stage.clientHeight;
+ const scale=Math.max(width/1536,height/1024),artWidth=1536*scale,artHeight=1024*scale;
+ const [x,y,w,h]=firstRoomKeyboard.rect;
+ Object.assign(keyboard.style,{left:`${(width-artWidth)/2+x*artWidth}px`,top:`${(height-artHeight)/2+y*artHeight}px`,width:`${w*artWidth}px`,height:`${h*artHeight}px`});
+}
+
 function renderFirstRoomWall(){
  const wall=firstRoomWalls.find(wall=>wall.id===firstRoomState.viewedWall);
  document.getElementById("roomBackground").setAttribute("src",wall.background);
  document.getElementById("roomStage").setAttribute("aria-label",wall.label);
  document.getElementById("wallLabel").textContent=wall.label;
+ positionFirstRoomKeyboard();
  document.querySelectorAll(".room-wall").forEach(layer=>{layer.hidden=layer.dataset.wall!==wall.id});
 }
 
@@ -348,16 +366,16 @@ function turnFirstRoom(direction){
 // These closeups only display artwork; the existing door logic runs afterward.
 function inspectRoomDoor(){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
- const frames=[{label:"正面の扉（閉）",image:"images/background/room01/room01_door_closeup.png"}];
- if(firstRoomState.doorUnlocked)frames.push({label:"正面の扉（全開）",image:"images/background/room01/room01_door_open.png"});
+ const frames=[{label:"正面の扉（閉）",image:"images/background/room01/pixel/room01_door_closeup.png"}];
+ if(firstRoomState.doorUnlocked)frames.push({label:"正面の扉（全開）",image:"images/background/room01/pixel/room01_door_open.png"});
  showItemInspection({container:game,item:{label:"正面の扉",frames},onContinue:inspectDoor});
 }
 
 function inspectRoomFurniture(id){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
  const items={
-  shelf:{label:"三段棚",image:"images/background/room01/room01_shelf_closeup.png"},
-  desk:{label:"勉強机",image:"images/background/room01/room01_desk_closeup.png"}
+  shelf:{label:"三段棚",image:firstRoomWalls[1].background,crop:[.25,.12,.22,.68]},
+  desk:{label:"勉強机",image:firstRoomWalls[2].background,crop:[.24,.30,.52,.54]}
  };
  if(items[id])showItemInspection({container:game,item:items[id]});
 }
@@ -425,7 +443,7 @@ function hasCheckedAllMail(folder){
 
 function inspectRoomItem(id){
  if(!firstRoomState.questionSeen||game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
- const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ",image:"images/background/room01/room01_keyboard_closeup.png"},poster:{id:"poster",label:"ポスター",image:"images/items/item_poster.png"}};
+ const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ",image:firstRoomWalls[3].background,crop:[.22,.20,.56,.63],layers:[firstRoomKeyboard]},poster:{id:"poster",label:"ポスター",image:firstRoomWalls[1].background,crop:[.53,.15,.21,.40],layers:[firstRoomPoster]}};
  const item=items[id];if(!item)return;
  showItemInspection({container:game,item,onContinue:()=>{
   if(id==="phone"){
@@ -617,7 +635,7 @@ function showUnlockedDoorChoices(){
 function showNextRoomBoundary(){
  // Use the half-open door as a brief transition image, never as a clickable inspection frame.
  Dialogue.stop();
- game.innerHTML=`<div class="room-transition" aria-label="扉を通って次の部屋へ"><img src="images/background/room01/room01_door_halfopen.png" alt="半開きの扉"></div>`;
+ game.innerHTML=`<div class="room-transition" aria-label="扉を通って次の部屋へ"><img src="images/background/room01/pixel/room01_door_halfopen.png" alt="半開きの扉"></div>`;
  setTimeout(()=>{if(game.querySelector(".room-transition"))showSecondRoom(roomStates.room02)},1100);
 }
 

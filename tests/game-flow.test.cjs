@@ -249,7 +249,7 @@ test("old saves restore mail, wall and unlocked state with a safe phone-introduc
   assert.deepEqual(h.state.openedSent, allMail.openedSent);
   assert.equal(h.query(".room").classList.contains("is-restored"), true);
   assert.equal(h.query("#doorButton").classList.contains("is-unlocked"), true);
-  assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/room01_left.png");
+  assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/pixel/room01_left.png");
   assert.equal(h.query('[data-wall="left"]').hidden, false);
   assert.equal(h.query('[data-wall="front"]').hidden, true);
   assert.equal(h.query("#phoneButton").disabled, false);
@@ -276,13 +276,13 @@ test("all four accepted backgrounds follow turns and remain the same after unloc
     for (const direction of directions) {
       assert.equal(h.state.viewedWall, direction);
       assert.equal(h.saved.state.viewedWall, direction);
-      assert.equal(h.query("#roomBackground").getAttribute("src"), `images/background/room01/room01_${direction}.png`);
+      assert.equal(h.query("#roomBackground").getAttribute("src"), `images/background/room01/pixel/room01_${direction}.png`);
       for (const layer of directions) assert.equal(h.query(`[data-wall="${layer}"]`).hidden, layer !== direction);
       h.click("#turnRightButton");
     }
     assert.equal(h.state.viewedWall, "front");
     h.click("#turnLeftButton");
-    assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/room01_left.png");
+    assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/pixel/room01_left.png");
     h.click("#turnRightButton");
   }
 });
@@ -292,7 +292,7 @@ test("closed door preview is manual and cancelable; continuing preserves the ori
   h.query("#doorButton").focus();
   const before = h.saved, saves = h.saveCount;
   h.click("#doorButton");
-  assert.equal(h.query(".inspection-image").src, "images/background/room01/room01_door_closeup.png");
+  assert.equal(h.query(".inspection-image").src, "images/background/room01/pixel/room01_door_closeup.png");
   assert.equal(h.query(".room").inert, true);
   h.tick(20000);
   assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
@@ -317,18 +317,18 @@ test("closed door preview is manual and cancelable; continuing preserves the ori
   assert.equal(h.query("#pianoButton").disabled, false);
 });
 
-test("unlocked door shows closed, half-open and open frames manually without changing progression", () => {
+test("unlocked door shows the two necessary closed and open frames manually without changing progression", () => {
   const state = { ...unlockedItems, doorUnlocked: true, melodySolved: true, viewedWall: "front" };
-  const frames = ["closeup", "halfopen", "open"];
+  const frames = ["closeup", "open"];
   for (let cancelAt = 0; cancelAt < frames.length; cancelAt++) {
     const h = harness(); h.room(state);
     h.query("#doorButton").focus();
     const before = h.saved, saves = h.saveCount;
     h.click("#doorButton");
     for (let index = 0; index <= cancelAt; index++) {
-      assert.equal(h.query(".inspection-image").src, `images/background/room01/room01_door_${frames[index]}.png`);
+      assert.equal(h.query(".inspection-image").src, `images/background/room01/pixel/room01_door_${frames[index]}.png`);
       h.tick(20000);
-      assert.equal(h.query(".inspection-image").src, `images/background/room01/room01_door_${frames[index]}.png`);
+      assert.equal(h.query(".inspection-image").src, `images/background/room01/pixel/room01_door_${frames[index]}.png`);
       assert.equal(h.query(".room").inert, true);
       assert.deepEqual(h.saved, before);
       assert.equal(h.saveCount, saves);
@@ -343,7 +343,7 @@ test("unlocked door shows closed, half-open and open frames manually without cha
   }
   const h = harness(); h.room(state); h.query("#doorButton").focus(); h.click("#doorButton");
   for (const frame of frames) {
-    assert.equal(h.query(".inspection-image").src, `images/background/room01/room01_door_${frame}.png`);
+    assert.equal(h.query(".inspection-image").src, `images/background/room01/pixel/room01_door_${frame}.png`);
     h.click(".inspection-art-button");
   }
   const original = harness(); original.room(state); original.run("inspectDoor()");
@@ -363,7 +363,7 @@ test("shelf and desk previews stay available without consuming progression or wr
       opener.focus();
       const before = h.saved, saves = h.saveCount;
       h.click(`#${item}Button`);
-      assert.equal(h.query(".inspection-image").src, `images/background/room01/room01_${item}_closeup.png`);
+      assert.equal(h.query(".inspection-image").src, `images/background/room01/pixel/room01_${wall}.png`);
       assert.equal(h.query(".room").inert, true);
       h.click("#turnRightButton");
       assert.equal(h.state.viewedWall, wall);
@@ -392,8 +392,8 @@ test("poster and keyboard retain artwork and question gates; inspection commits 
     const before = h.saved, saves = h.saveCount;
     h.click(`#${item}Button`);
     const expectedImage = item === "poster"
-      ? "images/items/item_poster.png"
-      : `images/background/room01/room01_${image}_closeup.png`;
+      ? "images/background/room01/pixel/room01_right.png"
+      : "images/background/room01/pixel/room01_left.png";
     assert.equal(h.query(".inspection-image").src, expectedImage);
     assert.equal(h.query(".room").inert, true);
     h.key("Escape");
@@ -818,4 +818,35 @@ test("unlocked door supports continued exploration, next-room transition and a r
   assert.equal(resumed.state.nextRoomTransitionSeen, false);
   assert.equal(resumed.saved.state.nextRoomTransitionSeen, false);
   assert.equal(resumed.state.doorUnlocked, true);
+});
+
+
+test("shared piano artwork keeps its exact keyboard layer aligned through cover resizing", () => {
+ const h=harness();h.room({...unlockedItems,viewedWall:"left"});
+ const stage=h.query("#roomStage"),keyboard=h.query("#roomKeyboard");
+ for(const [width,height] of [[1440,810],[852,479],[600,700]]){
+  stage.clientWidth=width;stage.clientHeight=height;h.run("positionFirstRoomKeyboard()");
+  const scale=Math.max(width/1536,height/1024);
+  assert.equal(keyboard.hidden,false);
+  assert.equal(keyboard.style.left,`${(width-1536*scale)/2+.263*1536*scale}px`);
+  assert.equal(keyboard.style.top,`${(height-1024*scale)/2+.437*1024*scale}px`);
+ }
+ h.click("#pianoButton");
+ assert.equal(h.query(".inspection-image").src,h.query("#roomBackground").getAttribute("src"));
+ assert.equal(h.query(".inspection-art-layer").children[0].src,keyboard.getAttribute("src"));
+ h.key("Escape");h.click("#turnRightButton");assert.equal(keyboard.hidden,true);
+});
+
+test("the keyboard layer has four exact groups of two and three black keys", () => {
+ const svg=fs.readFileSync(path.join(__dirname,"..","images/background/room01/pixel/keyboard.svg"),"utf8");
+ const blacks=[...svg.matchAll(/<rect x="(\d+)" y="7" width="16" height="30"/g)].map(m=>Number(m[1]));
+ const expected=Array.from({length:4},(_,octave)=>[1,2,4,5,6].map(boundary=>(octave*7+boundary)*26-8)).flat();
+ assert.deepEqual(blacks,expected);
+ const groups=[];
+ for(const [index,x] of blacks.entries()){
+  if(index===0||x-blacks[index-1]>26)groups.push(1);
+  else groups[groups.length-1]++;
+ }
+ assert.deepEqual(groups,[2,3,2,3,2,3,2,3]);
+ assert.equal(groups.at(-1),3,"the rightmost black-key group must contain exactly three keys");
 });

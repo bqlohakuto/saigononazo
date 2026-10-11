@@ -37,6 +37,7 @@
   artButton.setAttribute("aria-label",`${item.label}を確認して次へ`);
 
   let image;
+  let cropView;
   if(frames[0].image){
    image=document.createElement("img");
    image.className="inspection-image";
@@ -45,6 +46,24 @@
    title.textContent=frames[0].label;
    image.draggable=false;
    artButton.append(image);
+   if(frames[0].crop){
+    const frame=frames[0],[x,y,w,h]=frame.crop,ratio=w*1.5/h;
+    cropView=document.createElement("span");
+    cropView.className="inspection-crop";
+    cropView.style.aspectRatio=String(ratio);
+    cropView.style.width=`min(100%, ${ratio*48}dvh)`;
+    Object.assign(image.style,{position:"absolute",left:`${-x/w*100}%`,top:`${-y/h*100}%`,width:`${100/w}%`,height:`${100/h}%`,objectFit:"fill"});
+    cropView.append(image);
+    for(const layer of frame.layers||[]){
+     const [lx,ly,lw,lh]=layer.rect;
+     const holder=document.createElement("span");holder.className="inspection-art-layer";
+     Object.assign(holder.style,{left:`${(lx-x)/w*100}%`,top:`${(ly-y)/h*100}%`,width:`${lw/w*100}%`,height:`${lh/h*100}%`});
+     const layerImage=document.createElement("img");layerImage.src=layer.image;layerImage.alt="";layerImage.draggable=false;
+     if(layer.paper)holder.classList.add("poster-paper-content");
+     holder.append(layerImage);cropView.append(holder);
+    }
+    artButton.append(cropView);
+   }
   }else{
    const placeholder=document.createElement("div");
    placeholder.className="inspection-placeholder";

@@ -9,6 +9,21 @@
   const button=(label,fn,cls='')=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.className=cls;b.onclick=fn;return b};
   const paragraph=text=>{const p=document.createElement('p');p.textContent=text;return p};
   const portraitExpressions=['gentle','happy','thought','surprise','concern','serious'];
+  const hanaV2Names=['gentle','happy','thought','surprise','concern','serious','sleepy','neutral','excited'];
+  const hanaV2Base='images/characters/hana-v2/';
+  const hanaV2Ready=new Set();
+  const hanaV2Url=name=>hanaV2Base+name+'.png';
+  for(const name of ['full',...hanaV2Names]){
+    const img=new Image();
+    img.onload=()=>{
+      hanaV2Ready.add(name);
+      if(name==='full')game.classList.add('hana-v2-full-ready');
+      const portrait=game.querySelector('.hana-portrait');
+      if(portrait)setExpression(portrait);
+    };
+    img.onerror=()=>{};
+    img.src=hanaV2Url(name);
+  }
   function panel(title){
     if(modal)modal.close();
     const opener=document.activeElement,o=document.createElement('div');o.className='design-overlay';
@@ -138,14 +153,28 @@
     const restore=button('',e=>{} ,'dialogue-restore');restore.setAttribute('aria-label','会話を再表示');restore.hidden=true;restore.onclick=e=>{e.stopPropagation();restore.hidden=true;p.classList.remove('dialog-hidden');Dialogue.resume()};overlay.append(restore);
     p.addEventListener('click',e=>{if(!e.target.closest('button,input'))Dialogue.advance()});syncPlayback();
   }
-  function setExpression(p){p.style.backgroundPosition=`${(expression%3)*50}% ${Math.floor(expression/3)*100}%`;p.dataset.expression=portraitExpressions[expression]}
+  function setExpression(p){
+    const name=hanaV2Names[expression]||portraitExpressions[0];
+    if(hanaV2Ready.has(name)){
+      p.classList.add('hana-v2-portrait');
+      p.style.backgroundImage='url("'+hanaV2Url(name)+'")';
+      p.style.backgroundSize='contain';
+      p.style.backgroundPosition='center bottom';
+    }else{
+      p.classList.remove('hana-v2-portrait');
+      p.style.backgroundImage='';
+      p.style.backgroundSize='';
+      p.style.backgroundPosition=`${(expression%3)*50}% ${Math.floor(expression/3)*100}%`;
+    }
+    p.dataset.expression=name;
+  }
   function displayLine(line,kind){
     const memoryVisual=window.MemoryVisuals?.get(currentScene,line);
     const flashback=!!memoryVisual;
     const overlay=game.querySelector('.room-dialog-overlay');
     if(overlay){if(memoryVisual)overlay.dataset.memoryStage=memoryVisual.reveal;else delete overlay.dataset.memoryStage;}
     if(flashback)portraitVisible=false;else if(kind==='heroine'&&currentScene!=='opening')portraitVisible=true;
-    if(line.expression)expression=Math.max(0,portraitExpressions.indexOf(line.expression));else if(kind==='heroine'){expression=/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}
+    if(line.expression){const choice=hanaV2Names.indexOf(line.expression);expression=choice>=0?choice:0}else if(kind==='heroine'){expression=/眠|ふぁ|スー、スー/.test(line.text)?6:/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}
     decorateDialogue(game.querySelector('.room-dialog-overlay')||document.createElement('div'));
     const p=game.querySelector('.hana-portrait');if(p){p.hidden=!portraitVisible;setExpression(p)}
     const row=game.querySelector('.message-row'),message=row?.querySelector('.message');

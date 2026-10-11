@@ -135,6 +135,17 @@
   function investigationRevision(el){const s=roomStates[currentScene]||{};const base=['doorUnlocked','unlocked','completed','memorySeen'].map(k=>String(!!s[k])).join(':');return el?.id==='hanaButton'?base+'|topics:'+window.HanaChoiceUI.getAvailableChoiceIds().join(','):base}
   function syncHud(){
     const actions=game.querySelector('.gameplay-hud-actions');if(actions&&!actions.dataset.design){actions.dataset.design='true';actions.replaceChildren(button('持ち物',inventory,'gameplay-top-button'),button('記録',records,'gameplay-top-button'),button('ヒント',hints,'gameplay-top-button'),button('設定',options,'gameplay-top-button'))}
+    // Full-body character for the later rooms; disappears while talking or after the final farewell.
+    const late=game.querySelector('.late-room');
+    const mayShow=['room05','room06','room07','room08'].includes(currentScene);
+    if(late&&mayShow){
+      let world=late.querySelector('.hana-v2-world');
+      const endingGone=currentScene==='room08'&&
+        (roomStates.room08?.ended||roomStates.room08?.solved||roomStates.room08?.finalTalkSeen);
+      if(!endingGone&&hanaV2Ready.has('full')){
+        if(!world){world=document.createElement('div');world.className='hana-v2-world';world.setAttribute('role','img');world.setAttribute('aria-label','ハナ');late.append(world)}
+      }else world?.remove();
+    }
     game.querySelectorAll('.object,.late-object,#r5Board').forEach(el=>{const key=currentScene+':'+(el.id||el.dataset.item||el.textContent.trim());const seen=state().investigated[key];el.classList.toggle('is-investigated',seen===true||seen===investigationRevision(el));if(hooked.has(el))return;hooked.add(el);el.addEventListener('click',event=>{if(pendingUse){if(el.id!==pendingUse.target){event.preventDefault();event.stopImmediatePropagation();const p=game.querySelector('.design-use-prompt p');if(p)p.textContent='ここでは使えません。使う場所を選ぶか、キャンセルしてください。';return}const item=pendingUse;cancelUse();setTimeout(()=>game.querySelector(`[data-tile="${item.id}"]`)?.click(),0)}inspectionTarget=el.querySelector('span,strong')?.textContent||el.getAttribute('aria-label')||el.textContent.trim();state().investigated[key]=investigationRevision(el);el.classList.add('is-investigated');saveGame()},{capture:true})});
     game.querySelectorAll('.hana-choice-button,[data-choice]').forEach(el=>{if(choiceHooked.has(el))return;choiceHooked.add(el);const born=performance.now();el.addEventListener('click',e=>{if(performance.now()-born<250){e.preventDefault();e.stopImmediatePropagation()}},{capture:true})});
     game.querySelectorAll('.device-overlay section').forEach(section=>{if(section.querySelector('.design-op-button')||!section.querySelector('input,.room2-palette,.r4-panels,.r5-counter-grid,.r6-othello,.room3-letterboard'))return;section.append(button('操作説明',help,'design-op-button'))});

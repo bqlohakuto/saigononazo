@@ -140,7 +140,10 @@
   }
   function setExpression(p){p.style.backgroundPosition=`${(expression%3)*50}% ${Math.floor(expression/3)*100}%`;p.dataset.expression=portraitExpressions[expression]}
   function displayLine(line,kind){
-    const id=line.logId||'',flashback=/memory|flashback|^r[4-7]f\d|^r[4-7]_memory/.test(id);
+    const memoryVisual=window.MemoryVisuals?.get(currentScene,line);
+    const flashback=!!memoryVisual;
+    const overlay=game.querySelector('.room-dialog-overlay');
+    if(overlay){if(memoryVisual)overlay.dataset.memoryStage=memoryVisual.reveal;else delete overlay.dataset.memoryStage;}
     if(flashback)portraitVisible=false;else if(kind==='heroine'&&currentScene!=='opening')portraitVisible=true;
     if(line.expression)expression=Math.max(0,portraitExpressions.indexOf(line.expression));else if(kind==='heroine'){expression=/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}
     decorateDialogue(game.querySelector('.room-dialog-overlay')||document.createElement('div'));
@@ -152,7 +155,7 @@
   }
   function syncPlayback(){game.querySelectorAll('[data-design-auto]').forEach(b=>b.setAttribute('aria-pressed',String(Dialogue.isAutoEnabled())));game.querySelectorAll('[data-design-skip]').forEach(b=>{const source=game.querySelector('.room-dialog .skip-button');b.disabled=!source||source.disabled;b.setAttribute('aria-pressed',source?.getAttribute('aria-pressed')||'false')})}
   function onInstall(c){cancelUse();config=c;recordRoom=c.sceneId||currentScene;inspectionTarget='';if(!state().visited.includes(recordRoom))state().visited.push(recordRoom);queueMicrotask(()=>{syncHud();if(!localStorage.getItem('saigononazo-help-seen')){localStorage.setItem('saigononazo-help-seen','1');if(!game.querySelector('.room-dialog-overlay,.device-overlay'))help()}})}
-  function beginDialogue(lines){dialogueGroup=currentScene+':'+Date.now()+':'+(++sequence);portraitVisible=lines.some(l=>l.speaker==='ハナ')&&!lines.some(l=>/memory|flashback/.test(l.logId||''));expression=0}
+  function beginDialogue(lines){dialogueGroup=currentScene+':'+Date.now()+':'+(++sequence);portraitVisible=lines.some(l=>l.speaker==='ハナ')&&!lines.some(l=>window.MemoryVisuals?.get(currentScene,l));expression=0}
   function endDialogue(){dialogueGroup='';game.classList.remove('has-dialogue')}
   function savePreview(){
     const image=game.querySelector('.room-background,.room-bg');if(image?.getAttribute('src'))return image.getAttribute('src');

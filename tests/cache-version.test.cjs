@@ -28,6 +28,7 @@ const expectedAssets = [
   "manual-save.js",
   "gameplay-ui.js",
   "hana-identity-ui.js",
+  "memory-visuals.js",
   "design-ui.js"
 ];
 
@@ -71,6 +72,7 @@ test("script load order remains intentional", () => {
     "manual-save.js",
     "gameplay-ui.js",
     "hana-identity-ui.js",
+  "memory-visuals.js",
   "design-ui.js"
   ]);
 });

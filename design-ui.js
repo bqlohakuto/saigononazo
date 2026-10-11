@@ -12,7 +12,7 @@
   const hanaV2Names=['gentle','happy','thought','surprise','concern','serious','sleepy','neutral','excited'];
   const hanaV2Base='images/characters/hana-v2/';
   const hanaV2Ready=new Set();
-  const hanaV2Url=name=>hanaV2Base+name+'.png?v=20261011-hana-v2-03';
+  const hanaV2Url=name=>hanaV2Base+name+'.png?v=20261011-hana-v2-04';
   for(const name of ['full',...hanaV2Names]){
     const img=new Image();
     img.onload=()=>{

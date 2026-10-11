@@ -1,3 +1,4 @@
+@font-face{font-family:'DotGothic16';src:url('fonts/DotGothic16-Regular.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
 /* Confirmed UI direction, 2026-10-11. Scenario and puzzle colors are independent. */
 :root{--paper:#faf7ee;--ink:#35332e;--gold:#ae9157;--paper-line:#d9ccb0;--ui-duration:150ms}
 body{background:#171b19!important;font-family:"Yu Gothic",Meiryo,sans-serif}
@@ -207,3 +208,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
  left:auto;right:7%;bottom:5%;height:45%;width:18%;
 }
 
+
+/* Shared pixel typography from the opening through room 8. */
+body,#game{font-family:"DotGothic16","Yu Gothic",Meiryo,sans-serif;font-synthesis:none}
+#game :is(button,input,select,textarea,h1,h2,h3){font-family:inherit}

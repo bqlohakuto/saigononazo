@@ -1,5 +1,14 @@
 // Shared presentation only: puzzle rules and story progression stay in their room modules.
 (() => {
+  // Resolve the local font before any title action creates paginated dialogue.
+  let fontReady=!document.fonts;
+  const fontLoading=document.fonts?document.fonts.load('16px "DotGothic16"').catch(()=>[]).then(()=>{fontReady=true}):Promise.resolve();
+  document.addEventListener('click',event=>{
+    const target=event.target.closest?.('.title-screen button');
+    if(fontReady||!target||target.disabled)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    fontLoading.then(()=>{if(target.isConnected)target.click()});
+  },true);
   let config=null,sequence=0,dialogueGroup='',inspectionTarget='',modal=null,portraitVisible=false,pendingUse=null;
   let recordRoom='',recordCategory=localStorage.getItem('saigononazo-record-category')||'all',recordPage=0,expression=0;
   const hooked=new WeakSet(),inputHooked=new WeakSet(),choiceHooked=new WeakSet();
@@ -53,7 +62,7 @@
     const width=Math.max(120,area.getBoundingClientRect().width*.65);
     const w=game.getBoundingClientRect().width,large=document.documentElement.dataset.gameTextSize==='large';
     const size=large?Math.max(18,Math.min(32,w*.022)):Math.max(15,Math.min(26,w*.018));
-    return lines.flatMap((line,index)=>splitText(line.text,width,`${size}px "Yu Gothic", Meiryo, sans-serif`,Math.max(1,Math.min(3,Math.floor((area.clientHeight-(line.speaker==='ハナ'||line.speaker==='花音'?size:0))/(size*1.55))))).map((text,uiPage)=>({...line,text,logSource:line,uiPage,sourceIndex:index,uiWasRead:!!isRead?.(line)})));
+    return lines.flatMap((line,index)=>splitText(line.text,width,`${size}px "DotGothic16", "Yu Gothic", Meiryo, sans-serif`,Math.max(1,Math.min(3,Math.floor((area.clientHeight-(line.speaker==='ハナ'||line.speaker==='花音'?size:0))/(size*1.55))))).map((text,uiPage)=>({...line,text,logSource:line,uiPage,sourceIndex:index,uiWasRead:!!isRead?.(line)})));
   }
   function pageText(content,text){
     const area=document.createElement('p');area.className='design-page';content.append(area);

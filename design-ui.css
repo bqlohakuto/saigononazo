@@ -177,27 +177,28 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
   bottom:21%;
   left:1%;
 }
-#game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana){
-  top:auto;bottom:7%;width:26%;height:72%;
-}
 #game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{
-  background-image:url("images/characters/hana-v2/full.png?v=20261011-hana-v2-04");
+  background-image:url("images/characters/hana-v2/full.png?v=20261011-hana-v2-05");
   background-size:contain;
   background-position:center bottom;
   background-repeat:no-repeat;
   top:auto;
-  width:100%;
-  height:100%;
+  right:auto;
+  width:26cqw;
+  height:40.5cqw;
   aspect-ratio:auto;
-  bottom:0;
+  bottom:-6.1875cqw;
 }
+#game.hana-v2-full-ready .room2-hana::before{bottom:-9.5625cqw}
+#game.hana-v2-full-ready .room3-hana::before{bottom:-5.625cqw}
+#game.hana-v2-full-ready .r4hana::before{bottom:-5.0625cqw}
 @media(max-height:550px){
  #game .hana-portrait.hana-v2-portrait{height:73%;bottom:25%}
 }
 
 #game .late-room .hana-v2-world{
  position:absolute;left:1.5%;bottom:2%;height:66%;width:23%;
- background:url("images/characters/hana-v2/full.png?v=20261011-hana-v2-04") center bottom/contain no-repeat;
+ background:url("images/characters/hana-v2/full.png?v=20261011-hana-v2-05") center bottom/contain no-repeat;
  z-index:8;pointer-events:none;opacity:.96;
 }
 #game.has-dialogue .hana-v2-world{visibility:hidden}

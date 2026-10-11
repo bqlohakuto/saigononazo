@@ -190,3 +190,11 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 @media(max-height:550px){
  #game .hana-portrait.hana-v2-portrait{height:73%;bottom:25%}
 }
+
+#game .late-room .hana-v2-world{
+ position:absolute;left:1.5%;bottom:2%;height:66%;width:23%;
+ background:url("images/characters/hana-v2/full.png") center bottom/contain no-repeat;
+ z-index:8;pointer-events:none;opacity:.96;
+}
+#game.has-dialogue .hana-v2-world{visibility:hidden}
+@media(max-height:550px){#game .late-room .hana-v2-world{height:65%;width:20%;left:.5%}}

@@ -137,7 +137,7 @@ async function runCase(spec) {
       'Door did not enter opening state');
     await page.waitForTimeout(1800); // Wait for the 1.5s panel animation to complete.
     const openMatrix = await page.locator('.pixel-opening-door .door-panel').evaluate(el => getComputedStyle(el).transform);
-    assert.match(openMatrix, /matrix\\(/, 'Animated door must have a CSS transform');
+    assert.match(openMatrix, /matrix\(/, 'Animated door must have a CSS transform');
     await shot('07-door-open');
 
     await advanceTo('opening_41');

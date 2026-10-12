@@ -18,6 +18,20 @@
 
 
 
+## 現行実装・机とハナの前後関係（2026-10-13 完了）
+
+- **この節が現行mainの状態。以下の「未実装」「採用待ち」は当時の履歴であり、現在には当てはまらない。**
+- 採用原画 `images/background/room02/room02_adopted.webp` (1672×941) はそのまま保管。
+- `scripts/split_room02.py` によって、採用原画の同じ画素を**背景（机領域透明）** `room02_bg_nodesk.webp` と**机・ブロック・椅子の前景（周囲透明）** `room02_desk_foreground.webp` に分離。2枚を重ねると原画と表示RGBが完全一致することを検証。原画の描き直し、ブロック修正、謎の変更は行わない。
+- レイヤー順: 背景 z0 → ハナ z4 → 机前景 z5。操作ボタンは扉z7、机z7、ブロックz8として、机前景は `pointer-events:none` でタッチを妨げない。
+- `room2-hana` を左64%・上31%へ移動、ハナv8の描画幅21.25cqw/高さ33.2cqwへ縮小、頭上の調査マーク位置も調整。既存のアイドル・表情選択・会話・クリック処理は維持。
+- `room2.js` は新背景画像と机前景画像を参照、`style.css` と `design-ui.css` を更新。CSS/JSキャッシュ版は `20261013-room02-depth-02`。
+- PC Chromium 1366×768 / スマホ横向きWebKit 852×393で**公開ブラウザ検証成功**: https://github.com/bqlohakuto/saigononazo/actions/runs/38270055080
+- 実画面 (PC/横向き、謎解きモーダルを含む): https://github.com/bqlohakuto/saigononazo/actions/runs/38270055080/artifacts/11757145458
+- 自動テストで透明アルファ領域、背景・ハナ・机のz-index、原画サイズの両層、公開画像200、クリック判定、赤青各5種類、5つの解答枠、JSエラー0を確認。オープニングの回帰も成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38270054961
+- **未変更**: 扉の絵、机と5枠の絵、シナリオ、台詞、ランダム正解、HIT/BLOW、8回制限、回想、進行、保存。
+- iPhone実機ではなくWebKitエンジンによる横向き確認。旧 `game-flow.test.cjs` の既知3失敗は今回の作業範囲外。
+
 ## 扉の素材方針（2026-10-12 ユーザー決定）
 
 - **第2の木製扉は第1の部屋と全く同じ採用済みデザインを使う。新しく描かない。**

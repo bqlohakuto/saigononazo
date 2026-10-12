@@ -1,0 +1,44 @@
+name: Public opening asset HTTP smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/public-opening-asset.yml'
+      - 'index.html'
+      - 'design-ui.css'
+      - 'images/pixel-ui/white-room-fine.png'
+      - 'images/pixel-ui/hana-v8/**'
+      - 'opening-sequence.js'
+
+permissions:
+  contents: read
+
+jobs:
+  asset-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check source regression tests
+        run: node --test tests/opening-source.test.cjs tests/opening-sequence.test.cjs tests/pixel-opening-state.test.cjs tests/cache-version.test.cjs
+      - name: Check published HTML, fine room image and Hana
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=https://bqlohakuto.github.io/saigononazo
+          expected=$(sed -n 's/.*design-ui[.]css?v=\([^"]*\)".*/\1/p' index.html | head -n 1)
+          for attempt in $(seq 1 20); do
+            curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "$base/?asset-check=$GITHUB_SHA-$attempt" -o "$RUNNER_TEMP/index.html"
+            if grep -Fq "design-ui.css?v=$expected" "$RUNNER_TEMP/index.html"; then break; fi
+            sleep 5
+          done
+          grep -Fq "design-ui.css?v=$expected" "$RUNNER_TEMP/index.html"
+          curl -fsSL --retry 4 "$base/design-ui.css?v=$expected" -o "$RUNNER_TEMP/design-ui.css"
+          grep -Fq 'white-room-fine.png' "$RUNNER_TEMP/design-ui.css"
+          curl -fsSL --retry 4 "$base/images/pixel-ui/white-room-fine.png?asset-check=$GITHUB_SHA" -o "$RUNNER_TEMP/white-room-fine.png"
+          node -e "const fs=require('fs'),assert=require('assert');const x=fs.readFileSync(process.argv[1]);assert(x.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])));const w=x.readUInt32BE(16),h=x.readUInt32BE(20);assert(w>0&&h>0);console.log('PUBLIC PNG PASS',w,h,x.length)" "$RUNNER_TEMP/white-room-fine.png"
+          curl -fsSL --retry 4 "$base/images/pixel-ui/hana-v8/idle/01.png" -o "$RUNNER_TEMP/hana.png"
+          node -e "const x=require('fs').readFileSync(process.argv[1]);require('assert').equal(x.toString('hex',1,4),'504e47');console.log('PUBLIC HANA PNG PASS',x.length)" "$RUNNER_TEMP/hana.png"
+          echo "PUBLIC asset HTTP PASS: latest version, fine room PNG, Hana PNG"

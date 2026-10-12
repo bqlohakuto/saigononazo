@@ -203,3 +203,4 @@
 - 開眼演出（3秒）を送らずに撮影すると黒い瞼に覆われる。スクリーンショット撮影は完了後に行うように変更。さらに扉表示（0.9秒）・開扉（1.5秒）も完了後に撮影する追加テストを用意。
 - `tests/public-opening.browser.cjs`, `.github/workflows/public-opening-visual.yml`, `.github/workflows/public-opening-chrome.yml`, `.github/workflows/public-opening-asset.yml`, `docs/PIXEL_ART_ROADMAP.md` をmainへ保存済み。
 - 第2以降の画像の差し替えは未実施。既存3件の `game-flow.test.cjs` 失敗は別件として残す。iPhone/Android実機での検証も未実施。
+- PC Chromiumと**スマホ横向きWebKit（Safari系描画エンジン）**の公開実画面検証も成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38246228857 。扉の表示／開閉アニメーション後の画面も撮影して確認。これはWebKitシミュレーションでありiPhone実機ではない。

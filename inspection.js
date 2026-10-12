@@ -60,6 +60,7 @@
      Object.assign(holder.style,{left:`${(lx-x)/w*100}%`,top:`${(ly-y)/h*100}%`,width:`${lw/w*100}%`,height:`${lh/h*100}%`});
      const layerImage=document.createElement("img");layerImage.src=layer.image;layerImage.alt="";layerImage.draggable=false;
      if(layer.paper)holder.classList.add("poster-paper-content");
+     if(layer.phoneOnDesk)holder.classList.add("phone-on-desk");
      holder.append(layerImage);cropView.append(holder);
     }
     artButton.append(cropView);

@@ -272,7 +272,8 @@ function endOpening(){
 let firstRoomState;
 let firstRoomArtworkObserver;
 const firstRoomKeyboard={image:"images/background/room01/pixel/keyboard.svg?v=20261012-piano-perspective-01",rect:[.263,.437,.472,.056]};
-const firstRoomPoster={image:"images/items/item_poster.png?v=20261012-pixel-items-01",rect:[.559,.189,.153,.321],paper:true};
+const firstRoomPoster={image:"images/items/item_poster.png?v=20261012-pixel-items-01",rect:[863/1536,195/1024,230/1536,326/1024],paper:true};
+const firstRoomPhone={image:"images/items/phone-closed.png?v=20261012-pixel-items-01",rect:[927/1536,398/1024,100/1536,40/1024],phoneOnDesk:true};
 const firstRoomWalls=[
  {id:"front",label:"正面",background:"images/background/room01/pixel/room01_front.png"},
  {id:"right",label:"右の壁",background:"images/background/room01/pixel/room01_right.png"},
@@ -300,7 +301,7 @@ function showFirstRoom(savedState){
       <button class="object hana-object" id="hanaButton" aria-label="ハナに話しかける"><span>ハナ</span></button>
      </div>
      <div class="room-wall" data-wall="right" hidden><button class="object" id="shelfButton" aria-label="三段棚を調べる"><span>三段棚</span></button><button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><span class="first-room-poster-paper"><img src="images/items/item_poster.png?v=20261012-pixel-items-01" alt="" draggable="false"></span><span>ポスター</span></button></div>
-     <div class="room-wall" data-wall="back" hidden><button class="object" id="deskButton" aria-label="勉強机を調べる"><span>勉強机</span></button><button class="object item-object is-locked" id="phoneButton" aria-label="携帯電話を調べる" disabled><img src="images/items/phone-closed.png?v=20261012-pixel-items-01" alt="" draggable="false"><span>携帯電話</span></button></div>
+     <div class="room-wall" data-wall="back" hidden><button class="object" id="deskButton" aria-label="勉強机を調べる"><span>勉強机</span></button><button class="object item-object phone-on-desk is-locked" id="phoneButton" aria-label="携帯電話を調べる" disabled><img src="images/items/phone-closed.png?v=20261012-pixel-items-01" alt="" draggable="false"><span>携帯電話</span></button></div>
      <div class="room-wall" data-wall="left" hidden><button class="object item-object is-locked" id="pianoButton" aria-label="ピアノを調べる" disabled><span>ピアノ</span></button></div>
     </div>
    </div>
@@ -338,10 +339,17 @@ function showFirstRoom(savedState){
 function positionFirstRoomKeyboard(){
  const stage=document.getElementById("roomStage"),keyboard=document.getElementById("roomKeyboard");
  if(!stage||!keyboard)return;
+ const scale=Math.max(stage.clientWidth/1536,stage.clientHeight/1024);
+ const artWidth=1536*scale,artHeight=1024*scale;
+ const placements={posterButton:[834/1536,164/1024,290/1536,388/1024],phoneButton:firstRoomPhone.rect};
+ for(const [id,[x,y,w,h]] of Object.entries(placements)){
+  const el=document.getElementById(id);if(!el)continue;
+  Object.assign(el.style,{left:`${(stage.clientWidth-artWidth)/2+x*artWidth}px`,top:`${(stage.clientHeight-artHeight)/2+y*artHeight}px`,width:`${w*artWidth}px`,height:`${h*artHeight}px`,bottom:"auto"});
+ }
  keyboard.hidden=firstRoomState.viewedWall!=="left";
  if(keyboard.hidden)return;
  const width=stage.clientWidth,height=stage.clientHeight;
- const scale=Math.max(width/1536,height/1024),artWidth=1536*scale,artHeight=1024*scale;
+
  const [x,y,w,h]=firstRoomKeyboard.rect;
  Object.assign(keyboard.style,{left:`${(width-artWidth)/2+x*artWidth}px`,top:`${(height-artHeight)/2+y*artHeight}px`,width:`${w*artWidth}px`,height:`${h*artHeight}px`});
 }
@@ -373,7 +381,7 @@ function inspectRoomFurniture(id){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
  const items={
   shelf:{label:"三段棚",image:firstRoomWalls[1].background,crop:[.26,.15,.20,.63]},
-  desk:{label:"勉強机",image:firstRoomWalls[2].background,crop:[.25,.39,.50,.43]}
+  desk:{label:"勉強机",image:firstRoomWalls[2].background,crop:[.56,.34,.18,.135],layers:[firstRoomPhone]}
  };
  if(items[id])showItemInspection({container:game,item:items[id]});
 }

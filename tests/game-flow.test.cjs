@@ -827,6 +827,11 @@ test("shared piano artwork keeps its exact keyboard layer aligned through cover 
  for(const [width,height] of [[1440,810],[852,479],[600,700]]){
   stage.clientWidth=width;stage.clientHeight=height;h.run("positionFirstRoomKeyboard()");
   const scale=Math.max(width/1536,height/1024);
+  const poster=h.query("#posterButton"),phone=h.query("#phoneButton");
+  assert.equal(poster.style.left,`${(width-1536*scale)/2+834*scale}px`);
+  assert.equal(poster.style.top,`${(height-1024*scale)/2+164*scale}px`);
+  assert.equal(phone.style.left,`${(width-1536*scale)/2+927*scale}px`);
+  assert.equal(phone.style.top,`${(height-1024*scale)/2+398*scale}px`);
   assert.equal(keyboard.hidden,false);
   assert.equal(keyboard.style.left,`${(width-1536*scale)/2+.263*1536*scale}px`);
   assert.equal(keyboard.style.top,`${(height-1024*scale)/2+.437*1024*scale}px`);
@@ -849,4 +854,15 @@ test("the keyboard layer has four exact groups of two and three black keys", () 
  }
  assert.deepEqual(groups,[2,3,2,3,2,3,2,3]);
  assert.equal(groups.at(-1),3,"the rightmost black-key group must contain exactly three keys");
+});
+
+
+test("desk closeup focuses on the tabletop and retains the projected phone", () => {
+ const h=harness();h.room({...unlockedItems,viewedWall:"back"});h.query("#deskButton").focus();h.click("#deskButton");
+ const layer=h.query(".inspection-art-layer");
+ assert.equal(layer.classList.contains("phone-on-desk"),true);
+ assert.equal(layer.children[0].src,h.query("#phoneButton").children[0].getAttribute("src"));
+ assert.ok(Number.parseFloat(layer.style.left)>=0&&Number.parseFloat(layer.style.left)<100);
+ assert.ok(Number.parseFloat(layer.style.top)>=0&&Number.parseFloat(layer.style.top)<100);
+ h.key("Escape");assert.equal(h.document.activeElement,h.query("#deskButton"));
 });

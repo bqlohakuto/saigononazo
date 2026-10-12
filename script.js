@@ -304,8 +304,8 @@ function showFirstRoom(savedState){
      <div class="room-wall" data-wall="left" hidden><button class="object item-object is-locked" id="pianoButton" aria-label="ピアノを調べる" disabled><span>ピアノ</span></button></div>
     </div>
    </div>
-   <nav class="room-navigation" aria-label="部屋を見回す"><button type="button" id="turnLeftButton" aria-label="左を向く">←<span>左を向く</span></button><p id="wallLabel" aria-live="polite"></p><button type="button" id="turnRightButton" aria-label="右を向く"><span>右を向く</span>→</button></nav>
-   <p class="explore-status" id="exploreStatus" aria-live="polite">気になる場所をクリックしてください。</p>
+   <nav class="room-navigation" aria-label="部屋を見回す"><button type="button" id="turnLeftButton" aria-label="左を向く">←<span>左を向く</span></button><button type="button" id="turnRightButton" aria-label="右を向く"><span>右を向く</span>→</button></nav>
+   <p class="explore-status" id="exploreStatus" aria-live="polite"></p>
   </main>`;
  document.getElementById("doorButton").addEventListener("click",inspectRoomDoor);
  document.getElementById("questionButton").addEventListener("click",showDoorQuestion);
@@ -319,7 +319,6 @@ function showFirstRoom(savedState){
  document.getElementById("turnRightButton").addEventListener("click",()=>turnFirstRoom(1));
  if(typeof ResizeObserver!=="undefined"){firstRoomArtworkObserver=new ResizeObserver(positionFirstRoomKeyboard);firstRoomArtworkObserver.observe(document.getElementById("roomStage"))}
  renderFirstRoomWall();
- showRoomNotice("気になる場所をクリックしてください。","room1_explore_prompt","narration");
  firstRoomWalls.forEach(wall=>{const background=new Image();background.src=wall.background});
  if(firstRoomState.doorInspected||firstRoomState.questionSeen){
   const question=document.getElementById("questionButton");
@@ -351,7 +350,6 @@ function renderFirstRoomWall(){
  const wall=firstRoomWalls.find(wall=>wall.id===firstRoomState.viewedWall);
  document.getElementById("roomBackground").setAttribute("src",wall.background);
  document.getElementById("roomStage").setAttribute("aria-label",wall.label);
- document.getElementById("wallLabel").textContent=wall.label;
  positionFirstRoomKeyboard();
  document.querySelectorAll(".room-wall").forEach(layer=>{layer.hidden=layer.dataset.wall!==wall.id});
 }
@@ -416,7 +414,6 @@ function unlockRoomItems(){
   item.disabled=false;
   item.classList.remove("is-locked");
  });
- showRoomNotice("新たに気になる場所が見つかった。","room1_items_noticed");
 }
 
 function completeHanaIntroduction(){

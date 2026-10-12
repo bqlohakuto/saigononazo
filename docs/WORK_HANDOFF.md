@@ -204,3 +204,14 @@
 - `tests/public-opening.browser.cjs`, `.github/workflows/public-opening-visual.yml`, `.github/workflows/public-opening-chrome.yml`, `.github/workflows/public-opening-asset.yml`, `docs/PIXEL_ART_ROADMAP.md` をmainへ保存済み。
 - 第2以降の画像の差し替えは未実施。既存3件の `game-flow.test.cjs` 失敗は別件として残す。iPhone/Android実機での検証も未実施。
 - PC Chromiumと**スマホ横向きWebKit（Safari系描画エンジン）**の公開実画面検証も成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38246228857 。扉の表示／開閉アニメーション後の画面も撮影して確認。これはWebKitシミュレーションでありiPhone実機ではない。
+
+## 2026-10-12 第2の部屋・背景案の制作開始
+
+- 作業開始時main: `c32c83ce36b18201964ce01d32b828f147bd3934`。引き継ぎを確認した上で作業。
+- `tests/room2-visual.browser.cjs` / `.github/workflows/room2-visual-review.yml` を追加し、公開版の第2の部屋とマスターマインドUIをPC（1366×768）、スマホ横向き相当（852×393）のChromeで撮影。GitHub Actions成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38247902351
+- スクリーンショット: https://github.com/bqlohakuto/saigononazo/actions/runs/38247902351/artifacts/11745389559
+- 現行の要素配置は `docs/ROOM02_PIXEL_DRAFT.md` に保存。扉中央、机手前、ブロック操作位置、右の窓状パネル、ハナ立ち位置を把握。画像と当たり判定の重複防止方針を記録。
+- 第2の背景**単一PNGの第一案**を作成（1536×864）。中央の木製扉、机、窓状部分、赤青の未配置ブロックと5つの空枠を細かいドットで描画。ハナ・調査マーカー・会話UIは描かない。
+- 第一案の採用確認待ち。画像はゲームには未実装、旧CSSオブジェクトの非表示もまだ行っていない。シナリオ、台詞、謎解き仕様は変更なし。
+- 初回のAI生成による比較図・UI付き案は現行ゲームに存在しない家具・照明・台詞が入り、構図も異なるため**不採用**。採用対象は現行座標を維持する背景単体の案。
+- 既存 `game-flow.test.cjs` の失敗3件は未修正。次は背景案のユーザー確認後、採用PNGをGitHubの `images/background/room02/` へ配置、CSSの旧仮作画を重複しないよう調整し、PCと横向きWebKitで確認する。

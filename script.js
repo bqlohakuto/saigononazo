@@ -289,7 +289,7 @@ let firstRoomState;
 let firstRoomArtworkObserver;
 const firstRoomKeyboard={image:"images/background/room01/pixel/keyboard.svg?v=20261012-piano-perspective-01",rect:[.263,.437,.472,.056]};
 const firstRoomPoster={image:"images/items/item_poster.png?v=20261012-pixel-items-01",rect:[863/1536,195/1024,230/1536,326/1024],paper:true};
-const firstRoomPhone={image:"images/items/phone-on-desk.png?v=20261012-thick-phone-01",rect:[917/1536,380/1024,132/1536,76/1024],phoneOnDesk:true};
+const firstRoomPhone={image:"images/items/phone-on-desk.png?v=20261012-thick-phone-01",rect:[942/1536,388/1024,84/1536,32/1024],phoneOnDesk:true};
 const firstRoomWalls=[
  {id:"front",label:"正面",background:"images/background/room01/pixel/room01_front.png"},
  {id:"right",label:"右の壁",background:"images/background/room01/pixel/room01_right.png"},

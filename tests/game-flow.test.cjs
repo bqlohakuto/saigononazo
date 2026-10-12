@@ -785,8 +785,8 @@ test("shared piano artwork keeps its exact keyboard layer aligned through cover 
   const poster=h.query("#posterButton"),phone=h.query("#phoneButton");
   assert.equal(poster.style.left,`${(width-1536*scale)/2+834*scale}px`);
   assert.equal(poster.style.top,`${(height-1024*scale)/2+164*scale}px`);
-  assert.ok(Math.abs(parseFloat(phone.style.left)-((width-1536*scale)/2+917*scale))<1e-6);
-  assert.ok(Math.abs(parseFloat(phone.style.top)-((height-1024*scale)/2+380*scale))<1e-6);
+  assert.ok(Math.abs(parseFloat(phone.style.left)-((width-1536*scale)/2+942*scale))<1e-6);
+  assert.ok(Math.abs(parseFloat(phone.style.top)-((height-1024*scale)/2+388*scale))<1e-6);
   assert.equal(keyboard.hidden,false);
   assert.equal(keyboard.style.left,`${(width-1536*scale)/2+.263*1536*scale}px`);
   assert.equal(keyboard.style.top,`${(height-1024*scale)/2+.437*1024*scale}px`);

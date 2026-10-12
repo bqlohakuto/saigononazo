@@ -128,11 +128,16 @@ async function runCase(spec) {
     assert.equal((await getState()).view, 'door');
     assert(await page.locator('.pixel-opening-door').evaluate(el => el.classList.contains('visible')));
     assert(!(await page.locator('.pixel-opening-door').evaluate(el => el.classList.contains('open'))));
+    await page.waitForTimeout(1100); // Wait for the door's 0.9s opacity transition.
+    assert(Number(await page.locator('.pixel-opening-door').evaluate(el => getComputedStyle(el).opacity)) > 0.98);
     await shot('06-door-closed');
 
     await advanceTo('opening_39');
     assert(await page.locator('.pixel-opening-door').evaluate(el => el.classList.contains('open')),
       'Door did not enter opening state');
+    await page.waitForTimeout(1800); // Wait for the 1.5s panel animation to complete.
+    const openMatrix = await page.locator('.pixel-opening-door .door-panel').evaluate(el => getComputedStyle(el).transform);
+    assert.match(openMatrix, /matrix\\(/, 'Animated door must have a CSS transform');
     await shot('07-door-open');
 
     await advanceTo('opening_41');

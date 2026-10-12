@@ -24,7 +24,7 @@ async function runCase(spec) {
   const context = await browser.newContext({
     viewport: spec.viewport, isMobile: spec.mobile, hasTouch: spec.mobile,
     deviceScaleFactor: spec.mobile ? 2 : 1,
-    reducedMotion: 'reduce'
+    reducedMotion: 'no-preference'
   });
   await context.addInitScript(() => {
     localStorage.setItem('saigononazo-help-seen', '1');
@@ -62,7 +62,7 @@ async function runCase(spec) {
   try {
     const response = await page.goto(site, { waitUntil: 'load', timeout: 60000 });
     assert.equal(response.status(), 200, 'The public URL must load');
-    const expectedVersion = '20261012-fine-opening-art-01';
+    const expectedVersion = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8').match(/design-ui[.]css[?]v=([^"']+)/)?.[1];
     const stylesheet = await page.locator('link[href*="design-ui.css"]').getAttribute('href');
     assert(stylesheet.includes(expectedVersion), 'Deployed CSS cache version is older than main: ' + stylesheet);
     await page.locator('#startButton').waitFor();
@@ -90,7 +90,7 @@ async function runCase(spec) {
     const asset = await page.evaluate(async () => {
       const el = document.querySelector('.pixel-opening-background');
       const css = getComputedStyle(el).backgroundImage;
-      const url = css.match(/url\\(["']?(.*?)["']?\\)/)?.[1];
+      const url = css.slice(css.indexOf('(') + 1, css.lastIndexOf(')')).replaceAll('"', '').replaceAll("'", '');
       if (!url) return { css, ok: false };
       const response = await fetch(url, { cache: 'no-store' });
       if (!response.ok) return { css, url, status: response.status, ok: false };

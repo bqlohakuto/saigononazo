@@ -180,7 +180,7 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 
 /* Room 03 provisional, replaceable room and puzzle artwork. The authored board has 10 rows and 10 columns. */
 .room-three{background:#e9e2df}.room3-stage{background:linear-gradient(180deg,#d8d5d4 0 68%,#9d8e83 68%);border:1px solid #c9c0b9}
-.room3-stage:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#c9c5c0 0 7%,transparent 7.2% 93%,#c9c5c0 93.2%),linear-gradient(180deg,transparent 0 67%,#82766e 67.3%);pointer-events:none}
+.room3-stage:before{display:none}
 .room3-bed-art{position:absolute;left:4%;bottom:16%;width:32%;height:27%;border:8px solid #6a5d58;border-radius:4px;background:linear-gradient(#e7d9d9 0 26%,#8d777b 27%);box-shadow:0 9px 9px #55483e66}
 .room3-desk-art{position:absolute;left:35%;bottom:20%;width:34%;height:17%;background:linear-gradient(#393b3a 0 18%,#765f51 19% 48%,#4e4038 49%);clip-path:polygon(2% 0,98% 0,100% 27%,93% 100%,87% 100%,86% 40%,14% 40%,13% 100%,7% 100%,0 27%);filter:drop-shadow(0 5px 5px #3337)}
 .room3-shelf-art{position:absolute;left:7%;top:8%;width:19%;height:49%;border:7px solid #63564d;background:repeating-linear-gradient(180deg,#826b57 0 31%,#59483e 32% 35%);box-shadow:inset 0 0 0 2px #b0987d}
@@ -208,3 +208,19 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .r4-digits{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0;padding:20px;background:#f1e7cf}.r4-digits b{display:grid;place-items:center;min-height:100px;font-size:58px}.r4-digits .silver{color:#aaa}.r4-digits .white{color:#fff;text-shadow:0 0 2px #222}.r4-digits .black{color:#222}.r4-digits .green{color:#16a34a}.r4-mini label{display:grid;gap:5px;margin:12px 0}.r4-mini input{padding:10px;border:1px solid #9da5b1;font:inherit}.r4-flags{display:grid;gap:8px;margin:12px 0}.r4-flags span{padding:8px;border:1px solid #ccd2db;background:#fff;line-height:1.4}.r4-moon{padding:10px;border-left:4px solid #7d8faf;background:#e8edf5;font-size:13px}.r4-rainbow{display:grid;gap:6px}.r4-rainbow>div{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:center;padding:8px 12px;border:1px solid #bbb;border-radius:7px;background:#fff}
 .r4-next{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle,#202c4c,#080b15);color:#fff;text-align:center}.r4-next>div{padding:30px}.r4-next button{padding:10px 18px;border:1px solid #c8d7ef;border-radius:8px;background:#fff;color:#222;font:inherit}
 @media(max-width:650px){.r4-panels{grid-template-columns:repeat(2,1fr)}.r4-panel-ui,.r4-mini{padding:25px 12px 16px}.r4obj span{font-size:10px}.r4const,.r4meteor{width:13%}.r4p1,.r4p2,.r4p3{width:9%}}
+
+/* Room 3: approved four views share a single image coordinate system. */
+#game .room3-stage{background:#eee7dc;border:0}
+.room3-background-art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:0;image-rendering:pixelated}
+#game .room3-object:not(.room3-hana){background:transparent;border:0;box-shadow:none;border-radius:0;z-index:7}
+#game .room3-object[hidden]{display:none!important}
+#game .room3-door{left:40.4%;top:1.6%;width:18.8%;height:58%;bottom:auto}
+.room3-shared-door{display:none;position:absolute;left:40.4%;top:1.6%;width:18.8%;height:58%;background:url(images/background/room01/pixel/room01_front_fine.png) 49.4536% 16.6008%/350.6849% 132.8145% no-repeat;image-rendering:pixelated;pointer-events:none;z-index:1}
+.room3-stage[data-view=front] .room3-shared-door{display:block}
+#game .room3-desk{left:33%;top:40%;width:34%;height:31%;bottom:auto}
+#game .room3-phone{left:50.8%;top:34.2%;width:4.2%;height:5.5%}
+#game .room3-board{left:41.4%;top:33.8%;width:6.4%;height:6%}
+#game .room3-shelf{left:35.3%;top:24%;width:16.4%;height:41.5%}
+#game .room3-trumpet{left:53.3%;top:42%;width:19.5%;height:25%}
+#game .room3-bed{left:11.3%;top:33.5%;width:75.6%;height:38%;bottom:auto}
+#game .room3-hana{left:23%;top:34%;width:13%;height:38%;bottom:auto;z-index:4}

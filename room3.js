@@ -118,16 +118,19 @@ const room3NextRoomLines=[
 ];
 function showThirdRoom(savedState){
  Dialogue.stop();firstRoomState=undefined;room2State=undefined;currentScene="room03";
- room3State={doorInspected:false,deskInspected:false,bedInspected:false,shelfInspected:false,trumpetInspected:false,phoneInspected:false,chatRead:false,morseSolved:false,puzzleAttempts:0,hanaVisits:0,hintLevel:0,unlocked:false,highlightEnabled:true,memorySeen:false,nextRoomTransitionSeen:false,...savedState};
+ room3State={view:"front",doorInspected:false,deskInspected:false,bedInspected:false,shelfInspected:false,trumpetInspected:false,phoneInspected:false,chatRead:false,morseSolved:false,puzzleAttempts:0,hanaVisits:0,hintLevel:0,unlocked:false,highlightEnabled:true,memorySeen:false,nextRoomTransitionSeen:false,...savedState};
  game.innerHTML=`<main class="room room-three room3-arriving ${room3State.unlocked?"is-restored":""}" aria-label="第三の部屋">
   <header class="room-header"><p class="room-label">第三の部屋</p><p class="room-color-status">${room3State.unlocked?"記憶を取り戻した部屋":"大学時代の自室"}</p></header>
   <div class="room-stage-wrap"><section class="room-stage room3-stage" aria-label="大学時代の自室">
-   <div class="room3-bed-art" aria-hidden="true"></div><div class="room3-desk-art" aria-hidden="true"></div><div class="room3-shelf-art" aria-hidden="true"></div><div class="room3-trumpet-art" aria-hidden="true">♬</div>
+   <img class="room3-background-art" id="r3Background" src="images/background/room03/room03_front.webp" alt="" aria-hidden="true"><div class="room3-shared-door" aria-hidden="true"></div>
    <button class="object room3-object room3-door" id="r3Door"><span>扉</span></button><button class="object room3-object room3-bed" id="r3Bed"><span>ベッド</span></button>
    <button class="object room3-object room3-desk" id="r3Desk" ${room3State.doorInspected?"":"disabled"}><span>机</span></button><button class="object room3-object room3-phone" id="r3Phone" ${room3State.deskInspected?"":"disabled"}><span>スマートフォン</span></button><button class="object room3-object room3-board" id="r3Board" ${room3State.deskInspected?"":"disabled"}><span>文字盤</span></button>
    <button class="object room3-object room3-shelf" id="r3Shelf" ${room3State.doorInspected?"":"disabled"}><span>小さな棚</span></button><button class="object room3-object room3-trumpet" id="r3Trumpet"><span>トランペット</span></button><button class="object room3-object room3-hana" id="r3Hana"><span>ハナ</span></button>
-  </section></div><nav class="room-navigation"><span></span><p>部屋を調べよう</p><span></span></nav><p class="explore-status" id="exploreStatus" aria-live="polite">気になる場所をクリックしてください。</p>
+  </section></div><nav class="room-navigation" aria-label="部屋を見回す"><button type="button" id="r3TurnLeft" aria-label="左を向く">◀</button><button type="button" id="r3TurnRight" aria-label="右を向く">▶</button></nav><p class="explore-status" id="exploreStatus" aria-live="polite"></p>
  </main>`;
+ document.getElementById("r3TurnLeft").addEventListener("click",()=>turnThirdRoom(-1));
+ document.getElementById("r3TurnRight").addEventListener("click",()=>turnThirdRoom(1));
+ renderThirdRoomView();
  document.getElementById("r3Door").addEventListener("click",inspectThirdRoomDoor);
  document.getElementById("r3Desk").addEventListener("click",inspectThirdRoomDesk);
  document.getElementById("r3Phone").addEventListener("click",showThirdRoomChat);
@@ -144,6 +147,23 @@ function showThirdRoom(savedState){
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room03",title:"第三の部屋",objective:()=>room3State.unlocked?"開いた扉の先へ進む":"扉の謎を解く",onCompanion:showThirdRoomHana,getHighlights:()=>!!room3State.highlightEnabled,setHighlights:enabled=>{room3State.highlightEnabled=!!enabled;saveGame()}});
  saveGame();
 }
+// Presentation state only; investigation gates and puzzle rules remain unchanged.
+const ROOM3_VIEWS=["front","right","back","left"];
+function renderThirdRoomView(){
+ const view=ROOM3_VIEWS.includes(room3State.view)?room3State.view:"front";
+ room3State.view=view;
+ const stage=game.querySelector(".room3-stage");if(!stage)return;
+ stage.dataset.view=view;
+ document.getElementById("r3Background").src=`images/background/room03/room03_${view}.webp`;
+ const targets={front:["r3Door","r3Hana"],right:["r3Desk","r3Phone","r3Board"],back:["r3Shelf","r3Trumpet"],left:["r3Bed"]};
+ for(const button of stage.querySelectorAll(".room3-object"))button.hidden=!targets[view].includes(button.id);
+}
+function turnThirdRoom(step){
+ if(currentScene!=="room03"||game.querySelector(".room-dialog-overlay,.device-overlay,.design-overlay,.inspection-overlay"))return;
+ const index=ROOM3_VIEWS.indexOf(room3State.view);
+ room3State.view=ROOM3_VIEWS[(index+step+4)%4];renderThirdRoomView();saveGame();
+}
+
 function inspectThirdRoomDoor(){
  if(room3State.unlocked){
   if(!room3State.memorySeen){playThirdRoomMemory();return}

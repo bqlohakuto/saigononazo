@@ -28,8 +28,8 @@
   const closeButton=document.createElement("button");
   closeButton.type="button";
   closeButton.className="inspection-close";
-  closeButton.setAttribute("aria-label","閉じる");
-  closeButton.textContent="×";
+  closeButton.setAttribute("aria-label","戻る");
+  closeButton.textContent="戻る";
 
   const artButton=document.createElement("button");
   artButton.type="button";
@@ -102,7 +102,15 @@
    if(room)room.inert=wasInert;
    if(action==="continue"){
     restoreOpener();
+    // Keep the enlarged object behind the shared dialogue until that dialogue ends.
+    let focus;
+    if(typeof onContinue==="function"&&typeof artButton.cloneNode==="function"){
+     container.querySelector(".inspection-focus-background")?.remove();
+     focus=document.createElement("div");focus.className="inspection-focus-background";focus.setAttribute("aria-hidden","true");
+     const art=artButton.cloneNode(true);art.disabled=true;art.tabIndex=-1;focus.append(art);container.append(focus);
+    }
     if(typeof onContinue==="function")onContinue();
+    if(!container.querySelector(".room-dialog-overlay"))focus?.remove();
    }else if(action==="close"){
     if(typeof onClose==="function")onClose();
     restoreOpener();

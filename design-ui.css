@@ -293,3 +293,15 @@ body{background:#0b1322!important;display:grid;place-items:center}
 .opening[data-eye-opening=true] .pixel-opening-world::before{top:0;transform-origin:center top}
 .opening[data-eye-opening=true] .pixel-opening-world::after{bottom:0;transform-origin:center bottom}
 @keyframes openingEyelids{0%,10%{transform:scaleY(1)}100%{transform:scaleY(0)}}
+
+/* Approach the inspected object: full canvas artwork without a paper frame. */
+#game .inspection-overlay{padding:0!important;background:rgba(5,8,10,.94)!important}
+#game .inspection-panel{position:absolute;inset:0;width:100%!important;height:100%;padding:0!important;gap:0;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
+#game .inspection-title{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#game .inspection-help{display:none}
+#game .inspection-art-button{width:100%;height:100%;flex:none;border:0!important;padding:0;box-shadow:none!important;background:transparent!important}
+#game .inspection-art-button:hover{background:transparent}
+#game .inspection-close{top:2%;right:2%;z-index:3;min-width:64px;min-height:40px;background:var(--paper);border:2px solid var(--gold)}
+#game .inspection-focus-background{position:absolute;inset:0;background:#080b0d;z-index:60;pointer-events:none}
+#game .inspection-focus-background .inspection-art-button{display:flex;align-items:center;justify-content:center;opacity:1;pointer-events:none}
+#game:has(.inspection-focus-background) .gameplay-hud{visibility:hidden}

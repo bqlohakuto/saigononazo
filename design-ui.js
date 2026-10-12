@@ -142,7 +142,7 @@
   function pickup(item){const m=panel('入手'),art=paragraph(item.art||'◇');art.className='design-item-art';m.content.append(art,paragraph(item.name),paragraph(item.description));m.content.append(button('受け取る',m.close));m.content.addEventListener('click',e=>{if(!e.target.closest('button'))m.close()});recordLog({logId:'ui-item-'+currentScene+'-'+item.id,logType:'investigation',speaker:'ト書き',text:item.name+'\n'+item.description});saveGame()}
   function help(){
     const m=panel('操作説明');
-    let text='会話パネルを押すと文字をすべて表示し、もう一度押すと次へ進みます。Space / Enter でも送れます。\n\n記録・持ち物・ヒント・設定は右上から開けます。ウィンドウは「閉じる」または Esc で閉じます。';
+    let text='会話パネルを押すと文字をすべて表示し、もう一度押すと次へ進みます。Space / Enter でも送れます。\n\n記録・持ち物・設定は右上から開けます。ヒントはハナとの会話で確認できます。ウィンドウは「閉じる」または Esc で閉じます。';
     if(currentScene!=='opening')text='黄色の輪は未調査、緑の輪は調査済みです。輪のある場所をクリック / タップして調べます。\n\n'+text;
     if(currentScene==='room02')text+='\n\nいろしるパズル：候補を押した順に１〜５へ入ります。同じ候補で取り消し、同じ記号の別の色で入れ替え。入力済みの枠を２つ押すと交換できます。「解答」で判定します。';
     if(game.querySelector('.device-overlay input,.device-overlay textarea,.room input,.late-room input'))text+='\n\n入力欄では解答ボタンを押して送信します。';
@@ -150,7 +150,7 @@
   }
   function investigationRevision(el){const s=roomStates[currentScene]||{};const base=['doorUnlocked','unlocked','completed','memorySeen'].map(k=>String(!!s[k])).join(':');return el?.id==='hanaButton'?base+'|topics:'+window.HanaChoiceUI.getAvailableChoiceIds().join(','):base}
   function syncHud(){
-    const actions=game.querySelector('.gameplay-hud-actions');if(actions&&!actions.dataset.design){actions.dataset.design='true';actions.replaceChildren(button('持ち物',inventory,'gameplay-top-button'),button('記録',records,'gameplay-top-button'),button('ヒント',hints,'gameplay-top-button'),button('設定',options,'gameplay-top-button'))}
+    const actions=game.querySelector('.gameplay-hud-actions');if(actions&&!actions.dataset.design){actions.dataset.design='true';actions.replaceChildren(button('持ち物',inventory,'gameplay-top-button'),button('記録',records,'gameplay-top-button'),button('設定',options,'gameplay-top-button'))}
     // Full-body character for the later rooms; disappears while talking or after the final farewell.
     const late=game.querySelector('.late-room');
     const mayShow=['room05','room06','room07','room08'].includes(currentScene);

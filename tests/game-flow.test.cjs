@@ -839,7 +839,7 @@ test("shared piano artwork keeps its exact keyboard layer aligned through cover 
 
 test("the keyboard layer has four exact groups of two and three black keys", () => {
  const svg=fs.readFileSync(path.join(__dirname,"..","images/background/room01/pixel/keyboard.svg"),"utf8");
- const blacks=[...svg.matchAll(/<rect x="(\d+)" y="7" width="16" height="30"/g)].map(m=>Number(m[1]));
+ const blacks=[...svg.matchAll(/data-black-key="(\d+)"/g)].map(m=>Number(m[1]));
  const expected=Array.from({length:4},(_,octave)=>[1,2,4,5,6].map(boundary=>(octave*7+boundary)*26-8)).flat();
  assert.deepEqual(blacks,expected);
  const groups=[];

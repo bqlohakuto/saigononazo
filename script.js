@@ -271,7 +271,7 @@ function endOpening(){
 
 let firstRoomState;
 let firstRoomArtworkObserver;
-const firstRoomKeyboard={image:"images/background/room01/pixel/keyboard.svg",rect:[.263,.437,.472,.056]};
+const firstRoomKeyboard={image:"images/background/room01/pixel/keyboard.svg?v=20261012-piano-perspective-01",rect:[.263,.437,.472,.056]};
 const firstRoomPoster={image:"images/items/item_poster.png",rect:[.559,.189,.153,.321],paper:true};
 const firstRoomWalls=[
  {id:"front",label:"正面",background:"images/background/room01/pixel/room01_front.png"},

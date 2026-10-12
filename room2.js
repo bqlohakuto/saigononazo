@@ -23,7 +23,7 @@ function showSecondRoom(savedState){
  game.innerHTML=`<main class="room room-two room2-arriving ${room2State.unlocked?"is-restored":""}" aria-label="第二の部屋">
   <header class="room-header"><p class="room-label">第二の部屋</p><p class="room-color-status">${room2State.unlocked?"色を取り戻した部屋":"淡い記憶の部屋"}</p></header>
   <div class="room-stage-wrap"><section class="room-stage room2-stage" aria-label="第二の部屋">
-   <div class="room2-door-art" aria-hidden="true"></div><div class="room2-desk-art" aria-hidden="true"></div><div class="room2-window-light" aria-hidden="true"></div>
+   <img class="room2-background-art" src="images/background/room02/room02_adopted.webp?v=20261012-room02-pixel-01" alt="" aria-hidden="true" draggable="false" decoding="async">
    <button class="object room2-object room2-door" id="r2Door"><span>正面の扉</span></button>
    <button class="object room2-object room2-table" id="r2Desk"><span>机</span></button>
    <button class="object room2-object room2-blocks" id="r2Blocks" ${room2State.deskInspected?"":"disabled"}><span>ブロックと記録枠</span></button>

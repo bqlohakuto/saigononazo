@@ -108,7 +108,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 #game .room2-reaction[hidden]{display:none}
 #game .design-submit{display:block;margin-left:auto!important;min-width:100px;background:#eee2c5!important;border-color:var(--gold)!important}
 #game .hana-choice-overlay{padding:0!important}
-#game .hana-choice-menu{position:absolute;inset:auto auto 0 50%;transform:translateX(-50%);width:min(840px,92%);max-height:60%;margin:0;padding:clamp(10px,1.4cqw,20px);overflow:auto;box-sizing:border-box}
+#game .hana-choice-menu{position:absolute;inset:auto auto 0 50%;justify-self:start;transform:translateX(-50%);width:min(840px,92%);max-height:60%;margin:0;padding:clamp(10px,1.4cqw,20px);overflow:auto;box-sizing:border-box}
 @media(max-height:550px){
  #game .hana-choice-menu{max-height:70%;padding:8px 12px}
  #game .hana-choice-menu h2{font-size:16px;margin-bottom:4px}

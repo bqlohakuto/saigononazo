@@ -47,7 +47,7 @@ async function runCase(spec) {
       const currentId = () => GameLog.list().at(-1)?.id;
       const isTarget = () => {
         const logged = currentId();
-        return logged === target || (logged?.startsWith(target + '_') && /^\\d+$/.test(logged.slice(target.length + 1)));
+        return logged === target || (logged?.startsWith(target + '_') && /^\d+$/.test(logged.slice(target.length + 1)));
       };
       for (let i = 0; i < 300 && currentScene === 'opening' && !isTarget(); i++) {
         Dialogue.advance();

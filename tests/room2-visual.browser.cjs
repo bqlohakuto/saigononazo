@@ -60,7 +60,8 @@ function within(inner,outer,tolerance=3){
        bg:{url:bg.currentSrc,width:bg.naturalWidth,height:bg.naturalHeight,deskAlpha:alpha(bg,830,750),wallAlpha:alpha(bg,830,420)},
        fg:{url:fg.currentSrc,width:fg.naturalWidth,height:fg.naturalHeight,deskAlpha:alpha(fg,830,750),wallAlpha:alpha(fg,830,420)},
        z:{bg:+getComputedStyle(bg).zIndex,hana:+getComputedStyle(document.querySelector('#r2Hana')).zIndex,fg:+getComputedStyle(fg).zIndex,blocks:+getComputedStyle(document.querySelector('#r2Blocks')).zIndex,desk:+getComputedStyle(document.querySelector('#r2Desk')).zIndex},
-       pointerEvents:getComputedStyle(fg).pointerEvents
+       pointerEvents:getComputedStyle(fg).pointerEvents,
+       marginAlpha:[[426,595],[500,600],[700,607],[950,607],[1250,640],[1400,750],[1600,650]].map(([x,y])=>alpha(fg,x,y))
      };
    });
    assert.deepEqual([layering.bg.width,layering.bg.height,layering.fg.width,layering.fg.height],[1672,941,1672,941],'Lossless layers have original dimensions');
@@ -68,6 +69,7 @@ function within(inner,outer,tolerance=3){
    assert(layering.z.bg<layering.z.hana&&layering.z.hana<layering.z.fg,'Hana visually behind the tabletop');
    assert(layering.z.fg<layering.z.blocks&&layering.z.fg<layering.z.desk,'Interactive desk and puzzle remain above artwork');
    assert.equal(layering.pointerEvents,'none','Foreground never intercepts taps');
+   assert.deepEqual(layering.marginAlpha,[0,0,0,0,0,0,0],'No wall or gray strips in foreground around trays and desk');
    for(const layer of [layering.bg,layering.fg]){
      const response=await page.request.get(layer.url,{timeout:20000});
      assert.equal(response.status(),200,'Art layer should be publicly accessible');

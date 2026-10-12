@@ -273,3 +273,5 @@ body{background:#0b1322!important;display:grid;place-items:center}
 .pixel-opening-world.is-turning{animation:pixelOpeningTurn .66s ease-in-out}
 @keyframes pixelOpeningTurn{0%{transform:translateX(0);opacity:1}45%{transform:translateX(-12%);opacity:0}46%{transform:translateX(12%);opacity:0}100%{transform:translateX(0);opacity:1}}
 @media(max-height:550px){#game .room-dialog{height:25%;padding-bottom:4%!important}#game .room-dialog .design-controls button{min-height:20px;font-size:9px;padding:.1em .35em}}
+/* Layout rules must never override the dialogue engine's hidden state. */
+#game [hidden]{display:none!important}

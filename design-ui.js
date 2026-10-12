@@ -195,7 +195,7 @@
     const flashback=!!memoryVisual;
     const overlay=game.querySelector('.room-dialog-overlay');
     if(overlay){if(memoryVisual)overlay.dataset.memoryStage=memoryVisual.reveal;else delete overlay.dataset.memoryStage;}
-    if(currentScene==='opening')portraitVisible=kind==='heroine'&&!!game.querySelector('.opening[data-hana-visible="true"]');else if(flashback)portraitVisible=false;else if(kind==='heroine')portraitVisible=true;
+    if(currentScene==='opening')portraitVisible=kind==='heroine'&&!!game.querySelector('.opening[data-hana-visible="true"]');else portraitVisible=!flashback&&kind==='heroine';
     if(line.expression){const choice=hanaV2Names.indexOf(line.expression);expression=choice>=0?choice:0}else if(kind==='heroine'){expression=/眠|ふぁ|スー、スー/.test(line.text)?6:/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}
     decorateDialogue(game.querySelector('.room-dialog-overlay')||document.createElement('div'));
     const p=game.querySelector('.hana-portrait');if(p){p.hidden=!portraitVisible;p.setAttribute('aria-label',line.speaker==='花音'?'花音':window.HanaIdentity?.getName?.()||'ハナ');setExpression(p)}
@@ -204,7 +204,7 @@
     if(orientation.matches)Dialogue.suspend();
     // Effects are visual captions only. No independent sound record category.
   }
-  function syncPlayback(){game.querySelectorAll('[data-design-auto]').forEach(b=>{b.setAttribute('aria-pressed',String(Dialogue.isAutoEnabled()));const label=Dialogue.isAutoEnabled()?'AUTO ON':'AUTO OFF';if(b.textContent!==label)b.textContent=label});game.querySelectorAll('[data-design-log]').forEach(b=>b.setAttribute('aria-pressed',String(!!game.querySelector('.room-dialog.is-log-open'))));game.querySelectorAll('[data-design-skip]').forEach(b=>{const source=game.querySelector('.room-dialog .skip-button');b.disabled=!source||source.disabled;b.setAttribute('aria-pressed',source?.getAttribute('aria-pressed')||'false')})}
+  function syncPlayback(){game.querySelectorAll('[data-design-auto]').forEach(b=>{b.setAttribute('aria-pressed',String(Dialogue.isAutoEnabled()));b.disabled=!!game.querySelector('.room-dialog .auto-button')?.disabled;const label=Dialogue.isAutoEnabled()?'AUTO ON':'AUTO OFF';if(b.textContent!==label)b.textContent=label});game.querySelectorAll('[data-design-log]').forEach(b=>b.setAttribute('aria-pressed',String(!!game.querySelector('.room-dialog.is-log-open'))));game.querySelectorAll('[data-design-skip]').forEach(b=>{const source=game.querySelector('.room-dialog .skip-button');b.disabled=!source||source.disabled;b.setAttribute('aria-pressed',source?.getAttribute('aria-pressed')||'false')})}
   function onInstall(c){cancelUse();config=c;recordRoom=c.sceneId||currentScene;inspectionTarget='';if(!state().visited.includes(recordRoom))state().visited.push(recordRoom);queueMicrotask(()=>{syncHud();if(!localStorage.getItem('saigononazo-help-seen')){localStorage.setItem('saigononazo-help-seen','1');if(!game.querySelector('.room-dialog-overlay,.device-overlay'))help()}})}
   function beginDialogue(lines){dialogueGroup=currentScene+':'+Date.now()+':'+(++sequence);portraitVisible=lines.some(l=>l.speaker==='ハナ'||l.speaker==='花音')&&!lines.some(l=>window.MemoryVisuals?.get(currentScene,l));expression=0}
   function endDialogue(){dialogueGroup='';game.classList.remove('has-dialogue')}

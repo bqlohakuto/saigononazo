@@ -19,9 +19,10 @@
   const paragraph=text=>{const p=document.createElement('p');p.textContent=text;return p};
   const portraitExpressions=['gentle','happy','thought','surprise','concern','serious'];
   const hanaV2Names=['gentle','happy','thought','surprise','concern','serious','sleepy','neutral','excited'];
-  const hanaV2Base='images/characters/hana-v2/';
+  const hanaV2Base='images/pixel-ui/';
+  const pixelPortraitNames={gentle:'neutral',happy:'joy',thought:'thinking',surprise:'surprise',concern:'sadness',serious:'neutral',sleepy:'sleepy',neutral:'neutral',excited:'laughter'};
   const hanaV2Ready=new Set();
-  const hanaV2Url=name=>hanaV2Base+name+'.png?v=20261011-hana-v2-06';
+  const hanaV2Url=name=>hanaV2Base+(name==='full'?'hana-v8/idle/01.png':'hana-v5/portraits/'+(pixelPortraitNames[name]||'neutral')+'.png')+'?v=20261012-pixel-ui-02';
   for(const name of ['full',...hanaV2Names]){
     const img=new Image();
     img.onload=()=>{
@@ -59,9 +60,9 @@
   }
   function paginateDialogue(lines,isRead){
     const area=game.querySelector('.room-dialog .dialog-message-area');if(!area)return lines;
-    const width=Math.max(120,area.getBoundingClientRect().width*.65);
+    const width=Math.max(100,area.getBoundingClientRect().width);
     const w=game.getBoundingClientRect().width,large=document.documentElement.dataset.gameTextSize==='large';
-    const size=large?Math.max(18,Math.min(32,w*.022)):Math.max(15,Math.min(26,w*.018));
+    const size=large?Math.max(16,Math.min(32,w*.022)):Math.max(11,Math.min(26,w*.018));
     return lines.flatMap((line,index)=>splitText(line.text,width,`${size}px "DotGothic16", "Yu Gothic", Meiryo, sans-serif`,Math.max(1,Math.min(3,Math.floor((area.clientHeight-(line.speaker==='ハナ'||line.speaker==='花音'?size:0))/(size*1.55))))).map((text,uiPage)=>({...line,text,logSource:line,uiPage,sourceIndex:index,uiWasRead:!!isRead?.(line)})));
   }
   function pageText(content,text){
@@ -166,10 +167,10 @@
   }
   function decorateDialogue(overlay){
     if(!overlay?.querySelector('.room-dialog')||overlay.dataset.design)return;overlay.dataset.design='true';
-    const p=overlay.querySelector('.room-dialog'),portrait=document.createElement('div');portrait.className='hana-portrait';portrait.setAttribute('role','img');portrait.setAttribute('aria-label','ハナ');overlay.prepend(portrait);portrait.hidden=!portraitVisible;setExpression(portrait);
+    const p=overlay.querySelector('.room-dialog'),portrait=document.createElement('div');portrait.className='hana-portrait';portrait.setAttribute('role','img');portrait.setAttribute('aria-label','ハナ');p.prepend(portrait);portrait.hidden=!portraitVisible;setExpression(portrait);
     const controls=document.createElement('div');controls.className='design-controls';
     const auto=button('AUTO',()=>Dialogue.toggleAuto()),skip=button('SKIP',()=>p.querySelector('.skip-button')?.click()),hide=button('非表示',()=>{p.classList.add('dialog-hidden');restore.hidden=false;Dialogue.suspend()});auto.dataset.designAuto='';skip.dataset.designSkip='';
-    controls.append(button('記録',records),auto,skip,hide);p.append(controls);
+    const log=button('LOG',()=>p.querySelector('.log-button')?.click());log.dataset.designLog='';controls.append(auto,skip,log,hide);p.append(controls);
     const restore=button('',e=>{} ,'dialogue-restore');restore.setAttribute('aria-label','会話を再表示');restore.hidden=true;restore.onclick=e=>{e.stopPropagation();restore.hidden=true;p.classList.remove('dialog-hidden');Dialogue.resume()};overlay.append(restore);
     p.addEventListener('click',e=>{if(!e.target.closest('button,input'))Dialogue.advance()});syncPlayback();
   }
@@ -194,16 +195,16 @@
     const flashback=!!memoryVisual;
     const overlay=game.querySelector('.room-dialog-overlay');
     if(overlay){if(memoryVisual)overlay.dataset.memoryStage=memoryVisual.reveal;else delete overlay.dataset.memoryStage;}
-    if(flashback)portraitVisible=false;else if(kind==='heroine'&&currentScene!=='opening')portraitVisible=true;
+    if(currentScene==='opening')portraitVisible=kind==='heroine'&&!!game.querySelector('.opening[data-hana-visible="true"]');else if(flashback)portraitVisible=false;else if(kind==='heroine')portraitVisible=true;
     if(line.expression){const choice=hanaV2Names.indexOf(line.expression);expression=choice>=0?choice:0}else if(kind==='heroine'){expression=/眠|ふぁ|スー、スー/.test(line.text)?6:/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}
     decorateDialogue(game.querySelector('.room-dialog-overlay')||document.createElement('div'));
     const p=game.querySelector('.hana-portrait');if(p){p.hidden=!portraitVisible;p.setAttribute('aria-label',line.speaker==='花音'?'花音':window.HanaIdentity?.getName?.()||'ハナ');setExpression(p)}
     const row=game.querySelector('.message-row'),message=row?.querySelector('.message');
-    if(row&&message){const ctx=document.createElement('canvas').getContext('2d');if(ctx){const css=getComputedStyle(message);ctx.font=`${css.fontSize} ${css.fontFamily}`;const available=row.parentElement.clientWidth*(kind==='player'?.65:kind==='narration'||kind==='system'?.80:.72);row.style.width=Math.min(available,Math.max(...line.text.split('\n').map(t=>ctx.measureText(t).width))+2)+'px'}}
+    if(row&&message){const ctx=document.createElement('canvas').getContext('2d');if(ctx){const css=getComputedStyle(message);ctx.font=`${css.fontSize} ${css.fontFamily}`;const available=row.parentElement.clientWidth;row.style.width=Math.min(available,Math.max(...line.text.split('\n').map(t=>ctx.measureText(t).width))+2)+'px'}}
     if(orientation.matches)Dialogue.suspend();
     // Effects are visual captions only. No independent sound record category.
   }
-  function syncPlayback(){game.querySelectorAll('[data-design-auto]').forEach(b=>b.setAttribute('aria-pressed',String(Dialogue.isAutoEnabled())));game.querySelectorAll('[data-design-skip]').forEach(b=>{const source=game.querySelector('.room-dialog .skip-button');b.disabled=!source||source.disabled;b.setAttribute('aria-pressed',source?.getAttribute('aria-pressed')||'false')})}
+  function syncPlayback(){game.querySelectorAll('[data-design-auto]').forEach(b=>{b.setAttribute('aria-pressed',String(Dialogue.isAutoEnabled()));const label=Dialogue.isAutoEnabled()?'AUTO ON':'AUTO OFF';if(b.textContent!==label)b.textContent=label});game.querySelectorAll('[data-design-log]').forEach(b=>b.setAttribute('aria-pressed',String(!!game.querySelector('.room-dialog.is-log-open'))));game.querySelectorAll('[data-design-skip]').forEach(b=>{const source=game.querySelector('.room-dialog .skip-button');b.disabled=!source||source.disabled;b.setAttribute('aria-pressed',source?.getAttribute('aria-pressed')||'false')})}
   function onInstall(c){cancelUse();config=c;recordRoom=c.sceneId||currentScene;inspectionTarget='';if(!state().visited.includes(recordRoom))state().visited.push(recordRoom);queueMicrotask(()=>{syncHud();if(!localStorage.getItem('saigononazo-help-seen')){localStorage.setItem('saigononazo-help-seen','1');if(!game.querySelector('.room-dialog-overlay,.device-overlay'))help()}})}
   function beginDialogue(lines){dialogueGroup=currentScene+':'+Date.now()+':'+(++sequence);portraitVisible=lines.some(l=>l.speaker==='ハナ'||l.speaker==='花音')&&!lines.some(l=>window.MemoryVisuals?.get(currentScene,l));expression=0}
   function endDialogue(){dialogueGroup='';game.classList.remove('has-dialogue')}
@@ -218,7 +219,7 @@
   document.addEventListener('game:sound',e=>{if(!settings.soundCaptions)return;const text={tinnitus:'耳鳴りが響く。',memoryMelody:'ピアノの旋律が響く。',memoryBand:'演奏の音が聞こえてくる。'}[e.detail?.id];if(!text)return;let caption=game.querySelector('.design-sound-caption');if(!caption){caption=paragraph('');caption.className='design-sound-caption';game.append(caption)}caption.textContent=text;caption.hidden=false;clearTimeout(captionTimer);captionTimer=setTimeout(()=>caption.hidden=true,3000)});
   const orientation=matchMedia('(orientation:portrait) and (pointer:coarse)');orientation.addEventListener('change',()=>{if(orientation.matches)Dialogue.suspend();else if(!modal)Dialogue.resume()});
   document.addEventListener('keydown',e=>{if(modal||orientation.matches)return;if(e.key==='Escape'&&pendingUse){e.preventDefault();cancelUse();return}if(e.target.closest?.('input,textarea,select,button'))return;if((e.key===' '||e.key==='Enter')&&game.querySelector('.room-dialog:not(.dialog-hidden),.opening .dialog:not(.is-log-open)')){e.preventDefault();Dialogue.advance()}});
-  document.addEventListener('click',e=>{if(e.target.closest?.('#settingsButton')){e.preventDefault();e.stopImmediatePropagation();options();return}if(e.target.closest?.('#gameplayLogButton,.room-dialog .log-button,.opening .log-button')){e.preventDefault();e.stopImmediatePropagation();records()}},{capture:true});
+  document.addEventListener('click',e=>{if(e.target.closest?.('#settingsButton')){e.preventDefault();e.stopImmediatePropagation();options();return}if(e.target.closest?.('#gameplayLogButton')){e.preventDefault();e.stopImmediatePropagation();records()}},{capture:true});
   document.addEventListener('dialogue:autochange',syncPlayback);document.addEventListener('dialogue:skipchange',()=>queueMicrotask(syncPlayback));
   new MutationObserver(syncHud).observe(game,{childList:true,subtree:true});
   window.DesignUI={onInstall,beginDialogue,endDialogue,paginateDialogue,displayLine,savePreview,pickup,records,options,help,get dialogueGroup(){return dialogueGroup},get inspectionTarget(){return inspectionTarget}};

@@ -17,7 +17,7 @@ const openingScenario = [
     { logId: "opening_11", logType: "narration", speaker: "ト書き", text: "左右を見渡しても、目に映るのは同じような白い壁ばかりだ。" },
     { logId: "opening_13", logType: "narration", speaker: "ト書き", text: "天井を見上げていると、不意に後ろから声がした。" },
     { logId: "opening_12", logType: "dialogue", speaker: "ハナ", text: "よかった、気がついたんだね" },
-    { logId: "opening_14", logType: "narration", speaker: "ト書き", text: "はっとして振り向くと、そこには黒髪の美しい女性が、静かに立っていた。" },
+    { logId: "opening_14", logType: "narration", speaker: "ト書き", text: "はっとして振り向くと、そこには白髪の美しい女性が、静かに立っていた。" },
     { logId: "opening_15", logType: "dialogue", speaker: "主人公", text: "あなたは……？" },
     { logId: "opening_16", logType: "narration", speaker: "ト書き", text: "反射的に、問いかける。" },
     { logId: "opening_17", logType: "narration", speaker: "ト書き", text: "彼女は少し眉をひそめ、しばらく黙ったあと、ゆっくりと口を開いた。" },

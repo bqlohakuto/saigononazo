@@ -41,14 +41,16 @@ async function runCase(spec) {
   }
   async function advanceTo(id) {
     const result = await page.evaluate(target => {
-      const targetIndex = openingScenario.findIndex(line => line.logId === target);
-      if (targetIndex < 0) throw new Error('Unknown opening LOG ID: ' + target);
-      for (let i = 0; i < 300 && currentScene === 'opening' && openingIndex < targetIndex; i++) {
+      if (!openingScenario.some(line => line.logId === target)) throw new Error('Unknown opening LOG ID: ' + target);
+      // openingIndex counts expanded/paginated UI lines, while openingScenario is an unexpanded array.
+      // The history's original LOG ID is the canonical source of each displayed story beat.
+      const currentId = () => GameLog.list().at(-1)?.id;
+      for (let i = 0; i < 300 && currentScene === 'opening' && currentId() !== target; i++) {
         Dialogue.advance();
       }
-      return { index: openingIndex, targetIndex, phase: document.querySelector('.opening')?.dataset.phase };
+      return { lastId: currentId(), phase: document.querySelector('.opening')?.dataset.phase };
     }, id);
-    assert(result.index >= result.targetIndex, JSON.stringify(result));
+    assert.equal(result.lastId, id, JSON.stringify(result));
   }
   async function getState() {
     return page.locator('.opening').evaluate(el => ({

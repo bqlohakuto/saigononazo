@@ -113,3 +113,8 @@
 - GitHub Pages成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38207280286
 - 公開PC画面で主人公の文末「▶」、ハナの困り顔・笑顔の全身表情を確認。顔アップのhappyと全身joy.pngの同時適用をDOM/CSSでも確認。
 - LOGの表示中に送りボタンが隠れ、LOGを閉じると文末へ復帰することを確認。
+
+## 2026-10-12 画面下部の白い線を削除
+
+- 原因は空のexplore-statusの背景と上下4pxのpadding。公開PC画面で幅954px・高さ8pxの空要素として再現。
+- 空のexplore-statusのみdisplay:noneにし、内容のある通知は維持。CSS/JSキャッシュ番号を更新。

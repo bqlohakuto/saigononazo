@@ -26,6 +26,7 @@ body{background:#171b19!important;font-family:"Yu Gothic",Meiryo,sans-serif}
 #game .room-navigation button{pointer-events:auto;border:1px solid var(--paper-line);border-radius:5px!important;background:#faf7eee8;width:40px;height:44px;padding:0}
 #game .room-navigation p{position:absolute;left:50%;top:calc(28cqw - 48px);transform:translateX(-50%);font-size:12px;white-space:nowrap;background:#faf7eedd}
 #game .room-navigation button span{display:none}
+#game .explore-status:empty{display:none}
 #game .explore-status{position:absolute;bottom:2%;left:50%;transform:translateX(-50%);width:70%;background:#faf7eee8;border-radius:4px;color:#686251;font-size:clamp(10px,1.1cqw,15px);padding:4px;z-index:15;pointer-events:none}
 #game .late-room .late-stage{height:100%;padding-top:7%;background-color:#eee9de}
 #game .gameplay-bottom-bar{display:none!important}

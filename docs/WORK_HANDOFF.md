@@ -182,3 +182,14 @@
 - ハナ・携帯の細かいドット表現を基準に、白い部屋の背景を描き直しwhite-room-fine.pngへ差し替え。構図、白と薄い青灰色の配色、中央の空白は保持。
 - 扉の既存SVGを細かい座標へ更新し、枠の段差・面の陰影・取っ手を調整。扉の位置・開閉アニメーションは保持。
 - 確定台詞、黒背景、瞼を開く演出、白転、第1へのフェードは変更なし。オープニング状態・開始／再開・キャッシュの関連10件成功。
+
+## 2026-10-12 公開オープニング実画面の自動確認・第2以降の素材計画
+
+- 作業開始時のmainが引き継ぎ指定 `1be2b28d3595d0b2d87f932d08be111dbd1005b3` と一致することをGitHubで確認。
+- 該当mainのPages成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38243126781
+- `images/pixel-ui/white-room-fine.png` がmainのGitツリーに存在し、`design-ui.css` で背景として参照されていることを確認。これは**公開画面の目視検証の代わりではない**。
+- この実行環境から公開URLへ直接アクセスできなかったため、公開ページ上で動作する `tests/public-opening.browser.cjs` を追加。デスクトップChromium（1366×768）とスマホ横向きWebKit（852×393）で、CSSバージョン、背景PNGの取得・デコード、ハナ、扉の出現・開閉、白転、第1への接続、画面収まりをチェックする。
+- `.github/workflows/public-opening-visual.yml` でmain更新時の実ブラウザ検証・スクリーンショット保管（Actions artifact、14日間）を有効化。初回実行: https://github.com/bqlohakuto/saigononazo/actions/runs/38244300719 。**結果はActionsで確認すること**。
+- 第2〜第8の既存描画と素材の範囲を `docs/PIXEL_ART_ROADMAP.md` にまとめた。第2の扉・机・5桁ブロックの場面から着手。正式素材を作る際は既存CSS・SVGとの重複を回避し、1枚ずつ採用確認する。
+- 確定済みの台詞、シナリオ、謎、進行ロジックは今回一切変更していない。今回の追加は検証コード・CI・計画書のみ。
+- `game-flow.test.cjs` の既存失敗3件は未修正。結果を偽るために既存テストや確定仕様を書き換えない。

@@ -266,7 +266,23 @@ function showSettings(){
 // This shared transition remains here because it hands control to room 1.
 function endOpening(){
  GameAudio.stop("tinnitus");
- setTimeout(showFirstRoom,1200);
+ setTimeout(()=>{
+  showFirstRoom();
+  const room=game.querySelector(".first-room");
+  const veil=document.createElement("div");veil.className="first-room-entry-fade";
+  veil.setAttribute("aria-hidden","true");game.append(veil);
+  game.classList.add("is-entering-first-room");
+  if(room)room.inert=true;
+  let finished=false;
+  function finish(){
+   if(finished)return;finished=true;
+   veil.remove();game.classList.remove("is-entering-first-room");
+   if(room?.isConnected)room.inert=false;
+  }
+  veil.addEventListener("animationend",finish,{once:true});
+  const reduced=typeof matchMedia==="function"&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  setTimeout(finish,reduced?0:1600);
+ },1200);
 }
 
 let firstRoomState;

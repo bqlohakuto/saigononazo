@@ -850,3 +850,14 @@ test("incomplete saved introductions return to the front and keep navigation loc
  const resumed=harness(h.saved);resumed.click("#continueButton");
  assert.equal(resumed.query("#turnRightButton").disabled,true);
 });
+
+
+test("opening reveals room one through white and unlocks interaction after the fade", () => {
+ const h=harness();h.run("endOpening()");
+ h.tick(1199);assert.equal(h.game.querySelector(".first-room"),null);
+ h.tick(1);assert.ok(h.query(".first-room-entry-fade"));
+ assert.equal(h.query(".first-room").inert,true);
+ h.tick(1600);assert.equal(h.game.querySelector(".first-room-entry-fade"),null);
+ assert.equal(h.query(".first-room").inert,false);
+ assert.equal(h.query("#turnRightButton").disabled,true);
+});

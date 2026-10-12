@@ -358,3 +358,9 @@ body{background:#0b1322!important;display:grid;place-items:center}
 }
 
 #game .room-navigation button:disabled{opacity:.35;cursor:default}
+
+/* Continue the opening's white light, revealing the first room underneath. */
+#game .first-room-entry-fade{position:absolute;inset:0;background:#fff;z-index:200;animation:firstRoomReveal 1.6s ease-in-out both;pointer-events:auto}
+#game.is-entering-first-room .gameplay-hud{pointer-events:none}
+@keyframes firstRoomReveal{from{opacity:1}to{opacity:0}}
+@media(prefers-reduced-motion:reduce){#game .first-room-entry-fade{animation:none;display:none}}

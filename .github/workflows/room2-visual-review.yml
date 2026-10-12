@@ -31,6 +31,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: room02-review
-          path: artifacts/room02/
+          path: |
+            artifacts/room02/
+            images/background/room01/pixel/room01_front_fine.png
           if-no-files-found: warn
           retention-days: 14

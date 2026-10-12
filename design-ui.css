@@ -305,3 +305,20 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .inspection-focus-background{position:absolute;inset:0;background:#080b0d;z-index:60;pointer-events:none}
 #game .inspection-focus-background .inspection-art-button{display:flex;align-items:center;justify-content:center;opacity:1;pointer-events:none}
 #game:has(.inspection-focus-background) .gameplay-hud{visibility:hidden}
+
+/* Share the opening's gentle breathing and brief blink with exploration Hana. */
+@keyframes hanaExplorationIdle{
+  0%,100%{background-image:url("images/pixel-ui/hana-v8/idle/01.png")}
+  52.01%{background-image:url("images/pixel-ui/hana-v8/idle/02.png")}
+  73.29%{background-image:url("images/pixel-ui/hana-v8/idle/01.png")}
+  89.84%{background-image:url("images/pixel-ui/hana-v8/idle/03.png")}
+  91.97%{background-image:url("images/pixel-ui/hana-v8/idle/04.png")}
+  94.33%{background-image:url("images/pixel-ui/hana-v8/idle/03.png")}
+  96.46%{background-image:url("images/pixel-ui/hana-v8/idle/01.png")}
+}
+@media(prefers-reduced-motion:no-preference){
+  #game.hana-idle-ready.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before,
+  #game.hana-idle-ready .late-room .hana-v2-world{animation:hanaExplorationIdle 4.23s steps(1,end) infinite}
+  #game.has-dialogue :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before,
+  #game.has-dialogue .late-room .hana-v2-world{animation-play-state:paused}
+}

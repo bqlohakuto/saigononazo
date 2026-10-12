@@ -34,6 +34,12 @@
     img.onerror=()=>{};
     img.src=hanaV2Url(name);
   }
+  // Start only once every idle frame has loaded; failed assets keep the static fallback.
+  Promise.all([1,2,3,4].map(frame=>new Promise(resolve=>{
+    const image=new Image();
+    image.onload=()=>resolve(true);image.onerror=()=>resolve(false);
+    image.src='images/pixel-ui/hana-v8/idle/0'+frame+'.png';
+  }))).then(loaded=>{if(loaded.every(Boolean))game.classList.add('hana-idle-ready')});
   function panel(title){
     if(modal)modal.close();
     const opener=document.activeElement,o=document.createElement('div');o.className='design-overlay';

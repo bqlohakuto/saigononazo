@@ -244,3 +244,16 @@
 - 公開のオープニング回帰検証も成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38263155483 。公開アセット回帰も成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38263155715 。
 - 第2のランダム正解・HIT/BLOW・8回制限・台詞・回想・進行・保存データを変更していない。以前から残る `game-flow.test.cjs` の既知3失敗は別件。
 - 現行詳細は `docs/ROOM02_PIXEL_DRAFT.md` と `docs/IMAGE_ASSET_LIST.md` を参照。次の作業では公開PC／横向きスマホのUIの視認性を改善するか、第3のドット背景へ進む。
+
+## 2026-10-13 第2・ハナを机の奥へ（3層表示・公開済み）
+
+- ユーザー要望: 第2で机とハナが重なっていたため、机を独立した前景にしてハナを机の奥に立たせる。
+- `scripts/split_room02.py` + `.github/workflows/room02-split-assets.yml` を新設。承認原画 `room02_adopted.webp` を**机が透明な背景** `room02_bg_nodesk.webp` と**周囲が透明な机前景** `room02_desk_foreground.webp` へ画素そのままで分割。2層合成でRGBが元画像と完全一致することを可逆WebP保存後にも検証。原画も残す。
+- `room2.js` に背景・前景を読み込ませ、`style.css` で背景z0・ハナz4・机前景z5・クリックボタンz7〜8を指定。机の前景は `pointer-events:none`。ハナは左64%、上31%、v8立ち絵を幅21.25cqw、高さ33.2cqwに縮小。頭上調査マークの位置も補正（`design-ui.css`）。
+- 25個のCSS/JSキャッシュ参照を `20261013-room02-depth-02` に更新。
+- GitHub Pages成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38270053090
+- 公開PC Chromium／横向きWebKit両方**成功**: https://github.com/bqlohakuto/saigononazo/actions/runs/38270055080
+- PC/横向きスクリーンショット＋5枠パズル: https://github.com/bqlohakuto/saigononazo/actions/runs/38270055080/artifacts/11757145458
+- 前景アルファ検証、z-index、操作領域、5枠、赤青各5種類、パレット選択、JSエラーなしをテストで確認。オープニング回帰成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38270054961 。アセットHTTP検証も成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38270054807
+- **シナリオ・台詞・HIT/BLOW・正解生成・8回制限・セーブ進行は一切変更なし**。実機iPhoneは未確認。旧 `game-flow.test.cjs` の既知3失敗は未着手。
+- 仕様詳細: `docs/ROOM02_PIXEL_DRAFT.md` の「現行実装・机とハナの前後関係」を参照。

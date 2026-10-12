@@ -9,7 +9,7 @@ const site = process.env.PUBLIC_BASE_URL || 'https://bqlohakuto.github.io/saigon
 const out = process.env.UI_SCREENSHOT_DIR || path.join(process.cwd(), 'artifacts', 'public-opening');
 const cases = [
   { name: 'desktop-chromium', engine: chromium, viewport: { width: 1366, height: 768 }, mobile: false },
-  { name: 'landscape-webkit', engine: webkit, viewport: { width: 852, height: 393 }, mobile: true }
+  { name: process.env.PUBLIC_SMOKE_CHROMIUM_ONLY ? 'landscape-chromium' : 'landscape-webkit', engine: process.env.PUBLIC_SMOKE_CHROMIUM_ONLY ? chromium : webkit, viewport: { width: 852, height: 393 }, mobile: true }
 ];
 
 function within(inner, outer, tolerance = 2) {
@@ -20,7 +20,7 @@ function within(inner, outer, tolerance = 2) {
 }
 
 async function runCase(spec) {
-  const browser = await spec.engine.launch({ headless: true });
+  const browser = await spec.engine.launch({ headless: true, ...(process.env.PUBLIC_SMOKE_CHROMIUM_ONLY ? { channel: 'chrome' } : {}) });
   const context = await browser.newContext({
     viewport: spec.viewport, isMobile: spec.mobile, hasTouch: spec.mobile,
     deviceScaleFactor: spec.mobile ? 2 : 1,
@@ -175,5 +175,5 @@ async function runCase(spec) {
 
 (async () => {
   for (const spec of cases) await runCase(spec);
-  console.log('PASS public opening: desktop Chromium + landscape WebKit');
+  console.log('PASS public opening: desktop Chromium + landscape ' + (process.env.PUBLIC_SMOKE_CHROMIUM_ONLY ? 'Chromium' : 'WebKit'));
 })().catch(error => { console.error(error); process.exitCode = 1; });

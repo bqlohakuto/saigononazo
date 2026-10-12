@@ -230,3 +230,17 @@
 - 壁にあった余分な数字装置を削除。机上の解答枠を正しい5つへ調整。
 - 完成検討用PNG: この会話で作成した `room02_proposal_room01_door_5slots.png` （1672×941）。**GitHubへのPNG配置と本編の見た目の差し替えは未実施**。詳細・保留事項は `docs/ROOM02_PIXEL_DRAFT.md`。
 - 左右の棚・天井照明などは既存「目立つものはほとんどない」という確定台詞との整合性確認が必要。ユーザーの正式採用前に台詞を書き換えたり、謎の操作・進行を変更しない。
+
+## 2026-10-12 第2の部屋・採用画像をゲーム本編へ実装
+
+- ユーザーが最終採用した `レトロな謎解きオフィスと記号パズル.png`（1672×941）を画素一致の**可逆WebP**に変換して `images/background/room02/room02_adopted.webp` にmainへ保存。原画を読み取ったRGB画素とデコード後の画像が全ピクセル一致することを確認。Git blob `afb77fd92746a2e719716c0aa72735bf8f2d5c48`。
+- **右窓なし、赤5種類＋青5種類の合計10記号、机とパースの合った5つの空枠、第1と同デザインの木製扉**の採用版。元の背景案は未使用。
+- `room2.js` の旧CSS描画の扉・机・窓DOMを取り除き、新しい背景1枚に置換。`style.css` で背景表示と透明なクリック範囲を調整：扉・机・10記号5枠・ハナ。ハナは既存の独立立ち絵を表示。
+- `index.html` 内のCSS/JSキャッシュ番号をすべて `20261012-room02-adopted-01` へ統一。初期は2ファイルだけ変更してキャッシュテストが失敗したが、全23参照を統一して再検証成功。原因を隠すためのテスト緩和は一切なし。
+- 公開版検証 **成功**: https://github.com/bqlohakuto/saigononazo/actions/runs/38263393090 （PC Chromium 1366×768／スマホ横向きWebKit 852×393）。
+  - 公開画像 200 OK、1672×941 デコード確認、旧CSSオブジェクトが残っていないことを確認。
+  - 扉・机・ブロック・ハナの当たり判定が舞台範囲内。5枠、赤5＋青5のパレット、ブロックタップで1枠へ反映、JSエラーなし。
+  - 実画面スクリーンショット: https://github.com/bqlohakuto/saigononazo/actions/runs/38263393090/artifacts/11753234036 （desktop-chromium／landscape-webkit 各部屋画面と謎の拡大UI）。
+- 公開のオープニング回帰検証も成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38263155483 。公開アセット回帰も成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38263155715 。
+- 第2のランダム正解・HIT/BLOW・8回制限・台詞・回想・進行・保存データを変更していない。以前から残る `game-flow.test.cjs` の既知3失敗は別件。
+- 現行詳細は `docs/ROOM02_PIXEL_DRAFT.md` と `docs/IMAGE_ASSET_LIST.md` を参照。次の作業では公開PC／横向きスマホのUIの視認性を改善するか、第3のドット背景へ進む。

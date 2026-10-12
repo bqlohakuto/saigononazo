@@ -266,7 +266,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .late-room .hana-v2-world{background-image:url('images/pixel-ui/hana-v8/idle/01.png');image-rendering:pixelated}
 .pixel-opening-world{position:absolute;inset:0;background:#fff;isolation:isolate}
 .pixel-opening-background,.pixel-opening-veil,.pixel-opening-whiteout{position:absolute;inset:0;pointer-events:none}
-.pixel-opening-background{background:url('images/pixel-ui/white-room.png') center/100% 100%;image-rendering:pixelated;opacity:0;transition:opacity 1s}
+.pixel-opening-background{background:url('images/pixel-ui/white-room-fine.png') center/100% 100%;image-rendering:pixelated;opacity:0;transition:opacity 1s}
 .pixel-opening-veil{background:white;transition:background .8s,opacity .8s;z-index:1}
 .opening[data-phase=red] .pixel-opening-veil{background:#ac3039}
 .opening[data-phase=black] .pixel-opening-veil{background:#000}

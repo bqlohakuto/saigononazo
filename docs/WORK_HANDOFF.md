@@ -193,3 +193,13 @@
 - 第2〜第8の既存描画と素材の範囲を `docs/PIXEL_ART_ROADMAP.md` にまとめた。第2の扉・机・5桁ブロックの場面から着手。正式素材を作る際は既存CSS・SVGとの重複を回避し、1枚ずつ採用確認する。
 - 確定済みの台詞、シナリオ、謎、進行ロジックは今回一切変更していない。今回の追加は検証コード・CI・計画書のみ。
 - `game-flow.test.cjs` の既存失敗3件は未修正。結果を偽るために既存テストや確定仕様を書き換えない。
+
+### 追加検証結果（2026-10-12 公開サイト）
+
+- 公開サイトの軽量HTTP検証 **成功**: https://github.com/bqlohakuto/saigononazo/actions/runs/38245204743 。公開HTMLと `design-ui.css` の新バージョン、CSSの `white-room-fine.png` 参照、PNG本体（1670×942）、ハナのidle PNGを取得し確認。関連ソーステスト10/10成功。
+- 公開サイトの実ブラウザ確認 **PCとスマホ横向き相当で成功**: https://github.com/bqlohakuto/saigononazo/actions/runs/38245916338 。PC Chrome 1366×768、横向きChrome 852×393（タッチ・高DPI設定）で、オープニングの赤→黒→瞼→白室、ハナ表示、扉の出現・開閉状態、白転、第1へのフェードと部屋背景を検証。JSページエラーなし。
+- 撮影画像: https://github.com/bqlohakuto/saigononazo/actions/runs/38245916338/artifacts/11745686742 。白い部屋とハナ、第1のドット背景が表示できていることを実画像で確認。
+- 最初の検証失敗は **テストの比較基準の不整合**: `openingIndex` は分割済みの表示文の番号で、元シナリオ行の番号ではなかった。修正後は `GameLog.list()` の原本LOG ID（分割枝番を考慮）で判断。
+- 開眼演出（3秒）を送らずに撮影すると黒い瞼に覆われる。スクリーンショット撮影は完了後に行うように変更。さらに扉表示（0.9秒）・開扉（1.5秒）も完了後に撮影する追加テストを用意。
+- `tests/public-opening.browser.cjs`, `.github/workflows/public-opening-visual.yml`, `.github/workflows/public-opening-chrome.yml`, `.github/workflows/public-opening-asset.yml`, `docs/PIXEL_ART_ROADMAP.md` をmainへ保存済み。
+- 第2以降の画像の差し替えは未実施。既存3件の `game-flow.test.cjs` 失敗は別件として残す。iPhone/Android実機での検証も未実施。

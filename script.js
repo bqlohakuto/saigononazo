@@ -443,7 +443,7 @@ function hasCheckedAllMail(folder){
 
 function inspectRoomItem(id){
  if(!firstRoomState.questionSeen||game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
- const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ",image:firstRoomWalls[3].background,crop:[.23,.23,.54,.56],layers:[firstRoomKeyboard]},poster:{id:"poster",label:"ポスター",image:firstRoomWalls[1].background,crop:[.53,.15,.21,.40],layers:[firstRoomPoster]}};
+ const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ",image:firstRoomWalls[3].background,crop:[.21,.20,.58,.64],layers:[firstRoomKeyboard]},poster:{id:"poster",label:"ポスター",image:firstRoomWalls[1].background,crop:[.53,.15,.21,.40],layers:[firstRoomPoster]}};
  const item=items[id];if(!item)return;
  showItemInspection({container:game,item,onContinue:()=>{
   if(id==="phone"){

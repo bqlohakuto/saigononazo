@@ -257,3 +257,15 @@
 - 前景アルファ検証、z-index、操作領域、5枠、赤青各5種類、パレット選択、JSエラーなしをテストで確認。オープニング回帰成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38270054961 。アセットHTTP検証も成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38270054807
 - **シナリオ・台詞・HIT/BLOW・正解生成・8回制限・セーブ進行は一切変更なし**。実機iPhoneは未確認。旧 `game-flow.test.cjs` の既知3失敗は未着手。
 - 仕様詳細: `docs/ROOM02_PIXEL_DRAFT.md` の「現行実装・机とハナの前後関係」を参照。
+
+## 2026-10-13 第2のハナ位置を指定参考画像へ合わせる（扉の左・赤ブロック奥）
+
+- ユーザーが提示した参考画像「脱出ゲームの机と少女.png」に合わせ、第2のハナの位置を **扉の左／赤ブロックの奥** へ変更。参考画像の立ち絵中心は部屋の横幅の約28.5%、見えている頭の上端は上から約26%。これに公開ゲーム画面を合わせた。
+- `style.css`: `.room2-hana` left **22%**・top **35%**（従来64%／31%）、幅13%、高さ38%。共通立ち絵の待機モーション・表情切替・クリック処理は維持。
+- `design-ui.css`: 第2だけ全身表示を **21.5cqw × 33.6cqw** に微調整。頭上の調査マーク補正 `--hana-head-offset:26.4cqw`。
+- 机前景 `room02_desk_foreground.webp` を引き続きハナの前面に配置（背景 z0 → ハナ z4 → 机前景 z5）。扉・記号・机など採用原画は変更しない。クリック用のボタン位置はキャラクターと連動して移動。
+- `index.html` のCSS/JSキャッシュ版を `20261013-room02-hana-left-01` に更新。
+- 公開Pages成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38272699193
+- 公開PC（Chromium 1366×768）・横向きWebKit（852×393）成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38272699239 。スクリーンショット: https://github.com/bqlohakuto/saigononazo/actions/runs/38272699239/artifacts/11757563172 。PCと横向き画面で立ち絵の頭・胴体・机の奥への収まりを確認。
+- 5枠と赤青各5種類・ブロック操作・各画像のアルファ・z-index・PC/横向きJSエラーなし確認。位置・サイズの正規化比率チェックを `tests/room2-visual.browser.cjs` に追加。
+- 新規のシナリオ・台詞・謎解き仕様・セーブ仕様の変更なし。実機iPhone未確認。

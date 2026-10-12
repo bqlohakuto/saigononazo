@@ -198,7 +198,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
   aspect-ratio:auto;
   bottom:-6.1875cqw;
 }
-#game.hana-v2-full-ready .room2-hana::before{bottom:-9.5625cqw}
+#game.hana-v2-full-ready .room2-hana::before{bottom:-5.25cqw;width:21.25cqw;height:33.2cqw}
 #game.hana-v2-full-ready .room3-hana::before{bottom:-5.625cqw}
 #game.hana-v2-full-ready .r4hana::before{bottom:-5.0625cqw}
 @media(max-height:550px){
@@ -336,7 +336,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 /* Keep Hana's artwork as the click target and place her ring above her head.
    The portrait canvas is 40.5cqw tall with 56/1024 transparent pixels at the top. */
 #game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana){--hana-head-offset:32.0977cqw}
-#game.hana-v2-full-ready .room2-hana{--hana-head-offset:28.7227cqw}
+#game.hana-v2-full-ready .room2-hana{--hana-head-offset:26cqw}
 #game.hana-v2-full-ready .room3-hana{--hana-head-offset:32.6602cqw}
 #game.hana-v2-full-ready .r4hana{--hana-head-offset:33.2227cqw}
 #game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{pointer-events:auto;cursor:pointer}

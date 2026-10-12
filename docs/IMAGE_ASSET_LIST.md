@@ -67,12 +67,15 @@
 | ID | 保存ファイル | 内容 | 状況 |
 |---|---|---|---|
 | R02-01 | [room02_adopted.webp](../images/background/room02/room02_adopted.webp) | 第2の部屋の採用済み背景。右窓なし、中央の木製扉、赤5種類・青5種類の記号、正しいパースで5枠、机・棚・額縁 | **採用・GitHub保存・本編実装済み** |
+| R02-02 | [room02_bg_nodesk.webp](../images/background/room02/room02_bg_nodesk.webp) | 採用原画から机・前景のみを透明にした背景レイヤー | **分離・本編実装済み** |
+| R02-03 | [room02_desk_foreground.webp](../images/background/room02/room02_desk_foreground.webp) | 採用原画から画素一致で切り出した机・赤青記号・5枠・椅子の透過前景 | **分離・本編実装済み** |
 
 - ユーザー承認済みの `レトロな謎解きオフィスと記号パズル.png`（1672×941）を**画素一致の可逆WebP**で保存して使用する。
 - 赤青の各記号は〇・△・□・×・＋。机の5枠は背景内に描かれた空き枠で、答えは画面に描き込まない。
 - 扉は第1の木製扉と同じデザインの採用済み背景。第2の独自CSS扉・机・窓の仮画はDOMから撤去済み。
 - 操作は背景上の透明クリック領域 `#r2Door`／`#r2Desk`／`#r2Blocks`／`#r2Hana` で実行し、詳細パズル画面は従来の5枠・10色記号・HIT/BLOWルールを維持する。
 - 公開のChrome／WebKit確認は `tests/room2-visual.browser.cjs` と `.github/workflows/room2-visual-review.yml` によって検証する。
+- **2026-10-13**: 背景・ハナ・机前景の順で表示。机前景によりハナの下半身を自然に隠す。原画は保持し、背景＋机前景の画素一致を検証。公開PC・横向きWebKitで成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38270055080 。
 
 ## 第5の部屋：助数詞の絵合わせ
 | ID | ファイル名案 | 内容 | 種類 | 状況 |

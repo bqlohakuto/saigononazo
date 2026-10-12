@@ -287,71 +287,26 @@ test("all four accepted backgrounds follow turns and remain the same after unloc
   }
 });
 
-test("closed door preview is manual and cancelable; continuing preserves the original investigation", () => {
-  const h = harness(); h.room();
-  h.query("#doorButton").focus();
-  const before = h.saved, saves = h.saveCount;
-  h.click("#doorButton");
-  assert.equal(h.query(".inspection-image").src, "images/background/room01/pixel/room01_door_closeup.png");
-  assert.equal(h.query(".room").inert, true);
-  h.tick(20000);
-  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
-  assert.deepEqual(h.saved, before);
-  assert.equal(h.saveCount, saves);
-  h.key("Escape");
-  assert.equal(h.query(".room").inert, false);
-  assert.equal(h.document.activeElement, h.query("#doorButton"));
-  assert.deepEqual(h.saved, before);
-  assert.equal(h.saveCount, saves);
-  h.click("#doorButton"); h.click(".inspection-art-button");
-  assert.equal(h.game.querySelector(".inspection-overlay"), null);
-  assert.equal(h.query(".room").inert, true);
-  assert.equal(h.state.doorInspected, false);
-  h.finishDialogue();
-  const original = harness(); original.room(); original.run("inspectDoor()"); original.finishDialogue();
-  assert.equal(h.document.activeElement, h.query("#doorButton"));
-  assert.deepEqual({...h.saved,slotMeta:undefined}, {...original.saved,slotMeta:undefined});
-  assert.equal(h.state.doorInspected, true);
-  assert.equal(h.state.questionSeen, true);
-  assert.equal(h.query("#questionButton").disabled, false);
-  assert.equal(h.query("#pianoButton").disabled, false);
+test("door investigation starts dialogue in the room without an enlargement", () => {
+ const h=harness();h.room();h.query("#doorButton").focus();
+ h.click("#doorButton");
+ assert.equal(h.game.querySelector(".inspection-overlay"),null);
+ assert.equal(h.game.querySelector(".inspection-focus-background"),null);
+ assert.ok(h.query(".room-dialog-overlay"));
+ assert.equal(h.state.questionSeen,false);
+ h.finishDialogue();
+ assert.equal(h.state.questionSeen,true);
+ assert.equal(h.query("#phoneButton").disabled,false);
+ assert.equal(h.document.activeElement,h.query("#doorButton"));
 });
 
-test("unlocked door shows the two necessary closed and open frames manually without changing progression", () => {
-  const state = { ...unlockedItems, doorUnlocked: true, melodySolved: true, viewedWall: "front" };
-  const frames = ["closeup", "open"];
-  for (let cancelAt = 0; cancelAt < frames.length; cancelAt++) {
-    const h = harness(); h.room(state);
-    h.query("#doorButton").focus();
-    const before = h.saved, saves = h.saveCount;
-    h.click("#doorButton");
-    for (let index = 0; index <= cancelAt; index++) {
-      assert.equal(h.query(".inspection-image").src, `images/background/room01/pixel/room01_door_${frames[index]}.png`);
-      h.tick(20000);
-      assert.equal(h.query(".inspection-image").src, `images/background/room01/pixel/room01_door_${frames[index]}.png`);
-      assert.equal(h.query(".room").inert, true);
-      assert.deepEqual(h.saved, before);
-      assert.equal(h.saveCount, saves);
-      if (index < cancelAt) h.click(".inspection-art-button");
-    }
-    h.key("Escape");
-    assert.equal(h.game.querySelector(".inspection-overlay"), null);
-    assert.equal(h.query(".room").inert, false);
-    assert.equal(h.document.activeElement, h.query("#doorButton"));
-    assert.deepEqual(h.saved, before);
-    assert.equal(h.saveCount, saves);
-  }
-  const h = harness(); h.room(state); h.query("#doorButton").focus(); h.click("#doorButton");
-  for (const frame of frames) {
-    assert.equal(h.query(".inspection-image").src, `images/background/room01/pixel/room01_door_${frame}.png`);
-    h.click(".inspection-art-button");
-  }
-  const original = harness(); original.room(state); original.run("inspectDoor()");
-  assert.equal(h.game.querySelector(".inspection-overlay"), null);
-  assert.ok(h.query(".room-dialog-overlay"));
-  assert.equal(h.query(".room").inert, true);
-  assert.deepEqual({...h.saved,slotMeta:undefined}, {...original.saved,slotMeta:undefined});
-  assert.equal(h.state.nextRoomTransitionSeen, false);
+test("unlocked door opens the existing exit dialogue directly", () => {
+ const h=harness();h.room({...unlockedItems,doorUnlocked:true,melodySolved:true,viewedWall:"front"});
+ h.click("#doorButton");
+ assert.equal(h.game.querySelector(".inspection-overlay"),null);
+ assert.ok(h.query(".room-dialog-overlay"));
+ h.finishDialogue();assert.ok(h.query("#nextRoomButton"));
+ assert.equal(h.state.nextRoomTransitionSeen,false);
 });
 
 test("shelf and desk previews stay available without consuming progression or writing logs", () => {
@@ -417,7 +372,7 @@ test("phone enlargement is manual; closing never consumes or saves the first int
   h.query("#phoneButton").focus();
   const saves = h.saveCount;
   h.click("#phoneButton");
-  assert.equal(h.query(".inspection-image").src, "images/items/phone-closed.png?v=20261012-pixel-items-01");
+  assert.equal(h.query(".inspection-image").src, "images/items/phone-on-desk.png?v=20261012-thick-phone-01");
   assert.equal(h.document.activeElement, h.query(".inspection-art-button"));
   h.tick(20000);
   assert.equal(h.game.querySelector(".device-overlay"), null);
@@ -830,8 +785,8 @@ test("shared piano artwork keeps its exact keyboard layer aligned through cover 
   const poster=h.query("#posterButton"),phone=h.query("#phoneButton");
   assert.equal(poster.style.left,`${(width-1536*scale)/2+834*scale}px`);
   assert.equal(poster.style.top,`${(height-1024*scale)/2+164*scale}px`);
-  assert.equal(phone.style.left,`${(width-1536*scale)/2+927*scale}px`);
-  assert.equal(phone.style.top,`${(height-1024*scale)/2+398*scale}px`);
+  assert.ok(Math.abs(parseFloat(phone.style.left)-((width-1536*scale)/2+917*scale))<1e-6);
+  assert.ok(Math.abs(parseFloat(phone.style.top)-((height-1024*scale)/2+380*scale))<1e-6);
   assert.equal(keyboard.hidden,false);
   assert.equal(keyboard.style.left,`${(width-1536*scale)/2+.263*1536*scale}px`);
   assert.equal(keyboard.style.top,`${(height-1024*scale)/2+.437*1024*scale}px`);

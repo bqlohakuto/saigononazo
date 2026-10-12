@@ -45,12 +45,16 @@ async function runCase(spec) {
       // openingIndex counts expanded/paginated UI lines, while openingScenario is an unexpanded array.
       // The history's original LOG ID is the canonical source of each displayed story beat.
       const currentId = () => GameLog.list().at(-1)?.id;
-      for (let i = 0; i < 300 && currentScene === 'opening' && currentId() !== target; i++) {
+      const isTarget = () => {
+        const logged = currentId();
+        return logged === target || (logged?.startsWith(target + '_') && /^\\d+$/.test(logged.slice(target.length + 1)));
+      };
+      for (let i = 0; i < 300 && currentScene === 'opening' && !isTarget(); i++) {
         Dialogue.advance();
       }
-      return { lastId: currentId(), phase: document.querySelector('.opening')?.dataset.phase };
+      return { lastId: currentId(), matches: isTarget(), phase: document.querySelector('.opening')?.dataset.phase };
     }, id);
-    assert.equal(result.lastId, id, JSON.stringify(result));
+    assert(result.matches, JSON.stringify(result));
   }
   async function getState() {
     return page.locator('.opening').evaluate(el => ({
@@ -105,6 +109,9 @@ async function runCase(spec) {
     assert(asset.url?.includes('white-room-fine.png'), 'Old white-room background is still referenced: ' + JSON.stringify(asset));
     assert(asset.ok && asset.type?.includes('image/png') && asset.width > 0 && asset.height > 0,
       'Fine opening PNG did not download/decode: ' + JSON.stringify(asset));
+    // The eye-opening masks run for 3 seconds independently of text advancement.
+    // Capture the room only after they finish rather than a falsely black intermediate frame.
+    await page.waitForTimeout(3400);
     await shot('04-white-room');
 
     await advanceTo('opening_14');

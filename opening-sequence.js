@@ -1,51 +1,26 @@
 // Opening visual layer.
-// The red / black / white states now follow the currently displayed text,
-// instead of advancing on fixed timers. Only the black -> white transition
-// keeps a duration as a visual effect; it never blocks dialogue progression.
+// Scene states follow the displayed text. Darkness remains through opening_04.
+// Two eyelid masks reveal a white horizontal slit, then open upward/downward.
+// The visual animation never advances scenario text on its own.
 
 let openingFreshRun = false;
 let openingWhiteFadeStarted = false;
 
 function openingBackgroundForIndex(index) {
   if (index <= 0) return "#f00";
-  if (index === 1) return "#000";
+  if (index <= 3) return "#000";
   return "#fff";
 }
 
 function updateOpeningVisual(index) {
   const opening = document.querySelector(".opening");
   if (!opening) return;
-
   opening.style.opacity = "1";
   opening.style.animation = "none";
-
-  if (index === 0) {
-    opening.style.transition = "none";
-    opening.style.backgroundColor = "#f00";
-    return;
-  }
-
-  if (index === 1) {
-    opening.style.transition = "none";
-    opening.style.backgroundColor = "#000";
-    return;
-  }
-
-  // When the third line appears, the darkness fades into white.
-  // The text itself remains player/AUTO controlled; this transition does not
-  // schedule or advance any scenario line.
-  if (openingFreshRun && !openingWhiteFadeStarted) {
+  opening.style.transition = "none";
+  opening.style.backgroundColor = openingBackgroundForIndex(index);
+  if(index >= 4){
     openingWhiteFadeStarted = true;
-    opening.style.transition = `background-color ${FADE_TIME}ms ease`;
-    opening.style.backgroundColor = "#fff";
-    GameAudio.stop("tinnitus");
-    return;
-  }
-
-  // Continue-from-save opens directly at the visual state for that line.
-  if (!openingFreshRun) {
-    opening.style.transition = "none";
-    opening.style.backgroundColor = "#fff";
     GameAudio.stop("tinnitus");
   }
 }
@@ -106,7 +81,7 @@ function pixelOpeningState(line) {
   const original=openingScenario.filter(l=>id===l.logId||id.startsWith(l.logId+"_")).sort((a,b)=>b.logId.length-a.logId.length)[0];
   const at=openingScenario.indexOf(original);
   const order=id=>openingScenario.findIndex(l=>l.logId===id);
-  return {id:original?.logId,phase:at===0?'red':at===1?'black':at<6?'white':'room',
+  return {id:original?.logId,phase:at===0?'red':at<=order('opening_04')?'black':at<order('opening_07')?'white':'room',
     hana:at>=order('opening_14')&&at<order('opening_31'),
     view:at>=order('opening_31')?'door':at>=order('opening_14')?'hana':'front',
     door:at>=order('opening_31'),open:at>=order('opening_39'),whiteout:at>=order('opening_41'),
@@ -116,7 +91,8 @@ function pixelOpeningState(line) {
 function updatePixelOpening(line) {
   const opening=document.querySelector('.opening'),world=document.getElementById('openingWorld');
   if(!opening||!world)return;
-  const v=pixelOpeningState(line),previous=opening.dataset.view;
+  const v=pixelOpeningState(line),previous=opening.dataset.view,previousPhase=opening.dataset.phase;
+  if(previousPhase==='black'&&v.phase==='white')opening.dataset.eyeOpening='true';
   opening.dataset.phase=v.phase;opening.dataset.hanaVisible=String(v.hana&&!v.whiteout);opening.dataset.view=v.view;
   world.querySelector('.pixel-opening-door').classList.toggle('visible',v.door);
   world.querySelector('.pixel-opening-door').classList.toggle('open',v.open);

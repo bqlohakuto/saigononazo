@@ -2,6 +2,10 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const root=path.resolve(__dirname,'..');
 function state(id){const ctx=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(root,'scenario.js'),'utf8')+fs.readFileSync(path.join(root,'opening-sequence.js'),'utf8'),ctx);return JSON.parse(vm.runInContext(`JSON.stringify(pixelOpeningState({logId:${JSON.stringify(id)}}))`,ctx));}
 test('paginated opening and resumed source IDs retain camera and door state',()=>{
+ assert.equal(state('opening_03_01').phase,'black');
+ assert.equal(state('opening_04_01').phase,'black');
+ assert.equal(state('opening_05_01').phase,'white');
+ assert.equal(state('opening_07_01').phase,'room');
  assert.equal(state('opening_12_01').hana,false,'voice from behind must not reveal Hana early');
  assert.equal(state('opening_14_01').hana,true);
  assert.equal(state('opening_30_01').view,'hana');

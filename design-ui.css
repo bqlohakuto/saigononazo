@@ -285,3 +285,11 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .inspection-art-button{flex:1 1 0;min-height:0;height:auto;max-height:none;padding:0;container-type:size;overflow:hidden;border:0;background:transparent}
 #game .inspection-crop{max-height:none}
 #game .inspection-image{image-rendering:pixelated}
+
+/* Darkness through 「瞼が重い」; the next line opens both eyelids. */
+.pixel-opening-veil{transition:opacity .8s}
+.opening[data-eye-opening=true] .pixel-opening-world::before,
+.opening[data-eye-opening=true] .pixel-opening-world::after{content:"";position:absolute;left:0;right:0;height:calc(50% - 1px);background:#000;z-index:6;pointer-events:none;animation:openingEyelids 3s ease-in-out both}
+.opening[data-eye-opening=true] .pixel-opening-world::before{top:0;transform-origin:center top}
+.opening[data-eye-opening=true] .pixel-opening-world::after{bottom:0;transform-origin:center bottom}
+@keyframes openingEyelids{0%,10%{transform:scaleY(1)}100%{transform:scaleY(0)}}

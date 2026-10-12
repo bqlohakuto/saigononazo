@@ -31,15 +31,17 @@ function harness() {
   };
 }
 
-test("opening background follows the first three scenario states", () => {
+test("opening stays black through the heavy-eyelid line", () => {
   const h = harness();
   assert.equal(h.run("openingBackgroundForIndex(0)"), "#f00");
   assert.equal(h.run("openingBackgroundForIndex(1)"), "#000");
-  assert.equal(h.run("openingBackgroundForIndex(2)"), "#fff");
+  assert.equal(h.run("openingBackgroundForIndex(2)"), "#000");
+  assert.equal(h.run("openingBackgroundForIndex(3)"), "#000");
+  assert.equal(h.run("openingBackgroundForIndex(4)"), "#fff");
   assert.equal(h.run("openingBackgroundForIndex(20)"), "#fff");
 });
 
-test("fresh opening fades from darkness to white on the third displayed line", () => {
+test("fresh opening switches to white only after the heavy-eyelid line", () => {
   const h = harness();
   h.run("openingFreshRun=true; openingWhiteFadeStarted=false; updateOpeningVisual(0)");
   assert.equal(h.opening.style.backgroundColor, "#f00");
@@ -50,8 +52,12 @@ test("fresh opening fades from darkness to white on the third displayed line", (
   assert.equal(h.opening.style.transition, "none");
 
   h.run("updateOpeningVisual(2)");
+  assert.equal(h.opening.style.backgroundColor, "#000");
+  h.run("updateOpeningVisual(3)");
+  assert.equal(h.opening.style.backgroundColor, "#000");
+  h.run("updateOpeningVisual(4)");
   assert.equal(h.opening.style.backgroundColor, "#fff");
-  assert.equal(h.opening.style.transition, "background-color 3000ms ease");
+  assert.equal(h.opening.style.transition, "none");
   assert.equal(h.run("openingWhiteFadeStarted"), true);
   assert.deepEqual(h.stopped, ["tinnitus"]);
 });

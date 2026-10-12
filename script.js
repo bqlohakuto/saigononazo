@@ -291,10 +291,10 @@ const firstRoomKeyboard={image:"images/background/room01/pixel/keyboard.svg?v=20
 const firstRoomPoster={image:"images/items/item_poster.png?v=20261012-pixel-items-01",rect:[863/1536,195/1024,230/1536,326/1024],paper:true};
 const firstRoomPhone={image:"images/items/phone-on-desk.png?v=20261012-thick-phone-01",rect:[942/1536,388/1024,84/1536,32/1024],phoneOnDesk:true};
 const firstRoomWalls=[
- {id:"front",label:"正面",background:"images/background/room01/pixel/room01_front.png"},
- {id:"right",label:"右の壁",background:"images/background/room01/pixel/room01_right.png"},
- {id:"back",label:"後ろの壁",background:"images/background/room01/pixel/room01_back.png"},
- {id:"left",label:"左の壁",background:"images/background/room01/pixel/room01_left.png"}
+ {id:"front",label:"正面",background:"images/background/room01/pixel/room01_front_fine.png"},
+ {id:"right",label:"右の壁",background:"images/background/room01/pixel/room01_right_fine.png"},
+ {id:"back",label:"後ろの壁",background:"images/background/room01/pixel/room01_back_fine.png"},
+ {id:"left",label:"左の壁",background:"images/background/room01/pixel/room01_left_fine.png"}
 ];
 
 function showFirstRoom(savedState){

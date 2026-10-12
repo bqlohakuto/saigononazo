@@ -249,7 +249,7 @@ test("old saves restore mail, wall and unlocked state with a safe phone-introduc
   assert.deepEqual(h.state.openedSent, allMail.openedSent);
   assert.equal(h.query(".room").classList.contains("is-restored"), true);
   assert.equal(h.query("#doorButton").classList.contains("is-unlocked"), true);
-  assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/pixel/room01_left.png");
+  assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/pixel/room01_left_fine.png");
   assert.equal(h.query('[data-wall="left"]').hidden, false);
   assert.equal(h.query('[data-wall="front"]').hidden, true);
   assert.equal(h.query("#phoneButton").disabled, false);
@@ -276,13 +276,13 @@ test("all four accepted backgrounds follow turns and remain the same after unloc
     for (const direction of directions) {
       assert.equal(h.state.viewedWall, direction);
       assert.equal(h.saved.state.viewedWall, direction);
-      assert.equal(h.query("#roomBackground").getAttribute("src"), `images/background/room01/pixel/room01_${direction}.png`);
+      assert.equal(h.query("#roomBackground").getAttribute("src"), `images/background/room01/pixel/room01_${direction}_fine.png`);
       for (const layer of directions) assert.equal(h.query(`[data-wall="${layer}"]`).hidden, layer !== direction);
       h.click("#turnRightButton");
     }
     assert.equal(h.state.viewedWall, "front");
     h.click("#turnLeftButton");
-    assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/pixel/room01_left.png");
+    assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/pixel/room01_left_fine.png");
     h.click("#turnRightButton");
   }
 });
@@ -318,7 +318,7 @@ test("shelf and desk previews stay available without consuming progression or wr
       opener.focus();
       const before = h.saved, saves = h.saveCount;
       h.click(`#${item}Button`);
-      assert.equal(h.query(".inspection-image").src, `images/background/room01/pixel/room01_${wall}.png`);
+      assert.equal(h.query(".inspection-image").src, `images/background/room01/pixel/room01_${wall}_fine.png`);
       assert.equal(h.query(".room").inert, true);
       h.click("#turnRightButton");
       assert.equal(h.state.viewedWall, wall);
@@ -348,7 +348,7 @@ test("poster and keyboard retain artwork and question gates; inspection commits 
     h.click(`#${item}Button`);
     const expectedImage = item === "poster"
       ? "images/items/item_poster.png?v=20261012-pixel-items-01"
-      : "images/background/room01/pixel/room01_left.png";
+      : "images/background/room01/pixel/room01_left_fine.png";
     assert.equal(h.query(".inspection-image").src, expectedImage);
     assert.equal(h.query(".room").inert, true);
     h.key("Escape");

@@ -231,7 +231,7 @@ function harness(saved) {
   };
 }
 
-const unlockedItems = { questionSeen: true, doorInspected: true, viewedWall: "back" };
+const unlockedItems = { hanaIntroduced: true, questionSeen: true, doorInspected: true, viewedWall: "back" };
 const allMail = {
   openedInbox: ["inbox-1", "inbox-2", "inbox-3", "inbox-4"],
   openedSent: ["sent-1", "sent-2", "sent-3", "sent-4"]
@@ -258,7 +258,7 @@ test("old saves restore mail, wall and unlocked state with a safe phone-introduc
 });
 
 test("invalid saved direction falls back to front; direction changes remain saved", () => {
-  const h = harness(); h.room({ viewedWall: "missing" });
+  const h = harness(); h.room({ viewedWall: "missing", questionSeen:true, hanaIntroduced:true });
   assert.equal(h.state.viewedWall, "front");
   h.click("#turnLeftButton");
   assert.equal(h.state.viewedWall, "left");
@@ -268,7 +268,7 @@ test("invalid saved direction falls back to front; direction changes remain save
 });
 
 test("all four accepted backgrounds follow turns and remain the same after unlocking", () => {
-  const h = harness(); h.room({ ...unlockedItems, viewedWall: "front" });
+  const h = harness(); h.room({ ...unlockedItems, hanaIntroduced:true, viewedWall: "front" });
   const directions = ["front", "right", "back", "left"];
   for (const restored of [false, true]) {
     if (restored) h.run("unlockFirstRoomDoor()");
@@ -312,7 +312,7 @@ test("unlocked door opens the existing exit dialogue directly", () => {
 test("shelf and desk previews stay available without consuming progression or writing logs", () => {
   for (const restored of [false, true]) {
     for (const [item, wall] of [["shelf", "right"], ["desk", "back"]]) {
-      const h = harness(); h.room({ viewedWall: wall, doorUnlocked: restored, melodySolved: restored });
+      const h = harness(); h.room({ viewedWall: wall, questionSeen:true, hanaIntroduced:true, doorUnlocked: restored, melodySolved: restored });
       const opener = h.query(`#${item}Button`);
       assert.equal(opener.disabled, false);
       opener.focus();
@@ -331,7 +331,7 @@ test("shelf and desk previews stay available without consuming progression or wr
       assert.equal(h.query(".room").inert, false);
       assert.deepEqual(h.saved, before);
       assert.equal(h.saveCount, saves);
-      assert.equal(h.state.questionSeen, false);
+      assert.equal(h.state.questionSeen, true);
     }
   }
 });
@@ -777,7 +777,7 @@ test("unlocked door supports continued exploration, next-room transition and a r
 
 
 test("shared piano artwork keeps its exact keyboard layer aligned through cover resizing", () => {
- const h=harness();h.room({...unlockedItems,viewedWall:"left"});
+ const h=harness();h.room({...unlockedItems,hanaIntroduced:true,viewedWall:"left"});
  const stage=h.query("#roomStage"),keyboard=h.query("#roomKeyboard");
  for(const [width,height] of [[1440,810],[852,479],[600,700]]){
   stage.clientWidth=width;stage.clientHeight=height;h.run("positionFirstRoomKeyboard()");
@@ -820,4 +820,33 @@ test("desk closeup focuses on the tabletop and retains the projected phone", () 
  assert.ok(Number.parseFloat(layer.style.left)>=0&&Number.parseFloat(layer.style.left)<100);
  assert.ok(Number.parseFloat(layer.style.top)>=0&&Number.parseFloat(layer.style.top)<100);
  h.key("Escape");assert.equal(h.document.activeElement,h.query("#deskButton"));
+});
+
+
+test("first-room navigation requires completed door and Hana investigation in either order", () => {
+ for(const hanaFirst of [false,true]){
+  const h=harness();h.room();
+  assert.equal(h.query("#turnLeftButton").disabled,true);
+  h.run("turnFirstRoom(1)");assert.equal(h.state.viewedWall,"front");
+  const hana=()=>{h.click("#hanaButton");h.click('[data-choice="about-hana"]');
+   assert.equal(h.query("#turnRightButton").disabled,true);h.finishDialogue();};
+  const door=()=>{h.click("#doorButton");
+   assert.equal(h.query("#turnRightButton").disabled,true);h.finishDialogue();};
+  (hanaFirst?hana:door)();
+  assert.equal(h.query("#turnRightButton").disabled,true);
+  (hanaFirst?door:hana)();
+  assert.equal(h.query("#turnRightButton").disabled,false);
+  h.click("#turnRightButton");assert.equal(h.state.viewedWall,"right");
+  const resumed=harness(h.saved);resumed.click("#continueButton");
+  assert.equal(resumed.state.viewedWall,"right");
+  assert.equal(resumed.query("#turnLeftButton").disabled,false);
+ }
+});
+
+test("incomplete saved introductions return to the front and keep navigation locked", () => {
+ const h=harness();h.room({questionSeen:true,hanaIntroduced:false,viewedWall:"back"});
+ assert.equal(h.state.viewedWall,"front");assert.equal(h.query("#turnRightButton").disabled,true);
+ h.click("#hanaButton");h.click('[data-choice="about-hana"]');h.click("#roomNextButton");
+ const resumed=harness(h.saved);resumed.click("#continueButton");
+ assert.equal(resumed.query("#turnRightButton").disabled,true);
 });

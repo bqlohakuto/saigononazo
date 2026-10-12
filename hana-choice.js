@@ -146,6 +146,7 @@
         showRoomDialog(choice.lines, () => {
           firstRoomState.hanaVisits = Number(firstRoomState.hanaVisits || 0) + 1;
           choice.onComplete?.();
+          refreshFirstRoomNavigation();
           saveGame();
           window.HanaIdentity?.refresh?.();
         });

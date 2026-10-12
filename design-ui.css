@@ -356,3 +356,5 @@ body{background:#0b1322!important;display:grid;place-items:center}
  #game.has-world-expression.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before,
  #game.has-world-expression .late-room .hana-v2-world{animation:hanaExpressionBreath 4.23s ease-in-out infinite}
 }
+
+#game .room-navigation button:disabled{opacity:.35;cursor:default}

@@ -287,7 +287,7 @@ function showFirstRoom(savedState){
  Dialogue.stop();
  GameAudio.stop("tinnitus");
  firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,hintLevel:0,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,phoneReflectionSeen:false,posterInspected:false,pianoIntroductionSeen:false,nextRoomTransitionSeen:false,viewedWall:"front",highlightEnabled:true,...savedState,hanaIntroduced:savedState?.hanaIntroduced??Number(savedState?.hanaVisits||0)>0,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
- if(!firstRoomWalls.some(wall=>wall.id===firstRoomState.viewedWall))firstRoomState.viewedWall="front";
+ if(!canExploreFirstRoom()||!firstRoomWalls.some(wall=>wall.id===firstRoomState.viewedWall))firstRoomState.viewedWall="front";
  game.innerHTML=`
   <main class="room first-room ${firstRoomState.doorUnlocked?"is-restored":""}" aria-label="第一の部屋">
    <header class="room-header"><p class="room-label">第一の部屋</p><p class="room-color-status" id="roomColorStatus">${firstRoomState.doorUnlocked?"色を取り戻した部屋":"淡い記憶の部屋"}</p></header>
@@ -354,7 +354,17 @@ function positionFirstRoomKeyboard(){
  Object.assign(keyboard.style,{left:`${(width-artWidth)/2+x*artWidth}px`,top:`${(height-artHeight)/2+y*artHeight}px`,width:`${w*artWidth}px`,height:`${h*artHeight}px`});
 }
 
+function canExploreFirstRoom(){
+ return firstRoomState.questionSeen&&firstRoomState.hanaIntroduced;
+}
+function refreshFirstRoomNavigation(){
+ for(const id of ["turnLeftButton","turnRightButton"]){
+  const button=document.getElementById(id);if(button)button.disabled=!canExploreFirstRoom();
+ }
+}
+
 function renderFirstRoomWall(){
+ refreshFirstRoomNavigation();
  const wall=firstRoomWalls.find(wall=>wall.id===firstRoomState.viewedWall);
  document.getElementById("roomBackground").setAttribute("src",wall.background);
  document.getElementById("roomStage").setAttribute("aria-label",wall.label);
@@ -363,6 +373,7 @@ function renderFirstRoomWall(){
 }
 
 function turnFirstRoom(direction){
+ if(!canExploreFirstRoom()||game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
  const current=firstRoomWalls.findIndex(wall=>wall.id===firstRoomState.viewedWall);
  firstRoomState.viewedWall=firstRoomWalls[(current+direction+firstRoomWalls.length)%firstRoomWalls.length].id;
  renderFirstRoomWall();
@@ -415,6 +426,7 @@ function showDoorQuestion(){
 }
 
 function unlockRoomItems(){
+ refreshFirstRoomNavigation();
  ["phoneButton","pianoButton","posterButton"].forEach(id=>{
   const item=document.getElementById(id);
   item.disabled=false;
@@ -424,6 +436,7 @@ function unlockRoomItems(){
 
 function completeHanaIntroduction(){
  firstRoomState.hanaIntroduced=true;
+ refreshFirstRoomNavigation();
  firstRoomState.hanaVisits=Number(firstRoomState.hanaVisits||0)+1;
  saveGame();
  window.HanaIdentity?.refresh?.();

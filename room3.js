@@ -179,12 +179,26 @@ function inspectThirdRoomDesk(){
  showRoomDialog([{logId:"room3_desk_01",logType:"investigation",speaker:"ト書き",text:"黒い天板の机だ。一人で組み立てるのに2時間かかったことを思い出す。"},{logId:"room3_desk_02",logType:"narration",speaker:"主人公",thought:true,text:"どうして、そんなことを覚えているんだろう。"},{logId:"room3_desk_03",logType:"investigation",speaker:"ト書き",text:"机の上にはスマートフォンが置かれている。"}]);
 }
 function showThirdRoomChat(){
- if(!room3State.deskInspected)return;
+ if(!room3State.deskInspected||game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay"))return;
  const overlay=document.createElement("div");overlay.className="device-overlay room3-chat-overlay";
- overlay.innerHTML=`<section class="room3-chat-panel" role="dialog" aria-modal="true" aria-label="先輩とのトーク"><header><h2>トーク</h2><button type="button" class="device-close" aria-label="閉じる">×</button></header><div class="room3-chat-copy"><p>先輩「ねえ、暇だから変なことしよ」</p><p>主人公「今講義中なんですけど」</p><p>先輩「今から顔文字だけで会話する！」</p><p>主人公「今はスタンプもあるのにですか？絶対会話にならないですよw」</p></div><p class="room3-chat-context">顔文字のやり取り（上から順番）</p><div class="room3-chat-list"></div><div class="room3-chat-copy"><p>主人公「やっぱり何言ってるのかわかりません」</p><p>先輩「はい負け〜！」</p><p>主人公「勝負だったんですか！？どんなルール！？」</p></div></section>`;game.appendChild(overlay);
- const list=overlay.querySelector(".room3-chat-list");list.innerHTML=ROOM3_CHAT_MESSAGES.map((item,index)=>`<article class="room3-chat-message ${item.sender==="先輩"?"senpai":"player"}" aria-label="${index+1}通目、${item.sender}"><small>${item.sender}</small><p>${item.face}</p></article>`).join("");
- const close=()=>{overlay.remove();if(!room3State.chatRead){room3State.chatRead=true;room3State.phoneInspected=true;saveGame();showRoomNotice("顔文字のやり取りを確認した。","room3_chat_read")}};
- overlay.querySelector(".device-close").addEventListener("click",close);
+ overlay.innerHTML=`<section class="room3-chat-panel r3-handset" role="dialog" aria-modal="true" aria-label="先輩とのトーク"><div class="r3-phone-speaker" aria-hidden="true"></div><div class="r3-phone-lcd"><div class="r3-phone-status" aria-hidden="true"><span>▮▮▮</span><span>▰</span></div><header class="r3-app-header"><button type="button" class="device-close" aria-label="トークを閉じる">◀</button><h2>先輩</h2><span class="r3-header-spacer" aria-hidden="true"></span></header><div class="r3-chat-scroll" tabindex="0" role="region" aria-label="先輩との会話をスクロール"></div></div><div class="r3-phone-home" aria-hidden="true"></div></section>`;
+ game.appendChild(overlay);
+ const stream=overlay.querySelector(".r3-chat-scroll");
+ const appendMessage=(sender,text,index)=>{
+  const article=document.createElement("article");
+  article.className=(index===undefined?"r3-text-message":"room3-chat-message")+" "+(sender==="先輩"?"senpai":"player");
+  article.setAttribute("aria-label",index===undefined?sender:`${index+1}通目、${sender}`);
+  const name=document.createElement("small");name.textContent=sender;
+  const bubble=document.createElement("p");bubble.textContent=text;
+  article.append(name,bubble);stream.appendChild(article);
+ };
+ [["先輩","ねえ、暇だから変なことしよ"],["主人公","今講義中なんですけど"],["先輩","今から顔文字だけで会話する！"],["主人公","今はスタンプもあるのにですか？絶対会話にならないですよw"]].forEach(([sender,text])=>appendMessage(sender,text));
+ const divider=document.createElement("p");divider.className="room3-chat-context";divider.textContent="顔文字のやり取り（上から順番）";stream.appendChild(divider);
+ ROOM3_CHAT_MESSAGES.forEach((item,index)=>appendMessage(item.sender,item.face,index));
+ [["主人公","やっぱり何言ってるのかわかりません"],["先輩","はい負け〜！"],["主人公","勝負だったんですか！？どんなルール！？"]].forEach(([sender,text])=>appendMessage(sender,text));
+ activateDeviceModal(overlay,"r3Phone",stream,()=>{
+  if(!room3State.chatRead){room3State.chatRead=true;room3State.phoneInspected=true;saveGame();showRoomNotice("顔文字のやり取りを確認した。","room3_chat_read")}
+ });
 }
 function inspectThirdRoomBed(){
  const lines=room3State.bedInspected?[{logId:"room3_bed_repeat",logType:"investigation",speaker:"ト書き",text:"ベッドには、特に変わったところはない。"}]:[{logId:"room3_bed_01",logType:"dialogue",speaker:"主人公",text:"ハナさん、何寝てるんですか。"},{logId:"room3_bed_02",logType:"dialogue",speaker:"ハナ",text:"スー、スー……"},{logId:"room3_bed_03",logType:"dialogue",speaker:"主人公",text:"ハナさん？？"},{logId:"room3_bed_04",logType:"dialogue",speaker:"ハナ",text:"あ、ごめんごめん。頭使ったら眠くなっちゃって。"},{logId:"room3_bed_05",logType:"dialogue",speaker:"主人公",text:"はあ……起きてください。手伝ってくれるんですよね。"},{logId:"room3_bed_06",logType:"investigation",speaker:"ト書き",text:"ハナにどいてもらい、ベッドを調べる。特に変わったところはない。"}];

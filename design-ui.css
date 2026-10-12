@@ -395,3 +395,27 @@ body{background:#0b1322!important;display:grid;place-items:center}
 /* Room 3 companion uses the existing independent idle/expression sprite. */
 #game.hana-v2-full-ready .room3-hana::before{width:21.5cqw;height:33.6cqw;bottom:-5.25cqw}
 #game.hana-v2-full-ready .room3-hana{--hana-head-offset:26.4cqw}
+
+/* Room 3: a fixed black smartphone shell, one scrollable conversation inside the LCD. */
+#game:has(.room3-chat-overlay) .gameplay-hud{visibility:hidden}
+#game .room3-chat-overlay{padding:2.2%}
+#game .room3-chat-panel.r3-handset{width:auto;height:100%;max-height:100%!important;aspect-ratio:9/17;min-height:0;display:flex;flex-direction:column;gap:0;padding:clamp(7px,1cqw,14px)!important;border:3px solid #414854!important;border-radius:16px!important;background:#151a21!important;color:#f7f7f5!important;overflow:hidden;box-shadow:inset 0 0 0 2px #080c12,5px 6px 0 #05080c80}
+.r3-phone-speaker{flex:0 0 4%;display:flex;justify-content:center;align-items:center}
+.r3-phone-speaker::before{content:"";width:22%;height:4px;background:#070b10;border:1px solid #414954;box-shadow:0 1px 0 #66707a}
+.r3-phone-lcd{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;border:2px solid #06090d;background:#b9cbd3;color:#253139}
+.r3-phone-status{flex:0 0 auto;display:flex;justify-content:space-between;padding:2px 7px;background:#252e37;color:#eee;font:10px/1.1 monospace}
+#game .r3-handset .r3-app-header{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:4px;background:#3d535e;color:#fff;padding:3px 4px;border-bottom:2px solid #233943}
+#game .r3-app-header h2{font:inherit;font-size:clamp(12px,1.45cqw,20px);font-weight:600;margin:0;color:#fff}
+#game .r3-app-header .device-close{position:static;min-width:36px;width:36px!important;min-height:32px;height:32px;padding:0;background:#304550;color:#fff;border:1px solid #69808a;box-shadow:none;font-size:14px!important}
+.r3-header-spacer{width:36px}
+.r3-chat-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:clamp(7px,.9cqw,12px);display:flex;flex-direction:column;gap:clamp(7px,.7cqw,10px);scrollbar-width:thin;scrollbar-color:#6c8793 #c6d6dc;font:clamp(12px,1.35cqw,18px)/1.65 "DotGothic16",sans-serif}
+.r3-chat-scroll:focus-visible{outline:2px solid #587a8a;outline-offset:-2px}
+#game .r3-chat-scroll :is(.room3-chat-message,.r3-text-message){display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:auto;max-width:88%;align-self:flex-start;text-align:left}
+#game .r3-chat-scroll :is(.room3-chat-message,.r3-text-message).player{align-self:flex-end;align-items:flex-end}
+.r3-chat-scroll small{font-size:.73em;line-height:1.2;color:#40535e;padding:0 2px}
+#game .r3-chat-scroll article p{margin:0;padding:6px 9px;background:#fffef8;color:#26323a;border:1px solid #80959f;border-radius:4px;box-shadow:1px 2px 0 #5f778533;overflow-wrap:anywhere}
+#game .r3-chat-scroll article.player p{background:#ddedc3;border-color:#839e6b}
+#game .r3-chat-scroll .room3-chat-message p{font-size:1.25em;line-height:1.4;white-space:pre;overflow-wrap:normal}
+#game .r3-chat-scroll .room3-chat-context{align-self:center;margin:5px 0;padding:4px 7px;font-size:.68em;line-height:1.5;color:#405862;background:#d4e1e7;border-radius:3px;text-align:center}
+.r3-phone-home{flex:0 0 5%;display:flex;align-items:center;justify-content:center}
+.r3-phone-home::before{content:"";width:12%;height:48%;border:1px solid #505965;background:#0b1017;box-shadow:inset 0 0 0 1px #242c36}

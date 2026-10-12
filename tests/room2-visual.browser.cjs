@@ -85,6 +85,25 @@ function within(inner,outer,tolerance=3){
    assert(within(bounds.image,bounds.stage),'Background image fits in stage');
    for(const label of ['door','desk','blocks','hana'])assert(within(bounds[label],bounds.stage),label+' hit target must fit stage');
    assert.equal(bounds.blocksDisabled,false,'Puzzle accessible after desk inspection');
+   // The approved reference positions Hana left of the door, just behind the red tiles.
+   // Use normalized stage geometry so the same artwork works on PC and landscape phones.
+   const hanaPlacement=await page.evaluate(()=>{
+     const stage=document.querySelector('.room2-stage').getBoundingClientRect();
+     const actor=document.querySelector('#r2Hana');
+     const rect=actor.getBoundingClientRect();
+     const sprite=getComputedStyle(actor,'::before');
+     return {
+       centerX:(rect.x+rect.width/2-stage.x)/stage.width,
+       top:(rect.y-stage.y)/stage.height,
+       spriteWidth:parseFloat(sprite.width)/stage.width,
+       spriteHeight:parseFloat(sprite.height)/stage.width
+     };
+   });
+   assert(Math.abs(hanaPlacement.centerX-.285)<.015,'Hana should stand left of the door in the reference position');
+   assert(Math.abs(hanaPlacement.top-.35)<.015,'Hana should be at the reference height behind the red tray');
+   assert(Math.abs(hanaPlacement.spriteWidth-.215)<.025,'Hana should have the approved world sprite size');
+   assert(Math.abs(hanaPlacement.spriteHeight-.336)<.03,'Hana should preserve the reference body proportions');
+
    await page.screenshot({path:path.join(dir,'01-room02-approved.png')});
    await page.locator('#r2Blocks').click({timeout:8000});
    await page.locator('.room2-puzzle').waitFor();
@@ -95,7 +114,7 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-palette-token').first().click();
    assert.equal(await page.locator('.room2-answer-slot i').count(),1,'Selecting token fills a single answer slot');
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
-   console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},palette:10,slots:5,errors}));
+   console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();
   }finally{await browser.close();}
  }

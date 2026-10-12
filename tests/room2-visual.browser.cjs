@@ -1,35 +1,76 @@
-// Take non-destructive screenshots of the published second room.
-// This is a visual review only; the puzzle, save data, and scenario are never written to the public repo.
-const {chromium}=require('playwright');
+// Verify the adopted Room 2 background on the deployed website, without changing progress data.
+// Run with Playwright Chromium and WebKit installed.
+const assert=require('node:assert/strict');
+const {chromium,webkit}=require('playwright');
 const fs=require('node:fs');
 const path=require('node:path');
 const url=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononazo/';
 const output=process.env.UI_SCREENSHOT_DIR||'artifacts/room02';
-(async()=>{
- const browser=await chromium.launch({channel:'chrome',headless:true});
- for(const view of [
-  {name:'desktop',viewport:{width:1366,height:768},isMobile:false},
-  {name:'landscape-mobile',viewport:{width:852,height:393},isMobile:true}
- ]){
-  const context=await browser.newContext({viewport:view.viewport,isMobile:view.isMobile,hasTouch:view.isMobile,deviceScaleFactor:2,reducedMotion:'reduce'});
-  await context.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
-  const page=await context.newPage();
-  const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(url,{waitUntil:'load',timeout:60000});
-  const dir=path.join(output,view.name);fs.mkdirSync(dir,{recursive:true});
-  await page.evaluate(()=>{settings.instantText=true;showSecondRoom({doorInspected:true,deskInspected:true,sheetFound:true});});
-  await page.waitForTimeout(500);
-  await page.screenshot({path:path.join(dir,'01-room02.png')});
-  const measurements=await page.evaluate(()=>{
-   const q=s=>{const n=document.querySelector(s);if(!n)return null;const r=n.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,style:getComputedStyle(n).backgroundImage};};
-   return {game:q('#game'),stage:q('.room2-stage'),door:q('.room2-door-art'),desk:q('.room2-desk-art'),window:q('.room2-window-light'),hana:q('#r2Hana'),blocks:q('#r2Blocks'),blockButtonDisabled:document.querySelector('#r2Blocks')?.disabled};
-  });
-  await page.evaluate(()=>showSecondRoomPuzzle());
-  await page.waitForTimeout(400);
-  await page.screenshot({path:path.join(dir,'02-room02-puzzle.png')});
-  const puzzle=await page.locator('.room2-puzzle').boundingBox();
-  console.log(JSON.stringify({name:view.name,measurements,puzzle,errors}));
-  await context.close();
+const expectedVersion=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8').match(/room2[.]js[?]v=([^"']+)/)?.[1];
+if(!expectedVersion)throw new Error('Cannot find Room 2 JS cache revision');
+
+const views=[
+ {name:'desktop-chromium',engine:chromium,viewport:{width:1366,height:768},isMobile:false},
+ {name:'landscape-webkit',engine:webkit,viewport:{width:852,height:393},isMobile:true}
+];
+
+async function readyPage(page){
+ for(let retry=0;retry<24;retry++){
+  const response=await page.goto(url+'?room02_review='+Date.now(),{waitUntil:'load',timeout:60000});
+  if(response.status()===200){
+   const src=await page.locator('script[src*="room2.js"]').getAttribute('src');
+   if(src?.includes(expectedVersion))return;
+  }
+  await page.waitForTimeout(8000);
  }
- await browser.close();
-})().catch(e=>{console.error(e);process.exitCode=1});
+ throw new Error('GitHub Pages has not deployed Room 2 revision '+expectedVersion);
+}
+
+function within(inner,outer,tolerance=3){
+ return inner&&outer&&inner.x>=outer.x-tolerance&&inner.y>=outer.y-tolerance&&
+  inner.x+inner.width<=outer.x+outer.width+tolerance&&
+  inner.y+inner.height<=outer.y+outer.height+tolerance;
+}
+(async()=>{
+ for(const spec of views){
+  const browser=await spec.engine.launch({headless:true});
+  try{
+   const context=await browser.newContext({viewport:spec.viewport,isMobile:spec.isMobile,hasTouch:spec.isMobile,deviceScaleFactor:spec.isMobile?2:1,reducedMotion:'reduce'});
+   await context.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
+   const page=await context.newPage();page.setDefaultTimeout(12000);
+   const errors=[];page.on('pageerror',e=>errors.push(e.message));
+   await readyPage(page);
+   const dir=path.join(output,spec.name);fs.mkdirSync(dir,{recursive:true});
+   await page.evaluate(()=>{settings.instantText=true;showSecondRoom({doorInspected:true,deskInspected:true,sheetFound:true});});
+   const image=await page.locator('.room2-background-art').evaluate(async img=>{
+    await img.decode();
+    return {url:img.currentSrc,width:img.naturalWidth,height:img.naturalHeight,complete:img.complete};
+   });
+   assert.equal(image.width,1672,'Approved image width');
+   assert.equal(image.height,941,'Approved image height');
+   assert(image.complete);
+   const backgroundRequest=await page.request.get(image.url,{timeout:20000});
+   assert.equal(backgroundRequest.status(),200,'Adopted image HTTP 200');
+   assert.equal(await page.locator('.room2-window-light,.room2-door-art,.room2-desk-art').count(),0,'No old drawn assets over the accepted image');
+   const bounds=await page.evaluate(()=>{
+    const rect=selector=>{const e=document.querySelector(selector);if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};};
+    return {stage:rect('.room2-stage'),image:rect('.room2-background-art'),door:rect('#r2Door'),desk:rect('#r2Desk'),blocks:rect('#r2Blocks'),hana:rect('#r2Hana'),blocksDisabled:document.getElementById('r2Blocks')?.disabled};
+   });
+   assert(within(bounds.image,bounds.stage),'Background image fits in stage');
+   for(const label of ['door','desk','blocks','hana'])assert(within(bounds[label],bounds.stage),label+' hit target must fit stage');
+   assert.equal(bounds.blocksDisabled,false,'Puzzle accessible after desk inspection');
+   await page.screenshot({path:path.join(dir,'01-room02-approved.png')});
+   await page.locator('#r2Blocks').click({timeout:8000});
+   await page.locator('.room2-puzzle').waitFor();
+   assert.equal(await page.locator('.room2-answer-slot').count(),5,'Exactly five answer slots');
+   assert.equal(await page.locator('.room2-palette-token').count(),10,'Five red and five blue symbols');
+   for(const color of ['赤','青'])assert.equal(await page.locator('.room2-palette-token[data-color="'+color+'"]').count(),5);
+   await page.screenshot({path:path.join(dir,'02-room02-puzzle.png')});
+   await page.locator('.room2-palette-token').first().click();
+   assert.equal(await page.locator('.room2-answer-slot i').count(),1,'Selecting token fills a single answer slot');
+   assert.deepEqual(errors,[],'No JavaScript runtime errors');
+   console.log(JSON.stringify({case:spec.name,status:'PASS',image,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},palette:10,slots:5,errors}));
+   await context.close();
+  }finally{await browser.close();}
+ }
+})().catch(e=>{console.error(e.stack||e);process.exitCode=1});

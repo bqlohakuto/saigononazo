@@ -32,10 +32,21 @@ async function finishDialogue(page){
  for(const b of await page.locator('.room3-object:not([hidden])').all()){
  const r=await b.boundingBox();assert(r.x>=bounds.x-1&&r.y>=bounds.y-1&&r.x+r.width<=bounds.x+bounds.width+1&&r.y+r.height<=bounds.y+bounds.height+1,'Hit targets fit stage');
  }
+ if(view==='left'){
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.locator('.room3-sleeping-hana').waitFor({state:'visible'});
+ const motion=()=>page.locator('.sleep-body').evaluate(el=>({name:getComputedStyle(el).animationName,transform:getComputedStyle(el).transform}));
+ const before=await motion();await page.waitForTimeout(1100);const after=await motion();
+ assert.equal(before.name,'hanaSleepBreath');assert.notEqual(before.transform,after.transform,'Breathing changes upper-body transform');
+ assert.equal(await page.locator('.room3-sleep-shoes').evaluate(el=>getComputedStyle(el).animationName),'none','Shoes remain still');
+ assert.equal(await page.locator('.sleep-head').evaluate(el=>getComputedStyle(el).transform),'none','Head remains on pillow');
+ await page.screenshot({path:path.join(dir,'sleeping.png')});
+ await page.emulateMedia({reducedMotion:'reduce'});assert.equal((await motion()).name,'none','Reduced motion respected');
+ }
  await page.screenshot({path:path.join(dir,view+'.png')});await page.locator('#r3TurnRight').click();
  }
  await page.locator('#r3TurnLeft').click();assert.equal(await page.locator('.room3-stage').getAttribute('data-view'),'left');
- await page.locator('#r3Bed').click();await finishDialogue(page);assert(await page.evaluate(()=>room3State.bedInspected));
+ await page.locator('#r3SleepingHana').click();await finishDialogue(page);assert(await page.evaluate(()=>room3State.bedInspected));assert.equal(await page.locator('.room3-sleeping-hana').isVisible(),false,'Hana gets out of bed after existing conversation');
  await page.locator('#r3TurnRight').click();await page.locator('#r3Door').click();await finishDialogue(page);
  await page.locator('#r3TurnRight').click();await page.locator('#r3Desk').click();await finishDialogue(page);
  await page.locator('#r3Phone').click();assert.equal(await page.locator('.room3-chat-message').count(),15);await page.locator('.room3-chat-panel .device-close').click();

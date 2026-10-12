@@ -122,7 +122,7 @@ function showThirdRoom(savedState){
  game.innerHTML=`<main class="room room-three room3-arriving ${room3State.unlocked?"is-restored":""}" aria-label="第三の部屋">
   <header class="room-header"><p class="room-label">第三の部屋</p><p class="room-color-status">${room3State.unlocked?"記憶を取り戻した部屋":"大学時代の自室"}</p></header>
   <div class="room-stage-wrap"><section class="room-stage room3-stage" aria-label="大学時代の自室">
-   <img class="room3-background-art" id="r3Background" src="images/background/room03/room03_front.webp" alt="" aria-hidden="true"><div class="room3-shared-door" aria-hidden="true"></div>
+   <img class="room3-background-art" id="r3Background" src="images/background/room03/room03_front.webp" alt="" aria-hidden="true"><div class="room3-shared-door" aria-hidden="true"></div><div class="room3-sleeping-hana" aria-hidden="true"><span class="sleep-head"></span><span class="sleep-body"></span><span class="sleep-legs"></span></div><div class="room3-sleep-shoes" aria-hidden="true"></div><button type="button" class="object room3-object room3-sleep-target" id="r3SleepingHana" aria-label="眠っているハナ"><span>ハナ</span></button>
    <button class="object room3-object room3-door" id="r3Door"><span>扉</span></button><button class="object room3-object room3-bed" id="r3Bed"><span>ベッド</span></button>
    <button class="object room3-object room3-desk" id="r3Desk" ${room3State.doorInspected?"":"disabled"}><span>机</span></button><button class="object room3-object room3-phone" id="r3Phone" ${room3State.deskInspected?"":"disabled"}><span>スマートフォン</span></button><button class="object room3-object room3-board" id="r3Board" ${room3State.deskInspected?"":"disabled"}><span>文字盤</span></button>
    <button class="object room3-object room3-shelf" id="r3Shelf" ${room3State.doorInspected?"":"disabled"}><span>小さな棚</span></button><button class="object room3-object room3-trumpet" id="r3Trumpet"><span>トランペット</span></button><button class="object room3-object room3-hana" id="r3Hana"><span>ハナ</span></button>
@@ -135,6 +135,7 @@ function showThirdRoom(savedState){
  document.getElementById("r3Desk").addEventListener("click",inspectThirdRoomDesk);
  document.getElementById("r3Phone").addEventListener("click",showThirdRoomChat);
  document.getElementById("r3Board").addEventListener("click",showThirdRoomPuzzle);
+ document.getElementById("r3SleepingHana").addEventListener("click",inspectThirdRoomBed);
  document.getElementById("r3Bed").addEventListener("click",inspectThirdRoomBed);
  document.getElementById("r3Shelf").addEventListener("click",inspectThirdRoomShelf);
  document.getElementById("r3Trumpet").addEventListener("click",inspectThirdRoomTrumpet);
@@ -154,9 +155,10 @@ function renderThirdRoomView(){
  room3State.view=view;
  const stage=game.querySelector(".room3-stage");if(!stage)return;
  stage.dataset.view=view;
+ stage.classList.toggle("hana-asleep",!room3State.bedInspected);
  document.getElementById("r3Background").src=`images/background/room03/room03_${view}.webp`;
- const targets={front:["r3Door","r3Hana"],right:["r3Desk","r3Phone","r3Board"],back:["r3Shelf","r3Trumpet"],left:["r3Bed"]};
- for(const button of stage.querySelectorAll(".room3-object"))button.hidden=!targets[view].includes(button.id);
+ const targets={front:room3State.bedInspected?["r3Door","r3Hana"]:["r3Door"],right:["r3Desk","r3Phone","r3Board"],back:["r3Shelf","r3Trumpet"],left:room3State.bedInspected?["r3Bed"]:["r3Bed","r3SleepingHana"]};
+ for(const button of stage.querySelectorAll(".room3-object")){button.hidden=!targets[view].includes(button.id);button.setAttribute("aria-label",button.querySelector("span").textContent);}
 }
 function turnThirdRoom(step){
  if(currentScene!=="room03"||game.querySelector(".room-dialog-overlay,.device-overlay,.design-overlay,.inspection-overlay"))return;
@@ -186,7 +188,7 @@ function showThirdRoomChat(){
 }
 function inspectThirdRoomBed(){
  const lines=room3State.bedInspected?[{logId:"room3_bed_repeat",logType:"investigation",speaker:"ト書き",text:"ベッドには、特に変わったところはない。"}]:[{logId:"room3_bed_01",logType:"dialogue",speaker:"主人公",text:"ハナさん、何寝てるんですか。"},{logId:"room3_bed_02",logType:"dialogue",speaker:"ハナ",text:"スー、スー……"},{logId:"room3_bed_03",logType:"dialogue",speaker:"主人公",text:"ハナさん？？"},{logId:"room3_bed_04",logType:"dialogue",speaker:"ハナ",text:"あ、ごめんごめん。頭使ったら眠くなっちゃって。"},{logId:"room3_bed_05",logType:"dialogue",speaker:"主人公",text:"はあ……起きてください。手伝ってくれるんですよね。"},{logId:"room3_bed_06",logType:"investigation",speaker:"ト書き",text:"ハナにどいてもらい、ベッドを調べる。特に変わったところはない。"}];
- showRoomDialog(lines,()=>{room3State.bedInspected=true;saveGame()});
+ showRoomDialog(lines,()=>{room3State.bedInspected=true;renderThirdRoomView();saveGame()});
 }
 function inspectThirdRoomShelf(){
  room3State.shelfInspected=true;saveGame();

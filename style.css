@@ -224,3 +224,17 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 #game .room3-trumpet{left:53.3%;top:42%;width:19.5%;height:25%}
 #game .room3-bed{left:11.3%;top:33.5%;width:75.6%;height:38%;bottom:auto}
 #game .room3-hana{left:23%;top:34%;width:13%;height:38%;bottom:auto;z-index:4}
+
+/* Three overlapping character regions keep the pillow and feet steady while breathing. */
+.room3-sleeping-hana,.room3-sleep-shoes{display:none;position:absolute;pointer-events:none;z-index:3;image-rendering:pixelated}
+.room3-stage[data-view=left].hana-asleep :is(.room3-sleeping-hana,.room3-sleep-shoes){display:block}
+.room3-sleeping-hana{left:23.3%;top:28%;width:48.5%;height:19.7%}
+.room3-sleeping-hana span{position:absolute;inset:0;background:url(images/characters/hana-v8/sleeping-overlay.webp) 58.3497% 39.0788%/143.7661% 351.1194% no-repeat}
+.room3-sleeping-hana .sleep-head{clip-path:inset(0 74% 0 0);z-index:3}
+.room3-sleeping-hana .sleep-body{clip-path:inset(0 50% 0 24%);transform-origin:40% 95%;animation:hanaSleepBreath 4.4s ease-in-out infinite;z-index:2}
+.room3-sleeping-hana .sleep-legs{clip-path:inset(0 0 0 48%);z-index:3}
+.room3-sleep-shoes{left:64.4%;top:68.8%;width:8.1%;height:8.7%;background:url(images/characters/hana-v8/sleeping-overlay.webp) 76.9074% 80.3659%/819.6078% 777.6860% no-repeat}
+#game .room3-sleep-target{left:23.3%;top:28%;width:48.5%;height:19.7%;z-index:9}
+#game .room3-sleep-target::after{left:13%;top:5%}
+@keyframes hanaSleepBreath{0%,100%{transform:scaleY(1)}45%,55%{transform:scaleY(1.014)}}
+@media(prefers-reduced-motion:reduce){.room3-sleeping-hana .sleep-body{animation:none}}

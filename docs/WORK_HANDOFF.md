@@ -279,3 +279,12 @@
 - 元の採用画像の机の大きさ・位置・作画を維持。背景＋机前景の再合成が1672×941の原画とRGB全画素一致することを確認。灰色が残っていた上端／左右7点が完全透明であることを保存後に検証。
 - 画像生成による切り抜き案は再配置・拡大が生じたため不採用。実装は承認原画の画素を分割したPNG。ハナの位置・サイズ、シナリオ・台詞・謎の仕様は変更なし。
 - 公開PC／横向きWebKit検証に、机上端と左右の前景アルファ検証を追加。公開結果は後続記録へ保存。
+
+### 灰色残り修正・公開確認結果
+
+- 実装コミット: `02e341d82d44cde9a16fd98a5ffaa954ebf23730`。
+- GitHub Pages成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38278818949
+- 公開PC Chromium／スマホ横向きWebKit検証成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38278818998 。トレー上端・中央奥端・左右7点の前景アルファ0、背景と机の前後関係、5枠、赤青各5記号、パレット選択、JSエラーなしを確認。
+- 撮影画像: https://github.com/bqlohakuto/saigononazo/actions/runs/38278818998/artifacts/11760142421
+- クラウドブラウザの公開PC画面でも、テストプレイから第2を開始し、机上端の灰色帯がなく、扉の左／赤トレー奥のハナが自然に机前景へ隠れることを目視確認。公開room2.jsは `20261013-room02-clean-alpha-01`。
+- キャッシュ版・第2ヒント条件のソース検証6件成功。公開アセットHTTP回帰も成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38278818920 。iPhone実機は未確認。

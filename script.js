@@ -509,7 +509,7 @@ function activateDeviceModal(overlay,openerId,initialFocus,onClose){
  const panel=overlay.querySelector("section"),closeButton=overlay.querySelector(".device-close");
  panel.setAttribute("role","dialog");
  panel.setAttribute("aria-modal","true");
- const controls=()=>[...panel.querySelectorAll("button:not(:disabled),input:not(:disabled)")];
+ const controls=()=>[...panel.querySelectorAll("button:not(:disabled),input:not(:disabled)")].filter(el=>!el.closest("[hidden]"));
  let closed=false;
  const observer=new MutationObserver(()=>{
   if(!overlay.isConnected)release(false);
@@ -555,28 +555,39 @@ function activateDeviceModal(overlay,openerId,initialFocus,onClose){
 
 function showPhoneScreen(){
  const overlay=document.createElement("div");
- overlay.className="device-overlay";
- overlay.innerHTML=`<section class="phone-screen" aria-label="携帯電話のメール"><header><p>メール</p><button type="button" class="device-close" aria-label="閉じる">×</button></header><div class="mail-tabs"><button type="button" data-folder="inbox" class="is-active">受信BOX</button><button type="button" data-folder="sent">送信BOX</button></div><div class="mail-list"></div><article class="mail-detail" aria-live="polite"><p>メールを選んで内容を確認する。</p></article></section>`;
+ overlay.className="device-overlay flip-phone-overlay";
+ overlay.innerHTML=`<section class="phone-screen flip-phone" aria-label="携帯電話のメール"><img class="flip-phone-body" src="images/items/phone-open-frame.png?v=20261012-flip-phone-01" alt="" draggable="false"><div class="phone-lcd"><div class="phone-status" aria-hidden="true"><span>▂▄▆　✉</span><span class="phone-clock">20:15</span><span>▰</span></div><header class="phone-lcd-title"><p>メール</p></header><div class="mail-tabs"><button type="button" data-folder="inbox" class="is-active">受信BOX</button><button type="button" data-folder="sent">送信BOX</button></div><div class="mail-list"></div><article class="mail-detail" aria-live="polite" hidden><p>メールを選んで内容を確認する。</p></article><footer class="phone-softkeys"><button type="button" class="device-close" aria-label="閉じる">閉じる</button><button type="button" class="phone-list-back" hidden>一覧へ</button><button type="button" class="phone-next-mail" hidden>次のメール</button><span class="phone-list-guide">メールを選択</span></footer></div></section>`;
  game.appendChild(overlay);
  let folder="inbox",selectedMailId=null;
  const list=overlay.querySelector(".mail-list"),detail=overlay.querySelector(".mail-detail");
+ const tabs=overlay.querySelector(".mail-tabs"),back=overlay.querySelector(".phone-list-back"),next=overlay.querySelector(".phone-next-mail"),closeButton=overlay.querySelector(".device-close"),guide=overlay.querySelector(".phone-list-guide"),title=overlay.querySelector(".phone-lcd-title p");
+ const setView=reading=>{
+  list.hidden=reading;tabs.hidden=reading;detail.hidden=!reading;back.hidden=!reading;next.hidden=!reading;closeButton.hidden=reading;guide.hidden=reading;
+  title.textContent=reading?(folder==="inbox"?"受信メール":"送信メール"):"メール";
+ };
  recordLog({logId:"room1_phone_select_prompt",logType:"investigation",speaker:"システム",logColor:"#222222",text:"メールを選んで内容を確認する。"});
+ const openMail=index=>{
+  const mail=firstRoomScenario.phoneMail[folder][index];if(!mail)return;
+  selectedMailId=mail.id;
+  list.querySelectorAll(".mail-item").forEach(item=>{const selected=Number(item.dataset.index)===index;item.classList.toggle("is-selected",selected);item.setAttribute("aria-current",String(selected))});
+  (folder==="inbox" ? firstRoomState.openedInbox : firstRoomState.openedSent).add(mail.id);
+  saveGame();
+  detail.innerHTML=`<p>${folder==="inbox" ? "From" : "To"}:先輩　${mail.time}</p><h3>件名：${mail.subject}</h3><p>${mail.text.replace(/\n/g,"<br>")}</p>`;
+  detail.scrollTop=0;overlay.querySelector(".phone-clock").textContent=mail.time;
+  next.disabled=index===firstRoomScenario.phoneMail[folder].length-1;
+  setView(true);back.focus({preventScroll:true});
+  recordLog({...mail,speaker:"システム",logColor:"#222222",text:`${folder==="inbox" ? "From" : "To"}:先輩　${mail.time}\n件名：${mail.subject}\n${mail.text}`});
+  showRoomNotice(`${folder==="inbox" ? "受信" : "送信"}メールを確認した。`,`room1_phone_${folder}_checked`);
+ };
  const render=()=>{
   overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.classList.toggle("is-active",tab.dataset.folder===folder));
   list.innerHTML=firstRoomScenario.phoneMail[folder].map((mail,index)=>`<button type="button" class="mail-item${mail.id===selectedMailId?" is-selected":""}" data-index="${index}"${mail.id===selectedMailId?' aria-current="true"':""}><strong>${folder==="inbox" ? "From" : "To"}:先輩</strong><span>${mail.time}</span><small>${mail.subject}</small></button>`).join("");
-  list.querySelectorAll(".mail-item").forEach(button=>button.addEventListener("click",()=>{
-   const mail=firstRoomScenario.phoneMail[folder][Number(button.dataset.index)];
-   selectedMailId=mail.id;
-   list.querySelectorAll(".mail-item").forEach(item=>{item.classList.toggle("is-selected",item===button);item.setAttribute("aria-current",String(item===button))});
-   (folder==="inbox" ? firstRoomState.openedInbox : firstRoomState.openedSent).add(mail.id);
-   saveGame();
-   detail.innerHTML=`<p>${folder==="inbox" ? "From" : "To"}:先輩　${mail.time}</p><h3>件名：${mail.subject}</h3><p>${mail.text.replace(/\n/g,"<br>")}</p>`;
-   recordLog({...mail,speaker:"システム",logColor:"#222222",text:`${folder==="inbox" ? "From" : "To"}:先輩　${mail.time}\n件名：${mail.subject}\n${mail.text}`});
-   showRoomNotice(`${folder==="inbox" ? "受信" : "送信"}メールを確認した。`,`room1_phone_${folder}_checked`);
-  }));
+  list.querySelectorAll(".mail-item").forEach(button=>button.addEventListener("click",()=>openMail(Number(button.dataset.index))));
  };
- overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.addEventListener("click",()=>{folder=tab.dataset.folder;selectedMailId=null;detail.innerHTML="<p>メールを選んで内容を確認する。</p>";render()}));
- render();
+ overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.addEventListener("click",()=>{folder=tab.dataset.folder;selectedMailId=null;detail.innerHTML="<p>メールを選んで内容を確認する。</p>";setView(false);render()}));
+ back.addEventListener("click",()=>{setView(false);list.querySelector('.is-selected')?.focus({preventScroll:true})});
+ next.addEventListener("click",()=>openMail(firstRoomScenario.phoneMail[folder].findIndex(mail=>mail.id===selectedMailId)+1));
+ render();setView(false);
  activateDeviceModal(overlay,"phoneButton",overlay.querySelector('[data-folder="inbox"]'),()=>{
   if(!firstRoomState.phoneReflectionSeen&&hasCheckedAllMail("inbox")&&hasCheckedAllMail("sent")){
    showRoomDialog(firstRoomScenario.phoneAfterAllMail,()=>{firstRoomState.phoneReflectionSeen=true;saveGame()});

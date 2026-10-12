@@ -498,14 +498,14 @@ test("phone modal traps focus and Tab in both directions, saves each read and re
   assert.equal(h.query(".phone-screen").getAttribute("role"), "dialog");
   assert.equal(h.query(".phone-screen").getAttribute("aria-modal"), "true");
   h.query("#phoneButton").focus();
-  assert.equal(h.document.activeElement, h.query(".device-close"));
+  assert.equal(h.document.activeElement, h.query('[data-folder="inbox"]'));
   h.key("Tab", true);
-  assert.equal(h.document.activeElement, h.query('[data-index="3"]'));
-  h.key("Tab");
   assert.equal(h.document.activeElement, h.query(".device-close"));
+  h.key("Tab");
+  assert.equal(h.document.activeElement, h.query('[data-folder="inbox"]'));
   for (const folder of ["inbox", "sent"]) {
     h.click(`[data-folder="${folder}"]`);
-    for (let index = 0; index < 4; index++) h.click(`[data-index="${index}"]`);
+    for (let index = 0; index < 4; index++) {h.click(`[data-index="${index}"]`);h.click(".phone-list-back");}
   }
   assert.deepEqual(h.state.openedInbox, allMail.openedInbox);
   assert.deepEqual(h.state.openedSent, allMail.openedSent);
@@ -860,4 +860,26 @@ test("opening reveals room one through white and unlocks interaction after the f
  h.tick(1600);assert.equal(h.game.querySelector(".first-room-entry-fade"),null);
  assert.equal(h.query(".first-room").inert,false);
  assert.equal(h.query("#turnRightButton").disabled,true);
+});
+
+
+test("phone changes only its LCD while list, detail and next mail retain the same body", () => {
+ const h=harness();h.room({...unlockedItems,phoneIntroductionSeen:true});h.run("showPhoneScreen()");
+ const body=h.query(".flip-phone-body");
+ assert.equal(h.query(".mail-detail").hidden,true);
+ h.click('[data-index="0"]');
+ assert.equal(h.query(".flip-phone-body"),body);
+ assert.equal(h.query(".mail-list").hidden,true);
+ assert.equal(h.query(".mail-detail").hidden,false);
+ assert.match(h.query(".mail-detail").textContent,/帰り道に見た空/);
+ assert.equal(h.document.activeElement,h.query(".phone-list-back"));
+ h.key("Tab");assert.equal(h.document.activeElement,h.query(".phone-next-mail"));
+ h.key("Tab");assert.equal(h.document.activeElement,h.query(".phone-list-back"));
+ h.click(".phone-next-mail");assert.deepEqual(h.state.openedInbox,["inbox-1","inbox-2"]);
+ h.click(".phone-list-back");assert.equal(h.query(".mail-list").hidden,false);
+ assert.equal(h.document.activeElement,h.query('[data-index="1"]'));
+ h.click('[data-folder="sent"]');assert.equal(h.query(".flip-phone-body"),body);
+ assert.equal(h.query(".mail-detail").hidden,true);
+ h.click('[data-index="3"]');assert.equal(h.query(".phone-next-mail").disabled,true);
+ h.key("Escape");assert.equal(h.game.querySelector(".device-overlay"),null);
 });

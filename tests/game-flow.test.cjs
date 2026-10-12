@@ -392,7 +392,7 @@ test("poster and keyboard retain artwork and question gates; inspection commits 
     const before = h.saved, saves = h.saveCount;
     h.click(`#${item}Button`);
     const expectedImage = item === "poster"
-      ? "images/background/room01/pixel/room01_right.png"
+      ? "images/items/item_poster.png?v=20261012-pixel-items-01"
       : "images/background/room01/pixel/room01_left.png";
     assert.equal(h.query(".inspection-image").src, expectedImage);
     assert.equal(h.query(".room").inert, true);
@@ -417,7 +417,7 @@ test("phone enlargement is manual; closing never consumes or saves the first int
   h.query("#phoneButton").focus();
   const saves = h.saveCount;
   h.click("#phoneButton");
-  assert.equal(h.query(".inspection-image").src, "images/items/phone-closed.png");
+  assert.equal(h.query(".inspection-image").src, "images/items/phone-closed.png?v=20261012-pixel-items-01");
   assert.equal(h.document.activeElement, h.query(".inspection-art-button"));
   h.tick(20000);
   assert.equal(h.game.querySelector(".device-overlay"), null);

@@ -33,7 +33,7 @@ function within(inner,outer,tolerance=3){
 }
 (async()=>{
  for(const spec of views){
-  const browser=await spec.engine.launch({headless:true});
+  const browser=await spec.engine.launch({headless:true,...(spec.name==='desktop-chromium'?{channel:'chrome'}:{})});
   try{
    const context=await browser.newContext({viewport:spec.viewport,isMobile:spec.isMobile,hasTouch:spec.isMobile,deviceScaleFactor:spec.isMobile?2:1,reducedMotion:'reduce'});
    await context.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));

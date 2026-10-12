@@ -114,7 +114,7 @@ function startOpeningIdle() {
     if(sprite.dataset.emotion==='idle'&&!document.hidden&&!game.querySelector('.design-overlay,.is-log-open')){
       let frame=1,t=(now-start)%4230;
       if(!matchMedia('(prefers-reduced-motion: reduce)').matches)for(const [f,ms] of sequence){if(t<ms){frame=f;break}t-=ms}
-      const path='images/pixel-ui/hana-v8/idle/0'+frame+'.png';if(path!==last||sprite.src.endsWith('/joy.png')||sprite.src.endsWith('/sadness.png')){sprite.src=path;last=path}
+      const path='images/pixel-ui/hana-v8/idle/0'+frame+'.png';if(path!==last||!sprite.src.endsWith(path)){sprite.src=path;last=path}
     }
     requestAnimationFrame(animate);
   }

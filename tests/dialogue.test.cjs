@@ -16,6 +16,7 @@ class FakeElement {
   }
   setAttribute(name, value) { this.attributes.set(name, String(value)); }
   getAttribute(name) { return this.attributes.get(name); }
+  removeAttribute(name) { this.attributes.delete(name); }
   appendChild(child) { this.children.push(child); return child; }
   replaceChildren(...children) { this.children = children; }
   addEventListener(type, callback) {
@@ -65,7 +66,7 @@ function fakeClock() {
   };
 }
 
-function harness() {
+function harness(designed = false) {
   const clock = fakeClock();
   const document = new FakeElement();
   document.hidden = false;
@@ -73,6 +74,7 @@ function harness() {
   const source = fs.readFileSync(path.join(__dirname, "..", "dialogue.js"), "utf8");
   const Dialogue = vm.runInNewContext(`${source}\nDialogue;`, {
     document,
+    ...(designed ? {window: {DesignUI: {paginateDialogue: lines => lines, displayLine() {}}}} : {}),
     setTimeout: clock.setTimeout,
     clearTimeout: clock.clearTimeout,
     setInterval: clock.setInterval,
@@ -385,5 +387,25 @@ test("hidden documents do not AUTO-advance; becoming visible starts a new 2-seco
   h.clock.tick(1999);
   assert.equal(d.completions, 0);
   h.clock.tick(1);
+  assert.equal(d.completions, 1);
+});
+
+
+test("designed dialogue keeps the advance button after the text and reveals it on completion", () => {
+  const h = harness(true);
+  const d = h.start([heroine("こんにちは。"), player("はい。")], 20);
+  const body = () => d.row.children.find(child => child.className === "message-body");
+  assert.equal(body().children[1], d.nextButton);
+  assert.equal(d.nextButton.getAttribute("data-typing"), "true");
+  h.clock.tick(200);
+  assert.equal(body().children[0].textContent, "こんにちは。");
+  assert.equal(d.nextButton.getAttribute("data-typing"), undefined);
+  d.nextButton.click();
+  assert.equal(body().children[1], d.nextButton);
+  assert.equal(d.nextButton.getAttribute("data-typing"), "true");
+  d.nextButton.click();
+  assert.equal(body().children[0].textContent, "はい。");
+  assert.equal(d.nextButton.getAttribute("data-typing"), undefined);
+  d.nextButton.click();
   assert.equal(d.completions, 1);
 });

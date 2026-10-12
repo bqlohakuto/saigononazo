@@ -56,6 +56,7 @@ const Dialogue=(()=>{
    if(disposed)return;
    message.textContent=characters.join("");
    typing=false;
+   nextButton.removeAttribute?.("data-typing");
    if(typeof window!=="undefined")window.HanaIdentity?.onLineComplete(lines[index].logSource||lines[index]);
    if(skipEnabled)scheduleSkip();else scheduleAuto();
   };
@@ -72,7 +73,12 @@ const Dialogue=(()=>{
     const label=document.createElement("span");label.className="message-speaker";label.textContent=displayedSpeaker;row.appendChild(label);
    }
    message=document.createElement("div");message.className=`message ${kind}${kind==="player"&&line.thought?" thought":""}`;
-   row.appendChild(message);messageArea.replaceChildren(row);messageArea.scrollTop=0;
+   if(typeof window!=="undefined"&&window.DesignUI){
+    const body=document.createElement("div");body.className="message-body";
+    body.appendChild(message);body.appendChild(nextButton);row.appendChild(body);
+    nextButton.setAttribute("data-typing","true");
+   }else row.appendChild(message);
+   messageArea.replaceChildren(row);messageArea.scrollTop=0;
    characters=Array.from(line.text);typing=true;
    updateAutoButton();updateSkipButton();
    if(typeof window!=="undefined")window.DesignUI?.displayLine(line,kind);

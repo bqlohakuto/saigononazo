@@ -336,3 +336,17 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{pointer-events:auto;cursor:pointer}
 #game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::after{top:calc(100% - var(--hana-head-offset) - 18px);left:50%}
 #game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana):is(:hover,:focus-visible)>span{top:calc(100% - var(--hana-head-offset) - 50px)}
+
+/* Place the existing advance control directly after the final character. */
+#game .room-dialog .message-body{width:100%;font-size:clamp(11px,1.8cqw,26px);line-height:1.55}
+#game .room-dialog .message-body .message{display:inline;white-space:pre-wrap}
+#game .room-dialog .message-body .next-button{display:inline-block;position:static;margin:0 0 0 .2em;padding:0;min-width:1em;min-height:0;vertical-align:baseline;font-size:1em;line-height:inherit}
+#game .room-dialog .message-body .next-button[data-typing]{visibility:hidden}
+#game .room-dialog .design-controls{right:1.5%}
+#game.has-world-expression.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before,
+#game.has-world-expression .late-room .hana-v2-world{background-image:var(--hana-world-expression);animation:none}
+@keyframes hanaExpressionBreath{0%,100%{background-position:center bottom}50%{background-position:center calc(100% - 1px)}}
+@media(prefers-reduced-motion:no-preference){
+ #game.has-world-expression.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before,
+ #game.has-world-expression .late-room .hana-v2-world{animation:hanaExpressionBreath 4.23s ease-in-out infinite}
+}

@@ -40,6 +40,21 @@
     image.onload=()=>resolve(true);image.onerror=()=>resolve(false);
     image.src='images/pixel-ui/hana-v8/idle/0'+frame+'.png';
   }))).then(loaded=>{if(loaded.every(Boolean))game.classList.add('hana-idle-ready')});
+  // The approved full-body variants share the idle canvas and baseline.
+  const worldExpressionReady=new Set();
+  for(const name of new Set(Object.values(pixelPortraitNames))){
+    const img=new Image();img.onload=()=>{worldExpressionReady.add(name);syncWorldExpression()};
+    img.src='images/pixel-ui/hana-v8/'+name+'.png';
+  }
+  function syncWorldExpression(clear=false){
+    const name=pixelPortraitNames[hanaV2Names[expression]]||'neutral';
+    const active=!clear&&name!=='neutral'&&worldExpressionReady.has(name);
+    game.classList.toggle('has-world-expression',active);
+    if(active)game.style.setProperty('--hana-world-expression','url("images/pixel-ui/hana-v8/'+name+'.png")');
+    else game.style.removeProperty('--hana-world-expression');
+    const sprite=game.querySelector('#openingHanaSprite');
+    if(sprite&&!clear){sprite.dataset.emotion=active?name:'idle';if(active)sprite.src='images/pixel-ui/hana-v8/'+name+'.png'}
+  }
   function panel(title){
     if(modal)modal.close();
     const opener=document.activeElement,o=document.createElement('div');o.className='design-overlay';
@@ -168,7 +183,7 @@
     game.querySelectorAll('.device-close,.inspection-close').forEach(el=>{if(el.textContent==='×')el.textContent='閉じる'});
     game.querySelectorAll('input:not([type=range]):not([type=checkbox])').forEach(el=>{if(inputHooked.has(el))return;inputHooked.add(el);const overlay=el.closest('.device-overlay');if(!overlay)return;const key=currentScene+':'+(overlay.querySelector('h2')?.textContent||overlay.querySelector('section')?.className)+':'+(el.id||el.className||'answer');el.value=state().inputs[key]??el.value;el.addEventListener('input',()=>{state().inputs[key]=el.value;saveGame()})});
     game.querySelectorAll('.room3-answer-submit,.room3-final-submit,.r4-answer,.piano-submit,[id$="Submit"]').forEach(el=>{el.classList.add('design-submit');if(/確認|答える/.test(el.textContent))el.textContent='解答'});
-    const overlay=game.querySelector('.room-dialog-overlay');game.classList.toggle('has-dialogue',!!overlay);if(overlay)decorateDialogue(overlay);
+    const overlay=game.querySelector('.room-dialog-overlay');game.classList.toggle('has-dialogue',!!overlay);if(overlay)decorateDialogue(overlay);else syncWorldExpression(true);
     if(!game.querySelector('.design-orientation')){const o=document.createElement('div');o.className='design-orientation';o.innerHTML='<div><h2>横向きでプレイ</h2><p>端末を横向きにしてください。<br>ゲームの進行は保持されます。</p></div>';game.append(o)}
   }
   function decorateDialogue(overlay){
@@ -205,6 +220,7 @@
     if(line.expression){const choice=hanaV2Names.indexOf(line.expression);expression=choice>=0?choice:0}else if(kind==='heroine'){expression=/眠|ふぁ|スー、スー/.test(line.text)?6:/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}
     decorateDialogue(game.querySelector('.room-dialog-overlay')||document.createElement('div'));
     const p=game.querySelector('.hana-portrait');if(p){p.hidden=!portraitVisible;p.setAttribute('aria-label',line.speaker==='花音'?'花音':window.HanaIdentity?.getName?.()||'ハナ');setExpression(p)}
+    syncWorldExpression(flashback);
     const row=game.querySelector('.message-row'),message=row?.querySelector('.message');
     if(row&&message){const ctx=document.createElement('canvas').getContext('2d');if(ctx){const css=getComputedStyle(message);ctx.font=`${css.fontSize} ${css.fontFamily}`;const available=row.parentElement.clientWidth;row.style.width=Math.min(available,Math.max(...line.text.split('\n').map(t=>ctx.measureText(t).width))+2)+'px'}}
     if(orientation.matches)Dialogue.suspend();
@@ -213,7 +229,7 @@
   function syncPlayback(){game.querySelectorAll('[data-design-auto]').forEach(b=>{b.setAttribute('aria-pressed',String(Dialogue.isAutoEnabled()));b.disabled=!!game.querySelector('.room-dialog .auto-button')?.disabled;const label=Dialogue.isAutoEnabled()?'AUTO ON':'AUTO OFF';if(b.textContent!==label)b.textContent=label});game.querySelectorAll('[data-design-log]').forEach(b=>b.setAttribute('aria-pressed',String(!!game.querySelector('.room-dialog.is-log-open'))));game.querySelectorAll('[data-design-skip]').forEach(b=>{const source=game.querySelector('.room-dialog .skip-button');b.disabled=!source||source.disabled;b.setAttribute('aria-pressed',source?.getAttribute('aria-pressed')||'false')})}
   function onInstall(c){cancelUse();config=c;recordRoom=c.sceneId||currentScene;inspectionTarget='';if(!state().visited.includes(recordRoom))state().visited.push(recordRoom);queueMicrotask(()=>{syncHud();if(!localStorage.getItem('saigononazo-help-seen')){localStorage.setItem('saigononazo-help-seen','1');if(!game.querySelector('.room-dialog-overlay,.device-overlay'))help()}})}
   function beginDialogue(lines){dialogueGroup=currentScene+':'+Date.now()+':'+(++sequence);portraitVisible=lines.some(l=>l.speaker==='ハナ'||l.speaker==='花音')&&!lines.some(l=>window.MemoryVisuals?.get(currentScene,l));expression=0}
-  function endDialogue(){dialogueGroup='';game.classList.remove('has-dialogue');game.querySelector('.inspection-focus-background')?.remove()}
+  function endDialogue(){syncWorldExpression(true);dialogueGroup='';game.classList.remove('has-dialogue');game.querySelector('.inspection-focus-background')?.remove()}
   function savePreview(){
     const image=game.querySelector('.room-background,.room-bg');if(image?.getAttribute('src'))return image.getAttribute('src');
     const canvas=document.createElement('canvas');canvas.width=240;canvas.height=135;const ctx=canvas.getContext('2d');if(!ctx)return '';

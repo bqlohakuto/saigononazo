@@ -27,7 +27,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add images/background/room02/room02_bg_nodesk.webp images/background/room02/room02_desk_foreground.webp
+          git add images/background/room02/room02_bg_nodesk.png images/background/room02/room02_desk_foreground.png
           if git diff --cached --quiet; then
             echo "Already generated"
           else

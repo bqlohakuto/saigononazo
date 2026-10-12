@@ -46,6 +46,32 @@ function within(inner,outer,tolerance=3){
     await img.decode();
     return {url:img.currentSrc,width:img.naturalWidth,height:img.naturalHeight,complete:img.complete};
    });
+   const layering=await page.evaluate(async()=>{
+     const bg=document.querySelector('.room2-background-art');
+     const fg=document.querySelector('.room2-desk-foreground-art');
+     await Promise.all([bg.decode(),fg.decode()]);
+     const alpha=(img,x,y)=>{
+       const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+       const context=canvas.getContext('2d',{willReadFrequently:true});
+       context.drawImage(img,0,0);
+       return context.getImageData(x,y,1,1).data[3];
+     };
+     return {
+       bg:{url:bg.currentSrc,width:bg.naturalWidth,height:bg.naturalHeight,deskAlpha:alpha(bg,830,750),wallAlpha:alpha(bg,830,420)},
+       fg:{url:fg.currentSrc,width:fg.naturalWidth,height:fg.naturalHeight,deskAlpha:alpha(fg,830,750),wallAlpha:alpha(fg,830,420)},
+       z:{bg:+getComputedStyle(bg).zIndex,hana:+getComputedStyle(document.querySelector('#r2Hana')).zIndex,fg:+getComputedStyle(fg).zIndex,blocks:+getComputedStyle(document.querySelector('#r2Blocks')).zIndex,desk:+getComputedStyle(document.querySelector('#r2Desk')).zIndex},
+       pointerEvents:getComputedStyle(fg).pointerEvents
+     };
+   });
+   assert.deepEqual([layering.bg.width,layering.bg.height,layering.fg.width,layering.fg.height],[1672,941,1672,941],'Lossless layers have original dimensions');
+   assert.deepEqual([layering.bg.deskAlpha,layering.fg.deskAlpha,layering.bg.wallAlpha,layering.fg.wallAlpha],[0,255,255,0],'Desk image has independent transparent alpha mask');
+   assert(layering.z.bg<layering.z.hana&&layering.z.hana<layering.z.fg,'Hana visually behind the tabletop');
+   assert(layering.z.fg<layering.z.blocks&&layering.z.fg<layering.z.desk,'Interactive desk and puzzle remain above artwork');
+   assert.equal(layering.pointerEvents,'none','Foreground never intercepts taps');
+   for(const layer of [layering.bg,layering.fg]){
+     const response=await page.request.get(layer.url,{timeout:20000});
+     assert.equal(response.status(),200,'Art layer should be publicly accessible');
+   }
    assert.equal(image.width,1672,'Approved image width');
    assert.equal(image.height,941,'Approved image height');
    assert(image.complete);
@@ -69,7 +95,7 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-palette-token').first().click();
    assert.equal(await page.locator('.room2-answer-slot i').count(),1,'Selecting token fills a single answer slot');
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
-   console.log(JSON.stringify({case:spec.name,status:'PASS',image,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},palette:10,slots:5,errors}));
+   console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},palette:10,slots:5,errors}));
    await context.close();
   }finally{await browser.close();}
  }

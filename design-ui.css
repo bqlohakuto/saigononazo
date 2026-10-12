@@ -231,7 +231,7 @@ body,#game{font-family:"DotGothic16","Yu Gothic",Meiryo,sans-serif;font-synthesi
 #game #posterButton .first-room-poster-paper{display:block!important;position:absolute!important;left:10%!important;top:7.99%!important;width:79.31%!important;height:84.02%!important;overflow:hidden;padding:0!important;border:0!important;transform:none!important;background:transparent!important;pointer-events:none}
 /* Affine projection of the same phone onto the desk's horizontal surface. */
 #game .phone-on-desk{overflow:visible;filter:drop-shadow(0 2px 1px #24160a99)}
-#game .phone-on-desk img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:fill;transform-origin:0 0;transform:translateX(78%) matrix(.2,.08,-1.95,.625,0,0);pointer-events:none;image-rendering:pixelated}
+#game .phone-on-desk img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:fill;transform-origin:0 0;transform:translateX(62%) matrix(.32,.12,-1.55,.58,0,0);pointer-events:none;image-rendering:pixelated}
 #game #phoneButton::after{left:45%;top:15%}
 
 

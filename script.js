@@ -374,8 +374,8 @@ function inspectRoomDoor(){
 function inspectRoomFurniture(id){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
  const items={
-  shelf:{label:"三段棚",image:firstRoomWalls[1].background,crop:[.25,.12,.22,.68]},
-  desk:{label:"勉強机",image:firstRoomWalls[2].background,crop:[.24,.30,.52,.54]}
+  shelf:{label:"三段棚",image:firstRoomWalls[1].background,crop:[.26,.15,.20,.63]},
+  desk:{label:"勉強机",image:firstRoomWalls[2].background,crop:[.25,.39,.50,.43]}
  };
  if(items[id])showItemInspection({container:game,item:items[id]});
 }
@@ -443,7 +443,7 @@ function hasCheckedAllMail(folder){
 
 function inspectRoomItem(id){
  if(!firstRoomState.questionSeen||game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
- const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ",image:firstRoomWalls[3].background,crop:[.22,.20,.56,.63],layers:[firstRoomKeyboard]},poster:{id:"poster",label:"ポスター",image:firstRoomWalls[1].background,crop:[.53,.15,.21,.40],layers:[firstRoomPoster]}};
+ const items={phone:{id:"phone",label:"携帯電話",image:"images/items/phone-closed.png"},piano:{id:"piano",label:"ピアノ",image:firstRoomWalls[3].background,crop:[.23,.23,.54,.56],layers:[firstRoomKeyboard]},poster:{id:"poster",label:"ポスター",image:firstRoomWalls[1].background,crop:[.53,.15,.21,.40],layers:[firstRoomPoster]}};
  const item=items[id];if(!item)return;
  showItemInspection({container:game,item,onContinue:()=>{
   if(id==="phone"){

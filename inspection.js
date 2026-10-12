@@ -51,7 +51,7 @@
     cropView=document.createElement("span");
     cropView.className="inspection-crop";
     cropView.style.aspectRatio=String(ratio);
-    cropView.style.width=`min(100%, ${ratio*48}dvh)`;
+    cropView.style.width=`min(100%, ${ratio*100}cqh)`;
     Object.assign(image.style,{position:"absolute",left:`${-x/w*100}%`,top:`${-y/h*100}%`,width:`${100/w}%`,height:`${100/h}%`,objectFit:"fill"});
     cropView.append(image);
     for(const layer of frame.layers||[]){

@@ -275,3 +275,13 @@ body{background:#0b1322!important;display:grid;place-items:center}
 @media(max-height:550px){#game .room-dialog{height:25%;padding-bottom:4%!important}#game .room-dialog .design-controls button{min-height:20px;font-size:9px;padding:.1em .35em}}
 /* Layout rules must never override the dialogue engine's hidden state. */
 #game [hidden]{display:none!important}
+
+/* Inspections use the canvas instead of shrinking objects into a 720px card. */
+#game .inspection-overlay{padding:1.5%!important;z-index:90}
+#game:has(.inspection-overlay) .gameplay-hud{visibility:hidden}
+#game .inspection-panel{width:100%!important;height:100%;max-height:100%!important;min-height:0;padding:clamp(8px,1.2cqw,18px)!important;gap:clamp(4px,.6cqw,9px);overflow:hidden!important}
+#game .inspection-title{font-size:clamp(15px,1.8cqw,25px);line-height:1.3;padding-right:55px}
+#game .inspection-help{font-size:clamp(10px,1cqw,14px);line-height:1.3}
+#game .inspection-art-button{flex:1 1 0;min-height:0;height:auto;max-height:none;padding:0;container-type:size;overflow:hidden;border:0;background:transparent}
+#game .inspection-crop{max-height:none}
+#game .inspection-image{image-rendering:pixelated}

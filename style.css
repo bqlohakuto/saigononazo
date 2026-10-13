@@ -205,6 +205,20 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .room4-arriving{animation:r4arrive 1.1s ease both}@keyframes r4arrive{from{opacity:0;filter:brightness(.55)}to{opacity:1;filter:brightness(1)}}
 .r4-panel-overlay,.r4-mini-overlay{z-index:10}.r4-panel-ui,.r4-mini{position:relative;width:min(850px,100%);max-height:94%;overflow:auto;padding:28px;border-radius:16px;background:#f7f5ef;color:#272b35;box-shadow:0 12px 36px #0008}.r4-panel-ui h2,.r4-mini h2{margin:0 44px 10px 0}
 .r4-panels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:15px 0}.r4-panels article{padding:8px;border:1px solid #b9c1ce;border-radius:10px;text-align:center}.r4-panels h3{font-size:13px}.r4-glass{position:relative;aspect-ratio:1;border:2px solid #7891ad;background:#dff2ff55;transition:transform .2s}.r4-glass i{position:absolute;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 5px #2f72a7}.r4-glass i:nth-child(1){left:20%;top:25%}.r4-glass i:nth-child(2){left:67%;top:38%}.r4-glass i:nth-child(3){left:43%;top:70%}.r4-panels button,.r4-shine,.r4-answer,.r4-rainbow button{min-height:38px;border:1px solid #8b96a8;border-radius:6px;background:#fff;font:inherit;cursor:pointer}.r4-shine{display:block;margin:12px auto;padding:6px 20px}.r4-feedback{min-height:1.6em;color:#8f1c1c;text-align:center}
+/* Keep the five glass panes and light action in a short landscape viewport. */
+@media (orientation:landscape) and (max-height:460px){
+ #game .r4-panel-ui{width:min(820px,96vw);max-height:calc(100dvh - 8px);padding:10px 14px;border-radius:10px}
+ .r4-panel-ui h2{font-size:19px;line-height:1.2;margin:0 44px 2px 0}
+ .r4-panel-ui>p{font-size:12px;line-height:1.2;margin:3px 0}
+ .r4-panel-ui .r4-panels{margin:6px 0;gap:6px}
+ .r4-panel-ui .r4-panels article{padding:4px;border-radius:6px}
+ .r4-panel-ui .r4-panels h3{font-size:11px;line-height:1.15;margin:0 0 4px}
+ .r4-panel-ui .r4-glass{width:min(100%,78px);margin:0 auto}
+ .r4-panel-ui .r4-panels article p{font-size:12px;line-height:1.15;margin:3px 0}
+ .r4-panel-ui .r4-panels button{min-height:32px;padding:0 4px;font-size:12px}
+ .r4-panel-ui .r4-feedback{min-height:13px;font-size:12px;margin:3px 0}
+ .r4-panel-ui .r4-shine{min-height:34px;font-size:13px;margin:3px auto 0;padding:2px 16px}
+}
 .r4-digits{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0;padding:20px;background:#f1e7cf}.r4-digits b{display:grid;place-items:center;min-height:100px;font-size:58px}.r4-digits .silver{color:#aaa}.r4-digits .white{color:#fff;text-shadow:0 0 2px #222}.r4-digits .black{color:#222}.r4-digits .green{color:#16a34a}.r4-mini label{display:grid;gap:5px;margin:12px 0}.r4-mini input{padding:10px;border:1px solid #9da5b1;font:inherit}.r4-flags{display:grid;gap:8px;margin:12px 0}.r4-flags span{padding:8px;border:1px solid #ccd2db;background:#fff;line-height:1.4}.r4-moon{padding:10px;border-left:4px solid #7d8faf;background:#e8edf5;font-size:13px}.r4-rainbow{display:grid;gap:6px}.r4-rainbow>div{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:center;padding:8px 12px;border:1px solid #bbb;border-radius:7px;background:#fff}
 .r4-next{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle,#202c4c,#080b15);color:#fff;text-align:center}.r4-next>div{padding:30px}.r4-next button{padding:10px 18px;border:1px solid #c8d7ef;border-radius:8px;background:#fff;color:#222;font:inherit}
 @media(max-width:650px){.r4-panels{grid-template-columns:repeat(2,1fr)}.r4-panel-ui,.r4-mini{padding:25px 12px 16px}.r4obj span{font-size:10px}.r4const,.r4meteor{width:13%}.r4p1,.r4p2,.r4p3{width:9%}}

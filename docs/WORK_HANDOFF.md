@@ -426,3 +426,14 @@
 - GitHubコミット: `ce952832b7f9d22c3098eadd522e920c98adb182`（JS）、`d6a5ad3ea30648f8f7d936aae4206c6fb32b1c38`（CSS）、`4b688db69b1353b575059e2b3551e11cf83dfc16`（テスト）、`3c32fc20a23499896b264c6e41cb948d65aa042e`（HTML）。
 - GitHub上のコミット反映は確認済み。GitHub Pagesのデプロイ成功と実ブラウザテスト結果は、現時点では未確認（GitHub連携はActionsのpush run一覧を提供しない）。`Review room 4 four directions` Actions と実機で最終確認する。
 - 確定済み台詞・謎・セーブの仕様は変更していない。
+
+## 2026-10-13 第4見上げモーション発動不具合の修正
+
+- ユーザー実機報告「見上げるモーションになっていない」。前回のJSは `r4i06`〜`r4i09` の素のIDで比較したが、実際の `expandScenario()` は台詞ごとに `r4i06_01` 等の枝番を必ず付加するため条件が不成立だった。
+- `room4.js` を `/^r4i0[6-9](?:_\d+)?$/` に修正し、分割済みIDと素のIDの両方で `is-looking-up` が付くようにした。`r4i10_01` から解除。導入終了時も解除。
+- `design-ui.css` の頭部モーションを0.9秒・8度の傾きから、1.15秒で頭を少し上方・後方へ持ち上げつつ12度傾ける動きへ変更。全身立ち絵の23%縮小は保持。動きを減らす設定では最終ポーズに固定。
+- `tests/room4-visual.browser.cjs` の過去の誤ったID一致判定も枝番対応に修正し、見上げON/OFF・描画スタイル・撮影を確認する。 `tests/room4-hana-look-source.test.cjs` を新設し、枝番のある複数IDで回帰チェック。`.github/workflows/room4-visual-review.yml` でブラウザ検証前に実行。
+- `index.html` の全25箇所のキャッシュを `20261013-room04-hana-look-up-02` に変更。
+- 主な修正コミット: `339b5b98699bcd28311499556803231037d60e14`（JS最終）、`7bc15611fd98fc3f028769030220c26d9b4f73ef`（CSS）、`4ae29bff701ddaf00cf3637766bcaa4fec7ee211`（ブラウザテスト）、`1561efd7216a71dab7ebaa787b44bdbd64971dd3`（キャッシュ）、`824396d477b6117fa0ca21473b70b28b051f0cb5`（ソース回帰テスト）、`b567e17f062a798e049c4b490b55809dfcff5adb`（ワークフロー）。
+- GitHub最新ソースから実際の判定式を抜き出した検証で `r4i06_01`〜`r4i09_01` が有効、`r4i05_01` と `r4i10_01` は無効。JS構文検証・全アセットURLのキャッシュ版一貫性確認も成功。
+- GitHubへコミット済み。公開Pagesのデプロイ結果／ブラウザでの視覚的な成功と実機確認は未確認。ワークフロー `Review room 4 four directions` の結果を確認すること。台詞・謎・保存は変更なし。

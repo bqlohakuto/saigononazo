@@ -172,11 +172,25 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 @media(max-width:600px){.room2-reaction{padding:8px 10px;gap:4px 7px}.room2-reaction-text{font-size:13px}.room2-reaction-next{min-width:70px;min-height:36px;padding:6px;font-size:12px}}
 .title-home .title-menu #testRoomButton{height:42px;border:1px solid rgba(255,255,255,.58);border-radius:8px;background:rgba(31,28,36,.68);color:#fff;font:inherit;font-size:14px;letter-spacing:.08em;text-shadow:0 1px 4px #000;mix-blend-mode:normal}
 .title-home .title-menu #testRoomButton:hover:not(:disabled){background:rgba(69,63,75,.9);filter:drop-shadow(0 0 6px #fff);transform:translateX(4px)}
-.test-room-overlay{position:absolute;inset:0;z-index:70;display:grid;place-items:center;padding:18px;background:rgba(18,16,19,.76);color:#302b29}
-.test-room-panel{position:relative;width:min(460px,100%);padding:34px 28px 26px;border:1px solid #d2c8c0;border-radius:16px;background:#f8f6f2;box-shadow:0 16px 42px #0008}
+.test-room-overlay{position:absolute;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:clamp(8px,2vmin,18px);overflow:hidden;background:rgba(18,16,19,.76);color:#302b29}
+.test-room-panel{position:relative;box-sizing:border-box;width:min(460px,100%);max-width:100%;max-height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:34px 28px 26px;border:1px solid #d2c8c0;border-radius:16px;background:#f8f6f2;box-shadow:0 16px 42px #0008}
 .test-room-panel h2{margin:0 44px 10px 0;font-size:22px;font-weight:normal}.test-room-panel>p{margin:0 0 18px;color:#6b625d;font-size:13px;line-height:1.65}
-.test-room-panel .device-close{position:absolute;top:8px;right:10px;color:#302b29}.test-room-options{display:grid;gap:9px}.test-room-options button{min-height:48px;padding:10px 14px;border:1px solid #c7bcb4;border-radius:9px;background:#fff;color:#302b29;font:inherit;text-align:left;cursor:pointer}.test-room-options button:hover{background:#f1ece7;border-color:#9c8d83}.test-room-options button:focus-visible{outline:3px solid #367da0;outline-offset:2px}
+.test-room-panel .device-close{position:absolute;top:8px;right:10px;color:#302b29}.test-room-options{display:grid;gap:9px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}.test-room-options button{min-height:48px;padding:10px 14px;border:1px solid #c7bcb4;border-radius:9px;background:#fff;color:#302b29;font:inherit;text-align:left;cursor:pointer}.test-room-options button:hover{background:#f1ece7;border-color:#9c8d83}.test-room-options button:focus-visible{outline:3px solid #367da0;outline-offset:2px}
 @media(max-width:600px){.title-home .title-menu #testRoomButton{height:35px;font-size:12px}.test-room-panel{padding:30px 17px 20px}.test-room-panel h2{font-size:19px}}
+/* Keep all eight test rooms reachable inside the game canvas on short landscape screens. */
+@media(max-height:600px) and (min-width:480px){
+ .test-room-panel{width:min(670px,100%);padding:18px 18px 12px}
+ .test-room-panel h2{font-size:20px;margin-bottom:5px}
+ .test-room-panel>p{font-size:12px;line-height:1.4;margin-bottom:10px;padding-right:66px}
+ .test-room-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 10px}
+ .test-room-options button{min-height:42px;padding:6px 12px;font-size:14px}
+}
+@media(max-height:320px){
+ .test-room-panel{padding-top:12px;padding-bottom:9px}
+ .test-room-panel h2{font-size:16px;margin-bottom:4px}
+ .test-room-panel>p{font-size:11px;line-height:1.25;margin-bottom:6px}
+ .test-room-options button{min-height:36px}
+}
 
 /* Room 03 provisional, replaceable room and puzzle artwork. The authored board has 10 rows and 10 columns. */
 .room-three{background:#e9e2df}.room3-stage{background:linear-gradient(180deg,#d8d5d4 0 68%,#9d8e83 68%);border:1px solid #c9c0b9}

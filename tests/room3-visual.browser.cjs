@@ -65,6 +65,18 @@ async function finishDialogue(page){
  assert(await page.evaluate(()=>room3State.chatRead&&room3State.phoneInspected),'Existing investigation state retained');
  await page.locator('#r3Phone').click();await page.locator('.room3-chat-panel .device-close').click();
  await page.locator('#r3TurnRight').click();await page.locator('#r3Shelf').click();await finishDialogue(page);
+ const chart=page.locator('.r3-morse-chart');assert.equal(await page.locator('.r3-morse-cell').count(),26,'All A–Z included');
+ assert.deepEqual(await page.locator('.r3-morse-cell').evaluateAll(cells=>cells.map(c=>c.dataset.letter)),Array.from({length:26},(_,i)=>String.fromCharCode(65+i)));
+ assert.deepEqual(await page.locator('.r3-morse-code').evaluateAll(cells=>cells.map(c=>c.dataset.code)),await page.evaluate(()=>Object.values(ROOM3_MORSE)));
+ const paper=await chart.boundingBox();assert(paper.x>=0&&paper.y>=0&&paper.x+paper.width<=spec.viewport.width&&paper.y+paper.height<=spec.viewport.height,'Reference sheet fits viewport');
+ for(const cell of await page.locator('.r3-morse-cell').all()){
+ const r=await cell.boundingBox();assert(r.y>=paper.y&&r.y+r.height<=paper.y+paper.height,'Every letter visible on sheet');
+ assert(await cell.evaluate(el=>el.scrollWidth<=el.clientWidth),'Symbols fit row without horizontal overflow');
+ }
+ await page.screenshot({path:path.join(dir,'morse-az.png')});await page.locator('.r3-morse-chart .device-close').click();
+ assert.equal(await page.evaluate(()=>document.activeElement.id),'r3Shelf');
+ await page.locator('#r3Shelf').click();assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Reinspection opens chart directly');
+ await page.keyboard.press('Escape');assert.equal(await chart.count(),0);
  await page.locator('#r3Trumpet').click();await finishDialogue(page);
  await page.evaluate(()=>showThirdRoom({...room3State}));assert.equal(await page.locator('.room3-stage').getAttribute('data-view'),'back','Saved view restored');
  await page.locator('#r3TurnLeft').click();await page.locator('#r3Board').click();

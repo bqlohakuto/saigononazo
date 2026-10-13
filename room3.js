@@ -4,7 +4,7 @@ const ROOM3_CHAT_MESSAGES=[
  {sender:"主人公",letter:"M",face:"(-_|"},{sender:"先輩",letter:"O",face:"(-_-)"},{sender:"主人公",letter:"J",face:"(•ω-v)"},{sender:"先輩",letter:"I",face:"|｡･)"},{sender:"主人公",letter:"N",face:"|-・)"},
  {sender:"先輩",letter:"O",face:"(-_-)"},{sender:"主人公",letter:"A",face:"(・u |"},{sender:"先輩",letter:"I",face:"|｡･)"},{sender:"主人公",letter:"D",face:"(v・・)"},{sender:"先輩",letter:"A",face:"(・u |"}
 ];
-const ROOM3_MORSE={O:"－－－",N:"－・",A:"・－",J:"・－－－",I:"・・",M:"－－",D:"－・・"};
+const ROOM3_MORSE={"A":"・－","B":"－・・・","C":"－・－・","D":"－・・","E":"・","F":"・・－・","G":"－－・","H":"・・・・","I":"・・","J":"・－－－","K":"－・－","L":"・－・・","M":"－－","N":"－・","O":"－－－","P":"・－－・","Q":"－－・－","R":"・－・","S":"・・・","T":"－","U":"・・－","V":"・・・－","W":"・－－","X":"－・・－","Y":"－・－－","Z":"－－・・"};
 const ROOM3_BOARD=[
  ["A","イ","A","B","ツ","B","C","モ","C","・"],
  ["D","ト","D","E","ナ","E","F","リ","F","・"],
@@ -205,8 +205,25 @@ function inspectThirdRoomBed(){
  showRoomDialog(lines,()=>{room3State.bedInspected=true;renderThirdRoomView();saveGame()});
 }
 function inspectThirdRoomShelf(){
+ if(room3State.shelfInspected){showThirdRoomMorseChart();return}
  room3State.shelfInspected=true;saveGame();
- showRoomDialog([{logId:"room3_shelf_01",logType:"investigation",speaker:"ト書き",text:"小さな棚には、漫画や講義のテキストが並んでいる。"},{logId:"room3_shelf_02",logType:"investigation",speaker:"ト書き",text:"その間に、点と線で書かれたモールス信号の対応表が挟まっている。"},{logId:"room3_shelf_03",logType:"narration",speaker:"システム",text:`対応表：${Object.entries(ROOM3_MORSE).map(([letter,code])=>`${letter}=${code}`).join("　")}`}],()=>showRoomNotice("モールス信号の対応表を記録した。","room3_morse_chart"));
+ showRoomDialog([{logId:"room3_shelf_01",logType:"investigation",speaker:"ト書き",text:"小さな棚には、漫画や講義のテキストが並んでいる。"},{logId:"room3_shelf_02",logType:"investigation",speaker:"ト書き",text:"その間に、点と線で書かれたモールス信号の対応表が挟まっている。"}],showThirdRoomMorseChart);
+}
+function showThirdRoomMorseChart(){
+ if(!room3State.shelfInspected||game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay"))return;
+ const overlay=document.createElement("div");overlay.className="device-overlay r3-morse-overlay";
+ overlay.innerHTML=`<section class="r3-morse-chart" role="dialog" aria-modal="true" aria-label="AからZのモールス信号対応表"><header><h2>モールス信号対応表</h2><button type="button" class="device-close" aria-label="対応表を閉じる">閉じる</button></header><div class="r3-morse-grid" role="list" aria-label="アルファベット26文字"></div><p class="r3-morse-legend">・ 短点　　－ 長点</p></section>`;
+ game.appendChild(overlay);
+ const grid=overlay.querySelector(".r3-morse-grid");
+ for(const [letter,code] of Object.entries(ROOM3_MORSE)){
+  const cell=document.createElement("div");cell.className="r3-morse-cell";cell.dataset.letter=letter;cell.setAttribute("role","listitem");cell.setAttribute("aria-label",`${letter} ${code}`);
+  const label=document.createElement("strong");label.textContent=letter;label.setAttribute("aria-hidden","true");
+  const signals=document.createElement("span");signals.className="r3-morse-code";signals.dataset.code=code;signals.setAttribute("aria-hidden","true");
+  for(const mark of code){const symbol=document.createElement("i");symbol.className=mark==="・"?"morse-dot":"morse-dash";signals.appendChild(symbol)}
+  cell.append(label,signals);grid.appendChild(cell);
+ }
+ recordLog({logId:"room3_shelf_03",logType:"narration",speaker:"システム",text:`対応表：${Object.entries(ROOM3_MORSE).map(([letter,code])=>`${letter}=${code}`).join("　")}`,logGroup:"room3_shelf",logTarget:"小さな棚"});
+ activateDeviceModal(overlay,"r3Shelf",overlay.querySelector(".device-close"),()=>showRoomNotice("モールス信号の対応表を記録した。","room3_morse_chart"));
 }
 function showThirdRoomPuzzle(){
  if(!room3State.doorInspected){showRoomNotice("先に扉の問題文を確認しよう。","room3_puzzle_door_gate");return}

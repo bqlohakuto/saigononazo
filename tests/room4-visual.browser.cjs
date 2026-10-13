@@ -3,7 +3,20 @@ const {chromium,webkit}=require('playwright');
 const fs=require('node:fs'),path=require('node:path');
 const url=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononazo/';
 const version=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8').match(/room4.js\?v=([^"']+)/)[1];
-async function finish(page){for(let i=0;i<240&&await page.locator('.room-dialog-overlay').count();i++){await page.locator('#roomNextButton').click({force:true});await page.waitForTimeout(15)}assert.equal(await page.locator('.room-dialog-overlay').count(),0)}
+async function finish(page){
+ for(let i=0;i<240&&await page.locator('.room-dialog-overlay').count();i++){
+  await page.locator('#roomNextButton').click({force:true});await page.waitForTimeout(15);
+ }
+ assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Dialogue finishes');
+ // The room deliberately opens a separate "入手" modal after collecting each panel.
+ // Complete that interaction before trying another exploration target.
+ const pickup=page.locator('.design-overlay .design-panel[aria-label="入手"]');
+ if(await pickup.count()){
+  assert(await pickup.getByText('ガラスパネル',{exact:true}).count(),'Received item should be the glass panel');
+  await pickup.getByRole('button',{name:'受け取る'}).click();
+  await page.locator('.design-overlay').waitFor({state:'detached'});
+ }
+}
 (async()=>{for(const spec of [{name:'desktop',engine:chromium,viewport:{width:1366,height:768},channel:'chrome'},{name:'landscape-webkit',engine:webkit,viewport:{width:852,height:393}}]){
  const browser=await spec.engine.launch({headless:true,...(spec.channel?{channel:spec.channel}:{})});
  try{

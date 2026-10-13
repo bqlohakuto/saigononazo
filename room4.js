@@ -20,7 +20,21 @@ function showFourthRoom(savedState){
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room04",title:"第四の部屋",objective:()=>room4State.completed?"次の部屋へ進む":r4All()?"5枚のパネルの向きを合わせる":"5枚のガラスパネルを集める",onCompanion:r4Hana,getHighlights:()=>!!room4State.highlightEnabled,setHighlights:v=>{room4State.highlightEnabled=!!v;saveGame()}});
  saveGame();
 }
+function r4SyncHanaGazePose(){
+ const hana=game.querySelector(".room4-stage #r4Hana"),pose=hana?.querySelector(".r4-hana-look-pose");
+ if(!pose)return;
+ // WebKit resolves container units differently for children and pseudo-elements.
+ // Match the rendered idle sprite, including its foot anchor, in either engine.
+ const idle=getComputedStyle(hana,"::before"),height=parseFloat(idle.height);
+ if(!Number.isFinite(height))return;
+ pose.style.width=idle.width;
+ pose.style.height=idle.height;
+ pose.style.bottom=`${parseFloat(idle.bottom)-height*(.705/31)}px`;
+ pose.style.backgroundSize=`auto ${height*(32.5/31)}px`;
+}
+window.addEventListener("resize",r4SyncHanaGazePose);
 function r4SetHanaLookUp(active){
+ r4SyncHanaGazePose();
  game.querySelector(".room4-stage #r4Hana")?.classList.toggle("is-looking-up",!!active);
 }
 // View is presentation-only; existing puzzle rules and dialogue remain unchanged.

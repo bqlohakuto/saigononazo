@@ -41,7 +41,9 @@ async function finish(page){
  });
  assert.match(await page.evaluate(()=>GameLog.list().at(-1)?.id||''),/^r4i06(?:_\d+)?$/,'Ceiling-gaze narration reached using expanded ID');
  assert(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up')),'Hana looks up during narration');
- assert.equal(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).opacity),'1','Look-up head layer is visible');
+ await page.waitForFunction(()=>getComputedStyle(document.querySelector('#r4Hana .r4-hana-look-pose')).opacity==='1');
+ assert.equal(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).opacity),'1','Dedicated full-body gaze is visible');
+ assert.deepEqual(await page.evaluate(async()=>{const img=new Image();img.src='images/characters/hana-v8/looking-up.png';await img.decode();return [img.naturalWidth,img.naturalHeight]}),[1024,1536]);
  const pose=await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>({
    transform:getComputedStyle(el).transform,
    animationName:getComputedStyle(el).animationName,

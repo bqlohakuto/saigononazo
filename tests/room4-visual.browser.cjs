@@ -62,8 +62,8 @@ async function finish(page){
  assert(!(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up'))),'Hana returns to idle stance after gazing');
  await finish(page);
  assert(!(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up'))),'No stale look-up state after dialogue');
- assert.equal(await page.locator('#exploreStatus').isVisible(),false,'No persistent exploration guidance');
- assert.equal(await page.locator('#r4Count').isVisible(),false,'No persistent collection count');
+ assert.equal(await page.locator('#exploreStatus').count(),0,'Room 4 creates no exploration guidance element');
+ assert.equal(await page.locator('#r4Count').count(),0,'Room 4 creates no collection counter element');
  const expected={front:['r4Door','r4Wall','r4Box','r4Hana'],right:['r4Const','r4Flowers','r4P1'],back:['r4Meteor','r4Moon','r4P2','r4P3'],left:['r4Light','r4Stand']};
  for(const view of ['front','right','back','left']){
  assert.equal(await page.locator('.room4-stage').getAttribute('data-view'),view);
@@ -103,7 +103,7 @@ async function finish(page){
   let values=await page.locator('.r4-rainbow b').allTextContents(),j=values.indexOf(value);
   while(j>i){await page.locator(`.r4-rainbow button[data-i="${j}"][data-d="-1"]`).click();j--;if(!(await page.locator('.r4-mini-overlay').count()))break}
  }
- await finish(page);assert(await page.evaluate(()=>room4State.meteors));assert.equal(await page.locator('#r4Count').textContent(),'ガラスパネル 5 / 5');
+ await finish(page);assert(await page.evaluate(()=>room4State.meteors));assert.equal(await page.evaluate(()=>r4Count()),5,'Five panels remain in game state');assert.equal(await page.locator('#r4Count').count(),0,'Collecting panels does not recreate a counter');
  await page.locator('#r4TurnRight').click();await page.locator('#r4Light').click();await finish(page);
  assert(await page.locator('#r4LightOverlay').isVisible());assert.deepEqual(await page.locator('#r4LightOverlay').evaluate(async img=>{await img.decode();return [img.naturalWidth,img.naturalHeight]}),[1672,941]);
  await page.screenshot({path:path.join(dir,'left-light-on.png')});

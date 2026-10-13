@@ -37,16 +37,23 @@ async function finish(page){
  assert(Math.abs(hanaScale.width/canvasWidth-.199)<.01,'Room 4 Hana uses reduced 19.9cqw sprite width');
  assert.equal(hanaScale.headHeight,hanaScale.height,'Head layer must share the body sprite dimensions');
  await page.evaluate(()=>{
-  for(let i=0;i<70&&GameLog.list().at(-1)?.id!=='r4i06';i++)Dialogue.advance();
+  for(let i=0;i<70&&!/^r4i06(?:_\d+)?$/.test(GameLog.list().at(-1)?.id||'');i++)Dialogue.advance();
  });
- assert.equal(await page.evaluate(()=>GameLog.list().at(-1)?.id),'r4i06','Ceiling-gaze narration reached');
+ assert.match(await page.evaluate(()=>GameLog.list().at(-1)?.id||''),/^r4i06(?:_\d+)?$/,'Ceiling-gaze narration reached using expanded ID');
  assert(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up')),'Hana looks up during narration');
  assert.equal(await page.locator('#r4Hana .r4-hana-look-head').evaluate(el=>getComputedStyle(el).opacity),'1','Look-up head layer is visible');
+ const pose=await page.locator('#r4Hana .r4-hana-look-head').evaluate(el=>({
+   transform:getComputedStyle(el).transform,
+   animationName:getComputedStyle(el).animationName,
+   clipPath:getComputedStyle(el).clipPath
+ }));
+ assert.notEqual(pose.transform,'none','Look-up pose must tilt the head even for reduced-motion users');
+ assert(pose.clipPath!=='none','The look-up layer contains only the head');
  await page.screenshot({path:path.join(dir,'front-hana-looking-up.png')});
  await page.evaluate(()=>{
-  for(let i=0;i<30&&GameLog.list().at(-1)?.id!=='r4i10';i++)Dialogue.advance();
+  for(let i=0;i<30&&!/^r4i10(?:_\d+)?$/.test(GameLog.list().at(-1)?.id||'');i++)Dialogue.advance();
  });
- assert.equal(await page.evaluate(()=>GameLog.list().at(-1)?.id),'r4i10','Narration after star-gazing reached');
+ assert.match(await page.evaluate(()=>GameLog.list().at(-1)?.id||''),/^r4i10(?:_\d+)?$/,'Narration after star-gazing reached using expanded ID');
  assert(!(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up'))),'Hana returns to idle stance after gazing');
  await finish(page);
  assert(!(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up'))),'No stale look-up state after dialogue');

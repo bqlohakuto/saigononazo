@@ -516,3 +516,5 @@
 - 12花のPC／横向きWebKit表示・全解説・出典・戻るとEsc・謎進行は成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38428978959 。公開成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38428977774 。撮影画像: https://github.com/bqlohakuto/saigononazo/actions/runs/38428978959/artifacts/11829393682 。
 - 撮影画像から右壁の額縁の外へのはみ出しを発見し、ボードの座標・幅を内側へ合わせた。アトラスセル端の隣の花の断片はCSSの3%内側クリップで隠し、採用画像の画素は改変しない。
 - 最終キャッシュ版20261014-room04-flower-exhibit-64px-02。32pxの追加画像は未採用・本編への参照なし。
+
+- 64ドット版の最終公開成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38432625786 。PC Chrome／横向きWebKitの全12花・額縁内の収まり・解説・出典・戻る操作・第4進行の最終検証成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38432627519 。画像は同runのroom04-review artifact。iPhone実機は未確認。

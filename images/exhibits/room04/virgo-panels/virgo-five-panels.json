@@ -35,7 +35,9 @@
         }
       ],
       "connecting_lines": false,
-      "labels": false
+      "labels": false,
+      "corner_reflections": false,
+      "frame_rotationally_symmetric": true
     },
     {
       "panel": 2,
@@ -63,7 +65,9 @@
         }
       ],
       "connecting_lines": false,
-      "labels": false
+      "labels": false,
+      "corner_reflections": false,
+      "frame_rotationally_symmetric": true
     },
     {
       "panel": 3,
@@ -86,7 +90,9 @@
         }
       ],
       "connecting_lines": false,
-      "labels": false
+      "labels": false,
+      "corner_reflections": false,
+      "frame_rotationally_symmetric": true
     },
     {
       "panel": 4,
@@ -109,7 +115,9 @@
         }
       ],
       "connecting_lines": false,
-      "labels": false
+      "labels": false,
+      "corner_reflections": false,
+      "frame_rotationally_symmetric": true
     },
     {
       "panel": 5,
@@ -132,7 +140,9 @@
         }
       ],
       "connecting_lines": false,
-      "labels": false
+      "labels": false,
+      "corner_reflections": false,
+      "frame_rotationally_symmetric": true
     }
   ]
 }

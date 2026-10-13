@@ -4,16 +4,33 @@ function r4All(){return r4Count()===5}
 function r4Correct(){return r4All()&&room4State.angles.every((v,i)=>v===R4_ANGLES[i])}
 function showFourthRoom(savedState){
  Dialogue.stop();firstRoomState=undefined;room2State=undefined;room3State=undefined;currentScene="room04";
- room4State={door:false,wall:false,box:false,star:false,lightPuzzle:false,meteors:false,angles:[0,0,0,0,0],rainbow:[...R4_RAINBOW],lightOn:false,completed:false,memorySeen:false,nextRoomTransitionSeen:false,hanaSleepSeen:false,highlightEnabled:true,...savedState};
+ room4State={door:false,wall:false,box:false,star:false,lightPuzzle:false,meteors:false,angles:[0,0,0,0,0],rainbow:[...R4_RAINBOW],lightOn:false,completed:false,memorySeen:false,nextRoomTransitionSeen:false,hanaSleepSeen:false,highlightEnabled:true,view:"front",...savedState};
  if(!Array.isArray(room4State.angles)||room4State.angles.length!==5)room4State.angles=[0,0,0,0,0];
  if(!Array.isArray(room4State.rainbow)||room4State.rainbow.length!==7)room4State.rainbow=[...R4_RAINBOW];
- game.innerHTML=`<main class="room room-four room4-arriving ${room4State.completed?"is-restored":""}" aria-label="第四の部屋"><header class="room-header"><p class="room-label">第四の部屋</p><p class="room-color-status">${room4State.completed?"記憶を取り戻した部屋":"天文展示室"}</p></header><div class="room-stage-wrap"><section class="room-stage room4-stage"><div class="r4-sky" aria-hidden="true"></div><div class="r4-door-art"></div><div class="r4-light-art"></div><div class="r4-display-art"></div><div id="r4Projection" class="r4-projection"></div><button class="object r4obj r4door" id="r4Door"><span>扉</span></button><button class="object r4obj r4light" id="r4Light"><span>ライト</span></button><button class="object r4obj r4stand" id="r4Stand"><span>パネル台</span></button><button class="object r4obj r4const" id="r4Const"><span>星座一覧</span></button><button class="object r4obj r4meteor" id="r4Meteor"><span>流れ星</span></button><button class="object r4obj r4p1" id="r4P1"><span>謎1</span></button><button class="object r4obj r4p2" id="r4P2"><span>謎2</span></button><button class="object r4obj r4p3" id="r4P3"><span>謎3</span></button><button class="object r4obj r4wall" id="r4Wall" ${room4State.wall?"disabled":""}><span>壁の透明板</span></button><button class="object r4obj r4box" id="r4Box"><span>質問箱</span></button><button class="object r4obj r4hana" id="r4Hana"><span>ハナ</span></button></section></div><nav class="room-navigation"><span></span><p id="r4Count">ガラスパネル ${r4Count()} / 5</p><span></span></nav><p class="explore-status" id="exploreStatus">気になる場所をクリックしてください。</p></main>`;
- [["r4Door",r4Door],["r4Light",r4Light],["r4Stand",r4Stand],["r4Const",r4Const],["r4Meteor",r4Meteor],["r4P1",r4P1],["r4P2",r4P2],["r4P3",r4P3],["r4Wall",r4Wall],["r4Box",r4Box],["r4Hana",r4Hana]].forEach(([id,fn])=>document.getElementById(id).addEventListener("click",fn));
- r4Projection();
+ game.innerHTML=`<main class="room room-four room4-arriving ${room4State.completed?"is-restored":""}" aria-label="第四の部屋"><header class="room-header"><p class="room-label">第四の部屋</p><p class="room-color-status">${room4State.completed?"記憶を取り戻した部屋":"天文展示室"}</p></header><div class="room-stage-wrap"><section class="room-stage room4-stage"><img id="r4Background" class="room4-background-art" alt="" aria-hidden="true"><div class="room4-shared-door" aria-hidden="true"></div><img id="r4LightOverlay" class="room4-light-overlay" src="images/background/room04/room04_light.webp" alt="" aria-hidden="true"><div id="r4Projection" class="r4-projection"></div><button class="object r4obj r4door" id="r4Door"><span>扉</span></button><button class="object r4obj r4light" id="r4Light"><span>ライト</span></button><button class="object r4obj r4stand" id="r4Stand"><span>パネル台</span></button><button class="object r4obj r4const" id="r4Const"><span>星座一覧</span></button><button class="object r4obj r4flowers" id="r4Flowers"><span>12星座の花</span></button><button class="object r4obj r4moon" id="r4Moon"><span>世界の月の見立て</span></button><button class="object r4obj r4meteor" id="r4Meteor"><span>流れ星</span></button><button class="object r4obj r4p1" id="r4P1"><span>謎1</span></button><button class="object r4obj r4p2" id="r4P2"><span>謎2</span></button><button class="object r4obj r4p3" id="r4P3"><span>謎3</span></button><button class="object r4obj r4wall" id="r4Wall" ${room4State.wall?"disabled":""}><span>壁の透明板</span></button><button class="object r4obj r4box" id="r4Box"><span>質問箱</span></button><button class="object r4obj r4hana" id="r4Hana"><span>ハナ</span></button></section></div><nav class="room-navigation"><button id="r4TurnLeft" class="nav-arrow" aria-label="左を向く">◀</button><p id="r4Count">ガラスパネル ${r4Count()} / 5</p><button id="r4TurnRight" class="nav-arrow" aria-label="右を向く">▶</button></nav><p class="explore-status" id="exploreStatus">気になる場所をクリックしてください。</p></main>`;
+ [["r4Door",r4Door],["r4Light",r4Light],["r4Stand",r4Stand],["r4Const",r4Const],["r4Flowers",r4Const],["r4Moon",r4Moon],["r4Meteor",r4Meteor],["r4P1",r4P1],["r4P2",r4P2],["r4P3",r4P3],["r4Wall",r4Wall],["r4Box",r4Box],["r4Hana",r4Hana]].forEach(([id,fn])=>document.getElementById(id).addEventListener("click",fn));
+ document.getElementById("r4TurnLeft").onclick=()=>turnFourthRoom(-1);
+ document.getElementById("r4TurnRight").onclick=()=>turnFourthRoom(1);
+ renderFourthRoomView();r4Projection();
  if(savedState){showRoomNotice("続きから再開しました。","r4resume","narration");if(room4State.nextRoomTransitionSeen)setTimeout(r4NextPlaceholder,150);else if(room4State.completed&&!room4State.memorySeen)setTimeout(r4Memory,150)}else showRoomDialog(room4IntroLines);
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room04",title:"第四の部屋",objective:()=>room4State.completed?"次の部屋へ進む":r4All()?"5枚のパネルの向きを合わせる":"5枚のガラスパネルを集める",onCompanion:r4Hana,getHighlights:()=>!!room4State.highlightEnabled,setHighlights:v=>{room4State.highlightEnabled=!!v;saveGame()}});
  saveGame();
 }
+// View is presentation-only; existing puzzle rules and dialogue remain unchanged.
+const ROOM4_VIEWS=["front","right","back","left"];
+function renderFourthRoomView(){
+ const view=ROOM4_VIEWS.includes(room4State.view)?room4State.view:"front";
+ room4State.view=view;const stage=game.querySelector(".room4-stage");if(!stage)return;
+ stage.dataset.view=view;
+ document.getElementById("r4Background").src=`images/background/room04/room04_${view}.webp`;
+ const targets={front:["r4Door","r4Wall","r4Box","r4Hana"],right:["r4Const","r4Flowers","r4P1"],back:["r4Meteor","r4Moon","r4P2","r4P3"],left:["r4Light","r4Stand"]};
+ for(const b of stage.querySelectorAll(".r4obj")){b.hidden=!targets[view].includes(b.id);b.setAttribute("aria-label",b.querySelector("span").textContent);}
+}
+function turnFourthRoom(step){
+ if(currentScene!=="room04"||game.querySelector(".room-dialog-overlay,.device-overlay,.design-overlay,.inspection-overlay"))return;
+ room4State.view=ROOM4_VIEWS[(ROOM4_VIEWS.indexOf(room4State.view)+step+4)%4];renderFourthRoomView();saveGame();
+}
+function r4Moon(){showRoomDialog([{logId:"r4_moon_exhibit",logType:"investigation",speaker:"ト書き",text:"月の模様の展示：国旗と英語国名 POLAND / SPAIN / BELGIUM / THAILAND / ITALY など。見え方には地域・時代・伝承によって諸説があります。"}])}
 function r4Door(){
  if(room4State.completed&&room4State.memorySeen){showRoomDialog([{logId:"r4open1",logType:"investigation",speaker:"ト書き",text:"扉の鍵は開いている。"},{logId:"r4open2",logType:"narration",speaker:"主人公",thought:true,text:"先へ行けば、名前のことも思い出せるかもしれない。"}],r4Exit);return}
  if(room4State.door){showRoomDialog([{logId:"r4drepeat",logType:"narration",speaker:"システム",text:"『散らばる星を重ね、夜空にひとつの姿を描け。』"}]);return}
@@ -26,7 +43,7 @@ function r4Light(){
  if(!r4Correct()){showRoomDialog([{logId:"r4lw1",logType:"investigation",speaker:"ト書き",text:"ライトの光がパネルを通り、左の壁にいくつもの星が映し出される。"},{logId:"r4lw2",logType:"dialogue",speaker:"主人公",text:"……星は映ったけど。これじゃ、まだ何の形か分からないな"},{logId:"r4lw3",logType:"dialogue",speaker:"主人公",text:"パネルの向きが違うのかもしれない"}]);return}
  r4Complete();
 }
-function r4Projection(){const p=document.getElementById("r4Projection");if(!p)return;p.className="r4-projection"+(room4State.lightOn?" on":"")+(room4State.completed?" complete":"");p.innerHTML=room4State.lightOn?Array.from({length:r4Count()*3},(_,i)=>`<i style="--x:${10+(i*31)%78}%;--y:${12+(i*43)%72}%"></i>`).join(""):""}
+function r4Projection(){const p=document.getElementById("r4Projection");if(!p)return;document.getElementById("r4LightOverlay").hidden=!room4State.lightOn;p.className="r4-projection"+(room4State.lightOn?" on":"")+(room4State.completed?" complete":"");p.innerHTML=room4State.lightOn?Array.from({length:r4Count()*3},(_,i)=>`<i style="--x:${10+(i*31)%78}%;--y:${12+(i*43)%72}%"></i>`).join(""):""}
 function r4Stand(){
  if(!r4All()){showRoomDialog([{logId:"r4s1",logType:"investigation",speaker:"ト書き",text:"ライトの前に、透明な板を差し込めそうな枠が並んでいる。数えてみると、全部で五つある。"},{logId:"r4s2",logType:"dialogue",speaker:"主人公",text:"……五枚分ってことか"},{logId:"r4s3",logType:"investigation",speaker:"ト書き",text:`今は、${r4Count()}枚のガラスパネルを持っている。`}]);return}
  const o=document.createElement("div");o.className="device-overlay r4-panel-overlay";o.innerHTML=`<section class="r4-panel-ui"><button class="device-close">×</button><h2>ガラスパネル</h2><p>5枚を90度ずつ回転させ、星の位置を合わせる。</p><div class="r4-panels"></div><p class="r4-feedback"></p><button class="r4-shine">ライトを当てる</button></section>`;game.appendChild(o);

@@ -240,3 +240,28 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 @media(prefers-reduced-motion:reduce){.room3-sleeping-hana .sleep-body{animation:none}}
 
 #game .room3-stage.hana-asleep .room3-bed::after{display:none}
+
+/* Adopted room 4 art: front / right / back / left. */
+#game .room4-stage{background:#101b34;border:0;box-shadow:none}
+.room4-background-art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;image-rendering:pixelated;pointer-events:none;z-index:0}
+#game .room4-stage .r4obj:not(.r4hana){background:transparent;border:0;box-shadow:none;border-radius:0;z-index:7}
+#game .room4-stage .r4obj[hidden]{display:none!important}
+.room4-shared-door{display:none;position:absolute;left:41.55%;top:23.4%;width:17%;height:51.8%;background:url(images/background/room01/pixel/room01_front_fine.png) 49.4536% 16.6008%/350.6849% 132.8145% no-repeat;image-rendering:pixelated;pointer-events:none;z-index:1}
+.room4-stage[data-view=front] .room4-shared-door{display:block}
+#game .room4-stage .r4door{left:41.55%;top:23.4%;width:17%;height:51.8%;bottom:auto}
+#game .room4-stage .r4wall{left:23.4%;top:29.4%;width:14%;height:22.5%;bottom:auto}
+#game .room4-stage .r4box{left:64.4%;top:50.8%;width:10.5%;height:28.3%;bottom:auto}
+#game .room4-stage .r4hana{left:79%;top:40%;width:10%;height:35%;bottom:auto;z-index:4}
+#game .room4-stage .r4light{left:46.5%;top:69%;width:7.2%;height:14.5%;bottom:auto}
+#game .room4-stage .r4stand{left:44.7%;top:64.8%;width:10.6%;height:7.2%;bottom:auto}
+#game .room4-stage .r4const{left:16%;top:22.5%;width:29%;height:35.5%;right:auto;bottom:auto}
+#game .room4-stage .r4flowers{left:55.5%;top:22.5%;width:28.5%;height:35.5%;bottom:auto}
+#game .room4-stage .r4p1{left:42.8%;top:54%;width:14.5%;height:29%;right:auto;bottom:auto}
+#game .room4-stage .r4meteor{left:15.5%;top:22.5%;width:30%;height:35.5%;right:auto;bottom:auto}
+#game .room4-stage .r4moon{left:53%;top:22.5%;width:32%;height:35.5%;bottom:auto}
+#game .room4-stage .r4p3{left:23%;top:57.5%;width:13.5%;height:25%;right:auto;bottom:auto}
+#game .room4-stage .r4p2{left:63.5%;top:57.5%;width:13.5%;height:25%;right:auto;bottom:auto}
+.room4-light-overlay{display:none;position:absolute;left:25%;top:9%;width:50%;height:80%;object-fit:fill;image-rendering:pixelated;pointer-events:none;z-index:2}
+.room4-stage[data-view=left] .room4-light-overlay:not([hidden]){display:block}
+#game .room4-stage .r4-projection{display:none;left:35%;top:17%;width:30%;height:30%;background:none;border-radius:0;z-index:3;pointer-events:none}
+#game .room4-stage[data-view=left] .r4-projection.on{display:block}

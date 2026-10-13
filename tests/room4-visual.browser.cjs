@@ -62,6 +62,8 @@ async function finish(page){
  assert(!(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up'))),'Hana returns to idle stance after gazing');
  await finish(page);
  assert(!(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up'))),'No stale look-up state after dialogue');
+ assert.equal(await page.locator('#exploreStatus').isVisible(),false,'No persistent exploration guidance');
+ assert.equal(await page.locator('#r4Count').isVisible(),false,'No persistent collection count');
  const expected={front:['r4Door','r4Wall','r4Box','r4Hana'],right:['r4Const','r4Flowers','r4P1'],back:['r4Meteor','r4Moon','r4P2','r4P3'],left:['r4Light','r4Stand']};
  for(const view of ['front','right','back','left']){
  assert.equal(await page.locator('.room4-stage').getAttribute('data-view'),view);

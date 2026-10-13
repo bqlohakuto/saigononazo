@@ -544,3 +544,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
  #game .r4-zodiac-exhibit footer>span{display:none}
  #game .r4-zodiac-exhibit footer{justify-content:flex-end}
 }
+
+/* Keep exploration free of persistent guidance and progress labels. */
+#game .explore-status,#game .room-navigation p{display:none!important}
+#game .r4-zodiac-guide,#game .r4-zodiac-kicker,#game .r4-zodiac-exhibit footer>span{display:none}

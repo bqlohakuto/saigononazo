@@ -461,10 +461,10 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .room4-stage .r4hana .r4-hana-look-pose{
  position:absolute;
  left:50%;
- bottom:-4.58cqw;
- width:19.9cqw;
- height:31cqw;
- background:url("images/characters/hana-v8/looking-up.png") center bottom/auto 32.5cqw no-repeat;
+ bottom:calc(-1 * min(4.58vw,8.1422svh));
+ width:min(19.9vw,35.3778svh);
+ height:min(31vw,55.1111svh);
+ background:url("images/characters/hana-v8/looking-up.png") center bottom/auto min(32.5vw,57.7778svh) no-repeat;
  image-rendering:pixelated;
  transform:translateX(-50%);
  opacity:0;

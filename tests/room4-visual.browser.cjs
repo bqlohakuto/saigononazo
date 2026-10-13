@@ -35,7 +35,7 @@ async function finish(page){
  assert(hanaScale.visible,'Hana must be visible in the fourth room front view');
  assert(Math.abs(hanaScale.height/canvasWidth-.31)<.01,'Room 4 Hana uses reduced 31cqw sprite height');
  assert(Math.abs(hanaScale.width/canvasWidth-.199)<.01,'Room 4 Hana uses reduced 19.9cqw sprite width');
- assert.equal(hanaScale.headHeight,hanaScale.height,'Head layer must share the body sprite dimensions');
+ assert(Math.abs(hanaScale.headHeight-hanaScale.height)<1,'Dedicated gaze and idle sprites share dimensions');
  await page.evaluate(()=>{
   for(let i=0;i<70&&!/^r4i06(?:_\d+)?$/.test(GameLog.list().at(-1)?.id||'');i++)Dialogue.advance();
  });

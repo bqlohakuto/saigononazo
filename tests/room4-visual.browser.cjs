@@ -25,7 +25,31 @@ async function finish(page){
  const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  let deployed=false;for(let i=0;i<24;i++){await page.goto(url+'?room4_review='+Date.now());if((await page.locator('script[src*="room4.js"]').getAttribute('src')).includes(version)){deployed=true;break}await page.waitForTimeout(8000)}assert(deployed,'Expected deployed version');
  const dir=path.join('artifacts/room04',spec.name);fs.mkdirSync(dir,{recursive:true});
- await page.evaluate(()=>{settings.instantText=true;showFourthRoom({})});await finish(page);
+ // The original introduction must trigger the ceiling-gaze pose on its confirmed narration.
+ await page.evaluate(()=>{settings.instantText=true;showFourthRoom()});
+ const hanaScale=await page.locator('#r4Hana').evaluate(el=>{
+  const sprite=getComputedStyle(el,'::before'),head=getComputedStyle(el.querySelector('.r4-hana-look-head'));
+  return {width:parseFloat(sprite.width),height:parseFloat(sprite.height),headHeight:parseFloat(head.height),visible:!el.hidden};
+ });
+ const canvasWidth=await page.locator('#game-container').evaluate(el=>el.getBoundingClientRect().width);
+ assert(hanaScale.visible,'Hana must be visible in the fourth room front view');
+ assert(Math.abs(hanaScale.height/canvasWidth-.31)<.01,'Room 4 Hana uses reduced 31cqw sprite height');
+ assert(Math.abs(hanaScale.width/canvasWidth-.199)<.01,'Room 4 Hana uses reduced 19.9cqw sprite width');
+ assert.equal(hanaScale.headHeight,hanaScale.height,'Head layer must share the body sprite dimensions');
+ await page.evaluate(()=>{
+  for(let i=0;i<70&&GameLog.list().at(-1)?.id!=='r4i06';i++)Dialogue.advance();
+ });
+ assert.equal(await page.evaluate(()=>GameLog.list().at(-1)?.id),'r4i06','Ceiling-gaze narration reached');
+ assert(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up')),'Hana looks up during narration');
+ assert.equal(await page.locator('#r4Hana .r4-hana-look-head').evaluate(el=>getComputedStyle(el).opacity),'1','Look-up head layer is visible');
+ await page.screenshot({path:path.join(dir,'front-hana-looking-up.png')});
+ await page.evaluate(()=>{
+  for(let i=0;i<30&&GameLog.list().at(-1)?.id!=='r4i10';i++)Dialogue.advance();
+ });
+ assert.equal(await page.evaluate(()=>GameLog.list().at(-1)?.id),'r4i10','Narration after star-gazing reached');
+ assert(!(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up'))),'Hana returns to idle stance after gazing');
+ await finish(page);
+ assert(!(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up'))),'No stale look-up state after dialogue');
  const expected={front:['r4Door','r4Wall','r4Box','r4Hana'],right:['r4Const','r4Flowers','r4P1'],back:['r4Meteor','r4Moon','r4P2','r4P3'],left:['r4Light','r4Stand']};
  for(const view of ['front','right','back','left']){
  assert.equal(await page.locator('.room4-stage').getAttribute('data-view'),view);

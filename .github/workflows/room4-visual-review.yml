@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'room4.js'
+      - 'room4-zodiac.js'
       - 'style.css'
       - 'design-ui.css'
       - 'index.html'

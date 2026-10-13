@@ -74,7 +74,25 @@ async function finish(page){
  await page.locator('#r4Wall').click();await finish(page);assert(await page.evaluate(()=>room4State.wall));
  await page.locator('#r4Box').click();await finish(page);assert(await page.evaluate(()=>room4State.box));
  await page.locator('#r4Door').click();await finish(page);
- await page.locator('#r4TurnRight').click();await page.locator('#r4Const').click();await finish(page);await page.locator('#r4Flowers').click();await finish(page);
+ await page.locator('#r4TurnRight').click();await page.locator('#r4Const').click();await finish(page);
+ const exhibit=page.locator('.r4-zodiac-exhibit');assert(await exhibit.isVisible(),'Constellation inspection opens the exhibit');
+ assert.equal(await page.locator('.r4-zodiac-card').count(),12,'Exactly twelve zodiac exhibits');
+ const names=await page.locator('.r4-zodiac-card strong').allTextContents();assert.equal(new Set(names).size,12);assert(!names.some(n=>n.includes('白鳥')));
+ assert(await page.locator('.room-four').evaluate(el=>el.inert),'Exhibit traps input outside the room');
+ const cards=await page.locator('.r4-zodiac-card').all();
+ const view=await page.locator('#game-container').boundingBox();
+ for(const card of cards){const r=await card.boundingBox();assert(r.width>0&&r.height>=35&&r.x>=view.x&&r.y>=view.y&&r.x+r.width<=view.x+view.width+1&&r.y+r.height<=view.y+view.height+1,'All twelve cards fit the game viewport')}
+ await page.screenshot({path:path.join(dir,'zodiac-overview.png')});
+ for(const [i,name] of names.entries()){
+  await page.locator('.r4-zodiac-card').nth(i).click();assert.equal(await page.locator('.r4-zodiac-copy h3').textContent(),name);
+  assert((await page.locator('.r4-zodiac-description').textContent()).length>20,'Every constellation has an explanation');
+  assert((await page.locator('.r4-zodiac-large circle').count())>=3,'A real star chart is present');
+  const back=await page.locator('.r4-zodiac-back').boundingBox();assert(back.x>=view.x&&back.y>=view.y&&back.x+back.width<=view.x+view.width+1&&back.y+back.height<=view.y+view.height+1,'Return control remains accessible');
+  if(i===5)await page.screenshot({path:path.join(dir,'zodiac-detail.png')});
+  await page.locator('.r4-zodiac-back').click();assert(await page.locator('.r4-zodiac-card').nth(i).evaluate(el=>el===document.activeElement),'Back restores focus to the selected card');
+ }
+ await page.keyboard.press('Escape');assert.equal(await page.locator('.r4-zodiac-overlay').count(),0);assert(!(await page.locator('.room-four').evaluate(el=>el.inert)));assert.equal(await page.evaluate(()=>document.activeElement.id),'r4Const');
+ await page.locator('#r4Flowers').click();await finish(page);
  await page.locator('#r4P1').click();await page.locator('.r4-mini input').fill('STAR');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.star));
  await page.locator('#r4TurnRight').click();await page.locator('#r4Meteor').click();await finish(page);await page.locator('#r4Moon').click();await finish(page);
  await page.locator('#r4P2').click();await page.locator('.r4-mini input').fill('LIGHT');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.lightPuzzle));

@@ -494,3 +494,53 @@ body{background:#0b1322!important;display:grid;place-items:center}
   transform:translateX(-50%);
  }
 }
+
+/* Room 4: equally weighted, readable zodiac exhibition. */
+#game .r4-zodiac-overlay{z-index:90;background:#09131ee8;padding:2%;color:#f5f1e5}
+#game .r4-zodiac-exhibit{position:relative;width:100%;height:100%;min-height:0;display:flex;flex-direction:column;border:2px solid #ae9560;background:#0d2032;box-shadow:0 8px 24px #0006;padding:clamp(10px,1.5cqw,22px);gap:clamp(6px,.8cqw,12px);overflow:hidden}
+#game .r4-zodiac-exhibit header{display:flex;align-items:center;justify-content:space-between;flex:none;border-bottom:1px solid #a9956755;padding-bottom:6px}
+#game .r4-zodiac-exhibit h2{margin:0;font-size:clamp(20px,2.8cqw,36px);font-weight:500;color:#faf3df}
+#game .r4-zodiac-kicker{margin:0 0 2px;color:#bba984;font-size:clamp(10px,1cqw,14px);letter-spacing:.12em}
+#game .r4-zodiac-exhibit .device-close{position:static;width:auto;min-height:32px;padding:4px 12px;background:#faf5e8;color:#243348;border:1px solid #bda470;border-radius:0;font-size:clamp(12px,1.2cqw,18px)}
+#game .r4-zodiac-list{flex:1;display:flex;flex-direction:column;min-height:0;gap:8px}
+#game .r4-zodiac-guide{margin:0;flex:none;font-size:clamp(11px,1.15cqw,16px);color:#ccd2d6}
+#game .r4-zodiac-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:clamp(5px,.7cqw,10px)}
+#game .r4-zodiac-card{min-height:0;padding:4px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;color:#f3f0e4;background:#142c43;border:1px solid #55738c;border-radius:0;overflow:hidden;box-shadow:none;cursor:pointer}
+#game .r4-zodiac-card:hover,#game .r4-zodiac-card:focus-visible{background:#203c55;border-color:#e3c885;outline:2px solid #e3c885;outline-offset:-3px}
+#game .r4-zodiac-card svg{flex:1;min-height:0;width:100%;max-height:100%}
+#game .r4-zodiac-card strong{flex:none;font-weight:500;font-size:clamp(12px,1.5cqw,21px);line-height:1.15}
+#game .r4-zodiac-card small{flex:none;font-size:clamp(9px,.85cqw,12px);color:#b6c5d3;line-height:1}
+#game .r4-zodiac-lines{stroke:#8daac1;stroke-width:1.2;fill:none;vector-effect:non-scaling-stroke}
+#game .r4-zodiac-stars{fill:#fff5d9;stroke:#ffffff55;stroke-width:.6}
+#game .r4-zodiac-detail{flex:1;min-height:0;display:grid;grid-template-columns:1.3fr 1fr;gap:4%;align-items:center;overflow-y:auto;touch-action:pan-y}
+#game .r4-zodiac-large{min-height:0;display:grid;place-items:center;background:#11273b;border:1px solid #547089;aspect-ratio:3/2;width:100%}
+#game .r4-zodiac-large svg{width:100%;height:100%}
+#game .r4-zodiac-copy{min-width:0}
+#game .r4-zodiac-latin{color:#b9a77b;font-size:clamp(12px,1.4cqw,20px);margin:0 0 4px}
+#game .r4-zodiac-copy h3{font-size:clamp(20px,3cqw,40px);font-weight:500;margin:0 0 16px}
+#game .r4-zodiac-description{font-size:clamp(14px,1.7cqw,24px);line-height:1.8;margin:0 0 16px}
+#game .r4-zodiac-note{font-size:clamp(10px,1cqw,14px);line-height:1.5;color:#aebcc9;margin:0 0 16px}
+#game .r4-zodiac-back{background:#faf5e8;color:#243348;border:1px solid #bda470;padding:8px 14px;font-size:clamp(12px,1.3cqw,18px);min-height:34px}
+#game .r4-zodiac-exhibit footer{flex:none;display:flex;justify-content:space-between;gap:10px;font-size:clamp(9px,.85cqw,12px);color:#aab5bc}
+#game .r4-zodiac-exhibit details{position:relative;text-align:right}
+#game .r4-zodiac-exhibit details p{position:absolute;bottom:16px;right:0;background:#102a40;border:1px solid #55738c;width:min(420px,75cqw);padding:12px;line-height:1.6;z-index:2;text-align:left}
+#game .r4-zodiac-exhibit a{color:#c7dcef}
+#game .r4-zodiac-list[hidden],#game .r4-zodiac-detail[hidden]{display:none}
+@media(max-height:460px) and (min-width:480px){
+ #game .r4-zodiac-overlay{padding:1%}
+ #game .r4-zodiac-exhibit{padding:8px;gap:4px}
+ #game .r4-zodiac-kicker{display:none}
+ #game .r4-zodiac-exhibit h2{font-size:18px}
+ #game .r4-zodiac-exhibit header{padding-bottom:3px}
+ #game .r4-zodiac-guide{font-size:10px}
+ #game .r4-zodiac-list{gap:3px}
+ #game .r4-zodiac-grid{gap:4px}
+ #game .r4-zodiac-card{padding:2px 4px;gap:1px}
+ #game .r4-zodiac-card strong{font-size:11px}
+ #game .r4-zodiac-card small{font-size:8px}
+ #game .r4-zodiac-copy h3{font-size:21px;margin-bottom:8px}
+ #game .r4-zodiac-description{font-size:13px;line-height:1.6;margin-bottom:8px}
+ #game .r4-zodiac-note{margin-bottom:8px}
+ #game .r4-zodiac-exhibit footer>span{display:none}
+ #game .r4-zodiac-exhibit footer{justify-content:flex-end}
+}

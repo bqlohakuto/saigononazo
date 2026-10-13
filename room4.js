@@ -15,7 +15,7 @@ function showFourthRoom(savedState){
  if(savedState){showRoomNotice("続きから再開しました。","r4resume","narration");if(room4State.nextRoomTransitionSeen)setTimeout(r4NextPlaceholder,150);else if(room4State.completed&&!room4State.memorySeen)setTimeout(r4Memory,150)}else showRoomDialog(room4IntroLines,()=>r4SetHanaLookUp(false),(line)=>{
   // Match the existing narration: Hana looks up from r4i06 to r4i09.
   // expandScenario adds _01/_02 suffixes; compare the original introduction beat.
-  r4SetHanaLookUp(/^r4i0[6-9](?:_\\d+)?$/.test(line.logId||""));
+  r4SetHanaLookUp(/^r4i0[6-9](?:_\d+)?$/.test(line.logId||""));
  });
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room04",title:"第四の部屋",objective:()=>room4State.completed?"次の部屋へ進む":r4All()?"5枚のパネルの向きを合わせる":"5枚のガラスパネルを集める",onCompanion:r4Hana,getHighlights:()=>!!room4State.highlightEnabled,setHighlights:v=>{room4State.highlightEnabled=!!v;saveGame()}});
  saveGame();

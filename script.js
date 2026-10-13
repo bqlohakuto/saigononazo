@@ -169,7 +169,7 @@ function recordLog(line){
 
 // Direct displays (mail, status, puzzle results) use the same registration path.
 function showLoggedText(element,text,logId,logType="investigation",logColor="#333333"){
- element.textContent=text;
+ if(element)element.textContent=text;
  recordLog({logId,logType,text,speaker:"システム",logColor});
 }
 

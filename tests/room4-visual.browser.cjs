@@ -35,7 +35,6 @@ async function finish(page){
  assert(hanaScale.visible,'Hana must be visible in the fourth room front view');
  assert(Math.abs(hanaScale.height/canvasWidth-.31)<.01,'Room 4 Hana uses reduced 31cqw sprite height');
  assert(Math.abs(hanaScale.width/canvasWidth-.199)<.01,'Room 4 Hana uses reduced 19.9cqw sprite width');
- assert(Math.abs(hanaScale.headHeight-hanaScale.height)<1,'Dedicated gaze and idle sprites share dimensions');
  await page.evaluate(()=>{
   for(let i=0;i<70&&!/^r4i06(?:_\d+)?$/.test(GameLog.list().at(-1)?.id||'');i++)Dialogue.advance();
  });
@@ -53,6 +52,8 @@ async function finish(page){
  assert.equal(pose.clipPath,'none','The gaze uses a complete dedicated sprite');
  assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/looking-up\.png/);
  assert.equal(await page.locator('#r4Hana').evaluate(el=>getComputedStyle(el,'::before').opacity),'0','Idle sprite is hidden during gaze');
+ const activeScale=await page.locator('#r4Hana').evaluate(el=>({idle:parseFloat(getComputedStyle(el,'::before').height),gaze:parseFloat(getComputedStyle(el.querySelector('.r4-hana-look-pose')).height)}));
+ assert(Math.abs(activeScale.idle-activeScale.gaze)<1,'Displayed gaze matches the settled idle dimensions');
  await page.screenshot({path:path.join(dir,'front-hana-looking-up.png')});
  await page.evaluate(()=>{
   for(let i=0;i<30&&!/^r4i10(?:_\d+)?$/.test(GameLog.list().at(-1)?.id||'');i++)Dialogue.advance();

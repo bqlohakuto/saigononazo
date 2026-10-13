@@ -1,0 +1,56 @@
+name: Test-room picker landscape regression
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/test-room-picker.yml'
+      - 'tests/test-room-picker.browser.cjs'
+      - 'style.css'
+      - 'index.html'
+
+permissions:
+  contents: read
+
+jobs:
+  test-picker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Wait for public Pages version
+        shell: bash
+        run: |
+          expected=$(sed -n 's/.*style[.]css?v=\([^"]*\)".*/\1/p' index.html | head -n 1)
+          test -n "$expected"
+          for attempt in $(seq 1 24); do
+            html=$(curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "https://bqlohakuto.github.io/saigononazo/?test_picker_wait=$GITHUB_SHA-$attempt" || true)
+            if [[ "$html" == *"style.css?v=$expected"* ]]; then
+              echo "Public game serves revision: $expected"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Pages is not serving the expected revision yet" >&2
+          exit 1
+      - name: Check eight rooms on desktop and landscape WebKit
+        env:
+          PUBLIC_BASE_URL: https://bqlohakuto.github.io/saigononazo/
+          UI_SCREENSHOT_DIR: artifacts/test-room-picker
+        run: node tests/test-room-picker.browser.cjs
+      - name: Upload test picker screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-room-picker-responsive
+          path: artifacts/test-room-picker/
+          if-no-files-found: warn
+          retention-days: 14

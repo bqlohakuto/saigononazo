@@ -9,6 +9,7 @@ on:
       - 'design-ui.css'
       - 'index.html'
       - 'images/background/room04/**'
+      - 'images/characters/hana-v8/looking-up.png'
       - 'tests/room4-visual.browser.cjs'
       - 'tests/room4-hana-look-source.test.cjs'
       - '.github/workflows/room4-visual-review.yml'

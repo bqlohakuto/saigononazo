@@ -28,7 +28,7 @@ async function finish(page){
  // The original introduction must trigger the ceiling-gaze pose on its confirmed narration.
  await page.evaluate(()=>{settings.instantText=true;showFourthRoom()});
  const hanaScale=await page.locator('#r4Hana').evaluate(el=>{
-  const sprite=getComputedStyle(el,'::before'),head=getComputedStyle(el.querySelector('.r4-hana-look-head'));
+  const sprite=getComputedStyle(el,'::before'),head=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
   return {width:parseFloat(sprite.width),height:parseFloat(sprite.height),headHeight:parseFloat(head.height),visible:!el.hidden};
  });
  const canvasWidth=await page.locator('#game-container').evaluate(el=>el.getBoundingClientRect().width);
@@ -41,14 +41,16 @@ async function finish(page){
  });
  assert.match(await page.evaluate(()=>GameLog.list().at(-1)?.id||''),/^r4i06(?:_\d+)?$/,'Ceiling-gaze narration reached using expanded ID');
  assert(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up')),'Hana looks up during narration');
- assert.equal(await page.locator('#r4Hana .r4-hana-look-head').evaluate(el=>getComputedStyle(el).opacity),'1','Look-up head layer is visible');
- const pose=await page.locator('#r4Hana .r4-hana-look-head').evaluate(el=>({
+ assert.equal(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).opacity),'1','Look-up head layer is visible');
+ const pose=await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>({
    transform:getComputedStyle(el).transform,
    animationName:getComputedStyle(el).animationName,
    clipPath:getComputedStyle(el).clipPath
  }));
- assert.notEqual(pose.transform,'none','Look-up pose must tilt the head even for reduced-motion users');
- assert(pose.clipPath!=='none','The look-up layer contains only the head');
+ assert.notEqual(pose.transform,'none','Dedicated gaze artwork is positioned for reduced-motion users');
+ assert.equal(pose.clipPath,'none','The gaze uses a complete dedicated sprite');
+ assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/looking-up\.png/);
+ assert.equal(await page.locator('#r4Hana').evaluate(el=>getComputedStyle(el,'::before').opacity),'0','Idle sprite is hidden during gaze');
  await page.screenshot({path:path.join(dir,'front-hana-looking-up.png')});
  await page.evaluate(()=>{
   for(let i=0;i<30&&!/^r4i10(?:_\d+)?$/.test(GameLog.list().at(-1)?.id||'');i++)Dialogue.advance();

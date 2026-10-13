@@ -9,7 +9,7 @@ const intro=fs.readFileSync(path.join(dir,'room4-scenario.js'),'utf8');
 assert.match(intro,/logId:"r4i06"/);
 assert.match(intro,/logId:"r4i09"/);
 assert.match(js,/r4SetHanaLookUp\(/);
-assert.match(js,/r4-hana-look-head/);
+assert.match(js,/r4-hana-look-pose/);
 const start=js.indexOf('r4SetHanaLookUp(/^');
 assert(start>=0,'Expected a regular-expression-driven pose trigger');
 const finish=js.indexOf(';',start);
@@ -27,7 +27,10 @@ for(const id of ['r4i06_01','r4i06_02','r4i07_01','r4i08_01','r4i09_01','r4i06']
 for(const id of ['r4i05_01','r4i10_01','r4i11_01','r4d01_01','r3i06_01','']){
  assert.equal(shouldLookUp(id),false,id+' does not activate pose');
 }
-assert(css.includes('r4HanaLookUp'),'Head movement CSS present');
+assert(css.includes('r4HanaLookUp'),'Dedicated gaze motion CSS present');
 assert(css.includes('prefers-reduced-motion:reduce'),'Reduced-motion support present');
-assert.match(css,/\.r4hana\.is-looking-up \.r4-hana-look-head/);
+assert.match(css,/\.r4hana\.is-looking-up \.r4-hana-look-pose/);
 console.log('Room 4 ceiling-gaze trigger and CSS source checks passed');
+
+assert.match(css,/images\/characters\/hana-v8\/looking-up\.png/);
+assert(!css.includes('clip-path:inset(30%'),'No cut-and-tilt head workaround');

@@ -83,11 +83,16 @@ async function finishDialogue(page){
  await page.locator('.room3-answer-input').fill('オナジモジノアイダ');await page.locator('.room3-answer-submit').click();
  assert.equal(await page.locator('.room3-letterboard [role=gridcell]').count(),100);
  assert.deepEqual(await page.locator('.room3-board-row').evaluateAll(rows=>rows.map(r=>r.textContent)),['ラヘヨソヒロコモノチ','チイヘニロサケラミフ','ナロラキルヤツトイメ','ラソソモソアケワイネ','テヘフナイニワモトク','ルミナユキスシネレホ','ウハフワミマテアルハ','フヘモアトオリフニヨ','ヌヘヨニヨヒムマトレ','ツチヒワフエクノヨヒ']);
- const board=await page.locator('.room3-letterboard').boundingBox();
+ // Finish layout/font updates, then measure the board and all cells in one frame.
+ await page.screenshot({path:path.join(dir,'puzzle-layout.png')});
+ const snapshot=await page.locator('.room3-letterboard').evaluate(board=>{
+  const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}};
+  return {board:rect(board),cells:[...board.querySelectorAll('[role=gridcell]')].map(rect)};
+ });
+ const board=snapshot.board;
  assert(board.x>=0&&board.y>=0&&board.x+board.width<=spec.viewport.width&&board.y+board.height<=spec.viewport.height,'Entire adopted board fits viewport');
- for(const cell of await page.locator('.room3-letterboard [role=gridcell]').all()){
- const r=await cell.boundingBox();assert(r.x>=board.x&&r.y>=board.y&&r.x+r.width<=board.x+board.width+1&&r.y+r.height<=board.y+board.height+1,'Every letter fits board');
- }
+ const outside=snapshot.cells.filter(r=>!(r.x>=board.x&&r.y>=board.y&&r.x+r.width<=board.x+board.width+1&&r.y+r.height<=board.y+board.height+1));
+ assert.deepEqual(outside,[],'Every letter fits board: '+JSON.stringify({board,outside}));
  assert.equal(await page.locator('.room3-puzzle-note').count(),0,'No obsolete prototype label');
  await page.screenshot({path:path.join(dir,'puzzle.png')});
  await page.locator('.room3-final-input').fill('いつもとなりに');await page.locator('.room3-final-submit').click();await finishDialogue(page);

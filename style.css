@@ -207,7 +207,7 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .r4-panels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:15px 0}.r4-panels article{padding:8px;border:1px solid #b9c1ce;border-radius:10px;text-align:center}.r4-panels h3{font-size:13px}.r4-glass{position:relative;aspect-ratio:1;border:2px solid #7891ad;background:#dff2ff55;transition:transform .2s}.r4-glass i{position:absolute;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 5px #2f72a7}.r4-glass i:nth-child(1){left:20%;top:25%}.r4-glass i:nth-child(2){left:67%;top:38%}.r4-glass i:nth-child(3){left:43%;top:70%}.r4-panels button,.r4-shine,.r4-answer,.r4-rainbow button{min-height:38px;border:1px solid #8b96a8;border-radius:6px;background:#fff;font:inherit;cursor:pointer}.r4-shine{display:block;margin:12px auto;padding:6px 20px}.r4-feedback{min-height:1.6em;color:#8f1c1c;text-align:center}
 /* Keep the five glass panes and light action in a short landscape viewport. */
 @media (orientation:landscape) and (max-height:460px){
- #game .r4-panel-ui{width:min(820px,96vw);max-height:calc(100dvh - 8px);padding:10px 14px;border-radius:10px}
+ #game .r4-panel-ui{width:min(820px,100%);max-height:calc(100dvh - 8px);padding:10px 14px;border-radius:10px}
  .r4-panel-ui h2{font-size:19px;line-height:1.2;margin:0 44px 2px 0}
  .r4-panel-ui>p{font-size:12px;line-height:1.2;margin:3px 0}
  .r4-panel-ui .r4-panels{margin:6px 0;gap:6px}

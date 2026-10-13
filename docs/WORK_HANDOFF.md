@@ -415,3 +415,14 @@
 - `tests/test-room-picker.browser.cjs` と `.github/workflows/test-room-picker.yml` を追加。公開版に対してPC Chromium 1366×768、横向きWebKit 852×393・667×375・640×240で8部屋のDOM存在、画面内収まり、閉じるボタン、タッチスクロール、第八選択からの開始、JS例外をチェックし、画像をActionsに保存する。
 - 実装コミット: style.css `e7c97c0894a90773fa71ac53d933ff95e68dd6b0`、index.html `b91bb10549b4e64eb0b6504869ef8e36fa24086f`、テスト `2b3384c376fb3c2526a3018411821996f9d8fda2`、ワークフロー `8d4c6f0448e9e6dafe4677605c42aba71e7569d4`。
 - 注意: GitHub上への反映は確認したが、GitHub Pages公開版の更新完了／ワークフローの成功は現ターンの接続機能では確認できていない。Actions内 `Test-room picker landscape regression` の結果とiPhone Safari実機を要確認。確定済みシナリオや謎、保存仕様は変更なし。
+
+## 2026-10-13 第4・ハナの遠近サイズと天井見上げ
+
+- ユーザーが第4の部屋でハナが背景に比べて大きく見えると指摘、導入の「天井を見上げる」描写に動きを追加するよう依頼。通常チャットのGitHub連携を通じて main へ直接反映。
+- 第4だけ、既存ドット立ち絵の擬似要素を `26cqw×40.5cqw` → `19.9cqw×31cqw`（高さ約23%縮小）へ調整。`bottom` も `-5.0625cqw` → `-3.875cqw`、調査マーカー用 `--hana-head-offset` は `33.2227cqw` → `25.4cqw`。他部屋への変更なし。
+- 確定済み room4IntroLines の `r4i06`〜`r4i09` の表示時に、ハナを `.is-looking-up` にする。承認済みのハナ全身ドットを頭部と体に視覚的に分け、頭部だけ0.9秒で8度傾ける。 `r4i10` および会話終了時に通常の待機画像へ戻す。`prefers-reduced-motion` ではアニメーションなしで最終姿勢を表示。
+- `room4.js` / `design-ui.css` / `index.html` を更新。CSS/JSキャッシュは `20261013-room04-hana-look-up-01` に統一。
+- `tests/room4-visual.browser.cjs` に、PC Chromiumと横向きWebKitでの立ち絵サイズ比率、頭部レイヤー、該当LOG IDでのモーションON/OFF確認、画像保存を追加。既存の4方向・謎・回想の検証も維持。
+- GitHubコミット: `ce952832b7f9d22c3098eadd522e920c98adb182`（JS）、`d6a5ad3ea30648f8f7d936aae4206c6fb32b1c38`（CSS）、`4b688db69b1353b575059e2b3551e11cf83dfc16`（テスト）、`3c32fc20a23499896b264c6e41cb948d65aa042e`（HTML）。
+- GitHub上のコミット反映は確認済み。GitHub Pagesのデプロイ成功と実ブラウザテスト結果は、現時点では未確認（GitHub連携はActionsのpush run一覧を提供しない）。`Review room 4 four directions` Actions と実機で最終確認する。
+- 確定済み台詞・謎・セーブの仕様は変更していない。

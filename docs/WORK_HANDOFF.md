@@ -447,3 +447,12 @@
 - 構文、枝番トリガー、キャッシュ統一チェック成功。ローカルブラウザは未導入、ダウンロードもネットワーク制約で不完全なため実行不可。更新したGitHub ActionsでPC Chrome／横向きWebKitを検証する。
 
 - 公開PCの第4導入・専用絵・通常姿復帰・全謎の進行はCIで成功。WebKitでは子要素と擬似要素のcqw解決が異なることを検出し、通常立ち絵の実描画サイズから専用絵の寸法・足元位置を同期する処理を追加。画面サイズ変更時も同期。ブラウザ検証は切り替え完了と画像デコードを確認してから撮影。
+
+### 専用見上げ絵・最終公開検証
+
+- GitHub Pages成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38394935331
+- 最終PC Chrome／横向きWebKit検証成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38394937011
+- 専用PNGのデコード、見上げON/OFF、表示中の通常姿との寸法一致、通常立ち絵の非表示、4方向、全パズル、回想まで成功。スマホ横向きの見上げ画面を画像でも確認。iPhone実機の確認は未実施。
+- 初期の非表示差分は部屋レイアウトが整う前の値だったため、寸法チェックを実際の見上げ表示時へ移した。シナリオ・進行条件は変更していない。
+- スクリーンショット: https://github.com/bqlohakuto/saigononazo/actions/runs/38394937011/artifacts/11811351035
+- 現行キャッシュ: `20261013-room04-dedicated-gaze-03`。テストプレイで第四を選び直すと導入から専用絵を確認できる。

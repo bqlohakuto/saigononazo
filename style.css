@@ -293,3 +293,18 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .room4-stage[data-view=left] .room4-light-overlay:not([hidden]){display:block}
 #game .room4-stage .r4-projection{display:none;left:35%;top:17%;width:30%;height:30%;background:none;border-radius:0;z-index:3;pointer-events:none}
 #game .room4-stage[data-view=left] .r4-projection.on{display:block}
+
+
+/* Room 4: orientation comes only from the stars on each glass panel. */
+#game .r4-panel-ui{--panel-ink:#ecf4f9;--panel-edge:#9bb9ca;--panel-bg:#102438;display:flex;flex-direction:column;justify-content:center;width:min(1100px,96%);max-height:calc(100dvh - 16px);padding:46px 22px 18px;background:var(--panel-bg);color:var(--panel-ink);border:1px solid #9bb9ca88;border-radius:12px;overflow:auto}
+#game .r4-panel-ui .device-close{color:var(--panel-ink)}
+#game .r4-panel-ui .r4-panels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0}
+#game .r4-panel-ui .r4-panels article{padding:0;border:0;background:none;text-align:center}
+#game .r4-panel-ui .r4-glass{width:100%;margin:0;border:0;background:none;overflow:visible;transform:none}
+#game .r4-panel-ui .r4-glass img{display:block;width:100%;height:100%;transform-origin:50% 50%;transition:transform .25s ease;user-select:none}
+#game .r4-panel-ui .r4-panels button{min-width:48px;min-height:44px;padding:0 12px;margin-top:8px;font-size:28px;line-height:1;border:1px solid #9bb9ca99;background:#ffffff0a;color:var(--panel-ink)}
+#game .r4-panel-ui button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#game .r4-panel-ui .r4-shine{min-height:44px;margin:0 auto;padding:6px 24px;background:#edf2f4;color:#172c3b}
+#game .r4-panel-ui .r4-feedback{min-height:1.3em;margin:8px 0;color:var(--panel-ink);font-size:13px}
+@media(max-height:500px){#game .r4-panel-ui{width:min(950px,96%);padding:36px 14px 10px}#game .r4-panel-ui .r4-panels{gap:8px;max-width:calc((100dvh - 155px)*5);width:100%;align-self:center}#game .r4-panel-ui .r4-panels button{margin-top:3px}#game .r4-panel-ui .r4-feedback{margin:4px 0}}
+@media(prefers-reduced-motion:reduce){#game .r4-panel-ui .r4-glass img{transition:none}}

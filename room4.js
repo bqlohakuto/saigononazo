@@ -1,11 +1,16 @@
-const R4_ANGLES=[90,270,180,0,90],R4_RAINBOW=["青O","赤M","紫S","黄T","藍R","橙E","緑E"];
+const R4_ANGLES=[0,0,0,0,0],R4_INITIAL=[2,1,0,3,2],R4_PANEL_KEYS=["star","lightPuzzle","meteors","wall","box"],R4_RAINBOW=["青O","赤M","紫S","黄T","藍R","橙E","緑E"];
 function r4Count(){return [room4State.wall,room4State.box,room4State.star,room4State.lightPuzzle,room4State.meteors].filter(Boolean).length}
 function r4All(){return r4Count()===5}
 function r4Correct(){return r4All()&&room4State.angles.every((v,i)=>v===R4_ANGLES[i])}
 function showFourthRoom(savedState){
  Dialogue.stop();firstRoomState=undefined;room2State=undefined;room3State=undefined;currentScene="room04";
- room4State={door:false,wall:false,box:false,star:false,lightPuzzle:false,meteors:false,angles:[0,0,0,0,0],rainbow:[...R4_RAINBOW],lightOn:false,completed:false,memorySeen:false,nextRoomTransitionSeen:false,hanaSleepSeen:false,highlightEnabled:true,view:"front",...savedState};
- if(!Array.isArray(room4State.angles)||room4State.angles.length!==5)room4State.angles=[0,0,0,0,0];
+ room4State={door:false,wall:false,box:false,star:false,lightPuzzle:false,meteors:false,angles:[...R4_INITIAL],panelRotationVersion:1,rainbow:[...R4_RAINBOW],lightOn:false,completed:false,memorySeen:false,nextRoomTransitionSeen:false,hanaSleepSeen:false,highlightEnabled:true,view:"front",...savedState};
+ if(!Array.isArray(room4State.angles)||room4State.angles.length!==5)room4State.angles=[...R4_INITIAL];
+ if(savedState&&savedState.panelRotationVersion!==1){
+  const legacy=[90,270,180,0,90];
+  room4State.angles=R4_PANEL_KEYS.map((key,i)=>room4State[key]?((Number(room4State.angles[i])-legacy[i]+360)%360)/90:R4_INITIAL[i]);
+ }
+ room4State.angles=room4State.angles.map((v,i)=>Number.isInteger(v)&&v>=0&&v<4?v:R4_INITIAL[i]);room4State.panelRotationVersion=1;
  if(!Array.isArray(room4State.rainbow)||room4State.rainbow.length!==7)room4State.rainbow=[...R4_RAINBOW];
  game.innerHTML=`<main class="room room-four room4-arriving ${room4State.completed?"is-restored":""}" aria-label="第四の部屋"><header class="room-header"><p class="room-label">第四の部屋</p><p class="room-color-status">${room4State.completed?"記憶を取り戻した部屋":"天文展示室"}</p></header><div class="room-stage-wrap"><section class="room-stage room4-stage"><img id="r4Background" class="room4-background-art" alt="" aria-hidden="true"><div class="room4-shared-door" aria-hidden="true"></div>${r4FlowerBoard()}<img id="r4LightOverlay" class="room4-light-overlay" src="images/background/room04/room04_light.webp" alt="" aria-hidden="true"><div id="r4Projection" class="r4-projection"></div><button class="object r4obj r4door" id="r4Door"><span>扉</span></button><button class="object r4obj r4light" id="r4Light"><span>ライト</span></button><button class="object r4obj r4stand" id="r4Stand"><span>パネル台</span></button><button class="object r4obj r4const" id="r4Const"><span>星座一覧</span></button><button class="object r4obj r4flowers" id="r4Flowers"><span>12星座の花</span></button><button class="object r4obj r4moon" id="r4Moon"><span>世界の月の見立て</span></button><button class="object r4obj r4meteor" id="r4Meteor"><span>流れ星</span></button><button class="object r4obj r4p1" id="r4P1"><span>謎1</span></button><button class="object r4obj r4p2" id="r4P2"><span>謎2</span></button><button class="object r4obj r4p3" id="r4P3"><span>謎3</span></button><button class="object r4obj r4wall" id="r4Wall" ${room4State.wall?"disabled":""}><span>壁の透明板</span></button><button class="object r4obj r4box" id="r4Box"><span>質問箱</span></button><button class="object r4obj r4hana" id="r4Hana"><i class="r4-hana-look-pose" aria-hidden="true"></i><span>ハナ</span></button></section></div><nav class="room-navigation"><button id="r4TurnLeft" class="nav-arrow" aria-label="左を向く">◀</button><button id="r4TurnRight" class="nav-arrow" aria-label="右を向く">▶</button></nav></main>`;
  [["r4Door",r4Door],["r4Light",r4Light],["r4Stand",r4Stand],["r4Const",r4Const],["r4Flowers",r4FlowerNotice],["r4Moon",r4Moon],["r4Meteor",r4Meteor],["r4P1",r4P1],["r4P2",r4P2],["r4P3",r4P3],["r4Wall",r4Wall],["r4Box",r4Box],["r4Hana",r4Hana]].forEach(([id,fn])=>document.getElementById(id).addEventListener("click",fn));
@@ -67,10 +72,12 @@ function r4Light(){
 function r4Projection(){const p=document.getElementById("r4Projection");if(!p)return;document.getElementById("r4LightOverlay").hidden=!room4State.lightOn;p.className="r4-projection"+(room4State.lightOn?" on":"")+(room4State.completed?" complete":"");p.innerHTML=room4State.lightOn?Array.from({length:r4Count()*3},(_,i)=>`<i style="--x:${10+(i*31)%78}%;--y:${12+(i*43)%72}%"></i>`).join(""):""}
 function r4Stand(){
  if(!r4All()){showRoomDialog([{logId:"r4s1",logType:"investigation",speaker:"ト書き",text:"ライトの前に、透明な板を差し込めそうな枠が並んでいる。数えてみると、全部で五つある。"},{logId:"r4s2",logType:"dialogue",speaker:"主人公",text:"……五枚分ってことか"},{logId:"r4s3",logType:"investigation",speaker:"ト書き",text:`今は、${r4Count()}枚のガラスパネルを持っている。`}]);return}
- const o=document.createElement("div");o.className="device-overlay r4-panel-overlay";o.innerHTML=`<section class="r4-panel-ui"><button class="device-close">×</button><h2>ガラスパネル</h2><p>5枚を90度ずつ回転させ、星の位置を合わせる。</p><div class="r4-panels"></div><p class="r4-feedback"></p><button class="r4-shine">ライトを当てる</button></section>`;game.appendChild(o);
+ const o=document.createElement("div");o.className="device-overlay r4-panel-overlay";o.innerHTML=`<section class="r4-panel-ui" aria-label="ガラスパネルの操作"><button class="device-close" aria-label="閉じる">×</button><div class="r4-panels"></div><p class="r4-feedback" role="status" aria-live="polite"></p><button class="r4-shine">ライトを当てる</button></section>`;game.appendChild(o);
  const grid=o.querySelector(".r4-panels"),fb=o.querySelector(".r4-feedback"),close=activateDeviceModal(o,"r4Stand",o.querySelector(".device-close"));
- const draw=()=>{grid.innerHTML=room4State.angles.map((a,i)=>`<article><h3>パネル ${i+1}</h3><div class="r4-glass" style="transform:rotate(${a}deg)"><i></i><i></i><i></i></div><p>${a}°</p><button data-i="${i}">90°回転</button></article>`).join("");grid.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{let i=+b.dataset.i;room4State.angles[i]=(room4State.angles[i]+90)%360;saveGame();draw()})};draw();
- o.querySelector(".r4-shine").onclick=()=>{room4State.lightOn=true;saveGame();if(r4Correct()){close();r4Complete()}else fb.textContent="星は映ったが、まだ何の形か分からない。向きを見直そう。"};
+ grid.innerHTML=room4State.angles.map((a,i)=>`<article><div class="r4-glass"><img src="images/exhibits/room04/virgo-panels/virgo-panel-${String(i+1).padStart(2,"0")}.svg" alt="ガラスパネル${i+1}の星" draggable="false" style="transform:rotate(${a*90}deg)"></div><button data-i="${i}" aria-label="パネル${i+1}を右に90度回す">↻</button></article>`).join("");
+ const turns=room4State.angles.map(v=>v*90);
+ grid.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;room4State.angles[i]=(room4State.angles[i]+1)%4;turns[i]+=90;grid.querySelectorAll(".r4-glass img")[i].style.transform=`rotate(${turns[i]}deg)`;fb.textContent="";saveGame()});
+ o.querySelector(".r4-shine").onclick=()=>{room4State.lightOn=true;saveGame();r4Projection();if(r4Correct()){close();r4Complete()}else fb.textContent="星は映ったが、まだ何の形か分からない。"};
 }
 function r4Const(){showRoomDialog([{logId:"r4c1",logType:"investigation",speaker:"ト書き",text:"12星座の名前と、星の位置を示す図が並んでいる。"},{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"},{logId:"r4c2",logType:"dialogue",speaker:"主人公",text:"これを見れば、星の形から星座を調べられそうだ"}],r4OpenZodiacExhibit)}
 function r4Meteor(){showRoomDialog([{logId:"r4m1",logType:"investigation",speaker:"ト書き",text:"流れ星についての展示だ。流れ星は、宇宙空間の小さなちりや岩石が大気に飛び込み、高温になって光って見える現象らしい。地球が彗星の残したちりの中を通ると、流星群が見られることもある。"},{logId:"r4m2",logType:"dialogue",speaker:"主人公",text:"こんな小さいものが、あんなに明るく見えるんだな"}])}
@@ -107,3 +114,4 @@ function showFourthRoomBoundary(){if(room3State){room3State.nextRoomTransitionSe
 
 
 function r4FlowerNotice(){showRoomDialog([{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"}],r4OpenFlowerExhibit)}
+

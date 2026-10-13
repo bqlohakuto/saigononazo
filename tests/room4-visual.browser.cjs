@@ -139,8 +139,16 @@ async function finish(page){
   assert.equal(bounds.buttons.length,6,'Five rotations and light action are present');
   for(const button of bounds.buttons)assert(button.top>=bounds.panel.top-1&&button.bottom<=bounds.panel.bottom+1&&button.left>=bounds.panel.left-1&&button.right<=bounds.panel.right+1,'All puzzle controls visible without scroll or clipping');
  }
- for(const [i,n] of [1,3,2,0,1].entries())for(let j=0;j<n;j++)await page.locator(`.r4-panels button[data-i="${i}"]`).click();
+ assert.deepEqual(await page.evaluate(()=>room4State.angles),[2,1,0,3,2],'Acquired panels use confirmed initial rotations');
+ assert.equal(await page.locator('.r4-panels img').count(),5);
+ for(const img of await page.locator('.r4-panels img').all())assert(await img.evaluate(async el=>{await el.decode();return el.naturalWidth>0}),'Real panel artwork is decoded');
+ await page.locator('.r4-shine').click();assert.equal(await page.evaluate(()=>room4State.completed),false,'Initial arrangement does not solve puzzle');
+ await page.screenshot({path:path.join(dir,'panels-initial.png')});
+ for(let n=0;n<4;n++)await page.locator('.r4-panels button[data-i="0"]').click();
+ assert.equal(await page.evaluate(()=>room4State.angles[0]),2,'Four clockwise turns return to the initial orientation');
+ for(const [i,n] of [2,3,0,1,2].entries())for(let j=0;j<n;j++)await page.locator(`.r4-panels button[data-i="${i}"]`).click();
  await page.screenshot({path:path.join(dir,'panels.png')});await page.locator('.r4-shine').click();assert(await page.evaluate(()=>room4State.completed));await finish(page);assert(await page.evaluate(()=>room4State.memorySeen));
  assert.deepEqual(errors,[]);console.log(spec.name+' room 4 PASS');
  }finally{await browser.close()}
 }})().catch(e=>{console.error(e);process.exit(1)});
+

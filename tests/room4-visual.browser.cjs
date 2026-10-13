@@ -113,6 +113,7 @@ async function finish(page){
  await page.screenshot({path:path.join(dir,'flowers-source.png')});
  await page.keyboard.press('Escape');assert.equal(await page.locator('.r4-flower-overlay').count(),0);assert.equal(await page.evaluate(()=>document.activeElement.id),'r4Flowers');
  assert(!(await page.locator('.room-four').evaluate(el=>el.inert)));
+ const board=await page.locator('.r4-flower-board').boundingBox(),roomStage=await page.locator('.room4-stage').boundingBox();assert(board.x>=roomStage.x+roomStage.width*.571&&board.x+board.width<=roomStage.x+roomStage.width*.831,'Flower board stays inside the wooden frame');
  await page.screenshot({path:path.join(dir,'right-flower-board.png')});
  await page.locator('#r4P1').click();await page.locator('.r4-mini input').fill('STAR');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.star));
  await page.locator('#r4TurnRight').click();await page.locator('#r4Meteor').click();await finish(page);await page.locator('#r4Moon').click();await finish(page);

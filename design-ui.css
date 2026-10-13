@@ -557,7 +557,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r4-flower-large .r4-flower-sprite{height:100%;width:auto;max-width:100%;flex:0 1 auto}
 #game .r4-flower-english{font-size:clamp(11px,1.25cqw,18px);color:#b9a77b;margin:-8px 0 16px}
 #game .r4-flower-exhibit footer{justify-content:flex-end}
-#game .r4-flower-board{position:absolute;left:57.65%;top:26.0%;width:27.3%;height:30.0%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:.45cqw;padding:.18cqw;background:#121e2f;z-index:2;pointer-events:none}
+#game .r4-flower-board{position:absolute;left:57.2%;top:26.1%;width:25.8%;height:29.75%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:.45cqw;padding:.18cqw;background:#121e2f;z-index:2;pointer-events:none}
 #game .r4-flower-board>i{display:flex;min-height:0;align-items:center;justify-content:center;border:1px solid #8e6d38;background:#121e2f;padding:4%}
 #game .room4-stage:not([data-view="right"]) .r4-flower-board{display:none}
 @media(max-height:460px) and (min-width:480px){
@@ -565,3 +565,6 @@ body{background:#0b1322!important;display:grid;place-items:center}
  #game .r4-flower-exhibit .r4-zodiac-copy h3{font-size:20px}
  #game .r4-flower-english{margin:0 0 8px;font-size:11px}
 }
+
+/* Mask atlas cell-edge remnants without changing the accepted 64px artwork. */
+#game .r4-flower-sprite{clip-path:inset(3%)}

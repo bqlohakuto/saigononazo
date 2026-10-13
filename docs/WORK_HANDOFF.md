@@ -508,3 +508,11 @@
 - PC／横向きWebKitの既存検証へ全12花カード・解説・アトラスの読み込み・戻る操作・出典・背景ボード・従来の謎進行を追加。
 
 - 追加指示「ドットの数を減らして」に従い、同じ花のアトラスを参照して粗いピクセル表現へimagegenで編集。最終実装素材はzodiac-flowers-atlas-coarse.png。元の生成画像と粗い編集画像は両方残すが、本編は粗い版のみ参照する。
+
+
+### 64ドット相当の花を採用・検証
+
+- ユーザーが同じリクエストを再送したための32ドット化は取りやめ。64ドット相当版（zodiac-flowers-atlas-coarse.png）を正式採用し、元の出典・対応・説明は維持。
+- 12花のPC／横向きWebKit表示・全解説・出典・戻るとEsc・謎進行は成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38428978959 。公開成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38428977774 。撮影画像: https://github.com/bqlohakuto/saigononazo/actions/runs/38428978959/artifacts/11829393682 。
+- 撮影画像から右壁の額縁の外へのはみ出しを発見し、ボードの座標・幅を内側へ合わせた。アトラスセル端の隣の花の断片はCSSの3%内側クリップで隠し、採用画像の画素は改変しない。
+- 最終キャッシュ版20261014-room04-flower-exhibit-64px-02。32pxの追加画像は未採用・本編への参照なし。

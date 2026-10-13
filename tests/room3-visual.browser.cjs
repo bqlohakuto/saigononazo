@@ -80,8 +80,16 @@ async function finishDialogue(page){
  await page.locator('#r3Trumpet').click();await finishDialogue(page);
  await page.evaluate(()=>showThirdRoom({...room3State}));assert.equal(await page.locator('.room3-stage').getAttribute('data-view'),'back','Saved view restored');
  await page.locator('#r3TurnLeft').click();await page.locator('#r3Board').click();
- await page.locator('.room3-answer-input').fill('ONAJIMOJINOAIDA');await page.locator('.room3-answer-submit').click();
- assert.equal(await page.locator('.room3-letterboard [role=gridcell]').count(),100);await page.screenshot({path:path.join(dir,'puzzle.png')});
+ await page.locator('.room3-answer-input').fill('オナジモジノアイダ');await page.locator('.room3-answer-submit').click();
+ assert.equal(await page.locator('.room3-letterboard [role=gridcell]').count(),100);
+ assert.deepEqual(await page.locator('.room3-board-row').evaluateAll(rows=>rows.map(r=>r.textContent)),['ラヘヨソヒロコモノチ','チイヘニロサケラミフ','ナロラキルヤツトイメ','ラソソモソアケワイネ','テヘフナイニワモトク','ルミナユキスシネレホ','ウハフワミマテアルハ','フヘモアトオリフニヨ','ヌヘヨニヨヒムマトレ','ツチヒワフエクノヨヒ']);
+ const board=await page.locator('.room3-letterboard').boundingBox();
+ assert(board.x>=0&&board.y>=0&&board.x+board.width<=spec.viewport.width&&board.y+board.height<=spec.viewport.height,'Entire adopted board fits viewport');
+ for(const cell of await page.locator('.room3-letterboard [role=gridcell]').all()){
+ const r=await cell.boundingBox();assert(r.x>=board.x&&r.y>=board.y&&r.x+r.width<=board.x+board.width+1&&r.y+r.height<=board.y+board.height+1,'Every letter fits board');
+ }
+ assert.equal(await page.locator('.room3-puzzle-note').count(),0,'No obsolete prototype label');
+ await page.screenshot({path:path.join(dir,'puzzle.png')});
  await page.locator('.room3-final-input').fill('いつもとなりに');await page.locator('.room3-final-submit').click();await finishDialogue(page);
  assert(await page.evaluate(()=>room3State.unlocked&&room3State.memorySeen),'Existing puzzle and memory flow succeeds');
  assert.deepEqual(errors,[]);console.log(spec.name+': all four views, investigation, save and puzzle passed');

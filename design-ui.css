@@ -479,15 +479,17 @@ body{background:#0b1322!important;display:grid;place-items:center}
 }
 #game .room4-stage .r4hana.is-looking-up .r4-hana-look-head{
  opacity:1;
- animation:r4HanaLookUp .9s ease-out both;
+ /* Lift the chin and tip the head back while the body stays planted. */
+ animation:r4HanaLookUp 1.15s cubic-bezier(.22,.75,.27,1) both;
 }
 @keyframes r4HanaLookUp{
- from{transform:translateX(-50%) rotate(0deg)}
- to{transform:translateX(-50%) rotate(-8deg)}
+ 0%{transform:translateX(-50%) translate(0,0) rotate(0deg) scaleY(1)}
+ 65%{transform:translateX(-50%) translate(.6cqw,-.95cqw) rotate(-14deg) scaleY(.94)}
+ 100%{transform:translateX(-50%) translate(.5cqw,-.8cqw) rotate(-12deg) scaleY(.94)}
 }
 @media(prefers-reduced-motion:reduce){
  #game .room4-stage .r4hana.is-looking-up .r4-hana-look-head{
   animation:none!important;
-  transform:translateX(-50%) rotate(-8deg);
+  transform:translateX(-50%) translate(.5cqw,-.8cqw) rotate(-12deg) scaleY(.94);
  }
 }

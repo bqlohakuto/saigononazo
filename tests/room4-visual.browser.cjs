@@ -95,6 +95,25 @@ async function finish(page){
  }
  await page.keyboard.press('Escape');assert.equal(await page.locator('.r4-zodiac-overlay').count(),0);assert(!(await page.locator('.room-four').evaluate(el=>el.inert)));assert.equal(await page.evaluate(()=>document.activeElement.id),'r4Const');
  await page.locator('#r4Flowers').click();await finish(page);
+ assert(await page.locator('.r4-flower-exhibit').isVisible());
+ assert.equal(await page.locator('[data-flower]').count(),12);
+ assert.deepEqual(await page.locator('.r4-flower-card small').allTextContents(),['ハニーサックル','ポピー','ラベンダー','白いバラ','ヒマワリ','キク','バラ','ゼラニウム','カーネーション','パンジー','ラン','スイレン']);
+ assert.deepEqual(await page.evaluate(async()=>{const i=new Image();i.src='images/exhibits/room04/zodiac-flowers-atlas-coarse.png';await i.decode();return [i.naturalWidth,i.naturalHeight]}),[1448,1086]);
+ const flowerCards=await page.locator('[data-flower]').all();
+ for(const card of flowerCards){const r=await card.boundingBox();assert(r.width>0&&r.height>=35&&r.x>=view.x&&r.y>=view.y&&r.x+r.width<=view.x+view.width+1&&r.y+r.height<=view.y+view.height+1,'Twelve flower cards fit the game viewport')}
+ await page.screenshot({path:path.join(dir,'flowers-overview.png')});
+ for(let i=0;i<12;i++){
+  await page.locator('[data-flower]').nth(i).click();assert((await page.locator('.r4-flower-overlay .r4-zodiac-description').textContent()).length>20);
+  const art=await page.locator('.r4-flower-large .r4-flower-sprite').boundingBox();assert(art.width>40&&art.height>40,'Flower illustration fills a readable area');
+  const back=await page.locator('.r4-flower-overlay .r4-zodiac-back').boundingBox();assert(back.x>=view.x&&back.y>=view.y&&back.x+back.width<=view.x+view.width+1&&back.y+back.height<=view.y+view.height+1,'Flower return control is within the screen');
+  if(i===5){assert.equal(await page.locator('.r4-flower-overlay h3').textContent(),'キク');await page.screenshot({path:path.join(dir,'flowers-detail.png')})}
+  await page.locator('.r4-flower-overlay .r4-zodiac-back').click();assert(await page.locator('[data-flower]').nth(i).evaluate(el=>el===document.activeElement));
+ }
+ await page.locator('.r4-flower-exhibit summary').click();assert((await page.locator('.r4-flower-exhibit details').textContent()).includes('公的な統一規格ではありません'));
+ await page.screenshot({path:path.join(dir,'flowers-source.png')});
+ await page.keyboard.press('Escape');assert.equal(await page.locator('.r4-flower-overlay').count(),0);assert.equal(await page.evaluate(()=>document.activeElement.id),'r4Flowers');
+ assert(!(await page.locator('.room-four').evaluate(el=>el.inert)));
+ await page.screenshot({path:path.join(dir,'right-flower-board.png')});
  await page.locator('#r4P1').click();await page.locator('.r4-mini input').fill('STAR');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.star));
  await page.locator('#r4TurnRight').click();await page.locator('#r4Meteor').click();await finish(page);await page.locator('#r4Moon').click();await finish(page);
  await page.locator('#r4P2').click();await page.locator('.r4-mini input').fill('LIGHT');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.lightPuzzle));

@@ -6,6 +6,8 @@ on:
     paths:
       - 'room4.js'
       - 'room4-zodiac.js'
+      - 'room4-flowers.js'
+      - 'images/exhibits/room04/**'
       - 'style.css'
       - 'design-ui.css'
       - 'index.html'

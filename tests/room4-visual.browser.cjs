@@ -56,12 +56,12 @@ async function finish(page){
  await page.locator('#r4TurnLeft').click();await page.locator('#r4Stand').click();assert(await page.locator('.room-four').evaluate(el=>el.inert));
  if(spec.name==='landscape-webkit'){
   const bounds=await page.locator('.r4-panel-ui').evaluate(panel=>{
-   const rect=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom}};
+   const rect=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
    return {panel:rect(panel),buttons:[...panel.querySelectorAll('.r4-panels button,.r4-shine')].map(rect)};
   });
-  assert(bounds.panel.top>=0&&bounds.panel.bottom<=spec.viewport.height+1,'Panel dialog fits short landscape viewport');
+  assert(bounds.panel.top>=0&&bounds.panel.bottom<=spec.viewport.height+1&&bounds.panel.left>=0&&bounds.panel.right<=spec.viewport.width+1,'Panel dialog fits short landscape viewport in both axes');
   assert.equal(bounds.buttons.length,6,'Five rotations and light action are present');
-  for(const button of bounds.buttons)assert(button.top>=bounds.panel.top-1&&button.bottom<=bounds.panel.bottom+1,'All puzzle controls visible without scroll');
+  for(const button of bounds.buttons)assert(button.top>=bounds.panel.top-1&&button.bottom<=bounds.panel.bottom+1&&button.left>=bounds.panel.left-1&&button.right<=bounds.panel.right+1,'All puzzle controls visible without scroll or clipping');
  }
  for(const [i,n] of [1,3,2,0,1].entries())for(let j=0;j<n;j++)await page.locator(`.r4-panels button[data-i="${i}"]`).click();
  await page.screenshot({path:path.join(dir,'panels.png')});await page.locator('.r4-shine').click();assert(await page.evaluate(()=>room4State.completed));await finish(page);assert(await page.evaluate(()=>room4State.memorySeen));

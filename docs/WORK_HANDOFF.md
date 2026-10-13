@@ -404,3 +404,14 @@
 - 最終変更コミット: `64d02dda200a0e3343fd6dd9b29f4619d80b4f29`。公開Pages **成功**: https://github.com/bqlohakuto/saigononazo/actions/runs/38332524570
 - 第4のPC Chromium／横向きWebKitの実画面・進行テスト **成功**: https://github.com/bqlohakuto/saigononazo/actions/runs/38332523445 。撮影画像: https://github.com/bqlohakuto/saigononazo/actions/runs/38332523445/artifacts/11782789801 。最終のスマホ画像で見出し、5枚のパネル、5つの回転ボタン、「ライトを当てる」が同時に見切れなく表示されていることを目視確認。
 - まだiPhone／Android実機の操作確認は未実施。次の正式素材作業はおとめ座に結び付く5枚の星配置、光学投影、スピカ表現。確定済みの文章や謎解き仕様を変更しない。
+
+## 2026-10-13 スマホ横向きのテストプレイ部屋選択を修正
+
+- iPhone Safariのスクリーンショットで、テストプレイの部屋選択画面が下にはみ出し、第四〜第八の部屋を選べない問題を確認。
+- 原因は `style.css` の `.test-room-panel` が内容に応じて大きくなる一方、最大高さの制約と `.test-room-options` 内の縦スクロールがなかったこと。
+- パネルをゲーム画面の高さ以内に収め、部屋一覧のみ `overflow-y:auto` / `touch-action:pan-y` で操作可能に。閉じるボタンはパネル上部へ固定。
+- 画面が低い横向き（高さ600px以下かつ幅480px以上）は2列×4行にし、それでも画面が低いときは一覧をスクロールして第八まで到達可能に。PCの通常高さは1列を維持。
+- `index.html` のCSS/JSキャッシュ番号を `20261013-test-room-picker-mobile-01` に統一し、iPhoneの旧CSSキャッシュ残留を防止。
+- `tests/test-room-picker.browser.cjs` と `.github/workflows/test-room-picker.yml` を追加。公開版に対してPC Chromium 1366×768、横向きWebKit 852×393・667×375・640×240で8部屋のDOM存在、画面内収まり、閉じるボタン、タッチスクロール、第八選択からの開始、JS例外をチェックし、画像をActionsに保存する。
+- 実装コミット: style.css `e7c97c0894a90773fa71ac53d933ff95e68dd6b0`、index.html `b91bb10549b4e64eb0b6504869ef8e36fa24086f`、テスト `2b3384c376fb3c2526a3018411821996f9d8fda2`、ワークフロー `8d4c6f0448e9e6dafe4677605c42aba71e7569d4`。
+- 注意: GitHub上への反映は確認したが、GitHub Pages公開版の更新完了／ワークフローの成功は現ターンの接続機能では確認できていない。Actions内 `Test-room picker landscape regression` の結果とiPhone Safari実機を要確認。確定済みシナリオや謎、保存仕様は変更なし。

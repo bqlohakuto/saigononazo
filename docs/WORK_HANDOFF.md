@@ -518,3 +518,12 @@
 - 最終キャッシュ版20261014-room04-flower-exhibit-64px-02。32pxの追加画像は未採用・本編への参照なし。
 
 - 64ドット版の最終公開成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38432625786 。PC Chrome／横向きWebKitの全12花・額縁内の収まり・解説・出典・戻る操作・第4進行の最終検証成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38432627519 。画像は同runのroom04-review artifact。iPhone実機は未確認。
+
+
+## 2026-10-14 おとめ座の全星を載せた基準ガラスパネル
+
+- ユーザー依頼により、5枚へ分割する前の基準パネルを作成。展示R4_ZODIAC[Vir]に使っている12個の星を全部配置。天文学的領域にある全恒星を網羅するという意味ではない。
+- 正面の正方形ガラス、接続線・星名・番号なし。星の位置を source中心(150,100)→panel中心(512,512)、等倍率2.9で写し、縦横比と向きを保持。12HIP IDの重複なし・変換座標一致・枠内表示を検証。
+- images/exhibits/room04/virgo-master-panel.svg / .png / .json に保存。1536pxの透過PNGとSVG、座標マニフェスト。星の位置は従来のHYG／Stellarium由来データを使用し、派生星図データ・星図はCC BY-SA 4.0（docs/ROOM04_ZODIAC_SOURCES.md参照）。
+- ユーザー確認用の紺背景プレビューも作成・保存。背景は実装用素材へ焼き込んでいない。
+- 本編表示・パネルの分割・正解角度・投影演出はまだ変更していない。次はユーザーの確認後にこの基準を5枚へ分割する。

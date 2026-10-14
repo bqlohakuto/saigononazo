@@ -1,5 +1,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
+// WebKit waits for document load before font readiness; the delayed-image case deliberately blocks load.
+process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY='1';
 const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononazo/';
 (async()=>{for(const spec of [{name:'pc',engine:chromium,viewport:{width:1366,height:768}},{name:'landscape',engine:webkit,viewport:{width:852,height:393},mobile:true}]){
  const browser=await spec.engine.launch({headless:true});

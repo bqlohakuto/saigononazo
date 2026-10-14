@@ -660,3 +660,13 @@
 - `index.html` のキャッシュ版 `20261014-room05-directions-01` に更新。mainのページ公開・他部屋のPC/横向き相当の既存テスト成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38513075376 （Pages）。
 - 素材原本はChatGPT Library内の `room05-assets-20261014.zip`（背景・オーバーレイ22枚）と `room05-item-panels.zip`（7枚）、奥のテレビ台背景・大砲透明素材。元のデザインは改変せず、Web用WebP（背景7・小物7・パネル7）を `room05-ready-for-github.zip` としてローカル準備済み。収納先: `images/background/room05/`、本編CSS/JS参照済み。今回の連携には**ローカル画像バイト列をGitHubへアップロードする操作が存在しない**ため、この21ファイルはまだmainには存在しない。現在の公開第5背景はCSS仮表示、7枚のパネルはSVG代替表示であり、**正式画像の公開完了とは扱わない**。
 - 次回最優先：準備済みZIPの `images/background/room05/` 以下をGitHub mainの同パスへ追加後、公開PC・横向きスマホの実画面でレイヤー位置・冷蔵庫各状態・クリック当たり判定・パネル7枚と配置・セーブ復帰・8194・回想を確認。大砲回収後の独立消失は対応済み。椅子だけ除くダイニング・花と蝶の一方だけ消す専用差分は原素材に無いので、実画像公開後に原本に合わせて追加検討。シナリオの「姿見」「花瓶」という旧描写と最新の「棚上の鏡」「吊り下げプランター」に不一致があるため、既存確定台詞を勝手に編集せず、確認を取ってから同期する。
+
+
+## 2026-10-14 第5の正式画像登録ワークフローと立ち絵配置
+
+- 実装用ZIP `room05-ready-for-github.zip` を現在のコンテナで再確認。WebP21枚がマニフェスト記載のSHA-256と完全一致。ZIP自身のSHA-256: `cf2225d80b61d89f91ecb36e77e342baf94945c52d7387b756cc513c131ce940`。現在のmainに画像はまだない。
+- GitHub Issue #19 (https://github.com/bqlohakuto/saigononazo/issues/19) をアップロード窓口として作成。保存したZIPをIssue #19の**コメントに添付して送信**すると `.github/workflows/room05-import-approved-assets.yml` が自動起動する。リポジトリ所有者のコメントだけを対象、ZIP全体のハッシュと各画像21枚のパス・サイズ・ハッシュをチェックして `images/background/room05/` へGitHub Actionsからpush。**ユーザーの1回のファイル添付操作を待っている**。この登録が成功するまで正式画像が公開済みと報告しない。
+- `tests/room5-visual.browser.cjs` と `.github/workflows/room05-published-review.yml` を追加。画像がpushされた後にPages上で21枚の実URLとデコード、4方向、冷蔵庫4状態、絵パネル7枚、PC Chromeとスマホ横向きWebKitのスクリーンショットを検証する。現時点では公開画像が欠落しているため新規画像の実画面検証は未実施。
+- 4方向のプレビューを見て、棚の鏡・左の吊り下げプランターと各クリック位置を修正。左ダイニングの椅子回収では、食卓の透過背景の左側だけをCSSクリップして片方の椅子を消す。原画像は編集しない。
+- 旧部屋のハナ素材 `images/pixel-ui/hana-v8/idle/01.png` を正面の右側に独立配置。既存待機アニメ・会話ターゲットに接続。立ち絵を新規生成してデザイン変更していない。
+- 補足：最初の`room05-published-review.yml`登録で一度だけ画像未配備時の検証ワークフローが走った。画像が登録されるまでは公開画像の検証結果を成功扱いしない。画像アップロード後の自動テストで正式に判定する。

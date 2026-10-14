@@ -25,6 +25,13 @@ async function finish(page){
  const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  let deployed=false;for(let i=0;i<24;i++){await page.goto(url+'?room4_review='+Date.now());if((await page.locator('script[src*="room4.js"]').getAttribute('src')).includes(version)){deployed=true;break}await page.waitForTimeout(8000)}assert(deployed,'Expected deployed version');
  const dir=path.join('artifacts/room04',spec.name);fs.mkdirSync(dir,{recursive:true});
+ // Text entry starts only after selecting the answer field.
+ await page.evaluate(()=>{firstRoomState={melodySolved:false};showPianoScreen()});
+ assert.equal(await page.locator('#melodyInput').evaluate(el=>el===document.activeElement),false,'Piano does not activate text entry on opening');
+ await page.locator('#melodyInput').click();
+ assert(await page.locator('#melodyInput').evaluate(el=>el===document.activeElement),'Piano input activates when selected');
+ await page.keyboard.type('ドレミ');assert.equal(await page.locator('#melodyInput').inputValue(),'ドレミ');
+ await page.keyboard.press('Escape');assert.equal(await page.locator('#melodyInput').count(),0,'Modal Escape still closes puzzle');
  // The original introduction must trigger the ceiling-gaze pose on its confirmed narration.
  await page.evaluate(()=>{settings.instantText=true;showFourthRoom()});
  const hanaScale=await page.locator('#r4Hana').evaluate(el=>{
@@ -115,9 +122,9 @@ async function finish(page){
  assert(!(await page.locator('.room-four').evaluate(el=>el.inert)));
  const board=await page.locator('.r4-flower-board').boundingBox(),roomStage=await page.locator('.room4-stage').boundingBox();assert(board.x>=roomStage.x+roomStage.width*.571&&board.x+board.width<=roomStage.x+roomStage.width*.831,'Flower board stays inside the wooden frame');
  await page.screenshot({path:path.join(dir,'right-flower-board.png')});
- await page.locator('#r4P1').click();await page.locator('.r4-mini input').fill('STAR');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.star));
+ await page.locator('#r4P1').click();assert.equal(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),false,'STAR puzzle does not activate input on opening');await page.locator('.r4-mini input').click();assert(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),'Selected answer field is focused');await page.locator('.r4-mini input').fill('STAR');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.star));
  await page.locator('#r4TurnRight').click();await page.locator('#r4Meteor').click();await finish(page);await page.locator('#r4Moon').click();await finish(page);
- await page.locator('#r4P2').click();await page.locator('.r4-mini input').fill('LIGHT');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.lightPuzzle));
+ await page.locator('#r4P2').click();assert.equal(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),false,'LIGHT puzzle does not activate input on opening');await page.locator('.r4-mini input').click();assert(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),'Selected answer field is focused');await page.locator('.r4-mini input').fill('LIGHT');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.lightPuzzle));
  await page.locator('#r4P3').click();
  for(const [i,value] of ['赤M','橙E','黄T','緑E','青O','藍R','紫S'].entries()){
   let values=await page.locator('.r4-rainbow b').allTextContents(),j=values.indexOf(value);

@@ -549,7 +549,10 @@ function activateDeviceModal(overlay,openerId,initialFocus,onClose){
  document.addEventListener("keydown",onKeyDown,true);
  document.addEventListener("focusin",onFocusIn,true);
  observer.observe(document.documentElement,{childList:true,subtree:true});
- (initialFocus||controls()[0])?.focus({preventScroll:true});
+ // Opening a puzzle must not activate text entry or the mobile keyboard.
+ const preferred=initialFocus||controls()[0];
+ const entry=preferred?.matches("input,textarea,[contenteditable]:not([contenteditable='false'])");
+ (entry?closeButton:preferred)?.focus({preventScroll:true});
  return close;
 }
 

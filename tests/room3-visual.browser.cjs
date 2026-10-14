@@ -80,6 +80,7 @@ async function finishDialogue(page){
  await page.locator('#r3Trumpet').click();await finishDialogue(page);
  await page.evaluate(()=>showThirdRoom({...room3State}));assert.equal(await page.locator('.room3-stage').getAttribute('data-view'),'back','Saved view restored');
  await page.locator('#r3TurnLeft').click();await page.locator('#r3Board').click();
+ assert.equal(await page.locator('.room3-answer-input').evaluate(el=>el===document.activeElement),false,'Room 3 input waits for selection');await page.locator('.room3-answer-input').click();assert(await page.locator('.room3-answer-input').evaluate(el=>el===document.activeElement));
  await page.locator('.room3-answer-input').fill('オナジモジノアイダ');await page.locator('.room3-answer-submit').click();
  assert.equal(await page.locator('.room3-letterboard [role=gridcell]').count(),100);
  assert.deepEqual(await page.locator('.room3-board-row').evaluateAll(rows=>rows.map(r=>r.textContent)),['ラヘヨソヒロコモノチ','チイヘニロサケラミフ','ナロラキルヤツトイメ','ラソソモソアケワイネ','テヘフナイニワモトク','ルミナユキスシネレホ','ウハフワミマテアルハ','フヘモアトオリフニヨ','ヌヘヨニヨヒムマトレ','ツチヒワフエクノヨヒ']);
@@ -95,6 +96,7 @@ async function finishDialogue(page){
  assert.deepEqual(outside,[],'Every letter fits board: '+JSON.stringify({board,outside}));
  assert.equal(await page.locator('.room3-puzzle-note').count(),0,'No obsolete prototype label');
  await page.screenshot({path:path.join(dir,'puzzle.png')});
+ assert.equal(await page.locator('.room3-final-input').evaluate(el=>el===document.activeElement),false,'Second answer field is not focused automatically');await page.locator('.room3-final-input').click();
  await page.locator('.room3-final-input').fill('いつもとなりに');await page.locator('.room3-final-submit').click();await finishDialogue(page);
  assert(await page.evaluate(()=>room3State.unlocked&&room3State.memorySeen),'Existing puzzle and memory flow succeeds');
  assert.deepEqual(errors,[]);console.log(spec.name+': all four views, investigation, save and puzzle passed');

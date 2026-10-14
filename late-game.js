@@ -125,6 +125,9 @@
   }
 
   function r5Collect(id){
+    if((id==="fish"&&!room5State.fridgeUpperOpen)||(id==="squid"&&!room5State.fridgeLowerOpen)){
+      showRoomNotice("冷蔵庫の扉を開けてから調べよう。","r5_fridge_closed_"+id);return;
+    }
     if(room5State.collected.includes(id)){showRoomNotice("ここから回収できるものは、もうない。","r5_repeat_"+id);return}
     const item=R5_ITEMS.find(x=>x[0]===id);if(!item)return;
     const [,name]=item;
@@ -222,22 +225,30 @@
     }
     const o=document.createElement("div");o.className="device-overlay late-overlay";
     const available=R5_ITEMS.filter(([id])=>room5State.collected.includes(id)&&!room5State.placed[id]);
+    const r5Symbol={feather:"feather",face:"face",tail:"tail",head:"head",ring:"wreath",cup:"cup",leg:"leg",gate:"gate"};
+    const r5ItemIcon={mirror:"mirror",fish:"tail",butterfly:"head",flower:"wreath",squid:"cup",chair:"leg",cannon:"gate"};
+    // Real pixel-art panels replace the SVG safety fallback once their approved images are published.
+    const picture=id=>'<span class="r5-art-fallback">'+r5Drawing(r5ItemIcon[id],"")+'</span><img class="r5-item-picture" src="images/background/room05/panels/'+id+'.webp" alt="" loading="lazy">';
     const slots=R5_COUNTERS.map(([slot,counter,item])=>{
-      if(slot==="feather")return '<button class="r5-counter-slot fixed" disabled><span class="counter">羽</span><strong>うさぎ</strong><small>一羽</small></button>';
+      const icon=r5Drawing(r5Symbol[slot],counter+"の絵");
+      if(slot==="feather")return '<button class="r5-counter-slot fixed" disabled aria-label="うさぎと羽の完成したパネル">'+icon+'<span class="r5-fixed-rabbit">'+r5Drawing("rabbit","うさぎ")+'</span></button>';
       const placedId=Object.keys(room5State.placed).find(id=>room5State.placed[id]===counter);
-      const placedItem=placedId?R5_ITEMS.find(x=>x[0]===placedId)?.[1]:"";
-      return '<button class="r5-counter-slot '+(placedId?"filled":"")+'" data-counter="'+counter+'" '+(placedId?"disabled":"")+'><span class="counter">'+counter+'</span><strong>'+(placedItem||"？")+'</strong><small>'+(placedId?"正解":"ここへ配置")+'</small></button>';
+      return '<button class="r5-counter-slot '+(placedId?"filled":"")+'" data-counter="'+counter+'" aria-label="'+counter+'の絵の枠'+(placedId?' 配置済み':'')+'" '+(placedId?"disabled":"")+'>'+icon+(placedId?'<span class="r5-picture-placed">'+picture(placedId)+'</span>':'')+'</button>';
     }).join("");
-    const inventory=available.length?available.map(([id,name])=>'<button class="r5-inventory-tile" data-tile="'+id+'">'+name+'</button>').join(""):'<p class="r5-empty-inventory">配置できるパネルはありません。</p>';
+    const inventory=available.length?available.map(([id,name])=>'<button class="r5-inventory-tile" data-tile="'+id+'" aria-label="'+name+'のパネルを選ぶ">'+picture(id)+'<span class="r5-visually-hidden">'+name+'</span></button>').join(""):'<p class="r5-empty-inventory">配置できるパネルはありません。</p>';
     o.innerHTML='<section class="late-panel r5-board-panel"><button class="device-close" aria-label="閉じる">×</button><h2>中央パネル</h2>'+
       '<p class="r5-problem">描かれたものを正しく数え、あるべき場所へ導け。</p>'+
-      '<div class="r5-art-note">【未確定：助数詞側の正式な絵素材】現在は「羽・面・尾・頭・輪・杯・脚・門」を文字で仮表示しています。</div>'+
+      ''+
       '<div class="r5-counter-grid">'+slots+'</div>'+
       '<h3>手に入れたパネル</h3><div class="r5-inventory">'+inventory+'</div>'+
       '<p class="r5-board-feedback" id="r5BoardFeedback"></p>'+
       (room5State.codeRevealed?'<div class="r5-code-reveal"><small>完成した線が示した数字</small><strong>8194</strong></div>':'')+
       '</section>';
     game.appendChild(o);
+    o.querySelectorAll(".r5-item-picture").forEach(img=>{
+      img.onload=()=>{if(img.previousElementSibling)img.previousElementSibling.hidden=true;};
+      img.onerror=()=>img.remove();
+    });
     activateDeviceModal(o,"r5Board",o.querySelector(".r5-inventory-tile")||o.querySelector(".device-close"));
     let selected=null;
     const feedback=o.querySelector("#r5BoardFeedback");

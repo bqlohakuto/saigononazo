@@ -720,10 +720,12 @@
       mapOpen:s.mapOpen!==false,mapExpanded:!!s.mapExpanded,othelloKnown:!!s.othelloKnown,
       memorySeen:!!s.memorySeen,completed:!!s.completed,introSeen:!!s.introSeen};
   }
-  const r6Busy=()=>!!game.querySelector('.room-dialog-overlay,.device-overlay,.gameplay-panel-overlay');
+  let r6Moving=false,r6TravelGeneration=0;
+  const r6Busy=()=>r6Moving||!!game.querySelector('.room-dialog-overlay,.device-overlay,.gameplay-panel-overlay');
   const r6Objective=()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"部屋を探索し、構造と床の色を確かめる";
   const r6Hana=()=>showRoomDialog([line("r6_hana_watch","ト書き","ハナは少し離れたところから探索を見守っている。")]);
   window.showSixthRoom=function(savedState){
+    r6TravelGeneration++;r6Moving=false;
     Dialogue.stop();currentScene="room06";room6State=normalizeR6(savedState);renderR6();saveGame();
     if(!room6State.introSeen){room6State.introSeen=true;saveGame();showRoomDialog([
       pending("第6の部屋導入の具体的なト書き。A8開始・白床・壁文は確定。"),
@@ -774,24 +776,47 @@
     setHud('room06','第六の部屋',r6Objective,r6Hana);
   }
   function r6Neighbor(a,b){return r6Valid(a)&&r6Valid(b)&&Math.abs(a.charCodeAt(0)-b.charCodeAt(0))+Math.abs(Number(a[1])-Number(b[1]))===1}
+  function r6Travel(change,arrived){
+    if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){change();arrived();return}
+    r6Moving=true;const generation=++r6TravelGeneration;
+    const valid=()=>generation===r6TravelGeneration&&currentScene==='room06';
+    const shade=document.createElement('div');shade.className='r6-travel-shade';shade.setAttribute('aria-hidden','true');
+    game.appendChild(shade);game.querySelector('.r6-full').inert=true;
+    requestAnimationFrame(()=>{if(valid())shade.classList.add('covered')});
+    setTimeout(()=>{
+      if(!valid())return;
+      change();game.appendChild(shade);game.querySelector('.r6-full').inert=true;
+      // Two frames preserve full darkness across the background replacement.
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{if(valid())shade.classList.remove('covered')}));
+      setTimeout(()=>{
+        if(!valid())return;
+        shade.remove();game.querySelector('.r6-full').inert=false;r6Moving=false;arrived();
+      },260);
+    },170);
+  }
   function r6Visit(id,fromMap=false){
     if(r6Busy()||!r6Valid(id)||id===room6State.current)return;
     if(fromMap?(!room6State.mapEvent||!room6State.visited.includes(id)):!r6Neighbor(room6State.current,id))return;
     const previous=room6State.current,fresh=!room6State.visited.includes(id);
-    if(!fromMap&&!room6State.edges.some(e=>e.includes(previous)&&e.includes(id)))room6State.edges.push([previous,id]);
-    room6State.current=id;if(fresh)room6State.visited.push(id);
-    const value=room6State.board[r6Index(id)];if(!room6State.seenColors.includes(value))room6State.seenColors.push(value);
-    if(value==='E')room6State.greenSeen=true;
-    saveGame();renderR6();
+    const change=()=>{
+      if(!fromMap&&!room6State.edges.some(e=>e.includes(previous)&&e.includes(id)))room6State.edges.push([previous,id]);
+      room6State.current=id;if(fresh)room6State.visited.push(id);
+      const value=room6State.board[r6Index(id)];if(!room6State.seenColors.includes(value))room6State.seenColors.push(value);
+      if(value==='E')room6State.greenSeen=true;
+      saveGame();renderR6();
+    };
     const after=()=>{
       if(fresh&&room6State.visited.length>=4&&!room6State.interview4){room6State.interview4=true;saveGame();r6Interview4();return}
       if(fresh&&room6State.visited.length>=6&&!room6State.mapEvent){room6State.mapEvent=true;saveGame();r6MapEvent();return}
       r6CheckDiscovery();
     };
-    const lines=[];
-    if(fresh&&id==='A7')lines.push(line('r6_a7','主人公','……変化はないですね'),line('r6_a7_h','ハナ','うん。ここはそのままみたい'));
-    if(fresh&&id==='B8')lines.push(line('r6_b8','主人公','……床が黒くなった'),line('r6_b8_h','ハナ','さっきの部屋とは違うね'));
-    if(lines.length)showRoomDialog(lines,after);else after();
+    const arrived=()=>{
+      const lines=[];
+      if(fresh&&id==='A7')lines.push(line('r6_a7','主人公','……変化はないですね'),line('r6_a7_h','ハナ','うん。ここはそのままみたい'));
+      if(fresh&&id==='B8')lines.push(line('r6_b8','主人公','……床が黒くなった'),line('r6_b8_h','ハナ','さっきの部屋とは違うね'));
+      if(lines.length)showRoomDialog(lines,after);else after();
+    };
+    r6Travel(change,arrived);
   }
   function r6Interview4(){
     showRoomDialog([

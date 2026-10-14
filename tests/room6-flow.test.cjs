@@ -8,7 +8,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
     url:'https://game.test/',runScripts:'outside-only',pretendToBeVisual:true
   });
   const w=dom.window,ctx=dom.getInternalVMContext();
-  w.matchMedia=()=>({matches:false,addEventListener(){}});
+  w.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});
   w.scrollTo=()=>{};
   w.HTMLCanvasElement.prototype.getContext=()=>null;
   w.HTMLElement.prototype.scrollIntoView=function(){};
@@ -33,6 +33,19 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(q('.r6-scene').dataset.color,'white');
   assert.equal(q('.r6-map'),null,'map not revealed before handoff');
   assert.equal(w.document.querySelectorAll('[data-dest]').length,2,'A8 has only north/east exits');
+  // Animated travel locks repeated input and resumes dialogue only after arrival.
+  w.matchMedia=()=>({matches:false,addEventListener(){}});
+  click('[data-dest="A7"]');click('[data-dest="B8"]');
+  assert.ok(q('.r6-travel-shade'));
+  assert.equal(save().rooms.room06.current,'A8','background switches only under darkness');
+  await wait(210);assert.equal(save().rooms.room06.current,'A7');
+  click('[data-dest="B7"]');assert.equal(save().rooms.room06.current,'A7','input remains locked during fade-in');
+  await wait(290);assert.equal(q('.r6-travel-shade'),null);finish();
+  assert.equal(save().rooms.room06.visited.length,2,'one click sequence creates one visit');
+  click('[data-dest="B7"]');run('showSixthRoom({introSeen:true})');await wait(500);
+  assert.equal(save().rooms.room06.current,'A8','loading a room cancels stale travel timers');
+  assert.equal(q('.room-dialog-overlay'),null,'stale travel cannot open a dialogue');
+  w.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});
   const initial=save().rooms.room06.board;
   assert.equal(initial.length,64);
   assert.deepEqual(['W','G','E'].map(c=>initial.filter(v=>v===c).length),[40,15,9]);

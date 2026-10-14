@@ -17,6 +17,15 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    const scene=await page.locator('.r6-scene').boundingBox();assert(scene.width>600&&scene.height>250);
    const dir=path.join('artifacts','room06',spec.name);fs.mkdirSync(dir,{recursive:true});
    await page.screenshot({path:path.join(dir,'a8-white.png')});
+   await page.emulateMedia({reducedMotion:'no-preference'});
+   await page.mouse.click(scene.x+scene.width*.5,scene.y+scene.height*.38);
+   await page.waitForSelector('.r6-travel-shade');
+   assert(await page.locator('.r6-full').evaluate(el=>el.inert),'room input locked while travelling');
+   await page.screenshot({path:path.join(dir,'travel-fade.png')});
+   await page.waitForSelector('.r6-travel-shade',{state:'detached'});await finish();
+   assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),'A7');
+   await page.emulateMedia({reducedMotion:'reduce'});
+   await page.evaluate(()=>showSixthRoom({introSeen:true}));
    const doorClick=async side=>{const b=await page.locator('.r6-scene').boundingBox();const points={north:[.50,.38],east:[.92,.45],west:[.07,.45],south:[.50,.96]};const [x,y]=points[side];await page.mouse.click(b.x+b.width*x,b.y+b.height*y);await finish()};
    await doorClick('east');assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),'B8');
    await doorClick('east');assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),'C8');

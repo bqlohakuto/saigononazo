@@ -75,3 +75,8 @@
  #game .r6-full .r6-map-paper:not(.expanded) .r6-map{--step:12px}
  #game .r6-full .r6-map-paper:not(.expanded) .r6-cell{width:10px;height:10px;font-size:7px}
 }
+
+/* A short, input-locked fade distinguishes rooms even when floor colors match. */
+#game .r6-travel-shade{position:absolute;inset:0;z-index:100;background:#080b12;opacity:0;pointer-events:auto;transition:opacity 150ms ease-in}
+#game .r6-travel-shade.covered{opacity:1}
+@media(prefers-reduced-motion:reduce){#game .r6-travel-shade{transition:none}}

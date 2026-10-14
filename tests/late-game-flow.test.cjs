@@ -8,7 +8,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
     url:'https://game.test/',runScripts:'outside-only',pretendToBeVisual:true
   });
   const w=dom.window,ctx=dom.getInternalVMContext();
-  w.matchMedia=()=>({matches:false,addEventListener(){}});
+  w.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});
   w.scrollTo=()=>{};
   w.HTMLCanvasElement.prototype.getContext=()=>null;
   w.HTMLElement.prototype.scrollIntoView=function(){};

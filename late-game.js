@@ -93,6 +93,7 @@
       '<div class="r5-decor r5-decor-squid'+(got('squid')?' is-gone':'')+'" aria-hidden="true"></div>'+
       '<div class="r5-decor r5-decor-cannon'+(got('cannon')?' is-gone':'')+'" aria-hidden="true"></div>'+
       '<button type="button" class="r5-scene-target r5-target-door" id="r5Door" aria-label="扉"></button>'+
+      '<button type="button" class="r5-scene-target r5-target-hana hana-v2-world" id="r5Hana" aria-label="ハナ"></button>'+
       '<button type="button" class="r5-scene-target r5-target-board" id="r5Board" aria-label="中央パネル"><span aria-hidden="true" class="r5-board-rabbit">✦</span></button>'+
       hotspot('mirror','鏡')+hotspot('chair','椅子')+hotspot('butterfly','青い蝶')+hotspot('flower','花')+
       '<button type="button" class="r5-scene-target r5-target-fridge-upper" id="r5FridgeUpper" aria-label="冷蔵庫の上段を開閉"></button>'+
@@ -123,6 +124,7 @@
     document.getElementById("r5TurnRight").onclick=()=>turn(1);
     game.querySelectorAll(".r5-living-scene [data-item]").forEach(button=>button.onclick=()=>r5Collect(button.dataset.item));
     document.getElementById("r5Board").onclick=r5Board;
+    document.getElementById("r5Hana").onclick=()=>showRoomNotice("ハナは、主人公が部屋を調べる様子を静かに見ている。","r5_hana_watch");
     document.getElementById("r5Door").onclick=()=>{
       if(room5State.completed){transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06));return;}
       if(room5State.codeRevealed&&!room5State.doorUnlocked){r5Keypad();return;}

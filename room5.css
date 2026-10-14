@@ -118,3 +118,15 @@
  .r5-board-panel .r5-problem{padding:2px;font-size:10px;margin:3px}
  .r5-board-panel .r5-counter-grid{margin:4px 0}
 }
+
+
+/* 2026-10-14: calibrated against the actual four-view contact preview.
+   Keep the authored pixels unchanged; remove the near-left chair by clipping
+   its independent transparent furniture overlay after panel collection. */
+.r5-decor-mirror{left:14.7%;top:47%;width:9%;height:18%}
+.r5-target-mirror{left:13%;top:44%;width:13%;height:23%}
+.r5-decor-planter{left:7.5%;top:12%;width:13%;height:31%}
+.r5-target-butterfly{left:12.5%;top:19%;width:9%;height:16%}
+.r5-target-flower{left:7.5%;top:27%;width:14%;height:16%}
+.r5-decor-dining.is-chair-gone{clip-path:inset(0 0 0 18%)}
+.r5-board-panel .r5-art-fallback[hidden]{display:none!important}

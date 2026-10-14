@@ -1,13 +1,16 @@
 // Shared presentation only: puzzle rules and story progression stay in their room modules.
 (() => {
   // Resolve the local font before any title action creates paginated dialogue.
-  let fontReady=!document.fonts;
-  const fontLoading=document.fonts?document.fonts.load('16px "DotGothic16"').catch(()=>[]).then(()=>{fontReady=true}):Promise.resolve();
+  let neutralReadyResolve;
+  const neutralReady=new Promise(resolve=>{neutralReadyResolve=resolve});
+  let titleReady=!document.fonts;
+  const fontLoading=document.fonts?document.fonts.load('16px "DotGothic16"').catch(()=>[]):Promise.resolve();
+  const titleReadyPromise=Promise.all([fontLoading,neutralReady]).then(()=>{titleReady=true});
   document.addEventListener('click',event=>{
     const target=event.target.closest?.('.title-screen button');
-    if(fontReady||!target||target.disabled)return;
+    if(titleReady||!target||target.disabled)return;
     event.preventDefault();event.stopImmediatePropagation();
-    fontLoading.then(()=>{if(target.isConnected)target.click()});
+    titleReadyPromise.then(()=>{if(target.isConnected)target.click()});
   },true);
   let config=null,sequence=0,dialogueGroup='',inspectionTarget='',modal=null,portraitVisible=false,pendingUse=null;
   let recordRoom='',recordCategory=localStorage.getItem('saigononazo-record-category')||'all',recordPage=0,expression=0;
@@ -27,11 +30,12 @@
     const img=new Image();
     img.onload=()=>{
       hanaV2Ready.add(name);
+      if(name==='neutral')neutralReadyResolve();
       if(name==='full'){game.classList.add('hana-v2-full-ready');syncHud()}
       const portrait=game.querySelector('.hana-portrait');
       if(portrait)setExpression(portrait);
     };
-    img.onerror=()=>{};
+    img.onerror=()=>{if(name==='neutral')neutralReadyResolve()};
     img.src=hanaV2Url(name);
   }
   // Start only once every idle frame has loaded; failed assets keep the static fallback.
@@ -197,18 +201,12 @@
   }
   function setExpression(p){
     const name=hanaV2Names[expression]||portraitExpressions[0];
-    if(hanaV2Ready.has(name)){
-      p.classList.add('hana-v2-portrait');
-      p.style.backgroundImage='url("'+hanaV2Url(name)+'")';
-      p.style.backgroundSize='contain';
-      p.style.backgroundPosition='center bottom';
-    }else{
-      p.classList.remove('hana-v2-portrait');
-      p.style.backgroundImage='';
-      p.style.backgroundSize='';
-      const fallback=expression<portraitExpressions.length?expression:0;
-      p.style.backgroundPosition=`${(fallback%3)*50}% ${Math.floor(fallback/3)*100}%`;
-    }
+    // Never return to the old six-face sheet while a pixel portrait loads.
+    const displayed=hanaV2Ready.has(name)?name:'neutral';
+    p.classList.add('hana-v2-portrait');
+    p.style.backgroundImage='url("'+hanaV2Url(displayed)+'")';
+    p.style.backgroundSize='contain';
+    p.style.backgroundPosition='center bottom';
     p.dataset.expression=name;
   }
   function displayLine(line,kind){

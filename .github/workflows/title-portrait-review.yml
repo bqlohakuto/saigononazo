@@ -1,0 +1,39 @@
+name: Title and portrait cold-loading review
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['index.html', 'script.js', 'design-ui.js', 'design-ui.css', 'tests/title-portrait-loading.browser.cjs', '.github/workflows/title-portrait-review.yml']
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Wait for published code
+        run: |
+          for i in $(seq 1 40); do
+            ready=1
+            for f in index.html script.js design-ui.js design-ui.css; do
+              curl -fsSL --max-time 20 "https://bqlohakuto.github.io/saigononazo/$f?verify=$GITHUB_SHA-$i" -o "/tmp/art-$(basename $f)" || ready=0
+              expected=$(sha256sum "$f" | cut -d ' ' -f 1)
+              echo "$expected  /tmp/art-$(basename $f)" | sha256sum -c - || ready=0
+            done
+            if [ "$ready" = 1 ]; then exit 0; fi
+            sleep 10
+          done
+          exit 1
+      - run: node tests/title-portrait-loading.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: title-portrait-review
+          path: artifacts/title-portrait/
+          retention-days: 14

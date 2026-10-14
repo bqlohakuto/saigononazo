@@ -190,7 +190,20 @@ function showTitle(notice=""){
  Dialogue.stop();
  GameAudio.stopAll();
  const hasSave=!!readSavedGame();
- game.innerHTML=`<div class="title-screen title-home"><h1 class="title-logo"><img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"></h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button><button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button><button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-notice" aria-live="polite">${notice}</p></div>`;
+ game.innerHTML=`<div class="title-screen title-home title-art-loading"><h1 class="title-logo"><img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span></h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button><button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button><button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-art-status" role="status">画像を読み込み中…</p><p class="title-notice" aria-live="polite">${notice}</p></div>`;
+ const title=game.querySelector('.title-home'),background=new Image();
+ background.src='images/pixel-ui/title-background-pixel.png';
+ const images=[background,...title.querySelectorAll('img')];
+ Promise.all(images.map(image=>image.decode?image.decode():new Promise((resolve,reject)=>{
+  if(image.complete){image.naturalWidth?resolve():reject();return}
+  image.addEventListener('load',resolve,{once:true});image.addEventListener('error',reject,{once:true});
+ }))).then(()=>{
+  if(!title.isConnected)return;
+  title.classList.remove('title-art-loading');title.querySelector('.title-art-status').hidden=true;
+ }).catch(()=>{
+  if(!title.isConnected)return;
+  title.classList.replace('title-art-loading','title-art-fallback');title.querySelector('.title-art-status').hidden=true;
+ });
  document.getElementById("startButton").addEventListener("click",showNameInput);
  document.getElementById("continueButton").addEventListener("click",resumeGame);
  document.getElementById("testRoomButton").addEventListener("click",showTestRoomPicker);

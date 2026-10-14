@@ -568,3 +568,13 @@ body{background:#0b1322!important;display:grid;place-items:center}
 
 /* Mask atlas cell-edge remnants without changing the accepted 64px artwork. */
 #game .r4-flower-sprite{clip-path:inset(3%)}
+
+/* Keep cold-load title controls legible until all existing artwork is decoded. */
+#game .title-home:is(.title-art-loading,.title-art-fallback){background-image:none}
+#game .title-text-fallback,#game .title-art-status{display:none}
+#game .title-home:is(.title-art-loading,.title-art-fallback) .title-logo img,
+#game .title-home:is(.title-art-loading,.title-art-fallback) .title-menu button img{visibility:hidden}
+#game .title-home:is(.title-art-loading,.title-art-fallback) .title-text-fallback{display:block;font:clamp(18px,3.8cqw,54px)/1.7 'DotGothic16',sans-serif;color:#fff;text-align:center}
+#game .title-home:is(.title-art-loading,.title-art-fallback) .title-menu button:not(#testRoomButton)::after{content:attr(aria-label);color:#fff;font:clamp(14px,1.5cqw,22px)/1.5 'DotGothic16',sans-serif}
+#game .title-art-loading .title-art-status{display:block;position:absolute;top:40%;left:50%;transform:translateX(-50%);color:#ddd;font-size:clamp(12px,1.2cqw,18px)}
+#game .title-art-status[hidden]{display:none}

@@ -42,21 +42,30 @@ const expected=[
     await page.waitForFunction(()=>document.querySelector('#r5Scene')?.classList.contains('has-r5-background'));
     const dir=path.join('artifacts','room05',spec.name);fs.mkdirSync(dir,{recursive:true});
     for(const view of ['front','right','back','left']){
+      await page.waitForFunction(()=>document.querySelector('#r5Scene')?.classList.contains('has-r5-background'));
       assert.equal(await page.locator('#r5Scene').getAttribute('data-view'),view);
       const scene=page.locator('#r5Scene');
       const bounds=await scene.boundingBox();
       assert(bounds.width>200&&bounds.height>90,'Scene is visible');
       assert(bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=spec.viewport.width+1&&bounds.y+bounds.height<=spec.viewport.height+1,'Scene must fit in viewport');
+      if(view==='front'){
+        const hana=await page.locator('#r5Hana').boundingBox();
+        assert(hana.x>bounds.x+bounds.width*.65,'Hana stands to the right, clear of the mirror');
+        assert.equal(await page.locator('#r5Hana').evaluate(el=>getComputedStyle(el).pointerEvents),'auto','Hana remains clickable');
+      }
       await page.screenshot({path:path.join(dir,view+'.png')});
       if(view==='right'){
         await page.locator('#r5FridgeUpper').click();
         assert.equal(await scene.getAttribute('data-fridge'),'upper-open');
+        await page.waitForFunction(()=>document.querySelector('#r5Scene')?.classList.contains('has-r5-background'));
         await page.screenshot({path:path.join(dir,'right-upper-open.png')});
         await page.locator('#r5FridgeLower').click();
         assert.equal(await scene.getAttribute('data-fridge'),'both-open');
+        await page.waitForFunction(()=>document.querySelector('#r5Scene')?.classList.contains('has-r5-background'));
         await page.screenshot({path:path.join(dir,'right-both-open.png')});
         await page.locator('#r5FridgeUpper').click();
         assert.equal(await scene.getAttribute('data-fridge'),'lower-open');
+        await page.waitForFunction(()=>document.querySelector('#r5Scene')?.classList.contains('has-r5-background'));
         await page.screenshot({path:path.join(dir,'right-lower-open.png')});
       }
       await page.locator('#r5TurnRight').click();

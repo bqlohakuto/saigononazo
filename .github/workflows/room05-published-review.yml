@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'images/background/room05/**'
+      - 'room5.css'
+      - 'late-game.js'
+      - 'tests/room5-visual.browser.cjs'
 permissions:
   contents: read
 jobs:

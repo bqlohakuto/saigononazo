@@ -41,7 +41,10 @@
       doorUnlocked:legacySkipped?false:!!s.doorUnlocked,
       memorySeen:legacySkipped?false:!!s.memorySeen,
       completed:legacySkipped?false:!!s.completed,
-      introSeen:!!s.introSeen
+      introSeen:!!s.introSeen,
+      view:["front","right","back","left"].includes(s.view)?s.view:"front",
+      fridgeUpperOpen:!!s.fridgeUpperOpen,
+      fridgeLowerOpen:!!s.fridgeLowerOpen
     };
   }
 
@@ -67,23 +70,57 @@
   };
 
   function renderR5(){
-    const keypadButton=room5State.codeRevealed&&!room5State.doorUnlocked?'<button class="late-main-action r5-door-keypad" id="r5Keypad">扉の4桁テンキー</button>':'';
-    const rabbitButton=room5State.doorUnlocked&&!room5State.memorySeen?'<button class="late-main-action r5-rabbit-memory" id="r5Rabbit">羽の生えたウサギを調べる</button>':'';
-    game.innerHTML='<main class="room late-room r5-full"><header class="room-header"><p class="room-label">第五の部屋</p><p class="room-color-status">同棲を始めたアパートのリビング</p></header>'+
-      '<section class="late-stage living"><div class="late-room-note"><strong>探索</strong><span id="r5Progress"></span></div>'+
-      '<div class="late-object-grid" id="r5Objects"></div>'+
-      '<div class="r5-actions"><button class="late-main-action" id="r5Board">中央パネル</button>'+keypadButton+rabbitButton+'</div>'+
-      (room5State.completed?'<button class="late-next" id="r5Next">第六の部屋へ</button>':'')+
-      '</section><p class="explore-status" id="exploreStatus">気になるものを調べてください。</p></main>';
-    const box=document.getElementById("r5Objects");
-    box.innerHTML=R5_ITEMS.map(([id,name,,where])=>'<button class="late-object '+(room5State.collected.includes(id)?"done":"")+'" data-item="'+id+'" '+(room5State.collected.includes(id)?"disabled":"")+'><small>'+where+'</small><strong>'+name+'</strong>'+(room5State.collected.includes(id)?" ✓":"")+'</button>').join("");
-    box.querySelectorAll("[data-item]").forEach(b=>b.onclick=()=>r5Collect(b.dataset.item));
+    // Retain the confirmed seven-object puzzle and the late-game dialogue flow.
+    // Four scene directions share the same coordinate system as the approved 1672x941 artwork.
+    const view=room5State.view||"front";
+    const fridgeState=room5State.fridgeUpperOpen&&room5State.fridgeLowerOpen?"both-open":room5State.fridgeUpperOpen?"upper-open":room5State.fridgeLowerOpen?"lower-open":"closed";
+    const got=id=>room5State.collected.includes(id);
+    const hotspot=(id,name)=>'<button type="button" class="r5-scene-target r5-target-'+id+(got(id)?' is-gone':'')+'" data-item="'+id+'" aria-label="'+name+'" '+(got(id)?'disabled':'')+'><span class="r5-visually-hidden">'+name+'</span></button>';
+    game.innerHTML='<main class="room late-room r5-full" aria-label="第五の部屋">'+
+      '<div class="r5-room-wrap"><section class="r5-living-scene" id="r5Scene" data-view="'+view+'" data-fridge="'+fridgeState+'" aria-label="リビング">'+
+      '<div class="r5-living-wall r5-wall-front" aria-hidden="true"></div>'+
+      '<div class="r5-living-wall r5-wall-left" aria-hidden="true"></div>'+
+      '<div class="r5-living-wall r5-wall-right" aria-hidden="true"></div>'+
+      '<div class="r5-living-wall r5-wall-back" aria-hidden="true"></div>'+
+      '<div class="r5-room-door" aria-hidden="true"></div>'+
+      '<div class="r5-room-shelf" aria-hidden="true"></div>'+
+      '<div class="r5-room-fridge" aria-hidden="true"></div>'+
+      '<div class="r5-room-tv" aria-hidden="true"></div>'+
+      '<div class="r5-decor r5-decor-mirror'+(got('mirror')?' is-gone':'')+'" aria-hidden="true"></div>'+
+      '<div class="r5-decor r5-decor-dining'+(got('chair')?' is-chair-gone':'')+'" aria-hidden="true"></div>'+
+      '<div class="r5-decor r5-decor-planter'+(got('flower')&&got('butterfly')?' is-empty':got('butterfly')?' is-butterfly-gone':'')+'" aria-hidden="true"></div>'+
+      '<div class="r5-decor r5-decor-fish'+(got('fish')?' is-gone':'')+'" aria-hidden="true"></div>'+
+      '<div class="r5-decor r5-decor-squid'+(got('squid')?' is-gone':'')+'" aria-hidden="true"></div>'+
+      '<div class="r5-decor r5-decor-cannon'+(got('cannon')?' is-gone':'')+'" aria-hidden="true"></div>'+
+      '<button type="button" class="r5-scene-target r5-target-door" id="r5Door" aria-label="扉"></button>'+
+      '<button type="button" class="r5-scene-target r5-target-board" id="r5Board" aria-label="中央パネル"><span aria-hidden="true" class="r5-board-rabbit">✦</span></button>'+
+      hotspot('mirror','鏡')+hotspot('chair','椅子')+hotspot('butterfly','青い蝶')+hotspot('flower','花')+
+      '<button type="button" class="r5-scene-target r5-target-fridge-upper" id="r5FridgeUpper" aria-label="冷蔵庫の上段を開閉"></button>'+
+      '<button type="button" class="r5-scene-target r5-target-fridge-lower" id="r5FridgeLower" aria-label="冷蔵庫の下段を開閉"></button>'+
+      hotspot('fish','魚')+hotspot('squid','イカ')+hotspot('cannon','大砲の模型')+
+      (room5State.codeRevealed&&!room5State.doorUnlocked?'<button type="button" class="r5-scene-target r5-target-keypad" id="r5Keypad" aria-label="扉の4桁テンキー"></button>':'')+
+      (room5State.doorUnlocked&&!room5State.memorySeen?'<button type="button" class="r5-scene-target r5-target-rabbit" id="r5Rabbit" aria-label="羽の生えたウサギを調べる"></button>':'')+
+      (room5State.completed?'<button type="button" class="r5-scene-target r5-target-next" id="r5Next" aria-label="第六の部屋へ進む"></button>':'')+
+      '</section><nav class="r5-direction-nav" aria-label="部屋を見回す"><button type="button" id="r5TurnLeft" aria-label="左を向く">◀</button><button type="button" id="r5TurnRight" aria-label="右を向く">▶</button></nav></div>'+
+      '<div class="r5-visually-hidden" id="r5Objects"></div><p class="r5-visually-hidden" id="r5Progress"></p></main>';
+    // Visually hidden inventory is not interactive: scene hotspots are the only item controls.
+    const order=['front','right','back','left'];
+    function turn(delta){const index=order.indexOf(room5State.view);room5State.view=order[(index+delta+4)%4];saveGame();renderR5();}
+    document.getElementById("r5TurnLeft").onclick=()=>turn(-1);
+    document.getElementById("r5TurnRight").onclick=()=>turn(1);
+    game.querySelectorAll(".r5-living-scene [data-item]").forEach(button=>button.onclick=()=>r5Collect(button.dataset.item));
     document.getElementById("r5Board").onclick=r5Board;
+    document.getElementById("r5Door").onclick=()=>{
+      if(room5State.completed){transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06));return;}
+      if(room5State.codeRevealed&&!room5State.doorUnlocked){r5Keypad();return;}
+      showRoomNotice(room5State.doorUnlocked?"扉は開いた。中央パネルのウサギが気になる。":"扉はまだ開かない。","r5_door_status");
+    };
+    document.getElementById("r5FridgeUpper").onclick=()=>{room5State.fridgeUpperOpen=!room5State.fridgeUpperOpen;saveGame();renderR5();};
+    document.getElementById("r5FridgeLower").onclick=()=>{room5State.fridgeLowerOpen=!room5State.fridgeLowerOpen;saveGame();renderR5();};
     document.getElementById("r5Keypad")?.addEventListener("click",r5Keypad);
     document.getElementById("r5Rabbit")?.addEventListener("click",r5RabbitMemoryStart);
     document.getElementById("r5Next")?.addEventListener("click",()=>transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06)));
-    const placed=r5PlacedCount();
-    document.getElementById("r5Progress").textContent=room5State.completed?"記憶を取り戻した":room5State.doorUnlocked?"扉解錠済み":room5State.codeRevealed?"暗証番号 8194":room5State.collected.length<7?"パネル "+room5State.collected.length+" / 7":"配置 "+placed+" / 7";
+    document.getElementById("r5Progress").textContent=room5State.completed?"記憶を取り戻した":room5State.codeRevealed?"暗証番号 8194":room5State.collected.length+"枚入手";
     setHud("room05","第五の部屋",r5Objective,()=>showRoomNotice("ハナは、主人公が部屋を調べる様子を静かに見ている。","r5_hana_watch"));
   }
 

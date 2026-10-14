@@ -20,7 +20,7 @@
 #game .r6-lever button{position:absolute;top:0;bottom:0;width:50%;border:0;background:transparent;padding:0;cursor:pointer;box-shadow:none}
 #r6White{left:0}#r6Black{right:0}
 #game .r6-lever button:hover,#game .r6-lever button:focus-visible{outline:2px solid #f2c46e;outline-offset:-2px;background:#ffffff12}
-#game .r6-map-paper{position:absolute;z-index:5;left:65%;top:8%;width:max-content;max-width:32%;max-height:58%;padding:22px 16px 14px;box-sizing:border-box;background:url('images/background/room06/map-paper.webp') center/100% 100%;color:#444}
+#game .r6-map-paper{position:absolute;z-index:5;left:65%;top:8%;width:max-content;max-width:32%;max-height:58%;padding:22px 16px 14px;box-sizing:border-box;background:url('images/background/room06/map-paper-v2.webp') center/100% 100%;color:#444}
 .r6-map-tools{display:flex;justify-content:flex-end;gap:3px;position:absolute;right:9px;top:6px}
 #game .r6-map-tools button{width:26px;height:26px;min-height:0;padding:0;border:1px solid #aaa;background:#fff;color:#444;cursor:pointer}
 .r6-map-scroll{overflow:auto;max-height:calc(50dvh - 45px);overscroll-behavior:contain}

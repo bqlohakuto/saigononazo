@@ -9,7 +9,7 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    await ctx.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
    const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(base+'?r6review='+Date.now(),{waitUntil:'load'});
-   const assets=['white','black','green','walls','inner','lever-neutral','lever-white','lever-black','map-paper'];
+   const assets=['white','black','green','walls','inner','lever-neutral','lever-white','lever-black','map-paper-v2'];
    await page.evaluate(async names=>{for(const n of names){const im=new Image();im.src='images/background/room06/'+n+'.webp';await im.decode();if(im.naturalWidth<100)throw new Error('bad asset '+n)}},assets);
    const finish=()=>page.evaluate(()=>{for(let i=0;i<800&&document.querySelector('#roomNextButton');i++)document.querySelector('#roomNextButton').click()});
    await page.evaluate(()=>{settings.instantText=true;showSixthRoom({introSeen:true})});

@@ -25,13 +25,6 @@ async function finish(page){
  const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  let deployed=false;for(let i=0;i<24;i++){await page.goto(url+'?room4_review='+Date.now());if((await page.locator('script[src*="room4.js"]').getAttribute('src')).includes(version)){deployed=true;break}await page.waitForTimeout(8000)}assert(deployed,'Expected deployed version');
  const dir=path.join('artifacts/room04',spec.name);fs.mkdirSync(dir,{recursive:true});
- // Text entry starts only after selecting the answer field.
- await page.evaluate(()=>{firstRoomState={melodySolved:false};showPianoScreen()});
- assert.equal(await page.locator('#melodyInput').evaluate(el=>el===document.activeElement),false,'Piano does not activate text entry on opening');
- await page.locator('#melodyInput').click();
- assert(await page.locator('#melodyInput').evaluate(el=>el===document.activeElement),'Piano input activates when selected');
- await page.keyboard.type('ドレミ');assert.equal(await page.locator('#melodyInput').inputValue(),'ドレミ');
- await page.keyboard.press('Escape');assert.equal(await page.locator('#melodyInput').count(),0,'Modal Escape still closes puzzle');
  // The original introduction must trigger the ceiling-gaze pose on its confirmed narration.
  await page.evaluate(()=>{settings.instantText=true;showFourthRoom()});
  const hanaScale=await page.locator('#r4Hana').evaluate(el=>{
@@ -161,6 +154,14 @@ async function finish(page){
  assert.equal(await page.evaluate(()=>room4State.angles[0]),2,'Four clockwise turns return to the initial orientation');
  for(const [i,n] of [2,3,0,1,2].entries())for(let j=0;j<n;j++)await page.locator(`.r4-panels button[data-i="${i}"]`).click();
  await assertStack();await page.screenshot({path:path.join(dir,'panels.png')});await page.locator('.r4-shine').click();assert(await page.evaluate(()=>room4State.completed));await finish(page);assert(await page.evaluate(()=>room4State.memorySeen));
+ // Text entry starts only after selecting the answer field.
+ await page.evaluate(()=>{firstRoomState={melodySolved:false};showPianoScreen()});
+ assert.equal(await page.locator('#melodyInput').evaluate(el=>el===document.activeElement),false,'Piano does not activate text entry on opening');
+ await page.locator('#melodyInput').click();
+ assert(await page.locator('#melodyInput').evaluate(el=>el===document.activeElement),'Piano input activates when selected');
+ await page.keyboard.type('ドレミ');assert.equal(await page.locator('#melodyInput').inputValue(),'ドレミ');
+ await page.keyboard.press('Escape');assert.equal(await page.locator('#melodyInput').count(),0,'Modal Escape still closes puzzle');
+
  assert.deepEqual(errors,[]);console.log(spec.name+' room 4 PASS');
  }finally{await browser.close()}
 }})().catch(e=>{console.error(e);process.exit(1)});

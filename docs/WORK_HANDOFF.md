@@ -705,3 +705,11 @@
 
 - 初回調整719781f4cc27d884fe9afdf88c5ddce389986a3aのPages(run 38520360062)・第5公開PC/横向きWebKit(run 38520360499)・全進行(run 38520360467)が成功。壁設置とウィンドウのgame-container内収まり、家具68%を検証。
 - 公開目視で大砲の車輪が天板より上に浮いていたため、37.8%の高さへ下げて接地を合わせた。調査範囲も追随。最終キャッシュ20261014-room05-layout-05。
+
+
+### 第5の配置調整・最終確認
+
+- 最終実装984b638958e391ebd7ef36add400b6c0c154da6f。Pages成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38522649700 。第5のPC Chrome/横向きWebKit検証成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38522649748 。全進行成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38522649719 。
+- 公開画面で食卓68%・壁パネル・大砲の車輪とテレビ台天板の接地を目視確認。ウィンドウはビューポートだけでなくgame-containerの内側に収まることを検証。元画像デザイン・台詞・解答は維持。
+- 中断からの再開で一時状態に保持したベースツリー参照が失われ、fd30bf583414966866f02825cbcd58ed42bdec8cで既存ファイルを欠くツリーを誤って公開。984b638958e391ebd7ef36add400b6c0c154da6fで、719781f4cc27d884fe9afdf88c5ddce389986a3aの完全なツリーをベースとして即時復元した。復元後と719781fの差分はdocs/WORK_HANDOFF.md・index.html・room5.cssの3ファイルのみ、削除ゼロを確認。一時空表示は解消済み。
+- 今後はcreate_tree前にベースツリーSHAが有効な文字列であることを確認し、公開前に比較で想定外の削除・変更がないことを検証する。再開時は一時状態の値に依存せずGitの親コミットから取得する。

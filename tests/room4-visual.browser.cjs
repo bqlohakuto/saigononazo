@@ -154,6 +154,8 @@ async function finish(page){
  assert.equal(await page.evaluate(()=>room4State.angles[0]),2,'Four clockwise turns return to the initial orientation');
  for(const [i,n] of [2,3,0,1,2].entries())for(let j=0;j<n;j++)await page.locator(`.r4-panels button[data-i="${i}"]`).click();
  await assertStack();await page.screenshot({path:path.join(dir,'panels.png')});await page.locator('.r4-shine').click();assert(await page.evaluate(()=>room4State.completed));await finish(page);assert(await page.evaluate(()=>room4State.memorySeen));
+ // Close the fourth-room exit choice before testing a separate device modal.
+ await page.locator('.room-exit-menu .device-close').click();
  // Text entry starts only after selecting the answer field.
  await page.evaluate(()=>{firstRoomState={melodySolved:false};showPianoScreen()});
  assert.equal(await page.locator('#melodyInput').evaluate(el=>el===document.activeElement),false,'Piano does not activate text entry on opening');

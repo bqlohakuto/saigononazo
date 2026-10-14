@@ -1,0 +1,885 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const vm = require("node:vm");
+
+// Runs the real game modules against a small DOM model. This checks state,
+// event ownership and focus routing, not browser layout or native inert behavior.
+function harness(saved) {
+  const observers = new Set();
+  const timers = new Map();
+  let timerId = 0, now = 0;
+  const storage = new Map();
+  const writes = [];
+  if (saved) storage.set("saigononazo-save-v1", JSON.stringify(saved));
+  let document;
+
+  class Element {
+    constructor(tag = "div") {
+      this.tagName = tag.toUpperCase();
+      this.children = [];
+      this.parentElement = null;
+      this.attributes = new Map();
+      this.listeners = new Map();
+      this.style = {};
+      this.dataset = new Proxy({}, {
+        set: (target, name, value) => {
+          target[name] = String(value);
+          this.attributes.set(`data-${name.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}`, String(value));
+          return true;
+        }
+      });
+      this.disabled = false;
+      this.hidden = false;
+      this.inert = false;
+      this.value = "";
+      this._text = "";
+      this.classList = {
+        contains: name => this.className.split(/\s+/).includes(name),
+        add: (...names) => { this.className = [...new Set([...this.className.split(/\s+/).filter(Boolean), ...names])].join(" "); },
+        remove: (...names) => { this.className = this.className.split(/\s+/).filter(name => !names.includes(name)).join(" "); },
+        toggle: (name, force) => {
+          const add = force ?? !this.classList.contains(name);
+          this.classList[add ? "add" : "remove"](name);
+          return add;
+        }
+      };
+    }
+    get id() { return this.attributes.get("id") || ""; }
+    set id(value) { this.attributes.set("id", value); }
+    get className() { return this.attributes.get("class") || ""; }
+    set className(value) { this.attributes.set("class", value); }
+    get isConnected() { return this === document.documentElement || !!this.parentElement?.isConnected; }
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
+      if (name.startsWith("data-")) this.dataset[name.slice(5)] = String(value);
+      if (["hidden", "disabled", "inert"].includes(name)) this[name] = true;
+      if (name === "value") this.value = String(value);
+    }
+    getAttribute(name) { return this.attributes.get(name) ?? null; }
+    append(...children) { children.forEach(child => this.appendChild(child)); }
+    appendChild(child) { child.remove(); this.children.push(child); child.parentElement = this; return child; }
+    remove() {
+      if (this.parentElement) this.parentElement.children = this.parentElement.children.filter(child => child !== this);
+      this.parentElement = null;
+    }
+    replaceChildren(...children) {
+      this.children.forEach(child => { child.parentElement = null; });
+      this.children = []; this._text = ""; this.append(...children);
+    }
+    set textContent(value) { this.replaceChildren(); this._text = String(value); }
+    get textContent() { return this._text + this.children.map(child => child.textContent).join(""); }
+    set innerHTML(html) {
+      this.replaceChildren();
+      const stack = [this];
+      const voidTags = new Set(["IMG", "INPUT", "BR", "HR", "META", "LINK"]);
+      for (const token of html.match(/<[^>]*>|[^<]+/g) || []) {
+        if (token.startsWith("</")) { if (stack.length > 1) stack.pop(); }
+        else if (token.startsWith("<")) {
+          const tag = token.match(/^<([\w-]+)/)?.[1];
+          if (!tag) continue;
+          const child = new Element(tag);
+          const attributes = token.slice(tag.length + 1, token.endsWith("/>") ? -2 : -1);
+          const regex = /([\w-]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g;
+          for (const match of attributes.matchAll(regex)) child.setAttribute(match[1], match[2] ?? match[3] ?? match[4] ?? "");
+          stack.at(-1).append(child);
+          if (!voidTags.has(child.tagName) && !token.endsWith("/>")) stack.push(child);
+        } else stack.at(-1)._text += token;
+      }
+    }
+    matches(selector) {
+      return selector.split(",").some(part => {
+        part = part.trim();
+        if (part.includes(":not(:disabled)")) {
+          if (this.disabled) return false;
+          part = part.replace(":not(:disabled)", "");
+        }
+        if (part === ":disabled") return this.disabled;
+        const tag = part.match(/^[\w-]+/)?.[0];
+        if (tag && tag.toUpperCase() !== this.tagName) return false;
+        const id = part.match(/#([\w-]+)/)?.[1];
+        if (id && id !== this.id) return false;
+        if ([...part.matchAll(/\.([\w-]+)/g)].some(match => !this.classList.contains(match[1]))) return false;
+        for (const [, name, quote, value] of part.matchAll(/\[([\w-]+)(?:=(["']?)([^\]"']+)\2)?\]/g)) {
+          if (["hidden", "disabled", "inert"].includes(name)) { if (!this[name]) return false; }
+          else if (!this.attributes.has(name)) return false;
+          if (value !== undefined && this.getAttribute(name) !== value) return false;
+        }
+        return true;
+      });
+    }
+    closest(selector) { return this.matches(selector) ? this : this.parentElement?.closest(selector) || null; }
+    contains(child) { return child === this || this.children.some(element => element.contains(child)); }
+    querySelectorAll(selector) {
+      return this.children.flatMap(child => [...(child.matches(selector) ? [child] : []), ...child.querySelectorAll(selector)]);
+    }
+    querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
+    addEventListener(type, callback, options) {
+      if (!this.listeners.has(type)) this.listeners.set(type, []);
+      this.listeners.get(type).push({ callback, capture: options === true || !!options?.capture });
+    }
+    removeEventListener(type, callback) {
+      this.listeners.set(type, (this.listeners.get(type) || []).filter(listener => listener.callback !== callback));
+    }
+    emit(type, properties = {}) {
+      const event = {
+        type, target: this, defaultPrevented: false, stopped: false, immediate: false,
+        preventDefault() { this.defaultPrevented = true; },
+        stopPropagation() { this.stopped = true; },
+        stopImmediatePropagation() { this.stopped = true; this.immediate = true; },
+        ...properties
+      };
+      const route = []; for (let node = this; node; node = node.parentElement) route.push(node);
+      if (!route.includes(document)) route.push(document);
+      const deliver = (node, capture) => {
+        for (const listener of [...(node.listeners.get(type) || [])]) {
+          if (listener.capture === capture) listener.callback(event);
+          if (event.immediate) break;
+        }
+      };
+      for (const node of [...route].reverse()) { deliver(node, true); if (event.stopped) return event; }
+      for (const node of route) { deliver(node, false); if (event.stopped) return event; }
+      return event;
+    }
+    click() { if (!this.disabled && !this.closest("[inert]")) return this.emit("click"); }
+    focus() { document.activeElement = this; this.emit("focusin"); }
+  }
+  document = new Element("document");
+  document.documentElement = new Element("html");
+  document.append(document.documentElement);
+  document.head = new Element("head"); document.documentElement.append(document.head);
+  document.body = new Element("body"); document.documentElement.append(document.body);
+  document.activeElement = document.body;
+  document.hidden = false;
+  document.createElement = tag => new Element(tag);
+  document.getElementById = id => document.querySelector(`#${id}`);
+  const game = new Element("div"); game.id = "game"; document.body.append(game);
+  class MutationObserver {
+    constructor(callback) { this.callback = callback; }
+    observe() { observers.add(this); }
+    disconnect() { observers.delete(this); }
+  }
+  // The game-flow harness records sound requests; Web Audio lifecycle has its own small test.
+  const audio = [
+    { id: "tinnitus", source: "audio/se/tinnitus.mp3", playCount: 0 },
+    { id: "memoryMelody", source: "audio/memory_melody_piano.wav", playCount: 0 },
+    { id: "memoryBand", source: "audio/memory_band.mp3", playCount: 0 }
+  ];
+  const audioEvents = [];
+  const GameAudio = {
+    unlock: () => Promise.resolve(true), stopAll() {}, setVolume() {},
+    stop(id) { audioEvents.push({ action: "stop", id }); },
+    fadeOut(id, duration) { audioEvents.push({ action: "fadeOut", id, duration }); return true; },
+    play(id) {
+      audio.find(item => item.id === id).playCount++;
+      audioEvents.push({ action: "play", id });
+      return Promise.resolve(true);
+    }
+  };
+  const setTimer = (callback, delay, interval) => {
+    const id = ++timerId; timers.set(id, { callback, at: now + delay, interval }); return id;
+  };
+  const context = vm.createContext({
+    document, HTMLElement: Element, MutationObserver, GameAudio, Image: class {},
+    localStorage: {
+      getItem: key => storage.get(key) ?? null,
+      setItem: (key, value) => { writes.push({ key, value }); storage.set(key, value); },
+      removeItem: key => storage.delete(key)
+    },
+    setTimeout: (callback, delay) => setTimer(callback, delay, 0),
+    setInterval: (callback, delay) => setTimer(callback, delay, delay),
+    clearTimeout: id => timers.delete(id), clearInterval: id => timers.delete(id)
+  });
+  context.window = context;
+  for (const file of ["scenario.js", "game-log.js", "dialogue.js", "inspection.js", "script.js", "hana-choice.js"]) {
+    vm.runInContext(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), context, { filename: file });
+  }
+  const run = expression => vm.runInContext(expression, context);
+  const query = selector => { const element = game.querySelector(selector); assert.ok(element, `Missing ${selector}`); return element; };
+  const flushObservers = () => [...observers].forEach(observer => observer.callback());
+  return {
+    document, game, run, query, audio, audioEvents, writes, timers, observers,
+    get state() { return JSON.parse(run("JSON.stringify({...firstRoomState,openedInbox:[...firstRoomState.openedInbox],openedSent:[...firstRoomState.openedSent]})")); },
+    get saved() { return JSON.parse(storage.get("saigononazo-save-v1")); },
+    get saveCount() { return writes.filter(write => write.key === "saigononazo-save-v1").length; },
+    room(state = {}) { run(`showFirstRoom(${JSON.stringify(state)})`); },
+    click(selector) { query(selector).click(); flushObservers(); },
+    key(key, shiftKey = false) { const result = document.activeElement.emit("keydown", { key, shiftKey }); flushObservers(); return result; },
+    flushObservers,
+    tick(duration) {
+      const target = now + duration;
+      let count = 0;
+      while (true) {
+        const due = [...timers.entries()].filter(([, timer]) => timer.at <= target).sort((a, b) => a[1].at - b[1].at)[0];
+        if (!due) break;
+        assert.ok(++count < 100000, "Timers must settle");
+        const [id, timer] = due; now = timer.at;
+        if (timer.interval) timer.at += timer.interval; else timers.delete(id);
+        timer.callback();
+      }
+      now = target; flushObservers();
+    },
+    finishDialogue() {
+      let count = 0;
+      while (game.querySelector(".room-dialog-overlay")) {
+        assert.ok(++count < 600, "Dialogue must finish");
+        query("#roomNextButton").click();
+      }
+      flushObservers();
+    }
+  };
+}
+
+const unlockedItems = { hanaIntroduced: true, questionSeen: true, doorInspected: true, viewedWall: "back" };
+const allMail = {
+  openedInbox: ["inbox-1", "inbox-2", "inbox-3", "inbox-4"],
+  openedSent: ["sent-1", "sent-2", "sent-3", "sent-4"]
+};
+
+test("old saves restore mail, wall and unlocked state with a safe phone-introduction default", () => {
+  const h = harness({ playerName: "テスト", scene: "firstRoom", state: {
+    ...unlockedItems, ...allMail, doorUnlocked: true, melodySolved: true, viewedWall: "left"
+  } });
+  h.click("#continueButton");
+  assert.equal(h.state.phoneIntroductionSeen, false);
+  assert.equal(h.saved.state.phoneIntroductionSeen, false);
+  assert.equal(h.state.viewedWall, "left");
+  assert.deepEqual(h.state.openedInbox, allMail.openedInbox);
+  assert.deepEqual(h.state.openedSent, allMail.openedSent);
+  assert.equal(h.query(".room").classList.contains("is-restored"), true);
+  assert.equal(h.query("#doorButton").classList.contains("is-unlocked"), true);
+  assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/pixel/room01_left_fine.png");
+  assert.equal(h.query('[data-wall="left"]').hidden, false);
+  assert.equal(h.query('[data-wall="front"]').hidden, true);
+  assert.equal(h.query("#phoneButton").disabled, false);
+  assert.equal(h.run('hasCheckedAllMail("inbox") && hasCheckedAllMail("sent")'), true);
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+});
+
+test("invalid saved direction falls back to front; direction changes remain saved", () => {
+  const h = harness(); h.room({ viewedWall: "missing", questionSeen:true, hanaIntroduced:true });
+  assert.equal(h.state.viewedWall, "front");
+  h.click("#turnLeftButton");
+  assert.equal(h.state.viewedWall, "left");
+  assert.equal(h.saved.state.viewedWall, "left");
+  h.click("#turnRightButton");
+  assert.equal(h.state.viewedWall, "front");
+});
+
+test("all four accepted backgrounds follow turns and remain the same after unlocking", () => {
+  const h = harness(); h.room({ ...unlockedItems, hanaIntroduced:true, viewedWall: "front" });
+  const directions = ["front", "right", "back", "left"];
+  for (const restored of [false, true]) {
+    if (restored) h.run("unlockFirstRoomDoor()");
+    assert.equal(h.query(".room").classList.contains("is-restored"), restored);
+    for (const direction of directions) {
+      assert.equal(h.state.viewedWall, direction);
+      assert.equal(h.saved.state.viewedWall, direction);
+      assert.equal(h.query("#roomBackground").getAttribute("src"), `images/background/room01/pixel/room01_${direction}_fine.png`);
+      for (const layer of directions) assert.equal(h.query(`[data-wall="${layer}"]`).hidden, layer !== direction);
+      h.click("#turnRightButton");
+    }
+    assert.equal(h.state.viewedWall, "front");
+    h.click("#turnLeftButton");
+    assert.equal(h.query("#roomBackground").getAttribute("src"), "images/background/room01/pixel/room01_left_fine.png");
+    h.click("#turnRightButton");
+  }
+});
+
+test("door investigation starts dialogue in the room without an enlargement", () => {
+ const h=harness();h.room();h.query("#doorButton").focus();
+ h.click("#doorButton");
+ assert.equal(h.game.querySelector(".inspection-overlay"),null);
+ assert.equal(h.game.querySelector(".inspection-focus-background"),null);
+ assert.ok(h.query(".room-dialog-overlay"));
+ assert.equal(h.state.questionSeen,false);
+ h.finishDialogue();
+ assert.equal(h.state.questionSeen,true);
+ assert.equal(h.query("#phoneButton").disabled,false);
+ assert.equal(h.document.activeElement,h.query("#doorButton"));
+});
+
+test("unlocked door opens the existing exit dialogue directly", () => {
+ const h=harness();h.room({...unlockedItems,doorUnlocked:true,melodySolved:true,viewedWall:"front"});
+ h.click("#doorButton");
+ assert.equal(h.game.querySelector(".inspection-overlay"),null);
+ assert.ok(h.query(".room-dialog-overlay"));
+ h.finishDialogue();assert.ok(h.query("#nextRoomButton"));
+ assert.equal(h.state.nextRoomTransitionSeen,false);
+});
+
+test("shelf and desk previews stay available without consuming progression or writing logs", () => {
+  for (const restored of [false, true]) {
+    for (const [item, wall] of [["shelf", "right"], ["desk", "back"]]) {
+      const h = harness(); h.room({ viewedWall: wall, questionSeen:true, hanaIntroduced:true, doorUnlocked: restored, melodySolved: restored });
+      const opener = h.query(`#${item}Button`);
+      assert.equal(opener.disabled, false);
+      opener.focus();
+      const before = h.saved, saves = h.saveCount;
+      h.click(`#${item}Button`);
+      assert.equal(h.query(".inspection-image").src, `images/background/room01/pixel/room01_${wall}_fine.png`);
+      assert.equal(h.query(".room").inert, true);
+      h.click("#turnRightButton");
+      assert.equal(h.state.viewedWall, wall);
+      h.tick(20000);
+      assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+      h.key("Tab"); assert.equal(h.document.activeElement, h.query(".inspection-close"));
+      h.key("Tab"); assert.equal(h.document.activeElement, h.query(".inspection-art-button"));
+      h.click(".inspection-art-button");
+      assert.equal(h.game.querySelector(".inspection-overlay"), null);
+      assert.equal(h.query(".room").inert, false);
+      assert.deepEqual(h.saved, before);
+      assert.equal(h.saveCount, saves);
+      assert.equal(h.state.questionSeen, true);
+    }
+  }
+});
+
+test("poster and keyboard retain artwork and question gates; inspection commits only after its dialogue", () => {
+  for (const [item, wall, image] of [["poster", "right", "poster"], ["piano", "left", "keyboard"]]) {
+    const h = harness(); h.room({ viewedWall: wall });
+    assert.equal(h.query(`#${item}Button`).disabled, true);
+    h.click(`#${item}Button`);
+    assert.equal(h.game.querySelector(".inspection-overlay"), null);
+    h.room({ ...unlockedItems, viewedWall: wall });
+    h.query(`#${item}Button`).focus();
+    const before = h.saved, saves = h.saveCount;
+    h.click(`#${item}Button`);
+    const expectedImage = item === "poster"
+      ? "images/items/item_poster.png?v=20261012-pixel-items-01"
+      : "images/background/room01/pixel/room01_left_fine.png";
+    assert.equal(h.query(".inspection-image").src, expectedImage);
+    assert.equal(h.query(".room").inert, true);
+    h.key("Escape");
+    assert.equal(h.query(".room").inert, false);
+    assert.equal(h.document.activeElement, h.query(`#${item}Button`));
+    assert.deepEqual(h.saved, before);
+    assert.equal(h.saveCount, saves);
+    h.click(`#${item}Button`); h.click(".inspection-art-button");
+    const flag = item === "poster" ? "posterInspected" : "pianoIntroductionSeen";
+    assert.equal(h.state[flag], false);
+    assert.ok(h.query(".room-dialog-overlay"));
+    h.finishDialogue();
+    assert.equal(h.state[flag], true);
+    assert.equal(h.saved.state[flag], true);
+    if (item === "piano") assert.equal(h.query("#melodyInput").disabled, false);
+  }
+});
+
+test("phone enlargement is manual; closing never consumes or saves the first introduction", () => {
+  const h = harness(); h.room(unlockedItems);
+  h.query("#phoneButton").focus();
+  const saves = h.saveCount;
+  h.click("#phoneButton");
+  assert.equal(h.query(".inspection-image").src, "images/items/phone-on-desk.png?v=20261012-thick-phone-01");
+  assert.equal(h.document.activeElement, h.query(".inspection-art-button"));
+  h.tick(20000);
+  assert.equal(h.game.querySelector(".device-overlay"), null);
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+  assert.equal(h.saveCount, saves);
+  h.key("Escape");
+  assert.equal(h.game.querySelector(".inspection-overlay"), null);
+  assert.equal(h.state.phoneIntroductionSeen, false);
+  assert.equal(h.saveCount, saves);
+  assert.equal(h.document.activeElement, h.query("#phoneButton"));
+  assert.equal(h.observers.size, 0);
+  h.click("#phoneButton"); h.click(".inspection-close");
+  assert.equal(h.state.phoneIntroductionSeen, false);
+});
+
+test("first phone use logs the introduction and commits it only before opening inbox", () => {
+  const h = harness(); h.room(unlockedItems);
+  const saves = h.saveCount;
+  h.click("#phoneButton"); h.click(".inspection-art-button");
+  assert.equal(h.game.querySelector(".inspection-overlay"), null);
+  assert.equal(h.query(".room").inert, true);
+  assert.equal(h.state.phoneIntroductionSeen, false);
+  h.click("#roomNextButton");
+  const firstLine = h.run("firstRoomScenario.phoneIntroduction[0].text");
+  assert.equal(h.query(".message").textContent, firstLine);
+  assert.equal(h.saved.state.phoneIntroductionSeen, false);
+  assert.equal(h.saved.logs.at(-1).text, firstLine);
+  assert.ok(h.saveCount > saves);
+  h.finishDialogue();
+  assert.equal(h.state.phoneIntroductionSeen, true);
+  assert.equal(h.saved.state.phoneIntroductionSeen, true);
+  assert.equal(h.saved.logs.at(-1).id, "room1_phone_select_prompt");
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+  assert.equal(h.query('[data-folder="inbox"]').classList.contains("is-active"), true);
+  assert.equal(h.document.activeElement, h.query('[data-folder="inbox"]'));
+  h.tick(20000);
+  assert.ok(h.query(".phone-screen"));
+  h.click(".device-close");
+  assert.equal(h.document.activeElement, h.query("#phoneButton"));
+  const completedLogCount = h.saved.logs.length;
+  h.click("#phoneButton"); h.click(".inspection-art-button");
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+  assert.ok(h.query(".phone-screen"));
+  assert.equal(h.saved.logs.length, completedLogCount);
+  assert.equal(h.saved.logs.at(-1).id, "room1_phone_select_prompt");
+  const resumed = harness(h.saved); resumed.click("#continueButton");
+  resumed.click("#phoneButton"); resumed.click(".inspection-art-button");
+  assert.equal(resumed.game.querySelector(".room-dialog-overlay"), null);
+  assert.ok(resumed.query(".phone-screen"));
+});
+
+test("eight stable mail IDs alternate sender, minute and one additional Re. per reply", () => {
+  const h = harness();
+  const mail = JSON.parse(h.run("JSON.stringify(firstRoomScenario.phoneMail)"));
+  assert.equal(mail.inbox.length, 4); assert.equal(mail.sent.length, 4);
+  assert.deepEqual(mail.inbox.map(item => item.id), allMail.openedInbox);
+  assert.deepEqual(mail.sent.map(item => item.id), allMail.openedSent);
+  assert.ok(mail.inbox.every(item => item.from === "先輩"));
+  assert.ok(mail.sent.every(item => item.to === "先輩"));
+  const chronological = [...mail.inbox, ...mail.sent].sort((a, b) => a.time.localeCompare(b.time));
+  chronological.forEach((item, index) => {
+    assert.equal(item.time, `20:${15 + index}`);
+    assert.equal(item.subject, `${"Re.".repeat(index)}${index ? " " : ""}今日の練習お疲れさま！`);
+    assert.equal(item.id.startsWith(index % 2 ? "sent-" : "inbox-"), true);
+  });
+  assert.match(mail.sent[2].text, /レモン味/);
+  assert.match(mail.inbox[2].text, /明日の練習が終わったら/);
+  assert.match(mail.inbox[3].text, /ドーナツいっぱいたべたいな/);
+  assert.match(mail.sent[3].text, /そんなに食べるんですか？笑/);
+  assert.match(mail.sent[3].text, /練習頑張ります！/);
+  assert.equal(new Set(chronological.map(item => item.logId)).size, 8);
+});
+
+test("phone list outlines only the selected mail and clears selection when the folder changes", () => {
+  const h = harness(); h.room({ ...unlockedItems, phoneIntroductionSeen: true });
+  h.run("showPhoneScreen()");
+
+  h.click('[data-index="0"]');
+  assert.equal(h.query('[data-index="0"]').classList.contains("is-selected"), true);
+  assert.equal(h.query('[data-index="0"]').getAttribute("aria-current"), "true");
+  assert.match(h.query(".mail-detail").textContent, /件名/);
+
+  h.click('[data-index="1"]');
+  assert.equal(h.query('[data-index="0"]').classList.contains("is-selected"), false);
+  assert.equal(h.query('[data-index="0"]').getAttribute("aria-current"), "false");
+  assert.equal(h.query('[data-index="1"]').classList.contains("is-selected"), true);
+
+  h.click('[data-folder="sent"]');
+  assert.equal(h.game.querySelector(".mail-item.is-selected"), null);
+  assert.equal(h.query(".mail-detail").textContent, "メールを選んで内容を確認する。");
+});
+
+test("AUTO completes phone introduction but never advances enlargement, mail, or piano observation", () => {
+  const h = harness(); h.room(unlockedItems);
+  h.click("#phoneButton"); h.click(".inspection-art-button"); h.click("#roomAutoButton");
+  h.tick(20000);
+  assert.equal(h.state.phoneIntroductionSeen, true);
+  assert.ok(h.query(".phone-screen"));
+  assert.equal(h.timers.size, 0);
+  h.tick(20000);
+  assert.ok(h.query(".phone-screen"));
+  assert.deepEqual(h.state.openedInbox, []);
+  h.click(".device-close"); h.click("#phoneButton");
+  h.tick(20000);
+  assert.ok(h.query(".inspection-overlay"));
+  assert.equal(h.game.querySelector(".device-overlay"), null);
+  h.click(".inspection-close"); h.click("#turnRightButton");
+  h.click("#pianoButton"); h.click(".inspection-art-button");
+  h.finishDialogue();
+  h.query("#melodyInput").value = "ソラファミドレドシ";
+  h.tick(20000);
+  assert.ok(h.query(".piano-screen"));
+  assert.equal(h.state.pianoAttempted, false);
+  assert.equal(h.state.melodySolved, false);
+  assert.equal(h.timers.size, 0);
+});
+
+test("phone modal traps focus and Tab in both directions, saves each read and restores focus on Escape", () => {
+  const h = harness(); h.room({ ...unlockedItems, phoneIntroductionSeen: true });
+  const persistentKeyListeners = [...h.document.listeners.get("keydown")];
+  h.click("#phoneButton"); h.click(".inspection-art-button");
+  assert.equal(h.query(".room").inert, true);
+  assert.equal(h.query(".phone-screen").getAttribute("role"), "dialog");
+  assert.equal(h.query(".phone-screen").getAttribute("aria-modal"), "true");
+  h.query("#phoneButton").focus();
+  assert.equal(h.document.activeElement, h.query('[data-folder="inbox"]'));
+  h.key("Tab", true);
+  assert.equal(h.document.activeElement, h.query(".device-close"));
+  h.key("Tab");
+  assert.equal(h.document.activeElement, h.query('[data-folder="inbox"]'));
+  for (const folder of ["inbox", "sent"]) {
+    h.click(`[data-folder="${folder}"]`);
+    for (let index = 0; index < 4; index++) {h.click(`[data-index="${index}"]`);h.click(".phone-list-back");}
+  }
+  assert.deepEqual(h.state.openedInbox, allMail.openedInbox);
+  assert.deepEqual(h.state.openedSent, allMail.openedSent);
+  assert.deepEqual(h.saved.state.openedSent, allMail.openedSent);
+  h.key("Escape");
+  assert.equal(h.state.phoneReflectionSeen, false);
+  assert.ok(h.query(".room-dialog-overlay"));
+  h.finishDialogue();
+  assert.equal(h.state.phoneReflectionSeen, true);
+  assert.equal(h.query(".room").inert, false);
+  assert.equal(h.document.activeElement, h.query("#phoneButton"));
+  assert.deepEqual(h.document.listeners.get("keydown"), persistentKeyListeners);
+  assert.equal(h.document.listeners.get("focusin").length, 0);
+  assert.equal(h.observers.size, 0);
+});
+
+test("eight-note solution requires every incoming and outgoing mail; seven and obsolete nine notes fail", () => {
+  for (const state of [{}, { openedInbox: allMail.openedInbox }, { ...allMail, openedSent: allMail.openedSent.slice(0, 3) }]) {
+    const h = harness(); h.room({ ...unlockedItems, ...state, viewedWall: "left" });
+    h.click("#pianoButton"); h.click(".inspection-art-button");
+    h.finishDialogue();
+    h.query("#melodyInput").value = "ソラファミドレドシ"; h.click("#playMelodyButton");
+    assert.match(h.query(".piano-result").textContent, /違ったようだ/);
+    assert.equal(h.state.melodySolved, false);
+    assert.equal(h.saved.state.pianoAttempted, true);
+  }
+  const h = harness(); h.room({ ...unlockedItems, ...allMail, viewedWall: "left" });
+  h.click("#pianoButton"); h.click(".inspection-art-button");
+  h.finishDialogue();
+  for (const answer of ["ソラファミドレシ", "ソラファミドレドミシ"]) {
+    h.query("#melodyInput").value = answer; h.click("#playMelodyButton");
+    assert.equal(h.state.melodySolved, false);
+    assert.match(h.query(".piano-result").textContent, /違ったようだ/);
+  }
+});
+
+test("piano closes accessibly; correct play cleans up its modal before memory and unlocks only afterward", () => {
+  const h = harness(); h.room({ ...unlockedItems, ...allMail, viewedWall: "left" });
+  const persistentKeyListeners = [...h.document.listeners.get("keydown")];
+  h.click("#pianoButton"); h.click(".inspection-art-button");
+  h.finishDialogue();
+  assert.equal(h.document.activeElement, h.query("#melodyInput"));
+  assert.equal(h.query(".room").inert, true);
+  h.key("Tab"); assert.equal(h.document.activeElement, h.query("#playMelodyButton"));
+  h.key("Tab"); assert.equal(h.document.activeElement, h.query(".device-close"));
+  h.key("Tab", true); assert.equal(h.document.activeElement, h.query("#playMelodyButton"));
+  h.key("Escape");
+  assert.equal(h.query(".room").inert, false);
+  assert.equal(h.document.activeElement, h.query("#pianoButton"));
+  h.click("#pianoButton"); h.click(".inspection-art-button"); h.click(".device-close");
+  assert.equal(h.document.activeElement, h.query("#pianoButton"));
+  h.click("#pianoButton"); h.click(".inspection-art-button");
+  h.query("#melodyInput").value = "ソ ラ、ファ・ミ,ド。レドシ";
+  h.click("#playMelodyButton");
+  assert.equal(h.state.melodySolved, true);
+  assert.equal(h.saved.state.melodySolved, true);
+  assert.equal(h.state.doorUnlocked, false);
+  assert.equal(h.query("#melodyInput").disabled, true);
+  assert.equal(h.query("#playMelodyButton").textContent, "続ける");
+  assert.equal(h.audio.find(item => item.source === "audio/memory_melody_piano.wav").playCount, 1);
+  h.query(".device-close").focus(); h.key("Tab");
+  assert.equal(h.document.activeElement, h.query("#playMelodyButton"));
+  h.click("#playMelodyButton");
+  assert.equal(h.audio.find(item => item.id === "memoryBand").playCount, 0);
+  assert.equal(h.game.querySelector(".device-overlay"), null);
+  assert.deepEqual(h.document.listeners.get("keydown"), persistentKeyListeners);
+  assert.equal(h.document.listeners.get("focusin").length, 0);
+  assert.equal(h.observers.size, 0);
+  assert.equal(h.query(".room").inert, true); // Now owned by memory dialogue.
+  assert.equal(h.document.activeElement, h.query("#roomNextButton"));
+  assert.deepEqual(h.audioEvents.filter(event => event.id?.startsWith("memory")), [
+    { action: "play", id: "memoryMelody" }
+  ]);
+  const bandStart = h.run("firstRoomScenario.pianoCorrect[3].text");
+  while (!h.saved.logs.some(entry => entry.text === bandStart)) h.click("#roomNextButton");
+  assert.deepEqual(h.audioEvents.filter(event => event.id?.startsWith("memory")), [
+    { action: "play", id: "memoryMelody" },
+    { action: "stop", id: "memoryMelody" },
+    { action: "play", id: "memoryBand" }
+  ]);
+  const bandFade = h.run("firstRoomScenario.memory[8].text");
+  while (!h.saved.logs.some(entry => entry.text === bandFade)) h.click("#roomNextButton");
+  assert.deepEqual(h.audioEvents.filter(event => event.id?.startsWith("memory")), [
+    { action: "play", id: "memoryMelody" },
+    { action: "stop", id: "memoryMelody" },
+    { action: "play", id: "memoryBand" },
+    { action: "fadeOut", id: "memoryBand", duration: 2000 }
+  ]);
+  h.finishDialogue();
+  assert.equal(h.state.doorUnlocked, true);
+  assert.equal(h.saved.state.doorUnlocked, true);
+  assert.equal(h.query(".room").classList.contains("is-restored"), true);
+  assert.equal(h.query(".room").inert, false);
+  assert.equal(h.timers.size, 0);
+});
+
+test("partially solved old saves resume memory and unlock after dialogue without replaying piano", () => {
+  const h = harness(); h.room({ ...unlockedItems, ...allMail, melodySolved: true, doorUnlocked: false });
+  assert.ok(h.query(".room-dialog-overlay"));
+  assert.equal(h.state.phoneIntroductionSeen, false);
+  assert.equal(h.state.doorUnlocked, false);
+  h.finishDialogue();
+  assert.equal(h.state.doorUnlocked, true);
+  assert.equal(h.audio.find(item => item.source === "audio/memory_melody_piano.wav").playCount, 0);
+});
+
+test("externally removed inspection and device overlays release their event ownership", () => {
+  const h = harness(); h.room({ ...unlockedItems, phoneIntroductionSeen: true });
+  const persistentKeyListeners = [...h.document.listeners.get("keydown")];
+  h.click("#phoneButton");
+  assert.equal(h.query(".room").inert, true);
+  h.query(".inspection-overlay").remove(); h.flushObservers();
+  assert.equal(h.query(".room").inert, false);
+  assert.equal(h.observers.size, 0);
+  assert.deepEqual(h.document.listeners.get("keydown"), persistentKeyListeners);
+  h.click("#phoneButton"); h.click(".inspection-art-button");
+  h.query(".device-overlay").remove(); h.flushObservers();
+  assert.equal(h.query(".room").inert, false);
+  assert.equal(h.observers.size, 0);
+  assert.deepEqual(h.document.listeners.get("keydown"), persistentKeyListeners);
+  assert.equal(h.document.listeners.get("focusin").length, 0);
+});
+
+test("fresh room waits for a Hana click even with AUTO enabled; identity commits only on completion", () => {
+  const h = harness();
+  h.run("Dialogue.toggleAuto()");
+  h.run("showFirstRoom()");
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+  assert.equal(h.state.hanaIntroduced, false);
+  assert.equal(h.saved.state.hanaIntroduced, false);
+  h.tick(20000);
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+  assert.equal(h.state.hanaIntroduced, false);
+
+  h.click("#hanaButton");
+  assert.equal(h.query(".hana-choice-menu").querySelector("h2").textContent.trim(), "どうしたの？");
+  assert.equal(h.query('[data-choice="about-hana"]').classList.contains("is-viewed"), false);
+  h.click('[data-choice="about-hana"]');
+  assert.ok(h.query(".room-dialog-overlay"));
+  assert.equal(h.state.hanaIntroduced, false);
+  h.finishDialogue();
+  assert.equal(h.state.hanaIntroduced, true);
+  assert.equal(h.state.hanaVisits, 1);
+  assert.equal(h.saved.state.hanaIntroduced, true);
+  h.click("#hanaButton");
+  assert.ok(h.query('[data-choice="about-room"]'));
+  assert.equal(h.query('[data-choice="about-hana"]').classList.contains("is-viewed"), true);
+
+  const legacy = harness(); legacy.room({ hanaVisits: 3 }); legacy.click("#hanaButton");
+  assert.equal(legacy.state.hanaIntroduced, true);
+  assert.ok(legacy.query('[data-choice="about-room"]'));
+});
+
+test("completed Hana topics are muted after viewing while なんでもない stays normal across reload", () => {
+  const h = harness(); h.room({ hanaIntroduced: true, hanaVisits: 1 });
+  h.click("#hanaButton");
+  assert.equal(h.query('[data-choice="about-room"]').classList.contains("is-viewed"), false);
+  assert.equal(h.query('[data-choice="cancel"]').classList.contains("is-viewed"), false);
+  h.click('[data-choice="about-room"]');
+  h.finishDialogue();
+
+  h.click("#hanaButton");
+  const viewed = h.query('[data-choice="about-room"]');
+  assert.equal(viewed.classList.contains("is-viewed"), true);
+  assert.match(viewed.getAttribute("aria-label"), /選択済み/);
+  assert.equal(h.query('[data-choice="cancel"]').classList.contains("is-viewed"), false);
+  h.click('[data-choice="cancel"]');
+
+  const resumed = harness(h.saved); resumed.click("#continueButton"); resumed.click("#hanaButton");
+  assert.equal(resumed.query('[data-choice="about-room"]').classList.contains("is-viewed"), true);
+  assert.equal(resumed.query('[data-choice="cancel"]').classList.contains("is-viewed"), false);
+});
+
+test("room SKIP is unavailable on first display and advances a repeated conversation from saved history", () => {
+  const h = harness(); h.room({ hanaIntroduced: true, hanaVisits: 1 });
+  h.click("#hanaButton"); h.click('[data-choice="about-room"]');
+  assert.equal(h.query("#roomSkipButton").disabled, true);
+  h.finishDialogue();
+
+  const resumed = harness(h.saved); resumed.click("#continueButton");
+  resumed.click("#hanaButton"); resumed.click('[data-choice="about-room"]');
+  assert.equal(resumed.query("#roomSkipButton").disabled, false);
+  resumed.click("#roomSkipButton");
+  assert.equal(resumed.query("#roomSkipButton").getAttribute("aria-pressed"), "true");
+  resumed.tick(20000);
+  assert.equal(resumed.game.querySelector(".room-dialog-overlay"), null);
+  assert.equal(resumed.state.hanaVisits, 3);
+});
+
+test("interrupted Hana introduction and hint leave completion flags available on reload", () => {
+  const h = harness(); h.room({ hanaVisits: 0 }); h.click("#hanaButton");
+  h.click('[data-choice="about-hana"]');
+  h.click("#roomNextButton");
+  assert.equal(h.state.hanaIntroduced, false);
+  assert.equal(h.state.hanaVisits, 0);
+  const resumed = harness(h.saved); resumed.click("#continueButton");
+  resumed.click("#hanaButton"); resumed.click('[data-choice="about-hana"]');
+  resumed.finishDialogue();
+  assert.equal(resumed.saved.state.hanaIntroduced, true);
+  assert.equal(resumed.state.hanaVisits, 1);
+
+  const hint = harness(); hint.room({ ...unlockedItems, hanaIntroduced: true, hanaVisits: 1, posterInspected: true, openedInbox: ["inbox-1"] });
+  hint.run("talkToHana()"); hint.click('[data-choice="hint-2"]'); hint.click("#roomNextButton");
+  assert.equal(hint.state.hintLevel, 0);
+  assert.equal(hint.state.hanaVisits, 1);
+  const retry = harness(hint.saved); retry.click("#continueButton");
+  retry.run("talkToHana()"); retry.click('[data-choice="hint-2"]'); retry.finishDialogue();
+  assert.equal(retry.state.hintLevel, 2);
+  assert.equal(retry.saved.state.hintLevel, 2);
+  assert.equal(retry.state.hanaVisits, 2);
+  retry.run("talkToHana()"); assert.ok(retry.query('[data-choice="hint-3"]'));
+});
+
+test("mail reflection waits for all eight IDs and runs once after closing the phone", () => {
+  const h = harness(); h.room({ ...unlockedItems, phoneIntroductionSeen: true, ...allMail, openedSent: allMail.openedSent.slice(0, 3) });
+  h.run("showPhoneScreen()"); h.click(".device-close");
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+  assert.equal(h.state.phoneReflectionSeen, false);
+  h.run("showPhoneScreen()"); h.click('[data-folder="sent"]'); h.click('[data-index="3"]');
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+  assert.equal(h.state.phoneReflectionSeen, false);
+  h.click(".device-close"); h.finishDialogue();
+  assert.equal(h.saved.state.phoneReflectionSeen, true);
+  h.run("showPhoneScreen()"); h.click(".device-close");
+  assert.equal(h.game.querySelector(".room-dialog-overlay"), null);
+});
+
+test("closing a solved piano still enters memory and unlock waits for the return conversation", () => {
+  for (const closeWithEscape of [false, true]) {
+    const h = harness(); h.room({ ...unlockedItems, ...allMail }); h.run("showPianoScreen()");
+    h.query("#melodyInput").value = "ソラファミドレドシ"; h.click("#playMelodyButton");
+    if (closeWithEscape) h.key("Escape"); else h.click(".device-close");
+    assert.ok(h.query(".room-dialog-overlay"));
+    assert.equal(h.state.doorUnlocked, false);
+    const afterMemoryStart = h.run("firstRoomScenario.afterMemory[0].text");
+    let steps = 0;
+    while (!h.saved.logs.some(entry => entry.text === afterMemoryStart)) {
+      assert.ok(++steps < 600);
+      h.click("#roomNextButton");
+      assert.equal(h.state.doorUnlocked, false);
+    }
+    h.finishDialogue();
+    assert.equal(h.state.doorUnlocked, true);
+  }
+});
+
+test("unlocked door supports continued exploration, next-room transition and a resumable boundary", () => {
+  const h = harness(); h.room({ ...unlockedItems, ...allMail, doorUnlocked: true, melodySolved: true, viewedWall: "front" });
+  h.run("inspectDoor()"); h.finishDialogue();
+  assert.ok(h.query("#nextRoomButton"));
+  h.click("#keepExploringButton"); h.finishDialogue();
+  assert.equal(h.query(".room").inert, false);
+  assert.equal(h.state.nextRoomTransitionSeen, false);
+  h.run("inspectDoor()"); h.finishDialogue(); h.click("#nextRoomButton");
+  assert.equal(h.state.nextRoomTransitionSeen, false);
+  assert.ok(h.query(".room-dialog-overlay"));
+  h.finishDialogue();
+  assert.equal(h.saved.currentScene, "room01");
+  assert.equal(h.saved.state.nextRoomTransitionSeen, true);
+  assert.ok(h.query(".room-transition-overlay"));
+  const resumed = harness(h.saved); resumed.click("#continueButton");
+  assert.ok(resumed.query(".room-transition-overlay"));
+  resumed.click("#returnToRoomButton");
+  assert.equal(resumed.query(".room").inert, false);
+  assert.equal(resumed.state.nextRoomTransitionSeen, false);
+  assert.equal(resumed.saved.state.nextRoomTransitionSeen, false);
+  assert.equal(resumed.state.doorUnlocked, true);
+});
+
+
+test("shared piano artwork keeps its exact keyboard layer aligned through cover resizing", () => {
+ const h=harness();h.room({...unlockedItems,hanaIntroduced:true,viewedWall:"left"});
+ const stage=h.query("#roomStage"),keyboard=h.query("#roomKeyboard");
+ for(const [width,height] of [[1440,810],[852,479],[600,700]]){
+  stage.clientWidth=width;stage.clientHeight=height;h.run("positionFirstRoomKeyboard()");
+  const scale=Math.max(width/1536,height/1024);
+  const poster=h.query("#posterButton"),phone=h.query("#phoneButton");
+  assert.equal(poster.style.left,`${(width-1536*scale)/2+834*scale}px`);
+  assert.equal(poster.style.top,`${(height-1024*scale)/2+164*scale}px`);
+  assert.ok(Math.abs(parseFloat(phone.style.left)-((width-1536*scale)/2+942*scale))<1e-6);
+  assert.ok(Math.abs(parseFloat(phone.style.top)-((height-1024*scale)/2+388*scale))<1e-6);
+  assert.equal(keyboard.hidden,false);
+  assert.equal(keyboard.style.left,`${(width-1536*scale)/2+.263*1536*scale}px`);
+  assert.equal(keyboard.style.top,`${(height-1024*scale)/2+.437*1024*scale}px`);
+ }
+ h.click("#pianoButton");
+ assert.equal(h.query(".inspection-image").src,h.query("#roomBackground").getAttribute("src"));
+ assert.equal(h.query(".inspection-art-layer").children[0].src,keyboard.getAttribute("src"));
+ h.key("Escape");h.click("#turnRightButton");assert.equal(keyboard.hidden,true);
+});
+
+test("the keyboard layer has four exact groups of two and three black keys", () => {
+ const svg=fs.readFileSync(path.join(__dirname,"..","images/background/room01/pixel/keyboard.svg"),"utf8");
+ const blacks=[...svg.matchAll(/data-black-key="(\d+)"/g)].map(m=>Number(m[1]));
+ const expected=Array.from({length:4},(_,octave)=>[1,2,4,5,6].map(boundary=>(octave*7+boundary)*26-8)).flat();
+ assert.deepEqual(blacks,expected);
+ const groups=[];
+ for(const [index,x] of blacks.entries()){
+  if(index===0||x-blacks[index-1]>26)groups.push(1);
+  else groups[groups.length-1]++;
+ }
+ assert.deepEqual(groups,[2,3,2,3,2,3,2,3]);
+ assert.equal(groups.at(-1),3,"the rightmost black-key group must contain exactly three keys");
+});
+
+
+test("desk closeup focuses on the tabletop and retains the projected phone", () => {
+ const h=harness();h.room({...unlockedItems,viewedWall:"back"});h.query("#deskButton").focus();h.click("#deskButton");
+ const layer=h.query(".inspection-art-layer");
+ assert.equal(layer.classList.contains("phone-on-desk"),true);
+ assert.equal(layer.children[0].src,h.query("#phoneButton").children[0].getAttribute("src"));
+ assert.ok(Number.parseFloat(layer.style.left)>=0&&Number.parseFloat(layer.style.left)<100);
+ assert.ok(Number.parseFloat(layer.style.top)>=0&&Number.parseFloat(layer.style.top)<100);
+ h.key("Escape");assert.equal(h.document.activeElement,h.query("#deskButton"));
+});
+
+
+test("first-room navigation requires completed door and Hana investigation in either order", () => {
+ for(const hanaFirst of [false,true]){
+  const h=harness();h.room();
+  assert.equal(h.query("#turnLeftButton").disabled,true);
+  h.run("turnFirstRoom(1)");assert.equal(h.state.viewedWall,"front");
+  const hana=()=>{h.click("#hanaButton");h.click('[data-choice="about-hana"]');
+   assert.equal(h.query("#turnRightButton").disabled,true);h.finishDialogue();};
+  const door=()=>{h.click("#doorButton");
+   assert.equal(h.query("#turnRightButton").disabled,true);h.finishDialogue();};
+  (hanaFirst?hana:door)();
+  assert.equal(h.query("#turnRightButton").disabled,true);
+  (hanaFirst?door:hana)();
+  assert.equal(h.query("#turnRightButton").disabled,false);
+  h.click("#turnRightButton");assert.equal(h.state.viewedWall,"right");
+  const resumed=harness(h.saved);resumed.click("#continueButton");
+  assert.equal(resumed.state.viewedWall,"right");
+  assert.equal(resumed.query("#turnLeftButton").disabled,false);
+ }
+});
+
+test("incomplete saved introductions return to the front and keep navigation locked", () => {
+ const h=harness();h.room({questionSeen:true,hanaIntroduced:false,viewedWall:"back"});
+ assert.equal(h.state.viewedWall,"front");assert.equal(h.query("#turnRightButton").disabled,true);
+ h.click("#hanaButton");h.click('[data-choice="about-hana"]');h.click("#roomNextButton");
+ const resumed=harness(h.saved);resumed.click("#continueButton");
+ assert.equal(resumed.query("#turnRightButton").disabled,true);
+});
+
+
+test("opening reveals room one through white and unlocks interaction after the fade", () => {
+ const h=harness();h.run("endOpening()");
+ h.tick(1199);assert.equal(h.game.querySelector(".first-room"),null);
+ h.tick(1);assert.ok(h.query(".first-room-entry-fade"));
+ assert.equal(h.query(".first-room").inert,true);
+ h.tick(1600);assert.equal(h.game.querySelector(".first-room-entry-fade"),null);
+ assert.equal(h.query(".first-room").inert,false);
+ assert.equal(h.query("#turnRightButton").disabled,true);
+});
+
+
+test("phone changes only its LCD while list, detail and next mail retain the same body", () => {
+ const h=harness();h.room({...unlockedItems,phoneIntroductionSeen:true});h.run("showPhoneScreen()");
+ const body=h.query(".flip-phone-body");
+ assert.equal(h.query(".mail-detail").hidden,true);
+ h.click('[data-index="0"]');
+ assert.equal(h.query(".flip-phone-body"),body);
+ assert.equal(h.query(".mail-list").hidden,true);
+ assert.equal(h.query(".mail-detail").hidden,false);
+ assert.match(h.query(".mail-detail").textContent,/帰り道に見た空/);
+ assert.equal(h.document.activeElement,h.query(".phone-list-back"));
+ h.key("Tab");assert.equal(h.document.activeElement,h.query(".phone-next-mail"));
+ h.key("Tab");assert.equal(h.document.activeElement,h.query(".phone-list-back"));
+ h.click(".phone-next-mail");assert.deepEqual(h.state.openedInbox,["inbox-1","inbox-2"]);
+ h.click(".phone-list-back");assert.equal(h.query(".mail-list").hidden,false);
+ assert.equal(h.document.activeElement,h.query('[data-index="1"]'));
+ h.click('[data-folder="sent"]');assert.equal(h.query(".flip-phone-body"),body);
+ assert.equal(h.query(".mail-detail").hidden,true);
+ h.click('[data-index="3"]');assert.equal(h.query(".phone-next-mail").disabled,true);
+ h.key("Escape");assert.equal(h.game.querySelector(".device-overlay"),null);
+});

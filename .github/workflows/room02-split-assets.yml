@@ -1,0 +1,36 @@
+name: Prepare Room 2 desk foreground
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/split_room02.py'
+      - '.github/workflows/room02-split-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install Pillow==11.3.0
+      - name: Split approved art into lossless alpha layers
+        run: python scripts/split_room02.py
+      - name: Commit generated foreground and background
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add images/background/room02/room02_bg_nodesk.png images/background/room02/room02_desk_foreground.png
+          if git diff --cached --quiet; then
+            echo "Already generated"
+          else
+            git commit -m "第2の机を独立前景へ透過分割（原画の画素維持）"
+            git push origin HEAD:main
+          fi

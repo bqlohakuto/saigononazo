@@ -1,0 +1,43 @@
+name: Review room 4 four directions
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'room4.js'
+      - 'room4-zodiac.js'
+      - 'room4-flowers.js'
+      - 'images/exhibits/room04/**'
+      - 'style.css'
+      - 'design-ui.css'
+      - 'index.html'
+      - 'images/background/room04/**'
+      - 'images/characters/hana-v8/looking-up.png'
+      - 'tests/room4-visual.browser.cjs'
+      - 'tests/room4-hana-look-source.test.cjs'
+      - '.github/workflows/room4-visual-review.yml'
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps webkit
+          google-chrome --version
+      - name: Verify gaze triggers for expanded dialogue IDs
+        run: node tests/room4-hana-look-source.test.cjs
+      - name: Check published room 4 on desktop Chrome and landscape WebKit
+        run: node tests/room4-visual.browser.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: room04-review
+          path: artifacts/room04/
+          retention-days: 14

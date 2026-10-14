@@ -1,0 +1,42 @@
+name: Review room 2 visuals
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/room2-visual.browser.cjs'
+      - '.github/workflows/room2-visual-review.yml'
+      - 'room2.js'
+      - 'style.css'
+      - 'index.html'
+      - 'images/background/room02/**'
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps webkit
+          google-chrome --version
+      - name: Wait for deployed revision, capture and test Room 2
+        env:
+          UI_SCREENSHOT_DIR: artifacts/room02
+        run: node tests/room2-visual.browser.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: room02-review
+          path: artifacts/room02/
+          if-no-files-found: warn
+          retention-days: 14

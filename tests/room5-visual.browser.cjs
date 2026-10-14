@@ -52,6 +52,10 @@ const expected=[
         const hana=await page.locator('#r5Hana').boundingBox();
         assert(hana.x>bounds.x+bounds.width*.65,'Hana stands to the right, clear of the mirror');
         assert.equal(await page.locator('#r5Hana').evaluate(el=>getComputedStyle(el).pointerEvents),'auto','Hana remains clickable');
+        await page.locator('#r5Hana').click();
+        await page.waitForSelector('.room-dialog-overlay');
+        await page.evaluate(()=>{for(let i=0;i<100&&document.querySelector('#roomNextButton');i++)document.querySelector('#roomNextButton').click()});
+        assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Hana investigation can be closed');
       }
       await page.screenshot({path:path.join(dir,view+'.png')});
       if(view==='right'){

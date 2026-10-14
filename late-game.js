@@ -69,6 +69,10 @@
     }
   };
 
+  function r5Notice(text,logId){
+    showRoomDialog([{logId,logType:"investigation",speaker:"ト書き",text}]);
+  }
+
   function renderR5(){
     // Retain the confirmed seven-object puzzle and the late-game dialogue flow.
     // Four scene directions share the same coordinate system as the approved 1672x941 artwork.
@@ -124,11 +128,11 @@
     document.getElementById("r5TurnRight").onclick=()=>turn(1);
     game.querySelectorAll(".r5-living-scene [data-item]").forEach(button=>button.onclick=()=>r5Collect(button.dataset.item));
     document.getElementById("r5Board").onclick=r5Board;
-    document.getElementById("r5Hana").onclick=()=>showRoomNotice("ハナは、主人公が部屋を調べる様子を静かに見ている。","r5_hana_watch");
+    document.getElementById("r5Hana").onclick=()=>r5Notice("ハナは、主人公が部屋を調べる様子を静かに見ている。","r5_hana_watch");
     document.getElementById("r5Door").onclick=()=>{
       if(room5State.completed){transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06));return;}
       if(room5State.codeRevealed&&!room5State.doorUnlocked){r5Keypad();return;}
-      showRoomNotice(room5State.doorUnlocked?"扉は開いた。中央パネルのウサギが気になる。":"扉はまだ開かない。","r5_door_status");
+      r5Notice(room5State.doorUnlocked?"扉は開いた。中央パネルのウサギが気になる。":"扉はまだ開かない。","r5_door_status");
     };
     document.getElementById("r5FridgeUpper").onclick=()=>{room5State.fridgeUpperOpen=!room5State.fridgeUpperOpen;saveGame();renderR5();};
     document.getElementById("r5FridgeLower").onclick=()=>{room5State.fridgeLowerOpen=!room5State.fridgeLowerOpen;saveGame();renderR5();};
@@ -136,7 +140,7 @@
     document.getElementById("r5Rabbit")?.addEventListener("click",r5RabbitMemoryStart);
     document.getElementById("r5Next")?.addEventListener("click",()=>transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06)));
     document.getElementById("r5Progress").textContent=room5State.completed?"記憶を取り戻した":room5State.codeRevealed?"暗証番号 8194":room5State.collected.length+"枚入手";
-    setHud("room05","第五の部屋",r5Objective,()=>showRoomNotice("ハナは、主人公が部屋を調べる様子を静かに見ている。","r5_hana_watch"));
+    setHud("room05","第五の部屋",r5Objective,()=>r5Notice("ハナは、主人公が部屋を調べる様子を静かに見ている。","r5_hana_watch"));
   }
 
   function r5Collect(id){

@@ -45,10 +45,10 @@
 .r5-decor-planter{left:3%;top:6%;width:24%;height:54%;background-image:url("images/background/room05/overlays/planter-flowers-blue-butterfly.webp")}
 .r5-decor-planter.is-empty{background-image:url("images/background/room05/overlays/planter-empty.webp")}
 .r5-decor-planter.is-butterfly-gone{filter:saturate(.65)}
-.r5-decor-dining.is-chair-gone{background-image:url("images/background/room05/overlays/dining-set-chair-removed.webp")}
+.r5-decor-dining.is-chair-gone{background-image:url("images/background/room05/overlays/dining-set.webp")}
 .r5-decor-fish{left:15%;top:19%;width:17%;height:13%;background-image:url("images/background/room05/overlays/fish.webp")}
 .r5-decor-squid{left:15%;top:51%;width:17%;height:13%;background-image:url("images/background/room05/overlays/frozen-squid.webp")}
-.r5-decor-cannon{left:12%;top:49%;width:21%;height:22%;background-image:url("images/background/room05/overlays/cannon.webp")}
+.r5-decor-cannon{left:29%;top:39%;width:9%;height:12%;background-image:url("images/background/room05/overlays/cannon.webp")}
 .r5-living-scene[data-view="front"] .r5-decor-mirror,.r5-living-scene[data-view="left"] .r5-decor-dining,.r5-living-scene[data-view="left"] .r5-decor-planter,.r5-living-scene[data-view="back"] .r5-decor-cannon{visibility:visible}
 .r5-living-scene[data-view="right"][data-fridge="upper-open"] .r5-decor-fish,.r5-living-scene[data-view="right"][data-fridge="both-open"] .r5-decor-fish{visibility:visible}
 .r5-living-scene[data-view="right"][data-fridge="lower-open"] .r5-decor-squid,.r5-living-scene[data-view="right"][data-fridge="both-open"] .r5-decor-squid{visibility:visible}
@@ -59,14 +59,14 @@
 .r5-target-board{left:35%;top:72%;width:29%;height:20%;background:linear-gradient(165deg,#eee5ce,#d4af76);border:5px solid #93663a;border-radius:5px;transform:perspective(350px) rotateX(28deg)}
 .r5-board-rabbit{display:grid;place-items:center;width:100%;height:100%;color:#5e543f;font-size:clamp(14px,3vw,35px)}
 .r5-target-mirror{left:7%;top:36%;width:24%;height:34%}
-.r5-target-chair{left:28%;top:56%;width:17%;height:33%}
-.r5-target-flower{left:5%;top:22%;width:12%;height:32%}
-.r5-target-butterfly{left:15%;top:20%;width:11%;height:24%}
+.r5-target-chair{left:18%;top:46%;width:17%;height:43%}
+.r5-target-flower{left:5%;top:23%;width:17%;height:30%}
+.r5-target-butterfly{left:10%;top:14%;width:10%;height:25%}
 .r5-target-fridge-upper{left:15%;top:12%;width:17%;height:29%}
 .r5-target-fridge-lower{left:15%;top:41%;width:17%;height:29%}
 .r5-target-fish{left:15%;top:18%;width:19%;height:18%}
 .r5-target-squid{left:15%;top:49%;width:19%;height:18%}
-.r5-target-cannon{left:12%;top:50%;width:21%;height:20%}
+.r5-target-cannon{left:27%;top:38%;width:13%;height:18%}
 .r5-target-keypad{left:62%;top:27%;width:8%;height:19%;border:1px solid #bfb49b;background:repeating-linear-gradient(0deg,#404944 0 5px,#a8aba4 5px 8px);border-radius:3px}
 .r5-target-rabbit{left:43%;top:74%;width:14%;height:14%}
 .r5-target-next{left:40%;top:13%;width:21%;height:56%}

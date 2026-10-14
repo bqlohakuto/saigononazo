@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save --no-package-lock jsdom@26 playwright@1.56.1
-      - run: node --test tests/room6-logic.test.cjs tests/cache-version.test.cjs
+      - run: node --test tests/room6-logic.test.cjs tests/room6-memory.test.cjs tests/cache-version.test.cjs
       - run: node tests/room6-flow.test.cjs
       - run: npx playwright install --with-deps chromium webkit
       - name: Wait for matching published code

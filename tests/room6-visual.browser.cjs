@@ -9,7 +9,7 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    await ctx.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
    const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(base+'?r6review='+Date.now(),{waitUntil:'load'});
-   const assets=['white','black','green','walls','inner','lever-neutral','lever-white','lever-black','map-paper-v2'];
+   const assets=['white','black','green','clean-room-v2','walls','inner','lever-neutral','lever-white','lever-black','map-paper-v2'];
    await page.evaluate(async names=>{for(const n of names){const im=new Image();im.src='images/background/room06/'+n+'.webp';await im.decode();if(im.naturalWidth<100)throw new Error('bad asset '+n)}},assets);
    const finish=()=>page.evaluate(()=>{for(let i=0;i<800&&document.querySelector('#roomNextButton');i++)document.querySelector('#roomNextButton').click()});
    await page.evaluate(()=>{settings.instantText=true;showSixthRoom({introSeen:true})});
@@ -24,6 +24,12 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    await page.locator('.r6-test-guide .device-close').click();
    await page.evaluate(()=>showSixthRoom({introSeen:true}));assert.equal(await page.locator('#r6TestGuide').count(),0);
    await page.screenshot({path:path.join(dir,'a8-white.png')});
+   assert((await page.locator('.r6-floor').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('clean-room-v2.webp'));
+   for(const id of ['D4','H1','D1']){
+    await page.evaluate(id=>showSixthRoom({introSeen:true,current:id}),id);
+    await page.screenshot({path:path.join(dir,'clean-room-'+id+'.png')});
+   }
+   await page.evaluate(()=>showSixthRoom({introSeen:true}));
    await page.emulateMedia({reducedMotion:'no-preference'});
    await page.mouse.click(scene.x+scene.width*.5,scene.y+scene.height*.38);
    await page.waitForSelector('.r6-travel-shade');
@@ -79,7 +85,14 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    await page.locator('#r6MapToggle').click();assert.equal(await page.locator('.r6-map').count(),0);await page.locator('#r6MapToggle').click();
    for(const [i,id] of ['D2','G5','G6','G3','C8','C2','H2'].entries()){
     await page.evaluate(()=>{room6State.mapExpanded=false;showSixthRoom(room6State)});
-    await page.locator('[data-cell="'+id+'"]').click();await page.locator(i%2===0?'#r6White':'#r6Black').click();await finish();
+    await page.locator('[data-cell="'+id+'"]').click();await page.locator(i%2===0?'#r6White':'#r6Black').click();
+    if(id==='H2'){
+     await page.evaluate(()=>{for(let n=0;n<800&&document.querySelector('#roomNextButton')&&!document.querySelector('#roomMessage')?.textContent.includes('今日ね、新しいの');n++)document.querySelector('#roomNextButton').click()});
+     assert((await page.locator('#roomMessage').innerText()).includes('今日ね、新しいの'));
+     assert.equal(await page.locator('.room-dialog-overlay').getAttribute('data-memory-stage'),'expressive');
+     await page.screenshot({path:path.join(dir,'memory-first-half.png')});
+    }
+    await finish();
    }
    assert(await page.evaluate(()=>room6State.completed&&room6State.board.every(c=>c==='W')));
    assert.equal(await page.locator('#r6Next').count(),1);

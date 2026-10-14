@@ -1,14 +1,15 @@
 /* Fixed-view room cells; approved pixel assets remain separate from live state. */
 #game .r6-full{position:absolute;inset:0;padding:0;overflow:hidden;background:#dad9df}
-.r6-scene{position:absolute;inset:0;isolation:isolate;--r6-bg:url('images/background/room06/white.webp')}
-.r6-scene[data-color=black]{--r6-bg:url('images/background/room06/black.webp')}
-.r6-scene[data-color=green]{--r6-bg:url('images/background/room06/green.webp')}
-.r6-floor,.r6-walls{position:absolute;inset:0;pointer-events:none;background:var(--r6-bg) center/100% 100%;image-rendering:pixelated}
-.r6-walls{background-image:url('images/background/room06/walls.webp');clip-path:polygon(0 0,100% 0,100% 79%,81% 61%,18% 61%,0 79%)}
+.r6-scene{position:absolute;inset:0;isolation:isolate;--r6-floor-tint:#fff}
+.r6-scene[data-color=black]{--r6-floor-tint:#282831}
+.r6-scene[data-color=green]{--r6-floor-tint:#37815b}
+.r6-floor,.r6-walls{position:absolute;inset:0;pointer-events:none;background:url('images/background/room06/clean-room-v2.webp') center/100% 100%;image-rendering:pixelated}
+.r6-floor{background-color:var(--r6-floor-tint);background-blend-mode:multiply}
+.r6-walls{clip-path:polygon(0 0,100% 0,100% 78.5%,81% 60.7%,18.5% 60.7%,0 77.5%)}
 #game .r6-door{position:absolute;inset:0;padding:0;border:0;border-radius:0;background:url('images/background/room06/green.webp') center/100% 100%;image-rendering:pixelated;cursor:pointer;min-height:0;box-shadow:none}
-#game .r6-door-north{clip-path:polygon(41.6% 16%,58.1% 16%,58.1% 61.5%,41.6% 61.5%)}
-#game .r6-door-east{clip-path:polygon(87% 13.3%,97% 6.5%,97% 75%,87% 66%)}
-#game .r6-door-west{background-image:url('images/background/room06/inner.webp');clip-path:polygon(2.5% 11%,12.5% 17%,12.5% 66%,2.5% 75%)}
+#game .r6-door-north{clip-path:polygon(41.75% 16.4%,58% 16.4%,58% 62%,41.75% 62%)}
+#game .r6-door-east{clip-path:polygon(87.1% 14.3%,97% 6.9%,97% 77.3%,87.1% 69.5%)}
+#game .r6-door-west{background-image:url('images/background/room06/inner.webp');clip-path:polygon(2.9% 8.3%,12.3% 15.3%,12.3% 69.4%,2.9% 76%)}
 #game .r6-door-south{inset:auto auto 0 36%;width:28%;height:7%;min-height:36px;clip-path:none;background:rgba(247,245,238,.86);border:2px solid #858089;border-bottom:0}
 .r6-door-south::after{content:'▼';color:#57505c}
 #game .r6-door:hover,#game .r6-door:focus-visible{filter:brightness(1.14)}

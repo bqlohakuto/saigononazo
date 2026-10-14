@@ -789,6 +789,7 @@
       line("r6_intro_01","ト書き","白い床の小部屋。いくつもの扉が、隣の部屋へ続いている。"),
       line("r6_intro_02","問題文","最後の影が消える時、閉ざされた道は開かれる。"),
       line("r6_intro_03","ト書き","開始地点はA8。今いる床は白い。")]);}
+    else if(!room6State.memorySeen&&room6State.moves.length===9&&room6State.board.every(c=>c==='W'))r6Complete();
     else if(room6State.othelloKnown&&!room6State.mapComplete)r6RevealMap();
   };
   function r6MapMarkup(){

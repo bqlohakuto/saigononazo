@@ -93,7 +93,9 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   const route=['D1','H4','D2','G5','G6','G3','C8','C2','H2'];
   for(let i=0;i<route.length;i++){
     if(q('.r6-scene').dataset.current!==route[i])click('[data-cell="'+route[i]+'"]');
-    click(i%2===0?'#r6White':'#r6Black');finish();
+    click(i%2===0?'#r6White':'#r6Black');
+    if(i===8){run('showSixthRoom('+JSON.stringify(save().rooms.room06)+')');assert.ok(q('#roomNextButton'),'interrupted winning recollection resumes after load');}
+    finish();
     if(i===3){const saved=save().rooms.room06;run('showSixthRoom('+JSON.stringify(saved)+')');assert.deepEqual(save().rooms.room06.board,saved.board,'save/load retains flips and map');}
   }
   assert.equal(save().rooms.room06.completed,true);

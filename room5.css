@@ -145,8 +145,8 @@
 /* Approved room-scale furniture and wall-mounted puzzle, 2026-10-14. */
 .r5-decor-dining{inset:auto;left:16%;top:24%;width:68%;height:68%;background-size:100% 100%}
 .r5-target-chair{left:19%;top:38%;width:17%;height:48%}
-.r5-decor-cannon{left:32%;top:34%;width:6%;height:9%}
-.r5-target-cannon{left:32%;top:35%;width:8%;height:12%}
+.r5-decor-cannon{left:32%;top:37.8%;width:6%;height:9%}
+.r5-target-cannon{left:32%;top:37%;width:8%;height:12%}
 .r5-target-board{left:5%;top:14%;width:27%;height:28%;box-sizing:border-box;transform:none;border:4px solid #93663a;border-radius:3px;background:#cba56e;padding:4px;box-shadow:0 3px 5px #573e3333}
 .r5-board-wall-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:3px;width:100%;height:100%}
 .r5-board-wall-grid>span{display:grid;place-items:center;min-width:0;min-height:0;border:2px solid #9b7950;background:#f9f5e8;color:#66513c}

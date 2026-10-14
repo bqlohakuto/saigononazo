@@ -66,3 +66,5 @@
  #game .r6-full .r6-map-paper.expanded .r6-cell{width:32px;height:32px;font-size:18px}
  .r6-map-scroll{max-height:calc(48dvh - 35px)}
 }
+#game .r6-full #r6Hana{left:63%;right:auto;top:29%;bottom:auto;width:14%;height:57%;background-size:contain;background-repeat:no-repeat;background-position:center bottom;pointer-events:auto;z-index:2}
+#game .r6-full #r6Hana::before{display:none}

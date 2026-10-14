@@ -86,3 +86,35 @@
  .r5-room-wrap{width:min(100%,calc((100dvh - 48px) * 1672 / 941))}
  .r5-direction-nav button{width:35px;height:40px}
 }
+
+
+/* Counter art / collectible-panel presentation: labels remain available to AT. */
+.r5-board-panel{box-sizing:border-box;width:min(850px,96vw);max-height:90dvh;overflow-y:auto}
+.r5-board-panel .r5-counter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(5px,1vw,12px);margin:10px 0 12px}
+.r5-board-panel .r5-counter-slot{position:relative;aspect-ratio:1/1;min-height:0;min-width:0;overflow:hidden;display:grid;place-items:center;padding:clamp(4px,1vw,10px);border:3px solid #88684b;background:#fffcf2;border-radius:7px;box-shadow:inset 0 0 0 3px #ddc4a4}
+.r5-board-panel .r5-counter-slot>svg{display:block;width:75%;height:75%;stroke:#756550}
+.r5-board-panel .r5-counter-slot.filled{border-color:#a88443;background:#fffae9;box-shadow:0 0 12px #ebd28b}
+.r5-board-panel .r5-fixed-rabbit,.r5-board-panel .r5-picture-placed{position:absolute;inset:5%;display:grid;place-items:center;background:#fffcf08c}
+.r5-board-panel .r5-fixed-rabbit svg{width:70%;height:70%;stroke:#75604c}
+.r5-board-panel .r5-item-picture{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.r5-board-panel .r5-art-fallback{display:block;width:82%;height:82%}
+.r5-board-panel .r5-art-fallback svg{width:100%;height:100%;stroke:#67513a}
+.r5-board-panel .r5-inventory{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.r5-board-panel .r5-inventory-tile{position:relative;display:grid;place-items:center;width:clamp(55px,10vw,90px);height:clamp(55px,10vw,90px);min-width:0;min-height:0;padding:5px;border:2px solid #af916c;border-radius:4px;background:#f9f5e9}
+.r5-board-panel .r5-inventory-tile.selected{outline:3px solid #8b7651;background:#eee2cc}
+.r5-board-panel .r5-inventory-tile .r5-art-fallback{width:78%;height:78%}
+.r5-board-panel .r5-board-feedback{min-height:1.4em;font-size:13px;text-align:center;margin:6px}
+.r5-board-panel>h2{margin:0;text-align:center;font-size:18px}
+.r5-board-panel>h3{font-size:13px;margin:6px 0}
+.r5-board-panel .r5-problem{padding:5px 8px;margin:5px 0;font-size:12px;font-weight:400}
+.r5-living-scene.has-r5-background .r5-room-door,.r5-living-scene.has-r5-background .r5-room-shelf,.r5-living-scene.has-r5-background .r5-room-fridge,.r5-living-scene.has-r5-background .r5-room-tv{display:none}
+@media (orientation:landscape) and (max-height:480px){
+ .r5-board-panel{padding:6px 14px;max-height:90dvh}
+ .r5-board-panel .r5-counter-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+ .r5-board-panel .r5-counter-slot{width:min(15dvh,100%);min-width:0;justify-self:center;padding:2px;border-width:2px}
+ .r5-board-panel .r5-inventory-tile{width:clamp(32px,12dvh,60px);height:clamp(32px,12dvh,60px)}
+ .r5-board-panel .r5-inventory{gap:4px}
+ .r5-board-panel>h2,.r5-board-panel>h3{font-size:11px}
+ .r5-board-panel .r5-problem{padding:2px;font-size:10px;margin:3px}
+ .r5-board-panel .r5-counter-grid{margin:4px 0}
+}

@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - 'images/background/room05/**'
-      - '.github/workflows/room05-published-review.yml'
 permissions:
   contents: read
 jobs:

@@ -16,6 +16,13 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    assert.equal(await page.locator('[data-dest]').count(),2);assert.equal(await page.locator('.r6-map').count(),0);
    const scene=await page.locator('.r6-scene').boundingBox();assert(scene.width>600&&scene.height>250);
    const dir=path.join('artifacts','room06',spec.name);fs.mkdirSync(dir,{recursive:true});
+   await page.evaluate(()=>startRoomTest('room06'));await finish();
+   await page.locator('#r6TestGuide').click();
+   assert.equal(await page.locator('.r6-test-guide tbody tr').count(),9);
+   const guideBox=await page.locator('.r6-test-guide').boundingBox();assert(guideBox.y>=0&&guideBox.y+guideBox.height<=spec.viewport.height+1);
+   await page.screenshot({path:path.join(dir,'test-solution.png')});
+   await page.locator('.r6-test-guide .device-close').click();
+   await page.evaluate(()=>showSixthRoom({introSeen:true}));assert.equal(await page.locator('#r6TestGuide').count(),0);
    await page.screenshot({path:path.join(dir,'a8-white.png')});
    await page.emulateMedia({reducedMotion:'no-preference'});
    await page.mouse.click(scene.x+scene.width*.5,scene.y+scene.height*.38);

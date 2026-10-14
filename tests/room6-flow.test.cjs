@@ -29,6 +29,12 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 
   // Room 6: authored board, live map, legal Othello and late-game transition.
   click('#testRoomButton');click('[data-room="room06"]');finish();
+  assert.ok(q('#r6TestGuide'));
+  const guideState=save().rooms.room06;
+  click('#r6TestGuide');assert.equal(w.document.querySelectorAll('.r6-test-guide tbody tr').length,9);
+  assert.equal(q('.r6-test-guide tbody tr:last-child td:nth-child(2)').textContent,'H2');
+  click('.r6-test-guide .device-close');assert.deepEqual(save().rooms.room06,guideState);
+  run('showSixthRoom('+JSON.stringify(guideState)+')');assert.ok(q('#r6TestGuide'),'test guide survives saved state');
   assert.equal(save().currentScene,'room06');
   assert.equal(q('.r6-scene').dataset.color,'white');
   assert.equal(q('.r6-map'),null,'map not revealed before handoff');
@@ -70,6 +76,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(save().rooms.room06.visited.includes('G6'),true);
   const ids=Array.from({length:64},(_,i)=>String.fromCharCode(65+i%8)+(Math.floor(i/8)+1));
   run('showSixthRoom('+JSON.stringify({introSeen:true,visited:ids,current:'D1',interview4:true,mapEvent:true,othelloKnown:true,mapComplete:true})+')');
+  assert.equal(q('#r6TestGuide'),null,'normal play does not show the test solution');
   click('#gameplayHanaButton');assert.equal(q('[data-r6-hint="mechanism"]'),null);assert.equal(q('[data-r6-hint="hint-2"]'),null);click('[data-r6-hint="hint-1"]');finish();
   for(const level of [2,3]){click('#gameplayHanaButton');click('[data-r6-hint="hint-'+level+'"]');finish();}
   assert.equal(save().rooms.room06.hintLevel,3);

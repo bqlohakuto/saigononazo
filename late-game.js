@@ -730,6 +730,7 @@
       greenSeen:visited.some(id=>R6_INITIAL[r6Index(id)]==="E"),interview4:!!s.interview4,mapEvent:!!s.mapEvent,
       mapOpen:s.mapOpen!==false,mapExpanded:!!s.mapExpanded,mapComplete:!!s.mapComplete,othelloKnown:!!s.othelloKnown,
       hintLevel:Math.min(3,Math.max(0,Math.floor(Number(s.hintLevel)||0))),
+      testGuide:!!s.testGuide,
       memorySeen:!!s.memorySeen,completed:!!s.completed,introSeen:!!s.introSeen};
   }
   let r6Moving=false,r6TravelGeneration=0;
@@ -773,6 +774,13 @@
       });
     });
   }
+  function r6ShowTestGuide(){
+    if(r6Busy()||!room6State.testGuide)return;
+    const route=['D1','H4','D2','G5','G6','G3','C8','C2','H2'];
+    const overlay=document.createElement('div');overlay.className='device-overlay r6-test-guide-overlay';
+    overlay.innerHTML='<section class="menu-panel r6-test-guide" aria-label="オセロの解き方（テスト用）"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>オセロの解き方（テスト用）</h2><div class="r6-guide-scroll"><p>まず6部屋以上を訪れて地図を受け取り、A1・H1・H8まで探索します。白・黒・緑の床を見つけると、オセロだと分かり全体地図が開きます。</p><p>最初の盤面から、下の順番で各部屋のレバーを倒します。途中まで操作済みならRESETで戻してください。地図から部屋を選んで移動できます。</p><table><thead><tr><th>手</th><th>部屋</th><th>色</th><th>レバー</th></tr></thead><tbody>'+route.map((id,i)=>'<tr><td>'+(i+1)+'</td><td>'+id+'</td><td>'+(i%2===0?'白':'黒')+'</td><td>'+(i%2===0?'左':'右')+'</td></tr>').join('')+'</tbody></table><p>9手目で全て白になり、H2の右側に次の扉が現れます。</p></div></section>';
+    game.appendChild(overlay);activateDeviceModal(overlay,'r6TestGuide',overlay.querySelector('.device-close'));
+  }
   window.showSixthRoom=function(savedState){
     r6TravelGeneration++;r6Moving=false;game.classList.remove('r6-map-revealing');
     Dialogue.stop();currentScene="room06";room6State=normalizeR6(savedState);renderR6();saveGame();
@@ -811,6 +819,7 @@
       (y<7?door('south',id[0]+(y+2)):'')+
       '<button class="r6-wall-text" id="r6WallText" aria-label="壁の問題文">最後の影が消える時、<br>閉ざされた道は開かれる</button>'+
       '<button class="r6-hana hana-v2-world" id="r6Hana" aria-label="ハナ"></button>'+
+      (room6State.testGuide?'<button class="r6-test-guide-button" id="r6TestGuide">解き方（テスト用）</button>':'')+
       (lever?'<div class="r6-lever" data-state="'+state+'"><img src="images/background/room06/lever-'+state+'.webp" alt=""><button id="r6White" aria-label="レバーを左へ倒して白にする"></button><button id="r6Black" aria-label="レバーを右へ倒して黒にする"></button></div>':'')+
       (room6State.othelloKnown?'<nav class="r6-history"><span>'+room6State.moves.length+'/9 · '+(room6State.moves.length%2===0?'白':'黒')+'</span><button id="r6Undo" '+(!room6State.moves.length||room6State.completed?'disabled':'')+'>UNDO</button><button id="r6Reset" '+(room6State.completed?'disabled':'')+'>RESET</button></nav>':'')+
       r6MapMarkup()+'</section></main>';
@@ -823,6 +832,7 @@
     game.querySelector('#r6Undo')?.addEventListener('click',()=>r6History(false));
     game.querySelector('#r6Reset')?.addEventListener('click',()=>r6History(true));
     game.querySelector('#r6Hana').onclick=r6Hana;
+    game.querySelector('#r6TestGuide')?.addEventListener('click',r6ShowTestGuide);
     game.querySelector('#r6WallText').onclick=()=>showRoomDialog([line('r6_wall','問題文','最後の影が消える時、閉ざされた道は開かれる。')]);
     game.querySelector('#r6Next')?.addEventListener('click',()=>transition('第七の部屋へ',()=>showSeventhRoom(roomStates.room07)));
     setHud('room06','第六の部屋',r6Objective,r6Hana);

@@ -218,12 +218,13 @@ function showTestRoomPicker(){
 }
 function startRoomTest(scene){
  clearSave();playerName=playerName||"主人公";
+ roomStates.room06={testGuide:true};
  if(scene==="room01"){showFirstRoom();return}
  if(scene==="room02"){showSecondRoom();return}
  if(scene==="room03"){showThirdRoom();return}
  if(scene==="room04"){showFourthRoom();return}
  if(scene==="room05"){showFifthRoom();return}
- if(scene==="room06"){showSixthRoom();return}
+ if(scene==="room06"){showSixthRoom(roomStates.room06);return}
  if(scene==="room07"){showSeventhRoom();return}
  if(scene==="room08"){showEighthRoom();return}
  showTitle("開始する部屋を選べませんでした。");

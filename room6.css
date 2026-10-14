@@ -85,3 +85,12 @@
 #game.r6-map-revealing .r6-map{animation:r6MapDraw 650ms steps(8,end) both}
 @keyframes r6MapDraw{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
 @media(prefers-reduced-motion:reduce){#game.r6-map-revealing .r6-map{animation:none}}
+
+#game .r6-test-guide-button{position:absolute;left:2%;top:3%;z-index:6;padding:8px 12px;background:#fffdf5;color:#493f2b;border:1px solid #b18d3f;font:inherit;cursor:pointer}
+#game .r6-test-guide{width:min(640px,94%);max-height:90%;display:flex;flex-direction:column;background:#fffdf5;color:#493f2b;padding:20px;border:2px solid #b18d3f;position:relative}
+#game .r6-test-guide h2{font-size:20px;margin:0 40px 10px 0}
+#game .r6-guide-scroll{overflow-y:auto;min-height:0;line-height:1.6;font-size:15px}
+#game .r6-guide-scroll p{margin:0 0 12px}
+#game .r6-guide-scroll table{width:100%;border-collapse:collapse;margin-bottom:12px;text-align:center}
+#game .r6-guide-scroll th,#game .r6-guide-scroll td{border:1px solid #d4c29b;padding:5px}
+@media(max-height:500px){#game .r6-test-guide{padding:12px;max-height:92%}#game .r6-test-guide h2{font-size:16px}#game .r6-guide-scroll{font-size:12px}#game .r6-test-guide-button{padding:5px 8px;font-size:12px}}

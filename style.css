@@ -319,3 +319,5 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 @media(prefers-reduced-motion:reduce){#game .r4-panel-stack img{transition:none}}
 
 #game .r4-panel-ui{box-sizing:border-box;min-height:0}
+
+@media(max-height:500px){#game .r4-panel-stack{width:min(28dvh,120px)}#game .r4-panel-ui .r4-glass{width:min(100%,52px)}#game .r4-panel-ui{padding-top:28px}}

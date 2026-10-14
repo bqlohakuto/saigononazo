@@ -103,6 +103,19 @@
       (room5State.completed?'<button type="button" class="r5-scene-target r5-target-next" id="r5Next" aria-label="第六の部屋へ進む"></button>':'')+
       '</section><nav class="r5-direction-nav" aria-label="部屋を見回す"><button type="button" id="r5TurnLeft" aria-label="左を向く">◀</button><button type="button" id="r5TurnRight" aria-label="右を向く">▶</button></nav></div>'+
       '<div class="r5-visually-hidden" id="r5Objects"></div><p class="r5-visually-hidden" id="r5Progress"></p></main>';
+    // Use the authored fallback scenery only when the original approved background is absent.
+    const backgrounds={
+      front:"front.webp",left:"left-window.webp",back:"back.webp",
+      right:"right-kitchen-"+fridgeState+".webp"
+    };
+    if(typeof Image!=="undefined"){
+      const backgroundProbe=new Image();
+      backgroundProbe.onload=()=>{
+        const scene=game.querySelector("#r5Scene");
+        if(scene&&scene.dataset.view===view&&scene.dataset.fridge===fridgeState)scene.classList.add("has-r5-background");
+      };
+      backgroundProbe.src="images/background/room05/"+backgrounds[view];
+    }
     // Visually hidden inventory is not interactive: scene hotspots are the only item controls.
     const order=['front','right','back','left'];
     function turn(delta){const index=order.indexOf(room5State.view);room5State.view=order[(index+delta+4)%4];saveGame();renderR5();}

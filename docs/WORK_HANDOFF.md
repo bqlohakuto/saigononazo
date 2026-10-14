@@ -686,3 +686,11 @@
 
 - 公開UI操作でハナ／未解錠の扉の既存通知が旧exploreStatusを対象としており表示されないことも確認。第5の通知を共通会話枠へ接続（文言・LOG IDは維持）。ハナへのクリックを既存ブラウザ検証へ追加。キャッシュ20261014-room05-approved-art-03。
 - 公開検証の更新前CSS読込を防ぐため、画像に加えてチェックアウト時のindex.htmlとroom5.cssのSHA-256がPages上のバイト列と一致してから検証を開始する。
+
+
+### 第5の正式画像・最終公開検証成功
+
+- 最終実装コミット: 75e89dacfdf7cdf0e2da0c08aeaf63888a6aac08。Pages成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38517081308 。
+- 公開PC Chrome／横向きWebKitで正式画像21枚の取得・デコード、四方向の画面内収まり、ハナの右側配置・クリックから会話表示と終了、冷蔵庫4状態と魚を残したまま閉じる操作、謎用7枚／8枠の表示を検証成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38517081026 。
+- 第5全進行の回帰検証成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38517081047 。公開クラウドブラウザでも正面／右／奥／左の正式画像と冷蔵庫閉操作、オートセーブの方向復帰を確認。iPhone実機は未確認。
+- 元素材の同一性は維持。素材原本・未採用案は保存済み。花／蝶の片方だけ消す専用画像、パネル完成時の8194の線画、および旧台詞の家具名との同期は前節の残作業のまま。今回の正式画像実装・公開は完了。

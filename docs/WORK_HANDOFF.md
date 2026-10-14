@@ -608,3 +608,10 @@
 - 初期値・正解判定・入手先・保存形式は維持。構文・キャッシュ・既存の見上げソースチェック成功。中央5層の存在・画面内収まり・初期/操作後の全層と個別素材の回転同期を既存PC/横向きWebKit検証へ追加。キャッシュ20261014-room04-panel-stack-01。
 
 - 最初のPC検証は成功。横向きWebKitではモーダル枠の画面内収まり検証が失敗したため、最大寸法へpadding/borderを含めるbox-sizing:border-boxを明示。キャッシュ20261014-room04-panel-stack-02で再検証。
+
+
+### 中央重ね合わせ表示・最終検証成功
+
+- 横向きWebKitではゲーム表示領域内の縦方向余白も必要だったため、短い画面の中央表示を28dvh・下段素材を52px上限に調整。44pxの回転ボタンとライト操作は維持。
+- 最終キャッシュ20261014-room04-panel-stack-03。Pages公開成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38495646599 。
+- PC Chrome／横向きWebKitの中央5層、初期・操作後の全層回転同期、画面内の中央表示と全操作ボタン、正解から回想まで成功: https://github.com/bqlohakuto/saigononazo/actions/runs/38495650863 。iPhone実機未確認。

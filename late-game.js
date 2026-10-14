@@ -681,76 +681,117 @@
 
   // ---------- Room 6 ----------
   window.room6State=window.room6State;
-  const R6_ROUTE=["D1","H4","D2","G5","G6","G3","C8","C2","H2"];
-  function normalizeR6(saved){
-    const s=saved&&typeof saved==="object"?saved:{};
-    return {
-      visited:Array.isArray(s.visited)?[...new Set(s.visited)]:["A8"],current:typeof s.current==="string"?s.current:"A8",
-      greenSeen:!!s.greenSeen,interview4:!!s.interview4,mapEvent:!!s.mapEvent,
-      othelloKnown:!!s.othelloKnown,moves:Array.isArray(s.moves)?[...s.moves]:[],
-      memorySeen:!!s.memorySeen,completed:!!s.completed,introSeen:!!s.introSeen
-    };
+  const R6_INITIAL=[
+    "WWGEWWWW","WGEEWGGE","WWGWGWEG","WWWWWWWE",
+    "WWWWGWEW","WWWWGWEG","WGGGWWGW","WGEWWWWW"
+  ].join("");
+  const r6Valid=id=>typeof id==="string"&&/^[A-H][1-8]$/.test(id);
+  const r6Index=id=>(Number(id[1])-1)*8+id.charCodeAt(0)-65;
+  const r6Color=value=>({W:"white",G:"black",E:"green"})[value];
+  function r6Place(board,id,color){
+    if(!r6Valid(id)||board[r6Index(id)]!=="E")return null;
+    const x=id.charCodeAt(0)-65,y=Number(id[1])-1,other=color==="W"?"G":"W",flips=[];
+    for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
+      if(!dx&&!dy)continue;
+      let xx=x+dx,yy=y+dy;const ray=[];
+      while(xx>=0&&xx<8&&yy>=0&&yy<8&&board[yy*8+xx]===other){ray.push(yy*8+xx);xx+=dx;yy+=dy}
+      if(ray.length&&xx>=0&&xx<8&&yy>=0&&yy<8&&board[yy*8+xx]===color)flips.push(...ray);
+    }
+    if(!flips.length)return null;
+    const next=board.slice();next[r6Index(id)]=color;flips.forEach(i=>next[i]=color);return next;
   }
+  function r6Replay(moves){
+    let board=R6_INITIAL.split("");const accepted=[];
+    for(const raw of moves.slice(0,9)){
+      const id=typeof raw==="string"?raw:raw?.id,color=accepted.length%2===0?"W":"G";
+      const next=r6Place(board,id,color);if(!next)break;
+      board=next;accepted.push({id,color});
+    }
+    return {board,moves:accepted};
+  }
+  function normalizeR6(saved){
+    const s=saved&&typeof saved==="object"?saved:{},visited=[...new Set(["A8",...(Array.isArray(s.visited)?s.visited:[]).filter(r6Valid)])];
+    const current=r6Valid(s.current)?s.current:"A8";if(!visited.includes(current))visited.push(current);
+    const replay=r6Replay(Array.isArray(s.moves)?s.moves:[]);
+    return {visited,current,board:replay.board,moves:replay.moves,
+      edges:Array.isArray(s.edges)?s.edges.filter(e=>Array.isArray(e)&&e.length===2&&e.every(r6Valid)&&r6Neighbor(...e)):[],
+      seenColors:[...new Set([...(Array.isArray(s.seenColors)?s.seenColors:[]).filter(c=>["W","G","E"].includes(c)),...visited.map(id=>R6_INITIAL[r6Index(id)])])],
+      greenSeen:visited.some(id=>R6_INITIAL[r6Index(id)]==="E"),interview4:!!s.interview4,mapEvent:!!s.mapEvent,
+      mapOpen:s.mapOpen!==false,mapExpanded:!!s.mapExpanded,othelloKnown:!!s.othelloKnown,
+      memorySeen:!!s.memorySeen,completed:!!s.completed,introSeen:!!s.introSeen};
+  }
+  const r6Busy=()=>!!game.querySelector('.room-dialog-overlay,.device-overlay,.gameplay-panel-overlay');
+  const r6Objective=()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"部屋を探索し、構造と床の色を確かめる";
+  const r6Hana=()=>showRoomDialog([line("r6_hana_watch","ト書き","ハナは少し離れたところから探索を見守っている。")]);
   window.showSixthRoom=function(savedState){
     Dialogue.stop();currentScene="room06";room6State=normalizeR6(savedState);renderR6();saveGame();
-    setHud("room06","第六の部屋",()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"部屋を探索し、構造と床の色を確かめる",()=>showRoomNotice("ハナは少し離れたところから探索を見守っている。","r6_hana_watch"));
-    if(!room6State.introSeen){
-      room6State.introSeen=true;saveGame();
-      showRoomDialog([
-        pending("第6の部屋導入の具体的なト書き。A8開始・白床・壁文は確定。"),
-        line("r6_intro_01","ト書き","白い床の小部屋。いくつもの扉が、隣の部屋へ続いている。"),
-        line("r6_intro_02","問題文","最後の影が消える時、閉ざされた道は開かれる。"),
-        line("r6_intro_03","ト書き","開始地点はA8。今いる床は白い。")
-      ]);
-    }
+    if(!room6State.introSeen){room6State.introSeen=true;saveGame();showRoomDialog([
+      pending("第6の部屋導入の具体的なト書き。A8開始・白床・壁文は確定。"),
+      line("r6_intro_01","ト書き","白い床の小部屋。いくつもの扉が、隣の部屋へ続いている。"),
+      line("r6_intro_02","問題文","最後の影が消える時、閉ざされた道は開かれる。"),
+      line("r6_intro_03","ト書き","開始地点はA8。今いる床は白い。")]);}
   };
+  function r6MapMarkup(){
+    if(!room6State.mapEvent)return "";
+    if(!room6State.mapOpen)return '<button class="r6-map-toggle" id="r6MapToggle" aria-label="地図を開く">地図</button>';
+    const points=room6State.visited.map(id=>[id.charCodeAt(0)-65,Number(id[1])-1]);
+    const minX=Math.min(...points.map(p=>p[0])),maxX=Math.max(...points.map(p=>p[0])),minY=Math.min(...points.map(p=>p[1])),maxY=Math.max(...points.map(p=>p[1]));
+    const cols=maxX-minX+1,rows=maxY-minY+1;
+    let cells=room6State.visited.map(id=>{
+      const x=id.charCodeAt(0)-65-minX,y=Number(id[1])-1-minY;
+      return '<button class="r6-cell '+r6Color(room6State.board[r6Index(id)])+(id===room6State.current?' current':'')+'" data-cell="'+id+'" style="grid-column:'+(x+1)+';grid-row:'+(y+1)+'" aria-label="'+(room6State.othelloKnown?id+'：':'')+r6Color(room6State.board[r6Index(id)])+'の部屋" '+(id===room6State.current?'aria-current="location"':'')+'>'+(id===room6State.current?'<span aria-hidden="true">▲</span>':'')+'</button>';
+    }).join('');
+    const paths=room6State.edges.map(([a,b])=>{
+      const ax=a.charCodeAt(0)-65-minX+.5,ay=Number(a[1])-1-minY+.5,bx=b.charCodeAt(0)-65-minX+.5,by=Number(b[1])-1-minY+.5;
+      return '<line x1="'+ax+'" y1="'+ay+'" x2="'+bx+'" y2="'+by+'"/>';
+    }).join('');
+    return '<aside class="r6-map-paper'+(room6State.mapExpanded?' expanded':'')+'" aria-label="探索地図"><div class="r6-map-tools"><button id="r6MapExpand" aria-label="地図を'+(room6State.mapExpanded?'縮小':'拡大')+'">'+(room6State.mapExpanded?'−':'＋')+'</button><button id="r6MapToggle" aria-label="地図を畳む">×</button></div><div class="r6-map-scroll"><div class="r6-map" style="--cols:'+cols+';--rows:'+rows+'"><svg class="r6-map-lines" viewBox="0 0 '+cols+' '+rows+'" preserveAspectRatio="none" aria-hidden="true">'+paths+'</svg>'+cells+'</div></div></aside>';
+  }
   function renderR6(){
-    let cells="";
-    for(let r=1;r<=8;r++)for(let c=0;c<8;c++){
-      const id=String.fromCharCode(65+c)+r;
-      const known=id==="A8"?"white":id==="B8"?"black":room6State.visited.includes(id)?"visited":"unknown";
-      const current=id===room6State.current?" current":"";
-      cells+='<button class="r6-cell '+known+current+'" data-cell="'+id+'"><span>'+id+'</span></button>';
-    }
-    game.innerHTML='<main class="room late-room"><header class="room-header"><p class="room-label">第六の部屋</p><p class="room-color-status">オセロの部屋</p></header>'+
-      '<section class="late-stage othello"><div class="r6-map" aria-label="探索地図">'+cells+'</div>'+
-      '<div class="late-side"><p>訪問 '+room6State.visited.length+' / 64</p>'+
-      '<button class="late-sub-action" id="r6Green">【未確定】緑床を確認</button>'+
-      (room6State.othelloKnown?'<button class="late-main-action" id="r6Play">オセロを操作する</button>':'')+
-      (room6State.completed?'<button class="late-next" id="r6Next">第七の部屋へ</button>':'')+
-      '<div class="late-pending"><strong>【未確定】</strong><br>64マスの正式な初期配色と緑床座標が現行データにありません。A8＝白、B8＝黒、探索条件と9手の使用マスは確定済みです。</div></div>'+
-      '</section><p class="explore-status" id="exploreStatus">マスをタップして探索してください。</p></main>';
-    document.querySelectorAll(".r6-cell").forEach(b=>{b.disabled=!r6Neighbor(room6State.current,b.dataset.cell)&&b.dataset.cell!==room6State.current;b.onclick=()=>r6Visit(b.dataset.cell)});
-    document.getElementById("r6Green").onclick=()=>{
-      if(room6State.greenSeen){showRoomNotice("緑の床は確認済みだ。","r6_green_repeat");return}
-      room6State.greenSeen=true;saveGame();
-      showRoomDialog([line("r6_green_pending","システム","【未確定】緑床の正式座標は未確定。テストでは「緑の床を確認した」状態にします。"),line("r6_green_lever","ト書き","緑の床にはレバーがある。")],()=>r6CheckDiscovery());
-    };
-    document.getElementById("r6Play")?.addEventListener("click",r6OpenMoves);
-    document.getElementById("r6Next")?.addEventListener("click",()=>transition("第七の部屋へ",()=>showSeventhRoom(roomStates.room07)));
-    setHud("room06","第六の部屋",()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"部屋を探索し、構造と床の色を確かめる",()=>showRoomNotice("ハナは少し離れたところから探索を見守っている。","r6_hana_watch"));
+    const id=room6State.current,x=id.charCodeAt(0)-65,y=Number(id[1])-1,color=r6Color(room6State.board[r6Index(id)]);
+    const lever=R6_INITIAL[r6Index(id)]==="E",placed=room6State.moves.find(m=>m.id===id),state=placed?(placed.color==="W"?"white":"black"):"neutral";
+    const door=(dir,dest)=>'<button class="r6-door r6-door-'+dir+'" data-dest="'+dest+'" aria-label="'+({north:'正面',west:'左',east:'右',south:'手前'})[dir]+'の部屋へ"></button>';
+    game.innerHTML='<main class="room late-room r6-full" aria-label="第六の部屋"><section class="r6-scene" data-color="'+color+'" data-current="'+id+'"><div class="r6-floor" aria-hidden="true"></div><div class="r6-walls" aria-hidden="true"></div>'+
+      (y>0?door('north',id[0]+y):'')+(x>0?door('west',String.fromCharCode(64+x)+(y+1)):'')+
+      (x<7?door('east',String.fromCharCode(66+x)+(y+1)):room6State.completed&&id==='H2'?'<button class="r6-door r6-door-east" id="r6Next" aria-label="第七の部屋へ"></button>':'')+
+      (y<7?door('south',id[0]+(y+2)):'')+
+      '<button class="r6-wall-text" id="r6WallText" aria-label="壁の問題文">最後の影が消える時、<br>閉ざされた道は開かれる</button>'+
+      '<button class="r6-hana hana-v2-world" id="r6Hana" aria-label="ハナ"></button>'+
+      (lever?'<div class="r6-lever" data-state="'+state+'"><img src="images/background/room06/lever-'+state+'.webp" alt=""><button id="r6White" aria-label="レバーを左へ倒して白にする"></button><button id="r6Black" aria-label="レバーを右へ倒して黒にする"></button></div>':'')+
+      (room6State.othelloKnown?'<nav class="r6-history"><span>'+room6State.moves.length+'/9 · '+(room6State.moves.length%2===0?'白':'黒')+'</span><button id="r6Undo" '+(!room6State.moves.length||room6State.completed?'disabled':'')+'>UNDO</button><button id="r6Reset" '+(room6State.completed?'disabled':'')+'>RESET</button></nav>':'')+
+      r6MapMarkup()+'</section></main>';
+    game.querySelectorAll('[data-dest]').forEach(b=>b.onclick=()=>r6Visit(b.dataset.dest));
+    game.querySelectorAll('[data-cell]').forEach(b=>b.onclick=()=>r6Visit(b.dataset.cell,true));
+    game.querySelector('#r6MapToggle')?.addEventListener('click',()=>{if(r6Busy())return;room6State.mapOpen=!room6State.mapOpen;saveGame();renderR6()});
+    game.querySelector('#r6MapExpand')?.addEventListener('click',()=>{if(r6Busy())return;room6State.mapExpanded=!room6State.mapExpanded;saveGame();renderR6()});
+    game.querySelector('#r6White')?.addEventListener('click',()=>r6Move('W'));
+    game.querySelector('#r6Black')?.addEventListener('click',()=>r6Move('G'));
+    game.querySelector('#r6Undo')?.addEventListener('click',()=>r6History(false));
+    game.querySelector('#r6Reset')?.addEventListener('click',()=>r6History(true));
+    game.querySelector('#r6Hana').onclick=r6Hana;
+    game.querySelector('#r6WallText').onclick=()=>showRoomDialog([line('r6_wall','問題文','最後の影が消える時、閉ざされた道は開かれる。')]);
+    game.querySelector('#r6Next')?.addEventListener('click',()=>transition('第七の部屋へ',()=>showSeventhRoom(roomStates.room07)));
+    setHud('room06','第六の部屋',r6Objective,r6Hana);
   }
-  function r6Neighbor(a,b){
-    const ax=a.charCodeAt(0)-65,ay=Number(a.slice(1))-1,bx=b.charCodeAt(0)-65,by=Number(b.slice(1))-1;
-    return Math.abs(ax-bx)+Math.abs(ay-by)===1;
-  }
-  function r6Visit(id){
-    if(id===room6State.current)return;
-    if(!r6Neighbor(room6State.current,id))return;
-    room6State.current=id;
-    const fresh=!room6State.visited.includes(id);
-    if(fresh)room6State.visited.push(id);
-    const lines=[];
-    if(id==="A7")lines.push(line("r6_a7","主人公","……変化はないですね"),line("r6_a7_h","ハナ","うん。ここはそのままみたい"));
-    if(id==="B8")lines.push(line("r6_b8","主人公","……床が黒くなった"),line("r6_b8_h","ハナ","さっきの部屋とは違うね"));
-    if(!lines.length)lines.push(line("r6_visit_"+id,"ト書き",id+"の部屋を確認した。"));
+  function r6Neighbor(a,b){return r6Valid(a)&&r6Valid(b)&&Math.abs(a.charCodeAt(0)-b.charCodeAt(0))+Math.abs(Number(a[1])-Number(b[1]))===1}
+  function r6Visit(id,fromMap=false){
+    if(r6Busy()||!r6Valid(id)||id===room6State.current)return;
+    if(fromMap?(!room6State.mapEvent||!room6State.visited.includes(id)):!r6Neighbor(room6State.current,id))return;
+    const previous=room6State.current,fresh=!room6State.visited.includes(id);
+    if(!fromMap&&!room6State.edges.some(e=>e.includes(previous)&&e.includes(id)))room6State.edges.push([previous,id]);
+    room6State.current=id;if(fresh)room6State.visited.push(id);
+    const value=room6State.board[r6Index(id)];if(!room6State.seenColors.includes(value))room6State.seenColors.push(value);
+    if(value==='E')room6State.greenSeen=true;
+    saveGame();renderR6();
     const after=()=>{
-      saveGame();
-      if(fresh&&room6State.visited.filter(x=>x!=="A8").length>=4&&!room6State.interview4){room6State.interview4=true;saveGame();r6Interview4();return}
-      if(fresh&&room6State.visited.filter(x=>x!=="A8").length>=6&&!room6State.mapEvent){room6State.mapEvent=true;saveGame();r6MapEvent();return}
+      if(fresh&&room6State.visited.length>=4&&!room6State.interview4){room6State.interview4=true;saveGame();r6Interview4();return}
+      if(fresh&&room6State.visited.length>=6&&!room6State.mapEvent){room6State.mapEvent=true;saveGame();r6MapEvent();return}
       r6CheckDiscovery();
     };
-    showRoomDialog(lines,after);
+    const lines=[];
+    if(fresh&&id==='A7')lines.push(line('r6_a7','主人公','……変化はないですね'),line('r6_a7_h','ハナ','うん。ここはそのままみたい'));
+    if(fresh&&id==='B8')lines.push(line('r6_b8','主人公','……床が黒くなった'),line('r6_b8_h','ハナ','さっきの部屋とは違うね'));
+    if(lines.length)showRoomDialog(lines,after);else after();
   }
   function r6Interview4(){
     showRoomDialog([
@@ -793,7 +834,7 @@
   }
   function r6CheckDiscovery(){
     const extremes=["A1","H1","H8"].every(x=>room6State.visited.includes(x));
-    const colors=room6State.visited.includes("A8")&&room6State.visited.includes("B8")&&room6State.greenSeen;
+    const colors=["W","G","E"].every(c=>room6State.seenColors.includes(c));
     if(extremes&&colors&&!room6State.othelloKnown){
       room6State.othelloKnown=true;saveGame();
       showRoomDialog([
@@ -804,40 +845,28 @@
     }
     renderR6();
   }
-  function r6OpenMoves(){
-    const o=document.createElement("div");o.className="device-overlay late-overlay";
-    o.innerHTML='<section class="late-panel"><button class="device-close" aria-label="閉じる">×</button><h2>オセロ操作・テスト版</h2>'+
-      '<div class="late-pending"><strong>【未確定】</strong><br>正式な初期64マス配色が未保存のため、現時点では資料に残る9手の一例を入力して後半演出を確認します。正式版ではオセロルールで盤面状態を判定します。</div>'+
-      '<p id="r6Turn"></p><div class="r6-moves">'+R6_ROUTE.map(x=>'<button data-move="'+x+'">'+x+'</button>').join("")+'</div>'+
-      '<p id="r6MoveHistory"></p><div class="late-row"><button id="r6Undo">UNDO</button><button id="r6Reset">RESET</button></div></section>';
-    game.appendChild(o);activateDeviceModal(o,"r6Play",o.querySelector("[data-move]"));
-    const draw=()=>{
-      o.querySelector("#r6Turn").textContent="手数 "+room6State.moves.length+" / 9　次："+(room6State.moves.length%2===0?"白":"黒");
-      o.querySelector("#r6MoveHistory").textContent=room6State.moves.length?"履歴："+room6State.moves.join(" → "):"履歴：なし";
-      o.querySelectorAll("[data-move]").forEach(b=>b.disabled=room6State.moves.includes(b.dataset.move));
-    };
-    o.querySelectorAll("[data-move]").forEach(b=>b.onclick=()=>{
-      room6State.moves.push(b.dataset.move);saveGame();
-      if(room6State.moves.length===1){
-        showRoomDialog([
-          line("r6_first_flip_01","ト書き","白を置く。直後、間にあった黒い床が白へ変わる。"),
-          line("r6_first_flip_02","主人公","……ひっくり返った"),
-          line("r6_first_flip_03","主人公","オセロと同じ……"),
-          line("r6_first_flip_04","主人公","『最後の影が消える時、閉ざされた道は開かれる』……"),
-          line("r6_first_flip_05","主人公","……影って、黒のことか"),
-          line("r6_first_flip_06","主人公","じゃあ、この黒を全部消せば……")
-        ]);
-      }
-      if(room6State.moves.length===9){
-        const ok=R6_ROUTE.every((x,i)=>room6State.moves[i]===x);
-        if(ok){o.remove();r6Complete();return}
-        showRoomNotice("9手目。テスト用の一例ルートとは一致しなかった。UNDOかRESETでやり直せる。","r6_route_fail");
-      }
-      draw();
-    });
-    o.querySelector("#r6Undo").onclick=()=>{room6State.moves.pop();saveGame();draw()};
-    o.querySelector("#r6Reset").onclick=()=>{room6State.moves=[];saveGame();draw()};
-    draw();
+  function r6History(reset){
+    if(r6Busy()||room6State.completed)return;
+    const moves=reset?[]:room6State.moves.slice(0,-1),replay=r6Replay(moves);
+    room6State.moves=replay.moves;room6State.board=replay.board;saveGame();renderR6();
+  }
+  function r6Move(color){
+    if(r6Busy()||room6State.completed)return;
+    if(!room6State.othelloKnown){showRoomDialog([line('r6_lever_observe','ト書き','左右に白と黒の目印が付いたレバーがある。')]);return}
+    if(room6State.moves.length>=9){showRoomDialog([line('r6_retry','システム','UNDOかRESETでやり直せる。')]);return}
+    if(color!==(room6State.moves.length%2===0?'W':'G')){showRoomDialog([line('r6_turn','システム','現在の手番は'+(room6State.moves.length%2===0?'白':'黒')+'。')]);return}
+    const next=r6Place(room6State.board,room6State.current,color);
+    if(!next){showRoomDialog([line('r6_illegal','システム','この位置では石を返せない。')]);return}
+    room6State.moves.push({id:room6State.current,color});room6State.board=next;saveGame();renderR6();
+    if(room6State.moves.length===9){
+      if(next.every(c=>c==='W')){r6Complete();return}
+      showRoomDialog([line('r6_fail','システム','9手目。黒が残っている。UNDOかRESETでやり直せる。')]);return;
+    }
+    if(room6State.moves.length===1)showRoomDialog([
+      line('r6_first_flip_01','ト書き','白を置く。直後、間にあった黒い床が白へ変わる。'),
+      line('r6_first_flip_02','主人公','……ひっくり返った'),line('r6_first_flip_03','主人公','オセロと同じ……'),
+      line('r6_first_flip_04','主人公','『最後の影が消える時、閉ざされた道は開かれる』……'),
+      line('r6_first_flip_05','主人公','……影って、黒のことか'),line('r6_first_flip_06','主人公','じゃあ、この黒を全部消せば……')]);
   }
   function r6Complete(){
     showRoomDialog([

@@ -1,0 +1,52 @@
+/* Fixed-view room cells; approved pixel assets remain separate from live state. */
+#game .r6-full{position:absolute;inset:0;padding:0;overflow:hidden;background:#dad9df}
+.r6-scene{position:absolute;inset:0;isolation:isolate;--r6-bg:url('images/background/room06/white.webp')}
+.r6-scene[data-color=black]{--r6-bg:url('images/background/room06/black.webp')}
+.r6-scene[data-color=green]{--r6-bg:url('images/background/room06/green.webp')}
+.r6-floor,.r6-walls{position:absolute;inset:0;pointer-events:none;background:var(--r6-bg) center/100% 100%;image-rendering:pixelated}
+.r6-walls{background-image:url('images/background/room06/walls.webp');clip-path:polygon(0 0,100% 0,100% 79%,81% 61%,18% 61%,0 79%)}
+#game .r6-door{position:absolute;inset:0;padding:0;border:0;border-radius:0;background:url('images/background/room06/green.webp') center/100% 100%;image-rendering:pixelated;cursor:pointer;min-height:0;box-shadow:none}
+#game .r6-door-north{clip-path:polygon(41.6% 16%,58.1% 16%,58.1% 61.5%,41.6% 61.5%)}
+#game .r6-door-east{clip-path:polygon(87% 13.3%,97% 6.5%,97% 75%,87% 66%)}
+#game .r6-door-west{background-image:url('images/background/room06/inner.webp');clip-path:polygon(2.5% 11%,12.5% 17%,12.5% 66%,2.5% 75%)}
+#game .r6-door-south{inset:auto auto 0 36%;width:28%;height:7%;min-height:36px;clip-path:none;background:rgba(247,245,238,.86);border:2px solid #858089;border-bottom:0}
+.r6-door-south::after{content:'▼';color:#57505c}
+#game .r6-door:hover,#game .r6-door:focus-visible{filter:brightness(1.14)}
+#game .r6-wall-text{position:absolute;left:21%;top:24%;width:20%;padding:0;border:0;background:none;color:#44424e;font-family:monospace;font-size:clamp(9px,1.35vw,19px);font-weight:700;line-height:1.7;text-align:left;cursor:pointer;box-shadow:none}
+#game .r6-hana{position:absolute;left:63%;top:29%;width:14%;height:57%;padding:0;border:0;background:transparent;pointer-events:auto;cursor:pointer}
+#game .r6-hana::before{position:absolute;inset:0;content:'';background:url('images/pixel-ui/hana-v8/idle/01.png') center bottom/contain no-repeat;image-rendering:pixelated;animation:hanaExplorationIdle 2.4s steps(1,end) infinite;pointer-events:none}
+.r6-lever{position:absolute;left:39%;top:65%;width:22%;height:25%}
+.r6-lever img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;pointer-events:none}
+#game .r6-lever button{position:absolute;top:0;bottom:0;width:50%;border:0;background:transparent;padding:0;cursor:pointer;box-shadow:none}
+#r6White{left:0}#r6Black{right:0}
+#game .r6-lever button:hover,#game .r6-lever button:focus-visible{outline:2px solid #f2c46e;outline-offset:-2px;background:#ffffff12}
+#game .r6-map-paper{position:absolute;z-index:5;left:65%;top:8%;width:max-content;max-width:32%;max-height:58%;padding:22px 16px 14px;box-sizing:border-box;background:url('images/background/room06/map-paper.webp') center/100% 100%;color:#444}
+.r6-map-tools{display:flex;justify-content:flex-end;gap:3px;position:absolute;right:9px;top:6px}
+#game .r6-map-tools button{width:26px;height:26px;min-height:0;padding:0;border:1px solid #aaa;background:#fff;color:#444;cursor:pointer}
+.r6-map-scroll{overflow:auto;max-height:calc(50dvh - 45px);overscroll-behavior:contain}
+#game .r6-map{position:relative;display:grid;grid-template-columns:repeat(var(--cols),24px);grid-template-rows:repeat(var(--rows),24px);gap:0;padding:0}
+.r6-map-lines{position:absolute;width:100%;height:100%;inset:0;stroke:#777;stroke-width:.08;pointer-events:none;z-index:0}
+#game .r6-map .r6-cell{position:relative;z-index:1;align-self:center;justify-self:center;width:19px;height:19px;min-height:0;aspect-ratio:1;padding:0;border:2px solid #777;border-radius:0;box-shadow:none;cursor:pointer;background:#fff;font-size:12px;opacity:1}
+#game .r6-map .r6-cell.black{background:#25242a}#game .r6-map .r6-cell.green{background:#3c855a}
+#game .r6-map .r6-cell.current{outline:0;color:#efb750;text-shadow:1px 1px #34303c}
+#game .r6-map .r6-cell:hover,#game .r6-map .r6-cell:focus-visible{outline:2px solid #bd8439}
+#game .r6-map-paper.expanded{left:auto;right:2%;max-width:54%;max-height:78%;top:10%}
+#game .r6-map-paper.expanded .r6-map{grid-template-columns:repeat(var(--cols),42px);grid-template-rows:repeat(var(--rows),42px)}
+#game .r6-map-paper.expanded .r6-cell{width:35px;height:35px;font-size:20px}
+.r6-map-paper.expanded .r6-map-scroll{max-height:calc(67dvh - 50px)}
+#game .r6-map-toggle{position:absolute;top:10%;right:20%;padding:7px 14px;background:#fff;border:2px solid #aaa;cursor:pointer}
+#game .r6-history{position:absolute;left:2%;bottom:4%;display:flex;align-items:center;gap:6px;font-size:clamp(10px,1vw,15px);padding:6px;background:#f9f8eee8;color:#444}
+#game .r6-history button{padding:6px;min-height:34px;cursor:pointer;background:#fff;border:1px solid #aaa;color:#444}
+#game:has(.room-dialog-overlay) .r6-map-paper,#game:has(.room-dialog-overlay) .r6-history{visibility:hidden}
+@media(max-height:500px){
+ #game .r6-map-paper{top:9%;max-height:56%;padding:23px 10px 9px;max-width:34%}
+ #game .r6-map{grid-template-columns:repeat(var(--cols),20px);grid-template-rows:repeat(var(--rows),20px)}
+ #game .r6-map .r6-cell{width:16px;height:16px;font-size:10px}
+ .r6-map-scroll{max-height:calc(43dvh - 30px)}
+ #game .r6-map-paper.expanded{max-width:52%;max-height:80%}
+ #game .r6-map-paper.expanded .r6-map{grid-template-columns:repeat(var(--cols),38px);grid-template-rows:repeat(var(--rows),38px)}
+ #game .r6-map-paper.expanded .r6-cell{width:32px;height:32px;font-size:18px}
+ .r6-map-paper.expanded .r6-map-scroll{max-height:calc(65dvh - 35px)}
+ #game .r6-history{bottom:2%;gap:3px;padding:3px}#game .r6-history button{min-height:28px;padding:4px}
+}
+@media(prefers-reduced-motion:reduce){#game .r6-hana::before{animation:none}}

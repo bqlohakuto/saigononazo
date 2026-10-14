@@ -1,0 +1,41 @@
+name: Room 06 live map and Othello review
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['late-game.js', 'room6.css', 'images/background/room06/**', 'tests/room6*', '.github/workflows/room06-review.yml']
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock jsdom@26 playwright@1.56.1
+      - run: node --test tests/room6-logic.test.cjs tests/cache-version.test.cjs
+      - run: node tests/room6-flow.test.cjs
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Wait for matching published code
+        run: |
+          for i in $(seq 1 40); do
+            ready=1
+            for f in index.html late-game.js room6.css; do
+              curl -fsSL --max-time 20 "https://bqlohakuto.github.io/saigononazo/$f?verify=$GITHUB_SHA-$i" -o "/tmp/r6-$(basename $f)" || ready=0
+              expected=$(sha256sum "$f" | cut -d ' ' -f 1)
+              echo "$expected  /tmp/r6-$(basename $f)" | sha256sum -c - || ready=0
+            done
+            if [ "$ready" = 1 ]; then exit 0; fi
+            sleep 10
+          done
+          exit 1
+      - run: node tests/room6-visual.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: room06-visual-review
+          path: artifacts/room06/
+          retention-days: 14

@@ -8,6 +8,7 @@ const expectedAssets = [
   "style.css",
   "design-ui.css",
   "room5.css",
+  "room6.css",
   "late-game.css",
   "scenario.js",
   "game-audio.js",

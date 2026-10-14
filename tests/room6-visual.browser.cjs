@@ -51,6 +51,18 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    assert(grid.x>=paper.x&&grid.x+grid.width<=paper.x+paper.width,'map cells remain on paper');
    const hana=await page.locator('#r6Hana').boundingBox();assert(hana.x>scene.x+scene.width*.6,'Hana retains right-side placement');
    await page.screenshot({path:path.join(dir,'full-map.png')});
+   await page.locator('#r6Hana').click();
+   assert.equal(await page.locator('[data-r6-hint="mechanism"]').count(),0);
+   await page.screenshot({path:path.join(dir,'hint-menu.png')});
+   for(const level of [1,2,3]){
+    if(level>1)await page.locator('#r6Hana').click();
+    await page.waitForTimeout(300);
+    await page.locator('[data-r6-hint="hint-'+level+'"]').click();await finish();
+   }
+   await page.locator('#r6Hana').click();await page.waitForTimeout(300);await page.locator('[data-r6-hint="next-move"]').click();
+   assert((await page.locator('#roomMessage').innerText()).includes('D1'));
+   await page.screenshot({path:path.join(dir,'specific-hint.png')});await finish();
+   assert.equal(await page.evaluate(()=>room6State.moves.length),0);
    await page.locator('#r6White').click();await finish();assert.equal(await page.locator('.r6-scene').getAttribute('data-color'),'white');assert.equal(await page.locator('.r6-lever').getAttribute('data-state'),'white');
    await page.locator('#r6Undo').click();assert.equal(await page.locator('.r6-scene').getAttribute('data-color'),'green');
    await page.locator('#r6White').click();await finish();

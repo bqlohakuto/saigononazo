@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=fs.readFileSync('late-game.js','utf8');
 const start=source.indexOf('  const R6_INITIAL='),end=source.indexOf('  function normalizeR6',start);
-const context=vm.createContext({});vm.runInContext(source.slice(start,end)+';globalThis.api={initial:R6_INITIAL,place:r6Place,replay:r6Replay};',context);const {initial,place,replay}=context.api;
+const context=vm.createContext({});vm.runInContext(source.slice(start,end)+';globalThis.api={initial:R6_INITIAL,place:r6Place,replay:r6Replay,winningRoute:r6WinningRoute};',context);const {initial,place,replay,winningRoute}=context.api;
 test('authored 64-cell board matches scenario and admits exactly 12 nine-move solutions',()=>{
  const doc=fs.readFileSync('SCENARIO.md','utf8').split('初期配置（○＝白、●＝黒、・＝緑／空き）：')[1];
  const rows=doc.split('\n').filter(x=>/^[1-8]   /.test(x)).slice(0,8);
@@ -12,4 +12,11 @@ test('authored 64-cell board matches scenario and admits exactly 12 nine-move so
  visit(initial.split(''),[]);assert.equal(solutions.length,12);assert(solutions.every(r=>r[8]==='H2'));
  for(const route of solutions){const r=replay(route);assert.equal(r.moves.length,9);assert(r.board.every(c=>c==='W'));}
  assert.equal(place(initial.split(''),'A8','W'),null);assert.equal(place(initial.split(''),'Z9','W'),null);
+ for(const route of solutions)for(let turn=0;turn<=9;turn++){
+  const state=replay(route.slice(0,turn)),hint=winningRoute(state.board,turn);
+  assert.notEqual(hint,null);const completed=replay([...route.slice(0,turn),...hint]);assert.equal(completed.moves.length,9);assert(completed.board.every(c=>c==='W'));
+ }
+ let dead=0;
+ for(let i=0;i<64;i++){const id=String.fromCharCode(65+i%8)+(Math.floor(i/8)+1),next=place(initial.split(''),id,'W');if(next&&!solutions.some(r=>r[0]===id)){assert.equal(winningRoute(next,1),null);dead++;}}
+ assert(dead>0,'unsolvable legal moves never receive a misleading next move');
 });

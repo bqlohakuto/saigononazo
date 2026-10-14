@@ -709,6 +709,17 @@
     }
     return {board,moves:accepted};
   }
+  function r6WinningRoute(board,turn){
+    if(turn===9)return board.every(c=>c==='W')?[]:null;
+    for(let i=0;i<64;i++){
+      if(board[i]!=='E')continue;
+      const id=String.fromCharCode(65+i%8)+(Math.floor(i/8)+1),next=r6Place(board,id,turn%2===0?'W':'G');
+      if(!next)continue;
+      const rest=r6WinningRoute(next,turn+1);
+      if(rest!==null)return [id,...rest];
+    }
+    return null;
+  }
   function normalizeR6(saved){
     const s=saved&&typeof saved==="object"?saved:{},visited=[...new Set(["A8",...(Array.isArray(s.visited)?s.visited:[]).filter(r6Valid)])];
     const current=r6Valid(s.current)?s.current:"A8";if(!visited.includes(current))visited.push(current);
@@ -718,12 +729,50 @@
       seenColors:[...new Set([...(Array.isArray(s.seenColors)?s.seenColors:[]).filter(c=>["W","G","E"].includes(c)),...visited.map(id=>R6_INITIAL[r6Index(id)])])],
       greenSeen:visited.some(id=>R6_INITIAL[r6Index(id)]==="E"),interview4:!!s.interview4,mapEvent:!!s.mapEvent,
       mapOpen:s.mapOpen!==false,mapExpanded:!!s.mapExpanded,mapComplete:!!s.mapComplete,othelloKnown:!!s.othelloKnown,
+      hintLevel:Math.min(3,Math.max(0,Math.floor(Number(s.hintLevel)||0))),
       memorySeen:!!s.memorySeen,completed:!!s.completed,introSeen:!!s.introSeen};
   }
   let r6Moving=false,r6TravelGeneration=0;
   const r6Busy=()=>r6Moving||!!game.querySelector('.room-dialog-overlay,.device-overlay,.gameplay-panel-overlay');
   const r6Objective=()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"部屋を探索し、構造と床の色を確かめる";
-  const r6Hana=()=>showRoomDialog([line("r6_hana_watch","ト書き","ハナは少し離れたところから探索を見守っている。")]);
+  function r6SpecificHint(){
+    const count=room6State.moves.length,route=r6WinningRoute(room6State.board,count);
+    if(route?.length)return '次は'+route[0]+'の部屋で、レバーを'+(count%2===0?'左に倒して白':'右に倒して黒')+'にしてみて。';
+    if(route)return '黒は全部消えたね。開いた扉へ進もう。';
+    for(let back=1;back<=count;back++){
+      const replay=r6Replay(room6State.moves.slice(0,count-back));
+      if(r6WinningRoute(replay.board,replay.moves.length)!==null)return '今の盤面からは、9手で全部白にできないみたい。UNDOで'+back+'手戻してから、もう一度聞いてみて。';
+    }
+    return 'RESETで最初の盤面に戻してから、もう一度考えてみよう。';
+  }
+  function r6Hana(){
+    if(r6Busy())return;
+    if(room6State.completed){showRoomDialog([line('r6_hana_done','ハナ','開いた扉へ進もう。')]);return}
+    window.HanaChoiceUI?.ensureStyle();
+    const hints=[
+      '白と黒は交互だよ。まずは白から置いてみて。',
+      '今すぐ白を増やすだけじゃなくて、次に黒を置く場所も考えてみて。',
+      '途中で置けなくなったら、一手戻ってみよう。別の場所から挟めるかもしれないよ。'
+    ];
+    const choices=room6State.othelloKnown?hints.slice(0,Math.min(3,room6State.hintLevel+1)).map((text,i)=>({id:'hint-'+(i+1),label:'ヒント'+(i+1),text,level:i+1})):
+      [{id:'mechanism',label:'仕組みのヒント',text:'同じ色の部屋で、違う色の部屋を挟めないかな？'}];
+    if(room6State.othelloKnown&&room6State.hintLevel>=3)choices.push({id:'next-move',label:'もっとヒント（次の一手）',specific:true});
+    choices.push({id:'cancel',label:'なんでもない'});
+    const overlay=document.createElement('div');overlay.className='device-overlay hana-choice-overlay';
+    overlay.innerHTML='<section class="menu-panel hana-choice-menu" aria-label="ハナにヒントを聞く"><button type="button" class="device-close" aria-label="閉じる">×</button><p class="hana-choice-speaker">ハナ</p><h2>どうしたの？</h2><div class="hana-choice-list"></div></section>';
+    game.appendChild(overlay);
+    const list=overlay.querySelector('.hana-choice-list');
+    for(const choice of choices){const button=document.createElement('button');button.type='button';button.className='hana-choice-button';button.dataset.r6Hint=choice.id;button.textContent=choice.label;list.appendChild(button)}
+    const close=activateDeviceModal(overlay,'r6Hana',list.querySelector('button'));
+    list.addEventListener('click',event=>{
+      const button=event.target.closest('[data-r6-hint]');if(!button)return;
+      const choice=choices.find(c=>c.id===button.dataset.r6Hint);if(!choice)return;
+      close();if(choice.id==='cancel')return;
+      showRoomDialog([line('r6_hint_'+choice.id+(choice.specific?'_'+room6State.moves.map(m=>m.id).join('-'):''),'ハナ',choice.specific?r6SpecificHint():choice.text)],()=>{
+        if(choice.level){room6State.hintLevel=Math.max(room6State.hintLevel,choice.level);saveGame()}
+      });
+    });
+  }
   window.showSixthRoom=function(savedState){
     r6TravelGeneration++;r6Moving=false;game.classList.remove('r6-map-revealing');
     Dialogue.stop();currentScene="room06";room6State=normalizeR6(savedState);renderR6();saveGame();

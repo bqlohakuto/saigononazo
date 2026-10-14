@@ -141,13 +141,19 @@ async function finish(page){
  }
  assert.deepEqual(await page.evaluate(()=>room4State.angles),[2,1,0,3,2],'Acquired panels use confirmed initial rotations');
  assert.equal(await page.locator('.r4-panels img').count(),5);
+ assert.equal(await page.locator('.r4-panel-stack img').count(),5,'Central composite contains all five layers');
+ const stackBounds=await page.locator('.r4-panel-stack').boundingBox();
+ assert(stackBounds.width>0&&stackBounds.y>=0&&stackBounds.y+stackBounds.height<=spec.viewport.height,'Central composite remains visible');
+ const assertStack=async()=>assert.deepEqual(await page.locator('.r4-panel-stack img').evaluateAll(els=>els.map(el=>el.style.transform)),await page.locator('.r4-panels img').evaluateAll(els=>els.map(el=>el.style.transform)),'Composite stays synchronized with every panel');
+ await assertStack();
  for(const img of await page.locator('.r4-panels img').all())assert(await img.evaluate(async el=>{await el.decode();return el.naturalWidth>0}),'Real panel artwork is decoded');
  await page.locator('.r4-shine').click();assert.equal(await page.evaluate(()=>room4State.completed),false,'Initial arrangement does not solve puzzle');
  await page.screenshot({path:path.join(dir,'panels-initial.png')});
  for(let n=0;n<4;n++)await page.locator('.r4-panels button[data-i="0"]').click();
+ await assertStack();
  assert.equal(await page.evaluate(()=>room4State.angles[0]),2,'Four clockwise turns return to the initial orientation');
  for(const [i,n] of [2,3,0,1,2].entries())for(let j=0;j<n;j++)await page.locator(`.r4-panels button[data-i="${i}"]`).click();
- await page.screenshot({path:path.join(dir,'panels.png')});await page.locator('.r4-shine').click();assert(await page.evaluate(()=>room4State.completed));await finish(page);assert(await page.evaluate(()=>room4State.memorySeen));
+ await assertStack();await page.screenshot({path:path.join(dir,'panels.png')});await page.locator('.r4-shine').click();assert(await page.evaluate(()=>room4State.completed));await finish(page);assert(await page.evaluate(()=>room4State.memorySeen));
  assert.deepEqual(errors,[]);console.log(spec.name+' room 4 PASS');
  }finally{await browser.close()}
 }})().catch(e=>{console.error(e);process.exit(1)});

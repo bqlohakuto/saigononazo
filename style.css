@@ -308,3 +308,12 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 #game .r4-panel-ui .r4-feedback{min-height:1.3em;margin:8px 0;color:var(--panel-ink);font-size:13px}
 @media(max-height:500px){#game .r4-panel-ui{width:min(950px,96%);padding:36px 14px 10px}#game .r4-panel-ui .r4-panels{gap:8px;max-width:calc((100dvh - 155px)*5);width:100%;align-self:center}#game .r4-panel-ui .r4-panels button{margin-top:3px}#game .r4-panel-ui .r4-feedback{margin:4px 0}}
 @media(prefers-reduced-motion:reduce){#game .r4-panel-ui .r4-glass img{transition:none}}
+
+/* The central composite follows the same angles as the five controls. */
+#game .r4-panel-ui{align-items:center}
+#game .r4-panel-stack{position:relative;flex:none;width:min(38dvh,330px,60vw);aspect-ratio:1;margin:0 auto 8px}
+#game .r4-panel-stack img{position:absolute;inset:0;display:block;width:100%;height:100%;transform-origin:50% 50%;transition:transform .25s ease;pointer-events:none;user-select:none}
+#game .r4-panel-ui .r4-panels{width:min(100%,680px);gap:12px}
+#game .r4-panel-ui .r4-glass{width:min(100%,100px);margin:0 auto}
+@media(max-height:500px){#game .r4-panel-ui{padding-top:32px}#game .r4-panel-stack{width:min(37dvh,160px);margin-bottom:2px}#game .r4-panel-ui .r4-panels{width:min(100%,510px);max-width:none;gap:6px}#game .r4-panel-ui .r4-glass{width:min(100%,66px)}}
+@media(prefers-reduced-motion:reduce){#game .r4-panel-stack img{transition:none}}

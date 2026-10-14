@@ -49,7 +49,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   click('[data-dest="H7"]');finish();
   assert.equal(save().rooms.room06.othelloKnown,true);
   const ids=Array.from({length:64},(_,i)=>String.fromCharCode(65+i%8)+(Math.floor(i/8)+1));
-  run('showSixthRoom('+JSON.stringify({introSeen:true,visited:ids,current:'D1',interview4:true,mapEvent:true,othelloKnown:true})+')');
+  run('showSixthRoom('+JSON.stringify({introSeen:true,visited:ids,current:'D1',interview4:true,mapEvent:true,othelloKnown:true,mapComplete:true})+')');
   click('#r6Black');finish();assert.equal(save().rooms.room06.moves.length,0,'wrong turn does not modify board');
   click('#r6White');finish();assert.equal(q('.r6-scene').dataset.color,'white');
   assert.equal(q('.r6-lever').dataset.state,'white');

@@ -36,8 +36,16 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    await doorClick('east');assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),'B8');
    assert.equal(await page.locator('.r6-map').count(),1,'map remains open while using door');
    await page.locator('[data-cell="C8"]').click();await page.screenshot({path:path.join(dir,'green-live-map.png')});
+   await page.evaluate(()=>showSixthRoom({introSeen:true,current:'H8',visited:['A8','B8','D1','A1','H1','H8'],mapEvent:true,interview4:true}));
+   await doorClick('north');
+   assert(await page.evaluate(()=>room6State.othelloKnown&&room6State.mapComplete),'discovery conversation reveals full map');
+   assert.equal(await page.locator('[data-cell]').count(),64);
+   assert(!(await page.evaluate(()=>room6State.visited.includes('G6'))));
+   await page.locator('[data-cell="G6"]').click();await finish();
+   assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),'G6','revealed unvisited room can be selected');
+   await page.screenshot({path:path.join(dir,'revealed-full-map.png')});
    const all=Array.from({length:64},(_,i)=>String.fromCharCode(65+i%8)+(Math.floor(i/8)+1));
-   await page.evaluate(ids=>showSixthRoom({introSeen:true,current:'D1',visited:ids,mapEvent:true,interview4:true,othelloKnown:true}),all);
+   await page.evaluate(ids=>showSixthRoom({introSeen:true,current:'D1',visited:ids,mapEvent:true,interview4:true,othelloKnown:true,mapComplete:true}),all);
    const paper=await page.locator('.r6-map-paper').boundingBox();assert(paper.x>=scene.x&&paper.y>=scene.y&&paper.x+paper.width<=scene.x+scene.width+1&&paper.y+paper.height<=scene.y+scene.height+1,'map within game');
    const grid=await page.locator('.r6-map').boundingBox();
    assert(grid.x>=paper.x&&grid.x+grid.width<=paper.x+paper.width,'map cells remain on paper');

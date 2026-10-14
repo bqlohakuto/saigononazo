@@ -61,8 +61,13 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   run('showSixthRoom({introSeen:true,visited:["A8","A1","H1","H8","D1","B8"],current:"H8",interview4:true,mapEvent:true})');
   click('[data-dest="H7"]');finish();
   assert.equal(save().rooms.room06.othelloKnown,true);
+  assert.equal(save().rooms.room06.mapComplete,true);
+  assert.equal(w.document.querySelectorAll('[data-cell]').length,64,'Hana reveals all rooms after discovery');
+  assert.equal(save().rooms.room06.visited.includes('G6'),false);
+  click('[data-cell="G6"]');assert.equal(save().rooms.room06.current,'G6','newly revealed unvisited room is reachable from map');
+  assert.equal(save().rooms.room06.visited.includes('G6'),true);
   const ids=Array.from({length:64},(_,i)=>String.fromCharCode(65+i%8)+(Math.floor(i/8)+1));
-  run('showSixthRoom('+JSON.stringify({introSeen:true,visited:ids,current:'D1',interview4:true,mapEvent:true,othelloKnown:true})+')');
+  run('showSixthRoom('+JSON.stringify({introSeen:true,visited:ids,current:'D1',interview4:true,mapEvent:true,othelloKnown:true,mapComplete:true})+')');
   click('#r6Black');finish();assert.equal(save().rooms.room06.moves.length,0,'wrong turn does not modify board');
   click('#r6White');finish();assert.equal(q('.r6-scene').dataset.color,'white');
   assert.equal(q('.r6-lever').dataset.state,'white');

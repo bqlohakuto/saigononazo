@@ -80,3 +80,8 @@
 #game .r6-travel-shade{position:absolute;inset:0;z-index:100;background:#080b12;opacity:0;pointer-events:auto;transition:opacity 150ms ease-in}
 #game .r6-travel-shade.covered{opacity:1}
 @media(prefers-reduced-motion:reduce){#game .r6-travel-shade{transition:none}}
+
+#game.r6-map-revealing .r6-map-paper{visibility:visible;pointer-events:none}
+#game.r6-map-revealing .r6-map{animation:r6MapDraw 650ms steps(8,end) both}
+@keyframes r6MapDraw{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+@media(prefers-reduced-motion:reduce){#game.r6-map-revealing .r6-map{animation:none}}

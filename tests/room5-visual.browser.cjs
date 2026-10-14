@@ -49,6 +49,8 @@ const expected=[
       assert(bounds.width>200&&bounds.height>90,'Scene is visible');
       assert(bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=spec.viewport.width+1&&bounds.y+bounds.height<=spec.viewport.height+1,'Scene must fit in viewport');
       if(view==='front'){
+        const wallBoard=await page.locator('#r5Board').boundingBox();
+        assert(wallBoard.y+wallBoard.height<bounds.y+bounds.height*.5,'Puzzle is mounted on the wall above the shelf');
         const hana=await page.locator('#r5Hana').boundingBox();
         assert(hana.x>bounds.x+bounds.width*.65,'Hana stands to the right, clear of the mirror');
         assert.equal(await page.locator('#r5Hana').evaluate(el=>getComputedStyle(el).pointerEvents),'auto','Hana remains clickable');
@@ -56,6 +58,10 @@ const expected=[
         await page.waitForSelector('.room-dialog-overlay');
         await page.evaluate(()=>{for(let i=0;i<100&&document.querySelector('#roomNextButton');i++)document.querySelector('#roomNextButton').click()});
         assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Hana investigation can be closed');
+      }
+      if(view==='left'){
+        const furniture=await page.locator('.r5-decor-dining').boundingBox();
+        assert(furniture.width<bounds.width*.75,'Dining furniture is scaled to the room');
       }
       await page.screenshot({path:path.join(dir,view+'.png')});
       if(view==='right'){
@@ -80,7 +86,8 @@ const expected=[
     assert.equal(await page.locator('.r5-item-picture').count(),7,'Seven tile assets');
     await page.locator('.r5-item-picture').first().evaluate(async image=>{if(!image.complete)await image.decode();assertImage(image);function assertImage(i){if(!i.naturalWidth)throw Error('Panel image not decoded')}});
     const panel=await page.locator('.r5-board-panel').boundingBox();
-    assert(panel.y>=0&&panel.y+panel.height<=spec.viewport.height+2,'Counter board must fit game viewport');
+    const gameBounds=await page.locator('#game-container').boundingBox();
+    assert(panel.x>=gameBounds.x&&panel.y>=gameBounds.y&&panel.x+panel.width<=gameBounds.x+gameBounds.width+1&&panel.y+panel.height<=gameBounds.y+gameBounds.height+1,'Counter board must fit inside the game, including letterboxed screens');
     await page.screenshot({path:path.join(dir,'board-seven-panels.png')});
     assert.deepEqual(errors,[],'No JavaScript errors');
     await ctx.close();

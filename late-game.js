@@ -98,7 +98,7 @@
       '<div class="r5-decor r5-decor-cannon'+(got('cannon')?' is-gone':'')+'" aria-hidden="true"></div>'+
       '<button type="button" class="r5-scene-target r5-target-door" id="r5Door" aria-label="扉"></button>'+
       '<button type="button" class="r5-scene-target r5-target-hana hana-v2-world" id="r5Hana" aria-label="ハナ"></button>'+
-      '<button type="button" class="r5-scene-target r5-target-board" id="r5Board" aria-label="中央パネル"><span aria-hidden="true" class="r5-board-rabbit">✦</span></button>'+
+      '<button type="button" class="r5-scene-target r5-target-board" id="r5Board" aria-label="壁の謎解きパネル"><span aria-hidden="true" class="r5-board-wall-grid"><span>'+r5Drawing('rabbit','')+'</span>'+Array(7).fill('<span></span>').join('')+'</span></button>'+
       hotspot('mirror','鏡')+hotspot('chair','椅子')+hotspot('butterfly','青い蝶')+hotspot('flower','花')+
       '<button type="button" class="r5-scene-target r5-target-fridge-upper" id="r5FridgeUpper" aria-label="冷蔵庫の上段を開閉"></button>'+
       '<button type="button" class="r5-scene-target r5-target-fridge-lower" id="r5FridgeLower" aria-label="冷蔵庫の下段を開閉"></button>'+
@@ -242,7 +242,7 @@
       ],r5Board);
       return;
     }
-    const o=document.createElement("div");o.className="device-overlay late-overlay";
+    const o=document.createElement("div");o.className="device-overlay late-overlay r5-board-overlay";
     const available=R5_ITEMS.filter(([id])=>room5State.collected.includes(id)&&!room5State.placed[id]);
     const r5Symbol={feather:"feather",face:"face",tail:"tail",head:"head",ring:"wreath",cup:"cup",leg:"leg",gate:"gate"};
     const r5ItemIcon={mirror:"mirror",fish:"tail",butterfly:"head",flower:"wreath",squid:"cup",chair:"leg",cannon:"gate"};
@@ -255,7 +255,7 @@
       return '<button class="r5-counter-slot '+(placedId?"filled":"")+'" data-counter="'+counter+'" aria-label="'+counter+'の絵の枠'+(placedId?' 配置済み':'')+'" '+(placedId?"disabled":"")+'>'+icon+(placedId?'<span class="r5-picture-placed">'+picture(placedId)+'</span>':'')+'</button>';
     }).join("");
     const inventory=available.length?available.map(([id,name])=>'<button class="r5-inventory-tile" data-tile="'+id+'" aria-label="'+name+'のパネルを選ぶ">'+picture(id)+'<span class="r5-visually-hidden">'+name+'</span></button>').join(""):'<p class="r5-empty-inventory">配置できるパネルはありません。</p>';
-    o.innerHTML='<section class="late-panel r5-board-panel"><button class="device-close" aria-label="閉じる">×</button><h2>中央パネル</h2>'+
+    o.innerHTML='<section class="late-panel r5-board-panel"><button class="device-close" aria-label="閉じる">×</button><h2>壁のパネル</h2>'+
       '<p class="r5-problem">描かれたものを正しく数え、あるべき場所へ導け。</p>'+
       ''+
       '<div class="r5-counter-grid">'+slots+'</div>'+

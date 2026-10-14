@@ -16,3 +16,73 @@
 @media(prefers-reduced-motion:reduce){.r5-mirror-art.is-transforming{animation:none;opacity:0}}
 
 .room-five #r5Count{white-space:nowrap}
+
+
+/* Fifth room: four directions in one 1672x941 coordinate plane. Original images
+   are kept separate so that collected objects can disappear independently. */
+.r5-full{padding:0!important;min-height:100%;background:#f6f2e9;overflow:hidden}
+.r5-room-wrap{width:min(100%,1280px);margin:0 auto;position:relative}
+.r5-living-scene{position:relative;width:100%;aspect-ratio:1672/941;overflow:hidden;background:linear-gradient(#fffaf2 0 68%,#d2a873 68%,#9b724b);isolation:isolate}
+.r5-living-wall{position:absolute;inset:0;background-position:center;background-size:100% 100%;background-repeat:no-repeat;visibility:hidden;pointer-events:none}
+.r5-living-scene[data-view="front"] .r5-wall-front{visibility:visible;background-image:url("images/background/room05/front.webp")}
+.r5-living-scene[data-view="left"] .r5-wall-left{visibility:visible;background-image:url("images/background/room05/left-window.webp")}
+.r5-living-scene[data-view="right"][data-fridge="closed"] .r5-wall-right{visibility:visible;background-image:url("images/background/room05/right-kitchen-closed.webp")}
+.r5-living-scene[data-view="right"][data-fridge="upper-open"] .r5-wall-right{visibility:visible;background-image:url("images/background/room05/right-kitchen-upper-open.webp")}
+.r5-living-scene[data-view="right"][data-fridge="lower-open"] .r5-wall-right{visibility:visible;background-image:url("images/background/room05/right-kitchen-lower-open.webp")}
+.r5-living-scene[data-view="right"][data-fridge="both-open"] .r5-wall-right{visibility:visible;background-image:url("images/background/room05/right-kitchen-both-open.webp")}
+.r5-living-scene[data-view="back"] .r5-wall-back{visibility:visible;background-image:url("images/background/room05/back.webp")}
+.r5-room-door,.r5-room-shelf,.r5-room-fridge,.r5-room-tv{position:absolute;pointer-events:none;visibility:hidden}
+.r5-room-door{left:40%;top:13%;width:20%;height:55%;background:#8a532e;border:4px solid #694124;box-shadow:inset 0 0 0 8px #b67c43}
+.r5-room-shelf{left:4%;top:57%;width:26%;height:14%;background:#c79a69;border:3px solid #a87a48}
+.r5-room-fridge{left:15%;top:12%;width:15%;height:56%;background:linear-gradient(90deg,#dde0dd,#fff 30%,#e3e4df);border:2px solid #989b96;border-radius:3px}
+.r5-room-tv{left:34%;top:23%;width:33%;height:32%;background:#2d3439;border:8px solid #6b584d;box-shadow:0 38px 0 9px #b18a63}
+.r5-living-scene[data-view="front"] .r5-room-door,.r5-living-scene[data-view="front"] .r5-room-shelf,.r5-living-scene[data-view="right"] .r5-room-fridge,.r5-living-scene[data-view="back"] .r5-room-tv{visibility:visible}
+.r5-living-scene[data-view="front"]:has(.r5-wall-front[style*="not-in-use"]) .r5-room-door{visibility:visible}
+.r5-decor{position:absolute;pointer-events:none;background-repeat:no-repeat;background-size:contain;background-position:center;visibility:hidden}
+.r5-decor.is-gone{display:none}
+.r5-decor-mirror{left:6%;top:30%;width:29%;height:42%;background-image:url("images/background/room05/overlays/mirror.webp")}
+.r5-decor-dining{inset:0;background-size:100% 100%;background-image:url("images/background/room05/overlays/dining-set.webp")}
+.r5-decor-planter{left:3%;top:6%;width:24%;height:54%;background-image:url("images/background/room05/overlays/planter-flowers-blue-butterfly.webp")}
+.r5-decor-planter.is-empty{background-image:url("images/background/room05/overlays/planter-empty.webp")}
+.r5-decor-planter.is-butterfly-gone{filter:saturate(.65)}
+.r5-decor-dining.is-chair-gone{background-image:url("images/background/room05/overlays/dining-set-chair-removed.webp")}
+.r5-decor-fish{left:15%;top:19%;width:17%;height:13%;background-image:url("images/background/room05/overlays/fish.webp")}
+.r5-decor-squid{left:15%;top:51%;width:17%;height:13%;background-image:url("images/background/room05/overlays/frozen-squid.webp")}
+.r5-decor-cannon{left:12%;top:49%;width:21%;height:22%;background-image:url("images/background/room05/overlays/cannon.webp")}
+.r5-living-scene[data-view="front"] .r5-decor-mirror,.r5-living-scene[data-view="left"] .r5-decor-dining,.r5-living-scene[data-view="left"] .r5-decor-planter,.r5-living-scene[data-view="back"] .r5-decor-cannon{visibility:visible}
+.r5-living-scene[data-view="right"][data-fridge="upper-open"] .r5-decor-fish,.r5-living-scene[data-view="right"][data-fridge="both-open"] .r5-decor-fish{visibility:visible}
+.r5-living-scene[data-view="right"][data-fridge="lower-open"] .r5-decor-squid,.r5-living-scene[data-view="right"][data-fridge="both-open"] .r5-decor-squid{visibility:visible}
+.r5-scene-target{position:absolute;z-index:5;border:0;padding:0;background:transparent;cursor:pointer;visibility:hidden;touch-action:manipulation}
+.r5-scene-target:not(:disabled):focus-visible{outline:3px solid #3f89bd;outline-offset:2px;background:#fff3}
+.r5-scene-target.is-gone{display:none}
+.r5-target-door{left:40%;top:13%;width:21%;height:56%}
+.r5-target-board{left:35%;top:72%;width:29%;height:20%;background:linear-gradient(165deg,#eee5ce,#d4af76);border:5px solid #93663a;border-radius:5px;transform:perspective(350px) rotateX(28deg)}
+.r5-board-rabbit{display:grid;place-items:center;width:100%;height:100%;color:#5e543f;font-size:clamp(14px,3vw,35px)}
+.r5-target-mirror{left:7%;top:36%;width:24%;height:34%}
+.r5-target-chair{left:28%;top:56%;width:17%;height:33%}
+.r5-target-flower{left:5%;top:22%;width:12%;height:32%}
+.r5-target-butterfly{left:15%;top:20%;width:11%;height:24%}
+.r5-target-fridge-upper{left:15%;top:12%;width:17%;height:29%}
+.r5-target-fridge-lower{left:15%;top:41%;width:17%;height:29%}
+.r5-target-fish{left:15%;top:18%;width:19%;height:18%}
+.r5-target-squid{left:15%;top:49%;width:19%;height:18%}
+.r5-target-cannon{left:12%;top:50%;width:21%;height:20%}
+.r5-target-keypad{left:62%;top:27%;width:8%;height:19%;border:1px solid #bfb49b;background:repeating-linear-gradient(0deg,#404944 0 5px,#a8aba4 5px 8px);border-radius:3px}
+.r5-target-rabbit{left:43%;top:74%;width:14%;height:14%}
+.r5-target-next{left:40%;top:13%;width:21%;height:56%}
+.r5-living-scene[data-view="front"] .r5-target-door,.r5-living-scene[data-view="front"] .r5-target-board,.r5-living-scene[data-view="front"] .r5-target-mirror,.r5-living-scene[data-view="front"] .r5-target-keypad,.r5-living-scene[data-view="front"] .r5-target-rabbit,.r5-living-scene[data-view="front"] .r5-target-next{visibility:visible}
+.r5-living-scene[data-view="left"] .r5-target-chair,.r5-living-scene[data-view="left"] .r5-target-flower,.r5-living-scene[data-view="left"] .r5-target-butterfly{visibility:visible}
+.r5-living-scene[data-view="right"] .r5-target-fridge-upper,.r5-living-scene[data-view="right"] .r5-target-fridge-lower{visibility:visible}
+.r5-living-scene[data-view="right"][data-fridge="upper-open"] .r5-target-fish,.r5-living-scene[data-view="right"][data-fridge="both-open"] .r5-target-fish,.r5-living-scene[data-view="right"][data-fridge="lower-open"] .r5-target-squid,.r5-living-scene[data-view="right"][data-fridge="both-open"] .r5-target-squid{visibility:visible}
+.r5-living-scene[data-view="back"] .r5-target-cannon{visibility:visible}
+.r5-living-scene[data-view="right"] .r5-target-fridge-upper,.r5-living-scene[data-view="right"] .r5-target-fridge-lower{z-index:4}
+.r5-living-scene[data-view="right"] .r5-target-fish,.r5-living-scene[data-view="right"] .r5-target-squid{z-index:6}
+.r5-direction-nav{display:flex;justify-content:space-between;position:absolute;inset:0;pointer-events:none}
+.r5-direction-nav button{pointer-events:auto;align-self:center;width:clamp(34px,4vw,52px);height:clamp(40px,6vw,65px);border:1px solid #887b63aa;background:#fff9;color:#5b544b;font-size:21px;cursor:pointer}
+.r5-direction-nav button:hover{background:#fff}
+.r5-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.r5-full .r5-room-wrap{padding:0}
+@media (orientation:landscape) and (max-height:480px){
+ .r5-room-wrap{width:min(100%,calc((100dvh - 48px) * 1672 / 941))}
+ .r5-direction-nav button{width:35px;height:40px}
+}

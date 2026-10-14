@@ -68,3 +68,10 @@
 }
 #game .r6-full #r6Hana{left:63%;right:auto;top:29%;bottom:auto;width:14%;height:57%;background-size:contain;background-repeat:no-repeat;background-position:center bottom;pointer-events:auto;z-index:2}
 #game .r6-full #r6Hana::before{display:none}
+/* Leave the compact map above Hana, with both available during exploration. */
+#game .r6-full #r6Hana{top:44%;height:43%;width:13%;left:65%}
+@media(max-height:500px){
+ #game .r6-full .r6-map-paper:not(.expanded){top:8%}
+ #game .r6-full .r6-map-paper:not(.expanded) .r6-map{--step:12px}
+ #game .r6-full .r6-map-paper:not(.expanded) .r6-cell{width:10px;height:10px;font-size:7px}
+}

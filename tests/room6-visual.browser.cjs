@@ -30,6 +30,9 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    const all=Array.from({length:64},(_,i)=>String.fromCharCode(65+i%8)+(Math.floor(i/8)+1));
    await page.evaluate(ids=>showSixthRoom({introSeen:true,current:'D1',visited:ids,mapEvent:true,interview4:true,othelloKnown:true}),all);
    const paper=await page.locator('.r6-map-paper').boundingBox();assert(paper.x>=scene.x&&paper.y>=scene.y&&paper.x+paper.width<=scene.x+scene.width+1&&paper.y+paper.height<=scene.y+scene.height+1,'map within game');
+   const grid=await page.locator('.r6-map').boundingBox();
+   assert(grid.x>=paper.x&&grid.x+grid.width<=paper.x+paper.width,'map cells remain on paper');
+   const hana=await page.locator('#r6Hana').boundingBox();assert(hana.x>scene.x+scene.width*.6,'Hana retains right-side placement');
    await page.screenshot({path:path.join(dir,'full-map.png')});
    await page.locator('#r6White').click();await finish();assert.equal(await page.locator('.r6-scene').getAttribute('data-color'),'white');assert.equal(await page.locator('.r6-lever').getAttribute('data-state'),'white');
    await page.locator('#r6Undo').click();assert.equal(await page.locator('.r6-scene').getAttribute('data-color'),'green');

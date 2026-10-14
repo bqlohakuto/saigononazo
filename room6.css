@@ -50,3 +50,19 @@
  #game .r6-history{bottom:2%;gap:3px;padding:3px}#game .r6-history button{min-height:28px;padding:4px}
 }
 @media(prefers-reduced-motion:reduce){#game .r6-hana::before{animation:none}}
+/* Override legacy late-room map sizing and companion placement explicitly. */
+#game .r6-full .r6-map{--step:24px;grid-template-columns:repeat(var(--cols),var(--step));grid-template-rows:repeat(var(--rows),var(--step));width:calc(var(--cols)*var(--step));height:calc(var(--rows)*var(--step));aspect-ratio:auto;gap:0}
+#game .r6-full .r6-map-paper.expanded .r6-map{--step:42px}
+#game .r6-full .r6-map-paper{left:64%;top:12%;padding-top:34px;max-width:28%}
+#game .r6-full .r6-map-paper.expanded{left:auto;right:2%;top:12%;max-width:54%}
+#game .r6-full .r6-hana{left:63%;right:auto;top:29%;bottom:auto;width:14%;height:57%;background-size:contain;background-repeat:no-repeat;background-position:center bottom;pointer-events:auto;z-index:2}
+#game .r6-full .r6-hana::before{display:none}
+@media(max-height:500px){
+ #game .r6-full .r6-map{--step:16px}
+ #game .r6-full .r6-map .r6-cell{width:13px;height:13px;font-size:9px}
+ #game .r6-full .r6-map-paper{top:15%;max-width:28%;max-height:62%;padding-top:31px}
+ #game .r6-full .r6-map-paper.expanded{top:15%;max-width:54%;max-height:78%}
+ #game .r6-full .r6-map-paper.expanded .r6-map{--step:38px}
+ #game .r6-full .r6-map-paper.expanded .r6-cell{width:32px;height:32px;font-size:18px}
+ .r6-map-scroll{max-height:calc(48dvh - 35px)}
+}

@@ -16,10 +16,28 @@ assert.equal(save().currentScene,'room05');
 assert.equal(qa('[data-item]').length,7);
 assert.ok(q('#gameplayHud'));assert.ok(q('#gameplayBottomBar'));
 
-for(const id of ['mirror','fish','butterfly','flower','squid','chair','cannon']){
-  click('[data-item="'+id+'"]');finish();
-}
+assert.equal(q('#r5Scene').dataset.view,'front');
+click('[data-item="mirror"]');finish();
+click('#r5TurnLeft'); // front -> left: dining and planter
+assert.equal(q('#r5Scene').dataset.view,'left');
+for(const id of ['flower','butterfly','chair']){click('[data-item="'+id+'"]');finish();}
+click('#r5TurnLeft'); // left -> back: television stand
+assert.equal(q('#r5Scene').dataset.view,'back');
+click('[data-item="cannon"]');finish();
+click('#r5TurnLeft'); // back -> right: two separate refrigerator compartments
+assert.equal(q('#r5Scene').dataset.view,'right');
+click('[data-item="fish"]');finish(); // still closed; do not collect
+assert.equal(save().rooms.room05.collected.includes('fish'),false);
+click('#r5FridgeUpper');
+assert.equal(save().rooms.room05.fridgeUpperOpen,true);
+assert.equal(save().rooms.room05.fridgeLowerOpen,false);
+click('[data-item="fish"]');finish();
+click('#r5FridgeLower');
+assert.equal(q('#r5Scene').dataset.fridge,'both-open');
+click('[data-item="squid"]');finish();
 assert.equal(save().rooms.room05.collected.length,7);
+click('#r5TurnLeft'); // right -> front: puzzle and keypad
+assert.equal(q('#r5Scene').dataset.view,'front');
 
 // First board open shows the confirmed rule-discovery dialogue, then reopens the board.
 click('#r5Board');finish();

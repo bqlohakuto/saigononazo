@@ -135,7 +135,7 @@ async function finish(page){
    const rect=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
    return {panel:rect(panel),buttons:[...panel.querySelectorAll('.r4-panels button,.r4-shine')].map(rect)};
   });
-  assert(bounds.panel.top>=0&&bounds.panel.bottom<=spec.viewport.height+1&&bounds.panel.left>=0&&bounds.panel.right<=spec.viewport.width+1,'Panel dialog fits short landscape viewport in both axes');
+  assert(bounds.panel.top>=0&&bounds.panel.bottom<=spec.viewport.height+1&&bounds.panel.left>=0&&bounds.panel.right<=spec.viewport.width+1,`Panel dialog fits short landscape viewport in both axes: ${JSON.stringify(bounds)}`);
   assert.equal(bounds.buttons.length,6,'Five rotations and light action are present');
   for(const button of bounds.buttons)assert(button.top>=bounds.panel.top-1&&button.bottom<=bounds.panel.bottom+1&&button.left>=bounds.panel.left-1&&button.right<=bounds.panel.right+1,'All puzzle controls visible without scroll or clipping');
  }

@@ -130,3 +130,9 @@
 .r5-target-flower{left:7.5%;top:27%;width:14%;height:16%}
 .r5-decor-dining.is-chair-gone{clip-path:inset(0 0 0 18%)}
 .r5-board-panel .r5-art-fallback[hidden]{display:none!important}
+
+
+/* Reuse the existing Hana idle artwork rather than replacing her design. */
+.r5-target-hana{left:73%;top:29%;width:18%;height:63%;background:url("images/pixel-ui/hana-v8/idle/01.png") center bottom/contain no-repeat;image-rendering:pixelated;z-index:7}
+.r5-living-scene[data-view="front"] .r5-target-hana{visibility:visible}
+@media (orientation:landscape) and (max-height:480px){.r5-target-hana{left:76%;width:15%;top:33%;height:59%}}

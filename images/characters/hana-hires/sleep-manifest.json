@@ -1,0 +1,29 @@
+{
+  "approvedSource": "sources/sleep-approved.webp",
+  "sourceSize": [
+    2164,
+    727
+  ],
+  "crop": [
+    10,
+    153,
+    1893,
+    681
+  ],
+  "assets": [
+    {
+      "path": "poses/sleeping.webp",
+      "width": 1883,
+      "height": 528,
+      "sha256": "945520313604f3def9eb92beaa49932c6d2bcabe86857724515e5d373305711a"
+    }
+  ],
+  "interiorAlphaMin": 255,
+  "motion": {
+    "durationSeconds": 4.8,
+    "rotationDegrees": 0.07,
+    "origin": "99% 81%",
+    "scaling": false,
+    "sourceFrameCount": 1
+  }
+}

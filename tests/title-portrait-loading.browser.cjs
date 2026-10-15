@@ -35,10 +35,10 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
   assert(before.cls.includes('hana-v2-portrait'));assert.equal(before.size,'contain');
   releasePortraits();
   await talk.waitForFunction(()=>document.querySelector('.hana-portrait')?.classList.contains('hana-v2-portrait'));
-  await talk.evaluate(async()=>{const image=new Image();image.src='images/characters/hana-hires/portrait-neutral.webp?v=20261015-hana-hires-idle-02';await image.decode()});
+  await talk.evaluate(async()=>{const image=new Image();image.src='images/characters/hana-hires/portrait-neutral.webp?v=20261015-hana-hires-sleep-01';await image.decode()});
   await talk.screenshot({path:path.join(dir,'portrait-ready.png')});
   for(const name of ['neutral','joy','thinking','surprise','sadness','sleepy','laughter']){
-   const ok=await talk.evaluate(async name=>{const image=new Image();image.src=(name==='neutral'?'images/characters/hana-hires/portrait-neutral.webp':'images/characters/hana-current/portraits/'+name+'.webp')+'?v=20261015-hana-hires-idle-02';await image.decode();return image.naturalWidth>100},name);assert(ok);
+   const ok=await talk.evaluate(async name=>{const image=new Image();image.src=(name==='neutral'?'images/characters/hana-hires/portrait-neutral.webp':'images/characters/hana-current/portraits/'+name+'.webp')+'?v=20261015-hana-hires-sleep-01';await image.decode();return image.naturalWidth>100},name);assert(ok);
   }
   assert.deepEqual(errors,[]);await cold.close();console.log('PASS',spec.name,'cold title and delayed portrait loading');
  }finally{await browser.close()}

@@ -53,7 +53,7 @@ async function finish(page){
   }
   await page.evaluate(()=>showThirdRoom({view:'left',bedInspected:false}));await finish(page);
   assert(await page.locator('.room3-sleeping-hana').isVisible());
-  assert.match(await page.locator('.room3-sleeping-hana').evaluate(e=>getComputedStyle(e).backgroundImage),/hana-current\/poses\/sleeping.webp/);
+  assert.match(await page.locator('.room3-sleeping-hana').evaluate(e=>getComputedStyle(e).backgroundImage),/hana-hires\/poses\/sleeping.webp/);
   await readyImages(page);await page.screenshot({path:path.join(dir,'room03-sleep.png')});
   await page.evaluate(()=>showFourthRoom({}));await finish(page);
   await page.evaluate(()=>r4SetHanaLookUp(true));

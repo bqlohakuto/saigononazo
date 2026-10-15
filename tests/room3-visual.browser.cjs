@@ -36,7 +36,20 @@ async function finishDialogue(page){
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.locator('.room3-sleeping-hana').waitFor({state:'visible'});
  const motion=()=>page.locator('.room3-sleeping-hana').evaluate(el=>({name:getComputedStyle(el).animationName,transform:getComputedStyle(el).transform}));
+ const sleepAsset=await page.locator('.room3-sleeping-hana').evaluate(async el=>{
+  const url=getComputedStyle(el).backgroundImage.match(/url\(["']?(.*?)["']?\)/)[1];
+  const image=new Image();image.src=url;await image.decode();
+  return {url,width:image.naturalWidth,height:image.naturalHeight,rendering:getComputedStyle(el).imageRendering};
+ });
+ assert.match(sleepAsset.url,/hana-hires\/poses\/sleeping.webp/);
+ assert.deepEqual([sleepAsset.width,sleepAsset.height],[1883,528]);
+ assert.equal(sleepAsset.rendering,'auto');
  const before=await motion();await page.waitForTimeout(1100);const after=await motion();
+ for(const snapshot of [before,after]){
+  const values=snapshot.transform.match(/matrix\(([^)]+)\)/)[1].split(',').map(Number);
+  assert(Math.abs(Math.hypot(values[0],values[1])-1)<0.00001,'Sleep motion never scales width');
+  assert(Math.abs(Math.hypot(values[2],values[3])-1)<0.00001,'Sleep motion never scales height');
+ }
  assert.equal(before.name,'hanaSleepBreath');assert.notEqual(before.transform,after.transform,'Breathing changes the approved sleep pose transform');
  assert.equal(await page.locator('.room3-sleep-shoes').evaluate(el=>getComputedStyle(el).animationName),'none','Shoes remain still');
  await page.screenshot({path:path.join(dir,'sleeping.png')});

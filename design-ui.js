@@ -26,7 +26,7 @@
   const hanaV2Base='images/characters/hana-current/';
   const pixelPortraitNames={gentle:'neutral',happy:'joy',thought:'thinking',surprise:'surprise',concern:'sadness',serious:'serious',sleepy:'sleepy',neutral:'neutral',excited:'laughter'};
   const hanaV2Ready=new Set();
-  const hanaV2Url=name=>{if(name==='full')return 'images/characters/hana-hires/idle/01.webp';const face=pixelPortraitNames[name]||'neutral';return (face==='neutral'?'images/characters/hana-hires/portrait-neutral.webp':hanaV2Base+'portraits/'+face+'.webp')+'?v=20261015-hana-hires-idle-02'};
+  const hanaV2Url=name=>{if(name==='full')return 'images/characters/hana-hires/idle/01.webp';const face=pixelPortraitNames[name]||'neutral';return (face==='neutral'?'images/characters/hana-hires/portrait-neutral.webp':hanaV2Base+'portraits/'+face+'.webp')+'?v=20261015-hana-hires-sleep-01'};
   for(const name of ['full',...hanaV2Names]){
     const img=new Image();
     img.onload=()=>{

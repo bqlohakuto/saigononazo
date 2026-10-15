@@ -2,6 +2,17 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const root=path.resolve(__dirname,'..'),base='images/characters/hana-hires/';
 const manifest=JSON.parse(fs.readFileSync(path.join(root,base,'manifest.json')));
 const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(path.join(root,p))).digest('hex');
+test('approved sleep pose stays opaque and replaces the archived sleep asset',()=>{
+ const sleep=JSON.parse(fs.readFileSync(path.join(root,base,'sleep-manifest.json')));
+ for(const a of sleep.assets){assert.equal(hash(base+a.path),a.sha256);assert.deepEqual([a.width,a.height],[1883,528]);}
+ assert.equal(sleep.interiorAlphaMin,255);
+ const archive='archive/characters/hana/2026-10-15-hires-sleep/';
+ const retired=JSON.parse(fs.readFileSync(path.join(root,archive,'manifest.json'))).files;
+ for(const a of retired){assert.equal(hash(archive+a.archivedPath),a.sha256);assert(!fs.existsSync(path.join(root,a.originalPath)));}
+ const css=fs.readFileSync(path.join(root,'style.css'),'utf8');
+ const motion=css.match(/@keyframes hanaSleepBreath\{.*?\}\}/)[0];
+ assert(!motion.includes('scale'));assert(motion.includes('rotate(.07deg)'));
+});
 test('approved high-resolution idle and portrait files match the manifest',()=>{
  assert.equal(manifest.assets.length,5);
  for(const a of manifest.assets){assert.equal(hash(base+a.path),a.sha256,a.path);if(a.path.startsWith('idle/'))assert.deepEqual([a.width,a.height],[1024,2048]);}

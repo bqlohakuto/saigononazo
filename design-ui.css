@@ -55,7 +55,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 #game .design-controls{position:absolute;bottom:4px;left:12px;right:50px;display:flex;gap:6px;pointer-events:auto;z-index:3}
 #game .design-controls button{background:transparent;border:1px solid transparent;color:#746c5e;min-height:28px;padding:3px 8px;font-size:clamp(10px,1cqw,14px)}
 #game .design-controls button[aria-pressed=true]{border-color:var(--gold);background:#eee4cb}
-#game .hana-portrait{position:absolute;pointer-events:none;left:1%;bottom:21%;height:66%;aspect-ratio:1;max-width:38%;background-image:url(images/characters/hana-current/portraits/neutral.webp);background-size:contain;background-position:center bottom;z-index:-1;animation:none}
+#game .hana-portrait{position:absolute;pointer-events:none;left:1%;bottom:21%;height:66%;aspect-ratio:1;max-width:38%;background-image:url(images/characters/hana-hires/portrait-neutral.webp);background-size:contain;background-position:center bottom;z-index:-1;animation:none}
 #game .hana-portrait[hidden]{display:none}
 #game .room-dialog-overlay[data-memory-stage] .hana-portrait{display:none!important}
 #game .room-dialog.dialog-hidden{background:transparent!important;border:0!important;box-shadow:none;pointer-events:none}
@@ -131,7 +131,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 @media(prefers-reduced-motion:reduce){#game *{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 /* Use the approved spirit-world portrait in exploration as well as dialogue. */
 #game :is(.hana-object,.room2-hana,.room3-hana,.r4hana){background:transparent!important;opacity:1;border-radius:0}
-#game :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:200%;aspect-ratio:1;background:url(images/characters/hana-current/world/idle/01.webp) center bottom/contain no-repeat;pointer-events:none}
+#game :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:200%;aspect-ratio:1;background:url(images/characters/hana-hires/idle/01.webp) center bottom/contain no-repeat;pointer-events:none}
 #game :is(.device-close,.inspection-close){position:absolute;right:12px;top:10px}
 #game .design-orientation{pointer-events:auto}
 /* Size every room against the game canvas, including letterboxed phones. */
@@ -187,7 +187,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
   left:1%;
 }
 #game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{
-  background-image:url("images/characters/hana-current/world/idle/01.webp");
+  background-image:url("images/characters/hana-hires/idle/01.webp");
   background-size:contain;
   background-position:center bottom;
   background-repeat:no-repeat;
@@ -207,7 +207,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 
 #game .late-room .hana-v2-world{
  position:absolute;left:1.5%;bottom:2%;height:66%;width:23%;
- background:url("images/characters/hana-current/world/idle/01.webp") center bottom/contain no-repeat;
+ background:url("images/characters/hana-hires/idle/01.webp") center bottom/contain no-repeat;
  z-index:8;pointer-events:none;opacity:.96;
 }
 @media(max-height:550px){#game .late-room .hana-v2-world{height:65%;width:20%;left:.5%}}
@@ -262,8 +262,8 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .room-dialog.is-log-open .hana-portrait{display:none!important}
 #game .room-dialog .dialog-log-area{height:100%;overflow:auto;color:var(--ink);scrollbar-color:var(--gold) var(--paper);touch-action:pan-y}
 #game .room-dialog.is-log-open .dialog-log-area .message-row{border-bottom:1px solid #e8d9b7;padding:.4em 0}
-#game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{background-image:url('images/characters/hana-current/world/idle/01.webp');image-rendering:pixelated}
-#game .late-room .hana-v2-world{background-image:url('images/characters/hana-current/world/idle/01.webp');image-rendering:pixelated}
+#game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before{background-image:url('images/characters/hana-hires/idle/01.webp');image-rendering:pixelated}
+#game .late-room .hana-v2-world{background-image:url('images/characters/hana-hires/idle/01.webp');image-rendering:pixelated}
 .pixel-opening-world{position:absolute;inset:0;background:#fff;isolation:isolate}
 .pixel-opening-background,.pixel-opening-veil,.pixel-opening-whiteout{position:absolute;inset:0;pointer-events:none}
 .pixel-opening-background{background:url('images/pixel-ui/white-room-fine.png') center/100% 100%;image-rendering:pixelated;opacity:0;transition:opacity 1s}
@@ -320,11 +320,11 @@ body{background:#0b1322!important;display:grid;place-items:center}
 
 /* Keep the resting silhouette steady; share only a brief blink with the opening. */
 @keyframes hanaExplorationIdle{
-  0%,100%{background-image:url("images/characters/hana-current/world/idle/01.webp")}
-  89.84%{background-image:url("images/characters/hana-current/world/idle/03.webp")}
-  91.97%{background-image:url("images/characters/hana-current/world/idle/04.webp")}
-  94.33%{background-image:url("images/characters/hana-current/world/idle/03.webp")}
-  96.46%{background-image:url("images/characters/hana-current/world/idle/01.webp")}
+  0%,100%{background-image:url("images/characters/hana-hires/idle/01.webp")}
+  89.84%{background-image:url("images/characters/hana-hires/idle/03.webp")}
+  91.97%{background-image:url("images/characters/hana-hires/idle/04.webp")}
+  94.33%{background-image:url("images/characters/hana-hires/idle/03.webp")}
+  96.46%{background-image:url("images/characters/hana-hires/idle/01.webp")}
 }
 @media(prefers-reduced-motion:no-preference){
   #game.hana-idle-ready.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before,
@@ -578,3 +578,9 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .title-home:is(.title-art-loading,.title-art-fallback) .title-menu button:not(#testRoomButton)::after{content:attr(aria-label);color:#fff;font:clamp(14px,1.5cqw,22px)/1.5 'DotGothic16',sans-serif}
 #game .title-art-loading .title-art-status{display:block;position:absolute;top:40%;left:50%;transform:translateX(-50%);color:#ddd;font-size:clamp(12px,1.2cqw,18px)}
 #game .title-art-status[hidden]{display:none}
+
+/* The new high-resolution neutral artwork needs normal downsampling. */
+#game.hana-v2-full-ready :is(.hana-object,.room2-hana,.room3-hana,.r4hana)::before,
+#game .late-room .hana-v2-world,
+#game .pixel-opening-hana img,
+#game .hana-portrait:is([data-expression=gentle],[data-expression=neutral]){image-rendering:auto}

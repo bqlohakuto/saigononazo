@@ -1,0 +1,82 @@
+{
+  "version": "20261015-hana-hires-idle-01",
+  "approvedSourceSize": [
+    887,
+    1774
+  ],
+  "quality": {
+    "bodyPixelDifferences": 0,
+    "alphaPixelDifferences": 0,
+    "changedEyeBounds": [
+      430,
+      278,
+      643,
+      380
+    ],
+    "interiorAlphaMin": 255,
+    "canvas": [
+      1024,
+      2048
+    ],
+    "shoeBaseline": 2000
+  },
+  "assets": [
+    {
+      "path": "idle/01.webp",
+      "width": 1024,
+      "height": 2048,
+      "sha256": "acac20c55d7299da75d92c63e90e2902e56e2f1fffe25b833eaedc783748f2a4"
+    },
+    {
+      "path": "idle/02.webp",
+      "width": 1024,
+      "height": 2048,
+      "sha256": "acac20c55d7299da75d92c63e90e2902e56e2f1fffe25b833eaedc783748f2a4"
+    },
+    {
+      "path": "idle/03.webp",
+      "width": 1024,
+      "height": 2048,
+      "sha256": "1ada06c792970368c41869989f89ce26c4c3c8e9b13bd1dbbe5339f3dd3221a2"
+    },
+    {
+      "path": "idle/04.webp",
+      "width": 1024,
+      "height": 2048,
+      "sha256": "1984fba5a4fae98c9e844612674e9c41971d26f981b468a7bbcdf57855319de3"
+    },
+    {
+      "path": "portrait-neutral.webp",
+      "width": 512,
+      "height": 512,
+      "sha256": "8f1663c0837a2f9f51c2347c8a2c9c46a7b9801713636d2bebca7a13c6416ca5"
+    }
+  ],
+  "eyeSourceBoxes": [
+    [
+      374,
+      160,
+      451,
+      220
+    ],
+    [
+      476,
+      180,
+      551,
+      239
+    ]
+  ],
+  "normalization": {
+    "sourceBounds": [
+      173,
+      8,
+      710,
+      1680
+    ],
+    "scale": 1.1291866028708133,
+    "offset": [
+      209,
+      112
+    ]
+  }
+}

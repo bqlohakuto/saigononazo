@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['index.html', 'script.js', 'design-ui.js', 'design-ui.css', 'tests/title-portrait-loading.browser.cjs', 'tests/hana-assets*', 'images/characters/hana-current/**', '.github/workflows/title-portrait-review.yml']
+    paths: ['index.html', 'script.js', 'design-ui.js', 'design-ui.css', 'tests/title-portrait-loading.browser.cjs', 'tests/hana-assets*', 'images/characters/hana-current/**', 'images/characters/hana-hires/**', '.github/workflows/title-portrait-review.yml']
 permissions:
   contents: read
 jobs:
@@ -31,7 +31,7 @@ jobs:
           done
           exit 1
       - run: node tests/title-portrait-loading.browser.cjs
-      - run: node --test tests/hana-assets.test.cjs tests/cache-version.test.cjs tests/pixel-opening-state.test.cjs tests/room4-hana-look-source.test.cjs
+      - run: node --test tests/hana-assets.test.cjs tests/hana-hires-assets.test.cjs tests/cache-version.test.cjs tests/pixel-opening-state.test.cjs tests/room4-hana-look-source.test.cjs
       - run: node tests/hana-assets.browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()

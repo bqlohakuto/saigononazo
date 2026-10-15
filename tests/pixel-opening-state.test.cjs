@@ -18,7 +18,7 @@ test('paginated opening and resumed source IDs retain camera and door state',()=
 test('all prototype opening and character assets are vendored locally',()=>{
  const assets=['white-room.png','title-background-pixel.png',...['question','sweat','thinking'].map(n=>'bubbles-side/right/'+n+'.png')];
  for(const asset of assets)assert(fs.existsSync(path.join(root,'images/pixel-ui',asset)),asset);
- const current=['01','02','03','04'].map(f=>'world/idle/'+f+'.webp');
- for(const name of ['neutral','joy','anger','sadness','laughter','surprise','confused','thinking','sleepy'])current.push('world/'+name+'.webp','portraits/'+name+'.webp');
- for(const asset of current)assert(fs.existsSync(path.join(root,'images/characters/hana-current',asset)),asset);
+ const idle=['01','02','03','04'].map(f=>'idle/'+f+'.webp');
+ for(const asset of idle)assert(fs.existsSync(path.join(root,'images/characters/hana-hires',asset)),asset);
+ for(const name of ['joy','anger','sadness','laughter','surprise','confused','thinking','sleepy'])assert(fs.existsSync(path.join(root,'images/characters/hana-current/portraits',name+'.webp')),name);
 });

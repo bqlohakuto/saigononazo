@@ -15,6 +15,6 @@ test('runtime has no legacy or archive character references, including fallbacks
 });
 test('every current character asset matches its manifest and full bodies share a canvas',()=>{
  const manifest=JSON.parse(fs.readFileSync(path.join(root,current,'manifest.json')));
- assert.equal(manifest.assets.length,40);
+ assert.equal(manifest.assets.length,25);
  for(const f of manifest.assets){assert.equal(hash(current+'/'+f.path),f.sha256,f.path);if(f.path.startsWith('world/'))assert.deepEqual([f.width,f.height],[512,1024],f.path);}
 });

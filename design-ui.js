@@ -25,7 +25,7 @@
   const hanaV2Base='images/characters/hana-current/';
   const pixelPortraitNames={gentle:'neutral',happy:'joy',thought:'thinking',surprise:'surprise',concern:'sadness',serious:'serious',sleepy:'sleepy',neutral:'neutral',excited:'laughter'};
   const hanaV2Ready=new Set();
-  const hanaV2Url=name=>hanaV2Base+(name==='full'?'world/idle/01.webp':'portraits/'+(pixelPortraitNames[name]||'neutral')+'.webp')+'?v=20261015-hana-regenerated-01';
+  const hanaV2Url=name=>{const face=pixelPortraitNames[name]||'neutral';return (name==='full'?'images/characters/hana-hires/idle/01.webp':face==='neutral'?'images/characters/hana-hires/portrait-neutral.webp':hanaV2Base+'portraits/'+face+'.webp')+'?v=20261015-hana-hires-idle-01'};
   for(const name of ['full',...hanaV2Names]){
     const img=new Image();
     img.onload=()=>{
@@ -42,22 +42,15 @@
   Promise.all([1,2,3,4].map(frame=>new Promise(resolve=>{
     const image=new Image();
     image.onload=()=>resolve(true);image.onerror=()=>resolve(false);
-    image.src='images/characters/hana-current/world/idle/0'+frame+'.webp';
+    image.src='images/characters/hana-hires/idle/0'+frame+'.webp';
   }))).then(loaded=>{if(loaded.every(Boolean))game.classList.add('hana-idle-ready')});
-  // The approved full-body variants share the idle canvas and baseline.
-  const worldExpressionReady=new Set();
-  for(const name of new Set(Object.values(pixelPortraitNames))){
-    const img=new Image();img.onload=()=>{worldExpressionReady.add(name);syncWorldExpression()};
-    img.src='images/characters/hana-current/world/'+name+'.webp';
-  }
+  // Keep the approved high-resolution body stable. Dialogue expressions remain
+  // in the portrait; independent full-body renders introduced shape and alpha noise.
   function syncWorldExpression(clear=false){
-    const name=pixelPortraitNames[hanaV2Names[expression]]||'neutral';
-    const active=!clear&&name!=='neutral'&&worldExpressionReady.has(name);
-    game.classList.toggle('has-world-expression',active);
-    if(active)game.style.setProperty('--hana-world-expression','url("images/characters/hana-current/world/'+name+'.webp")');
-    else game.style.removeProperty('--hana-world-expression');
+    game.classList.remove('has-world-expression');
+    game.style.removeProperty('--hana-world-expression');
     const sprite=game.querySelector('#openingHanaSprite');
-    if(sprite&&!clear){sprite.dataset.emotion=active?name:'idle';if(active)sprite.src='images/characters/hana-current/world/'+name+'.webp'}
+    if(sprite&&!clear)sprite.dataset.emotion='idle';
   }
   function panel(title){
     if(modal)modal.close();

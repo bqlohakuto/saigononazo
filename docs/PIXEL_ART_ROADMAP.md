@@ -2,7 +2,7 @@
 
 ## 基準と制約
 
-- **画風の基準**：ハナ `images/characters/hana-current/`、携帯 `images/items/phone-open-frame.png`、第1の `room01_*_fine.png`、オープニング `white-room-fine.png`。細かなピクセル輪郭・階調を合わせる。
+- **画風の基準**：ハナの通常立ち絵 `images/characters/hana-hires/`（専用ポーズは `images/characters/hana-current/`）、携帯 `images/items/phone-open-frame.png`、第1の `room01_*_fine.png`、オープニング `white-room-fine.png`。細かなピクセル輪郭・階調を合わせる。
 - **描き替えるのはビジュアルのみ**。確定台詞、LOG ID、謎の答え、調査順序、アイテム、部屋遷移は変更しない。
 - **PC優先／横向きスマホ対応**。16:9程度の広いゲーム領域を主基準とし、低い画面でも調査・会話操作を隠さない。
 - **先に重複確認**。すでにCSS・SVG・別レイヤーで表示しているオブジェクトを背景画像に二重に描かない。クリック範囲と絵を同じ座標系で扱う。

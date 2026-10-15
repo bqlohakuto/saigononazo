@@ -35,11 +35,10 @@ async function finishDialogue(page){
  if(view==='left'){
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.locator('.room3-sleeping-hana').waitFor({state:'visible'});
- const motion=()=>page.locator('.sleep-body').evaluate(el=>({name:getComputedStyle(el).animationName,transform:getComputedStyle(el).transform}));
+ const motion=()=>page.locator('.room3-sleeping-hana').evaluate(el=>({name:getComputedStyle(el).animationName,transform:getComputedStyle(el).transform}));
  const before=await motion();await page.waitForTimeout(1100);const after=await motion();
- assert.equal(before.name,'hanaSleepBreath');assert.notEqual(before.transform,after.transform,'Breathing changes upper-body transform');
+ assert.equal(before.name,'hanaSleepBreath');assert.notEqual(before.transform,after.transform,'Breathing changes the approved sleep pose transform');
  assert.equal(await page.locator('.room3-sleep-shoes').evaluate(el=>getComputedStyle(el).animationName),'none','Shoes remain still');
- assert.equal(await page.locator('.sleep-head').evaluate(el=>getComputedStyle(el).transform),'none','Head remains on pillow');
  await page.screenshot({path:path.join(dir,'sleeping.png')});
  await page.emulateMedia({reducedMotion:'reduce'});assert.equal((await motion()).name,'none','Reduced motion respected');
  }

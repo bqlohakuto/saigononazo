@@ -1,5 +1,5 @@
 {
-  "version": "20261015-hana-shoes-01",
+  "version": "20261015-hana-hires-idle-01",
   "worldCanvas": [
     512,
     1024
@@ -7,34 +7,6 @@
   "shoeBaseline": 1000,
   "standingContentHeight": 944,
   "assets": [
-    {
-      "path": "world/idle/01.webp",
-      "source": "blink/01.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
-    },
-    {
-      "path": "world/idle/02.webp",
-      "source": "blink/01.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
-    },
-    {
-      "path": "world/idle/03.webp",
-      "source": "blink/02.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "a1b024bb690a73d7b39a4056d6db1397710715328bc6e8bf05a020bd9b9d90f4"
-    },
-    {
-      "path": "world/idle/04.webp",
-      "source": "blink/03.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "d88d4d103f73440c9344f37e0e07c52a53d5dcace777fb1c2e65c5a53a4b8095"
-    },
     {
       "path": "world/look-up/01.webp",
       "source": "look-up/01.png",
@@ -62,76 +34,6 @@
       "width": 512,
       "height": 1024,
       "sha256": "b5310cba12a5c2488cb33d49dad1f8f918a6989e207cb8087ce67582f7784b8f"
-    },
-    {
-      "path": "world/neutral.webp",
-      "source": "blink/01.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
-    },
-    {
-      "path": "world/joy.webp",
-      "source": "special-poses/01.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "2b0279db74afedc32f58c9aa82407db505fcaa54276b0c61925e157ad4793d90"
-    },
-    {
-      "path": "world/laughter.webp",
-      "source": "special-poses/01.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "2b0279db74afedc32f58c9aa82407db505fcaa54276b0c61925e157ad4793d90"
-    },
-    {
-      "path": "world/thinking.webp",
-      "source": "exploration-poses/08.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "eaa9188dee62115a8eb5225fdbb1fb75d8599ac0473677b68672a8cd30e028e7"
-    },
-    {
-      "path": "world/surprise.webp",
-      "source": "special-poses/02.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "c46693b8de3758286e644e8c120e8a8de454b15be54ac01c34796163901ba335"
-    },
-    {
-      "path": "world/sadness.webp",
-      "source": "tear-smile/02.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "ab84aa42cbbff755bc39f048484c49901030fce9141feb2c93bce5da7bbe1afd"
-    },
-    {
-      "path": "world/sleepy.webp",
-      "source": "yawn/01.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "ee9f7ec36a7a4fed99c4772ad74004cd6a9d897a131337047ce2020f4ed8cdcc"
-    },
-    {
-      "path": "world/confused.webp",
-      "source": "exploration-poses/08.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "eaa9188dee62115a8eb5225fdbb1fb75d8599ac0473677b68672a8cd30e028e7"
-    },
-    {
-      "path": "world/anger.webp",
-      "source": "blink/01.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
-    },
-    {
-      "path": "portraits/neutral.webp",
-      "source": "expressions/01.png",
-      "width": 384,
-      "height": 384,
-      "sha256": "66ca3e5f6548a9bf80434ebe2b8632e974675c76ae8066d9111fe8f89abe3b58"
     },
     {
       "path": "portraits/joy.webp",
@@ -279,13 +181,6 @@
       "width": 512,
       "height": 341,
       "sha256": "b86daf576476a602dc74173f9d82bbacf336a4f20dcd683ca2d5a6d602305cfb"
-    },
-    {
-      "path": "world/serious.webp",
-      "source": "blink/01.png",
-      "width": 512,
-      "height": 1024,
-      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
     }
   ],
   "idleMotion": "Static body with brief blinks; no chest expansion frame."

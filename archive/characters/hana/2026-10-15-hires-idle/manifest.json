@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "originalPath": "images/characters/hana-current/world/idle/04.webp",
+      "sha256": "d88d4d103f73440c9344f37e0e07c52a53d5dcace777fb1c2e65c5a53a4b8095"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/idle/01.webp",
+      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/idle/02.webp",
+      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/idle/03.webp",
+      "sha256": "a1b024bb690a73d7b39a4056d6db1397710715328bc6e8bf05a020bd9b9d90f4"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/sleepy.webp",
+      "sha256": "ee9f7ec36a7a4fed99c4772ad74004cd6a9d897a131337047ce2020f4ed8cdcc"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/anger.webp",
+      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/laughter.webp",
+      "sha256": "2b0279db74afedc32f58c9aa82407db505fcaa54276b0c61925e157ad4793d90"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/surprise.webp",
+      "sha256": "c46693b8de3758286e644e8c120e8a8de454b15be54ac01c34796163901ba335"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/confused.webp",
+      "sha256": "eaa9188dee62115a8eb5225fdbb1fb75d8599ac0473677b68672a8cd30e028e7"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/serious.webp",
+      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/neutral.webp",
+      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/sadness.webp",
+      "sha256": "ab84aa42cbbff755bc39f048484c49901030fce9141feb2c93bce5da7bbe1afd"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/joy.webp",
+      "sha256": "2b0279db74afedc32f58c9aa82407db505fcaa54276b0c61925e157ad4793d90"
+    },
+    {
+      "originalPath": "images/characters/hana-current/world/thinking.webp",
+      "sha256": "eaa9188dee62115a8eb5225fdbb1fb75d8599ac0473677b68672a8cd30e028e7"
+    },
+    {
+      "originalPath": "images/characters/hana-current/portraits/neutral.webp",
+      "sha256": "66ca3e5f6548a9bf80434ebe2b8632e974675c76ae8066d9111fe8f89abe3b58"
+    }
+  ]
+}

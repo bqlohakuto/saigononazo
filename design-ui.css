@@ -318,11 +318,9 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .inspection-focus-background .inspection-art-button{display:flex;align-items:center;justify-content:center;opacity:1;pointer-events:none}
 #game:has(.inspection-focus-background) .gameplay-hud{visibility:hidden}
 
-/* Share the opening's gentle breathing and brief blink with exploration Hana. */
+/* Keep the resting silhouette steady; share only a brief blink with the opening. */
 @keyframes hanaExplorationIdle{
   0%,100%{background-image:url("images/characters/hana-current/world/idle/01.webp")}
-  52.01%{background-image:url("images/characters/hana-current/world/idle/02.webp")}
-  73.29%{background-image:url("images/characters/hana-current/world/idle/01.webp")}
   89.84%{background-image:url("images/characters/hana-current/world/idle/03.webp")}
   91.97%{background-image:url("images/characters/hana-current/world/idle/04.webp")}
   94.33%{background-image:url("images/characters/hana-current/world/idle/03.webp")}

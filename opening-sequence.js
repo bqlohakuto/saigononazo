@@ -108,7 +108,7 @@ function updatePixelOpening(line) {
 function startOpeningIdle() {
   const sprite=document.getElementById('openingHanaSprite');if(!sprite)return;
   const start=performance.now();let last='';
-  const sequence=[[1,2200],[2,900],[1,700],[3,90],[4,100],[3,90],[1,150]];
+  const sequence=[[1,3800],[3,90],[4,100],[3,90],[1,150]];
   function animate(now){
     if(!sprite.isConnected)return;
     if(sprite.dataset.emotion==='idle'&&!document.hidden&&!game.querySelector('.design-overlay,.is-log-open')){

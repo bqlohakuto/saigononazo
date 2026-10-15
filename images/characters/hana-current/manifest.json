@@ -1,5 +1,5 @@
 {
-  "version": "20261015-hana-regenerated-01",
+  "version": "20261015-hana-idle-blink-01",
   "worldCanvas": [
     512,
     1024
@@ -16,10 +16,10 @@
     },
     {
       "path": "world/idle/02.webp",
-      "source": "breathe/03.png",
+      "source": "blink/01.png",
       "width": 512,
       "height": 1024,
-      "sha256": "64e885f7b4ace6aaea6bf3c29c493999619349b5e449e3aeeab99bc483f7900e"
+      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
     },
     {
       "path": "world/idle/03.webp",
@@ -287,5 +287,6 @@
       "height": 1024,
       "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
     }
-  ]
+  ],
+  "idleMotion": "Static body with brief blinks; no chest expansion frame."
 }

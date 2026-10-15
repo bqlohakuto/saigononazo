@@ -9,7 +9,7 @@ on:
       - 'index.html'
       - 'design-ui.css'
       - 'images/pixel-ui/white-room-fine.png'
-      - 'images/pixel-ui/hana-v8/**'
+      - 'images/characters/hana-current/**'
       - 'opening-sequence.js'
 
 permissions:
@@ -39,6 +39,6 @@ jobs:
           grep -Fq 'white-room-fine.png' "$RUNNER_TEMP/design-ui.css"
           curl -fsSL --retry 4 "$base/images/pixel-ui/white-room-fine.png?asset-check=$GITHUB_SHA" -o "$RUNNER_TEMP/white-room-fine.png"
           node -e "const fs=require('fs'),assert=require('assert');const x=fs.readFileSync(process.argv[1]);assert(x.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])));const w=x.readUInt32BE(16),h=x.readUInt32BE(20);assert(w>0&&h>0);console.log('PUBLIC PNG PASS',w,h,x.length)" "$RUNNER_TEMP/white-room-fine.png"
-          curl -fsSL --retry 4 "$base/images/pixel-ui/hana-v8/idle/01.png" -o "$RUNNER_TEMP/hana.png"
-          node -e "const x=require('fs').readFileSync(process.argv[1]);require('assert').equal(x.toString('hex',1,4),'504e47');console.log('PUBLIC HANA PNG PASS',x.length)" "$RUNNER_TEMP/hana.png"
-          echo "PUBLIC asset HTTP PASS: latest version, fine room PNG, Hana PNG"
+          curl -fsSL --retry 4 "$base/images/characters/hana-current/world/idle/01.webp" -o "$RUNNER_TEMP/hana.webp"
+          node -e "const x=require('fs').readFileSync(process.argv[1]);require('assert').equal(x.toString('ascii',0,4),'RIFF');require('assert').equal(x.toString('ascii',8,12),'WEBP');console.log('PUBLIC HANA WEBP PASS',x.length)" "$RUNNER_TEMP/hana.webp"
+          echo "PUBLIC asset HTTP PASS: latest version, fine room PNG, Hana WebP"

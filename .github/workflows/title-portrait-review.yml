@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['index.html', 'script.js', 'design-ui.js', 'design-ui.css', 'tests/title-portrait-loading.browser.cjs', '.github/workflows/title-portrait-review.yml']
+    paths: ['index.html', 'script.js', 'design-ui.js', 'design-ui.css', 'tests/title-portrait-loading.browser.cjs', 'tests/hana-assets*', 'images/characters/hana-current/**', '.github/workflows/title-portrait-review.yml']
 permissions:
   contents: read
 jobs:

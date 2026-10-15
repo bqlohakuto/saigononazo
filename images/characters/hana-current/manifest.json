@@ -1,5 +1,5 @@
 {
-  "version": "20261015-hana-idle-blink-01",
+  "version": "20261015-hana-shoes-01",
   "worldCanvas": [
     512,
     1024
@@ -274,11 +274,11 @@
       "sha256": "2fa2ca9f1040ed89b7c0a2709761e37a2262ee354afa5dbb85e7112882690ad8"
     },
     {
-      "path": "poses/shoes.webp",
-      "source": "blink/01.png, feet",
-      "width": 153,
-      "height": 62,
-      "sha256": "0b922e4a4acd369b2323d4bd3bf26d02b6e6d4fa617e068877c7133de2b3784c"
+      "path": "poses/shoes-generated-v2.webp",
+      "source": "original image generation: empty ivory sneakers, 2026-10-15",
+      "width": 512,
+      "height": 341,
+      "sha256": "b86daf576476a602dc74173f9d82bbacf336a4f20dcd683ca2d5a6d602305cfb"
     },
     {
       "path": "world/serious.webp",

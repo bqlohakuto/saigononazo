@@ -258,7 +258,7 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .room3-stage[data-view=left].hana-asleep :is(.room3-sleeping-hana,.room3-sleep-shoes){display:block}
 .room3-sleeping-hana{left:23.3%;top:28%;width:48.5%;height:19.7%;background:url(images/characters/hana-current/poses/sleeping.webp) center/contain no-repeat;transform-origin:50% 90%;animation:hanaSleepBreath 4.4s ease-in-out infinite}
 .room3-sleeping-hana span{display:none}
-.room3-sleep-shoes{left:64.4%;top:68.8%;width:8.1%;height:8.7%;background:url(images/characters/hana-current/poses/shoes.webp) center/contain no-repeat}
+.room3-sleep-shoes{left:64.4%;top:68.8%;width:8.1%;height:8.7%;background:url(images/characters/hana-current/poses/shoes-generated-v2.webp) center/contain no-repeat}
 #game .room3-object.room3-sleep-target{left:23.3%;top:28%;width:48.5%;height:19.7%;z-index:9}
 #game .room .room3-sleep-target::after{left:13%;top:5%}
 @keyframes hanaSleepBreath{0%,100%{transform:scaleY(1)}45%,55%{transform:scaleY(1.014)}}

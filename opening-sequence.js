@@ -113,7 +113,7 @@ function startOpeningIdle() {
     if(!sprite.isConnected)return;
     if(sprite.dataset.emotion==='idle'&&!document.hidden&&!game.querySelector('.design-overlay,.is-log-open')){
       let frame=1,t=(now-start)%4230;
-      if(!matchMedia('(prefers-reduced-motion: reduce)').matches)for(const [f,ms] of sequence){if(t<ms){frame=f;break}t-=ms}
+      if(game.classList.contains('hana-idle-ready')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)for(const [f,ms] of sequence){if(t<ms){frame=f;break}t-=ms}
       const path='images/characters/hana-hires/idle/0'+frame+'.webp';if(path!==last||!sprite.src.endsWith(path)){sprite.src=path;last=path}
     }
     requestAnimationFrame(animate);

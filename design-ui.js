@@ -1,11 +1,12 @@
 // Shared presentation only: puzzle rules and story progression stay in their room modules.
 (() => {
   // Resolve the local font before any title action creates paginated dialogue.
-  let neutralReadyResolve;
+  let neutralReadyResolve,fullReadyResolve;
   const neutralReady=new Promise(resolve=>{neutralReadyResolve=resolve});
+  const fullReady=new Promise(resolve=>{fullReadyResolve=resolve});
   let titleReady=!document.fonts;
   const fontLoading=document.fonts?document.fonts.load('16px "DotGothic16"').catch(()=>[]):Promise.resolve();
-  const titleReadyPromise=Promise.all([fontLoading,neutralReady]).then(()=>{titleReady=true});
+  const titleReadyPromise=Promise.all([fontLoading,neutralReady,fullReady]).then(()=>{titleReady=true});
   document.addEventListener('click',event=>{
     const target=event.target.closest?.('.title-screen button');
     if(titleReady||!target||target.disabled)return;
@@ -25,17 +26,17 @@
   const hanaV2Base='images/characters/hana-current/';
   const pixelPortraitNames={gentle:'neutral',happy:'joy',thought:'thinking',surprise:'surprise',concern:'sadness',serious:'serious',sleepy:'sleepy',neutral:'neutral',excited:'laughter'};
   const hanaV2Ready=new Set();
-  const hanaV2Url=name=>{const face=pixelPortraitNames[name]||'neutral';return (name==='full'?'images/characters/hana-hires/idle/01.webp':face==='neutral'?'images/characters/hana-hires/portrait-neutral.webp':hanaV2Base+'portraits/'+face+'.webp')+'?v=20261015-hana-hires-idle-01'};
+  const hanaV2Url=name=>{if(name==='full')return 'images/characters/hana-hires/idle/01.webp';const face=pixelPortraitNames[name]||'neutral';return (face==='neutral'?'images/characters/hana-hires/portrait-neutral.webp':hanaV2Base+'portraits/'+face+'.webp')+'?v=20261015-hana-hires-idle-02'};
   for(const name of ['full',...hanaV2Names]){
     const img=new Image();
     img.onload=()=>{
       hanaV2Ready.add(name);
       if(name==='neutral')neutralReadyResolve();
-      if(name==='full'){game.classList.add('hana-v2-full-ready');syncHud()}
+      if(name==='full'){game.classList.add('hana-v2-full-ready');fullReadyResolve();syncHud()}
       const portrait=game.querySelector('.hana-portrait');
       if(portrait)setExpression(portrait);
     };
-    img.onerror=()=>{if(name==='neutral')neutralReadyResolve()};
+    img.onerror=()=>{if(name==='neutral')neutralReadyResolve();if(name==='full')fullReadyResolve()};
     img.src=hanaV2Url(name);
   }
   // Start only once every idle frame has loaded; failed assets keep the static fallback.

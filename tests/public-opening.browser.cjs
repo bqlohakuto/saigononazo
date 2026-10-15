@@ -118,8 +118,10 @@ async function runCase(spec) {
     assert.equal((await getState()).hanaVisible, 'true');
     assert(await page.locator('#character-area').isVisible(), 'Hana should appear at opening_14');
     const hana = await page.locator('#openingHanaSprite').evaluate(async img => {
-      await img.decode();
-      return { width: img.naturalWidth, height: img.naturalHeight, src: img.currentSrc };
+      // Decode a stable snapshot; the live img may advance to another blink frame.
+      const snapshot = new Image(); snapshot.src = img.currentSrc || img.src;
+      await snapshot.decode();
+      return { width: snapshot.naturalWidth, height: snapshot.naturalHeight, src: snapshot.src };
     });
     assert(hana.width > 0 && hana.height > 0, 'Hana image did not decode');
     await shot('05-hana');

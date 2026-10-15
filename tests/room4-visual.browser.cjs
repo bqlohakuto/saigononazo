@@ -25,6 +25,7 @@ async function finish(page){
  const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  let deployed=false;for(let i=0;i<24;i++){await page.goto(url+'?room4_review='+Date.now());if((await page.locator('script[src*="room4.js"]').getAttribute('src')).includes(version)){deployed=true;break}await page.waitForTimeout(8000)}assert(deployed,'Expected deployed version');
  const dir=path.join('artifacts/room04',spec.name);fs.mkdirSync(dir,{recursive:true});
+ await page.waitForSelector('#game.hana-v2-full-ready');
  // The original introduction must trigger the ceiling-gaze pose on its confirmed narration.
  await page.evaluate(()=>{settings.instantText=true;showFourthRoom()});
  const hanaScale=await page.locator('#r4Hana').evaluate(el=>{

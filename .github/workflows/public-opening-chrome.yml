@@ -29,6 +29,19 @@ jobs:
             exit 1
           fi
           google-chrome --version
+      - name: Wait for published code
+        run: |
+          for i in $(seq 1 40); do
+            ready=1
+            for f in index.html script.js design-ui.js design-ui.css opening-sequence.js; do
+              curl -fsSL --max-time 20 "https://bqlohakuto.github.io/saigononazo/$f?verify=$GITHUB_SHA-$i" -o "/tmp/chrome-$(basename $f)" || ready=0
+              expected=$(sha256sum "$f" | cut -d ' ' -f 1)
+              echo "$expected  /tmp/chrome-$(basename $f)" | sha256sum -c - || ready=0
+            done
+            if [ "$ready" = 1 ]; then exit 0; fi
+            sleep 10
+          done
+          exit 1
       - name: Verify desktop and mobile landscape on published page
         env:
           PUBLIC_BASE_URL: https://bqlohakuto.github.io/saigononazo/

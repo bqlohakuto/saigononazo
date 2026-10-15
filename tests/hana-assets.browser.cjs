@@ -60,6 +60,7 @@ async function finish(page){
   // Detailed geometry is covered by room4-visual.browser.cjs. This pass
   // checks the dedicated asset and visibility without injecting layout probes.
   assert.match(await page.locator('.r4-hana-look-pose').evaluate(e=>getComputedStyle(e).backgroundImage),/hana-current\/world\/look-up\/04.webp/);
+  await page.waitForFunction(()=>getComputedStyle(document.querySelector('#r4Hana .r4-hana-look-pose')).opacity==='1');
   assert.equal(await page.locator('.r4-hana-look-pose').evaluate(e=>getComputedStyle(e).opacity),'1');
   await readyImages(page);await page.screenshot({path:path.join(dir,'room04-look-up.png')});
   await page.emulateMedia({reducedMotion:'no-preference'});

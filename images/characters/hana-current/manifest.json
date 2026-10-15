@@ -1,0 +1,291 @@
+{
+  "version": "20261015-hana-regenerated-01",
+  "worldCanvas": [
+    512,
+    1024
+  ],
+  "shoeBaseline": 1000,
+  "standingContentHeight": 944,
+  "assets": [
+    {
+      "path": "world/idle/01.webp",
+      "source": "blink/01.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
+    },
+    {
+      "path": "world/idle/02.webp",
+      "source": "breathe/03.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "64e885f7b4ace6aaea6bf3c29c493999619349b5e449e3aeeab99bc483f7900e"
+    },
+    {
+      "path": "world/idle/03.webp",
+      "source": "blink/02.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "a1b024bb690a73d7b39a4056d6db1397710715328bc6e8bf05a020bd9b9d90f4"
+    },
+    {
+      "path": "world/idle/04.webp",
+      "source": "blink/03.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "d88d4d103f73440c9344f37e0e07c52a53d5dcace777fb1c2e65c5a53a4b8095"
+    },
+    {
+      "path": "world/look-up/01.webp",
+      "source": "look-up/01.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "4d5741d3b0167198760d1d85446a2ae7fbea4b4e4be2bb316598e11017cbe9cc"
+    },
+    {
+      "path": "world/look-up/02.webp",
+      "source": "look-up/02.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "65aaea5100c6e77459e4ec8b7609ad2eff2acc0950d108aeed105a577f37fb20"
+    },
+    {
+      "path": "world/look-up/03.webp",
+      "source": "look-up/03.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "59396ca2437f6288a048143dfacf1412a42c9a8262b4d5361e7e4a3df8448028"
+    },
+    {
+      "path": "world/look-up/04.webp",
+      "source": "look-up/04.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "b5310cba12a5c2488cb33d49dad1f8f918a6989e207cb8087ce67582f7784b8f"
+    },
+    {
+      "path": "world/neutral.webp",
+      "source": "blink/01.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
+    },
+    {
+      "path": "world/joy.webp",
+      "source": "special-poses/01.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "2b0279db74afedc32f58c9aa82407db505fcaa54276b0c61925e157ad4793d90"
+    },
+    {
+      "path": "world/laughter.webp",
+      "source": "special-poses/01.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "2b0279db74afedc32f58c9aa82407db505fcaa54276b0c61925e157ad4793d90"
+    },
+    {
+      "path": "world/thinking.webp",
+      "source": "exploration-poses/08.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "eaa9188dee62115a8eb5225fdbb1fb75d8599ac0473677b68672a8cd30e028e7"
+    },
+    {
+      "path": "world/surprise.webp",
+      "source": "special-poses/02.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "c46693b8de3758286e644e8c120e8a8de454b15be54ac01c34796163901ba335"
+    },
+    {
+      "path": "world/sadness.webp",
+      "source": "tear-smile/02.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "ab84aa42cbbff755bc39f048484c49901030fce9141feb2c93bce5da7bbe1afd"
+    },
+    {
+      "path": "world/sleepy.webp",
+      "source": "yawn/01.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "ee9f7ec36a7a4fed99c4772ad74004cd6a9d897a131337047ce2020f4ed8cdcc"
+    },
+    {
+      "path": "world/confused.webp",
+      "source": "exploration-poses/08.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "eaa9188dee62115a8eb5225fdbb1fb75d8599ac0473677b68672a8cd30e028e7"
+    },
+    {
+      "path": "world/anger.webp",
+      "source": "blink/01.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
+    },
+    {
+      "path": "portraits/neutral.webp",
+      "source": "expressions/01.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "66ca3e5f6548a9bf80434ebe2b8632e974675c76ae8066d9111fe8f89abe3b58"
+    },
+    {
+      "path": "portraits/joy.webp",
+      "source": "expressions/02.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "8cf6efd34c96e93a5643cafe78cf5897c58f7066db4a5ebb163e2df43e3d6921"
+    },
+    {
+      "path": "portraits/laughter.webp",
+      "source": "expressions/03.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "6a0acacc2ecec8f0a638402c8933ff113282f8de9bff544c1c5af79454be9293"
+    },
+    {
+      "path": "portraits/thinking.webp",
+      "source": "expressions/04.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "121fad5998ba1599994f3dcb759037aecb2fc3a7cdc454b5aed98b44f200f790"
+    },
+    {
+      "path": "portraits/surprise.webp",
+      "source": "expressions/05.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "9906743ea802cc249cfbd256cad7d6d9db177b5b51d36aab0abab348b0b04604"
+    },
+    {
+      "path": "portraits/shy.webp",
+      "source": "expressions/06.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "e1ae9c1b1c2be829ae1f2ed26cd345170700d9c1be9376bfed9f0afe3c96ef2c"
+    },
+    {
+      "path": "portraits/playful.webp",
+      "source": "expressions/07.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "c7786eadea1d7ed54e7e570f881390484d82aaefd773ee2ba47ec3a4f61c10ae"
+    },
+    {
+      "path": "portraits/anger.webp",
+      "source": "expressions/08.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "e2d624a59c5894dc2ace0d5fd67e6528f1cc5433b13a97c4ffacf8c6792cc930"
+    },
+    {
+      "path": "portraits/confused.webp",
+      "source": "expressions/09.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "5dd8df0afa925b182430aea011648f02b5bf8b8a750af1617f6d9f838892c1ce"
+    },
+    {
+      "path": "portraits/serious.webp",
+      "source": "expressions/10.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "fdd50ec07d006778cc3c0cb795ca03400574e4f2b11e81b1d24812180fd5aed4"
+    },
+    {
+      "path": "portraits/sleepy.webp",
+      "source": "expressions/11.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "81016fc822c9de1e9abdc5de89bb5e49086497ae0d94eb1bcc7cbe168551381d"
+    },
+    {
+      "path": "portraits/closed.webp",
+      "source": "expressions/12.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "41607d6fb70db3d7310951892d745ce4870e75482febd957dc9117b5311cb82c"
+    },
+    {
+      "path": "portraits/tense.webp",
+      "source": "expressions/13.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "0b31051e30666ec6c53f23d2e38a979be6185ae12049b4f70386a9b76b908ee5"
+    },
+    {
+      "path": "portraits/relieved.webp",
+      "source": "expressions/14.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "ff431485633e0a31e1b454d246c4148b9bc4b1683dcfc5523b3ce9bca1755f34"
+    },
+    {
+      "path": "portraits/caught.webp",
+      "source": "expressions/15.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "19bdfd644d3e4276cd99bbb70b72dc9abd3cbfbe2b72fc54388579e686b2b23c"
+    },
+    {
+      "path": "portraits/sadness.webp",
+      "source": "expressions/16.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "bf475997fcb2c5feeffdc45375002a3ffe78323c162564677be97881f00d4e4b"
+    },
+    {
+      "path": "portraits/falter.webp",
+      "source": "expressions/17.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "19cbf6be15ac95f76f0dbefb1bc63ae87c82d8ea55134e1dd7a41fdc62c8dfbb"
+    },
+    {
+      "path": "portraits/tearful.webp",
+      "source": "expressions/18.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "28e1bb6d91ee4130731cd0cbd79160289c985214cdaa720f5b6732fa704b5445"
+    },
+    {
+      "path": "portraits/tear-smile.webp",
+      "source": "expressions/19.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "e42d5a81fcffbd1cccf41cffcbbf0f6c0c754694cc6565383d6cf4574ec414fb"
+    },
+    {
+      "path": "portraits/happy-tears.webp",
+      "source": "expressions/20.png",
+      "width": 384,
+      "height": 384,
+      "sha256": "6ee4376c47f7affd70aab0c3871cc4dc57cdbc86eef0e2fede79bdcffb9582fe"
+    },
+    {
+      "path": "poses/sleeping.webp",
+      "source": "wake-up/01.png",
+      "width": 480,
+      "height": 97,
+      "sha256": "2fa2ca9f1040ed89b7c0a2709761e37a2262ee354afa5dbb85e7112882690ad8"
+    },
+    {
+      "path": "poses/shoes.webp",
+      "source": "blink/01.png, feet",
+      "width": 153,
+      "height": 62,
+      "sha256": "0b922e4a4acd369b2323d4bd3bf26d02b6e6d4fa617e068877c7133de2b3784c"
+    },
+    {
+      "path": "world/serious.webp",
+      "source": "blink/01.png",
+      "width": 512,
+      "height": 1024,
+      "sha256": "727145fbabb036ebe548b9658a2455f234675381ea1b92f24f6030de50a76233"
+    }
+  ]
+}

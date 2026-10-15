@@ -1,0 +1,149 @@
+{
+  "archivedAt": "2026-10-15",
+  "files": [
+    {
+      "originalPath": "images/characters/hana-expressions.png",
+      "sha256": "715babedfca3bcdaf8f229f41d7980416c825bcf673fb5998039cffec1a894e0"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/README.md",
+      "sha256": "cc4ccf5f8b925b3ac03b13dc7ac7750c810b8e5a35f1ed9066bca182520d71ba"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/concern.png",
+      "sha256": "20b0ad45ec0abdb10201afa0572c76abdf8edb1ebe2550fccefb2d6583260346"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/excited.png",
+      "sha256": "f687447a6d31d8421f44a9783a96eebffff5308fb2f4385e2b86396b1f5029e9"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/full.png",
+      "sha256": "8684feb02165a97dd4ad8b04fb9cc994417c6caa1df68a93d40c2d1203385429"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/gentle.png",
+      "sha256": "d0d4e6d12bbce3d50b19ad634332997d7e6b3543864ddeba087ee580a801fa85"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/happy.png",
+      "sha256": "ccdb8796be9c1f47138c6f2c910540ca01a46985858712464d8208b66de739d9"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/neutral.png",
+      "sha256": "849e2b2154c0f0802e71160a47d3137321aa36e7c610d0b45bf73573cd73c4fa"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/serious.png",
+      "sha256": "19b6c9520376b9dd9c763fa7cf1c54011a84f6211528e5d48368dc484b75c8d7"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/sleepy.png",
+      "sha256": "88b0dc9dc6f66b0398f4d08057e2aa556db4c1795705c41eec9d78d19127a16d"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/surprise.png",
+      "sha256": "98b8e899af9abbe15db21433cae24d86bac2ee071e670b8ba107f601c948c3b0"
+    },
+    {
+      "originalPath": "images/characters/hana-v2/thought.png",
+      "sha256": "2eca66cee3334a9785f44d907b5045a19c3f16ccecebbab69af357aec8d9ed98"
+    },
+    {
+      "originalPath": "images/characters/hana-v8/looking-up.png",
+      "sha256": "19bc7ae0119f873fd8e3e642f58a2e39223ced7e5a538a1d46c551b356fe99b7"
+    },
+    {
+      "originalPath": "images/characters/hana-v8/sleeping-overlay.webp",
+      "sha256": "8f25114f94963532e01e0b630b80a22254787a6a24c411b3247e19e1501b715a"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v5/portraits/anger.png",
+      "sha256": "428804fd498d23f41a6e6bdd4d0164d4d64b556bac483ae223a49f5b92e5845c"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v5/portraits/confused.png",
+      "sha256": "c8586b88a66b9852f7b30806a61b2b799fd81b6de04eaaa3ddfa3a3b9ea736c3"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v5/portraits/joy.png",
+      "sha256": "362658f6aae0708e5eb83961b353b146e113a1cece5255f6fbacdc675074a85e"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v5/portraits/laughter.png",
+      "sha256": "0853ead93525d2252b20f56252fe1b786761c0a98cec03c7240c7bb42e5f9278"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v5/portraits/neutral.png",
+      "sha256": "099eb1e42f143e354021418192fe5596c91db972f558ef9eea6949a30a8a3ded"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v5/portraits/sadness.png",
+      "sha256": "1eb2f73ba3ae9e0849c7107614288cda36844340bd8a572e78925c5b632863a6"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v5/portraits/sleepy.png",
+      "sha256": "d634e246c1f6e7f7ca0ad52f1006a430e464f5337a4dbd3db231b6d87bdf44ce"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v5/portraits/surprise.png",
+      "sha256": "e983e83c728a8eda907bebd4f38004db040ff0c9b37b538d34118e888f373a08"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v5/portraits/thinking.png",
+      "sha256": "32083991cb15c140ab0c4f75534f650ac51cc9e3ecc5888158d72f71f4bdc1db"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/anger.png",
+      "sha256": "f50b195b13b975ed1c76f36123482cbaaeba3ac187043a99a147bc700fbf7773"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/confused.png",
+      "sha256": "10d18a495a1c9590cc3a703610c8b44cc27b706ef4c2d9dc6369e803c5b30ff9"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/idle/01.png",
+      "sha256": "7c81f10624f992ef8680f99712342f03d9747483b1d1294f4424292c0433f845"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/idle/02.png",
+      "sha256": "7c81f10624f992ef8680f99712342f03d9747483b1d1294f4424292c0433f845"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/idle/03.png",
+      "sha256": "1316803ddfd226e834f03b59e71088f679bfab3de484e8a439ada2fbbcafe40e"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/idle/04.png",
+      "sha256": "69b605310d07e3ecc3109ae7f65a2980b994a041408a5b1fcf8e834783f62bb6"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/joy.png",
+      "sha256": "2f1cd10e44b285d5e919ea767d0246039c4e27d04ec1e95146ec90300acbfef8"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/laughter.png",
+      "sha256": "a0900eed306e59ff71a50526454c0d69e22bbe6667ae572939b89ecb18af4ac0"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/neutral.png",
+      "sha256": "7c81f10624f992ef8680f99712342f03d9747483b1d1294f4424292c0433f845"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/sadness.png",
+      "sha256": "ae53076e4c61802cb7d9e4bd003d2b98e56e6b8a4a56b5263e3670c736ad6757"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/sleepy.png",
+      "sha256": "bb1866c33ff5e1deec6d96ff4a3a20c4cb169b50b843d466ad43a1c8d9a8bdea"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/surprise.png",
+      "sha256": "c2bc63da2b9aac8eca9b22df5c3253d9d93fb92edd1fbfc5ff49d8fab5b562ee"
+    },
+    {
+      "originalPath": "images/pixel-ui/hana-v8/thinking.png",
+      "sha256": "46d753431f2f1d77af6f3c4cefcbbc821d584f63b4c77c55de9d3aff98e04494"
+    }
+  ]
+}

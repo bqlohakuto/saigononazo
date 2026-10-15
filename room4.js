@@ -34,8 +34,8 @@ function r4SyncHanaGazePose(){
  if(!Number.isFinite(height))return;
  pose.style.width=idle.width;
  pose.style.height=idle.height;
- pose.style.bottom=`${parseFloat(idle.bottom)-height*(.705/31)}px`;
- pose.style.backgroundSize=`auto ${height*(32.5/31)}px`;
+ pose.style.bottom=idle.bottom;
+ pose.style.backgroundSize='contain';
 }
 window.addEventListener("resize",r4SyncHanaGazePose);
 function r4SetHanaLookUp(active){

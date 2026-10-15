@@ -42,7 +42,7 @@ async function finish(page){
  assert(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up')),'Hana looks up during narration');
  await page.waitForFunction(()=>getComputedStyle(document.querySelector('#r4Hana .r4-hana-look-pose')).opacity==='1');
  assert.equal(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).opacity),'1','Dedicated full-body gaze is visible');
- assert.deepEqual(await page.evaluate(async()=>{const img=new Image();img.src='images/characters/hana-v8/looking-up.png';await img.decode();return [img.naturalWidth,img.naturalHeight]}),[1024,1536]);
+ assert.deepEqual(await page.evaluate(async()=>{const img=new Image();img.src='images/characters/hana-current/world/look-up/04.webp';await img.decode();return [img.naturalWidth,img.naturalHeight]}),[512,1024]);
  const pose=await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>({
    transform:getComputedStyle(el).transform,
    animationName:getComputedStyle(el).animationName,
@@ -50,7 +50,7 @@ async function finish(page){
  }));
  assert.notEqual(pose.transform,'none','Dedicated gaze artwork is positioned for reduced-motion users');
  assert.equal(pose.clipPath,'none','The gaze uses a complete dedicated sprite');
- assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/looking-up\.png/);
+ assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/look-up\/04\.webp/);
  assert.equal(await page.locator('#r4Hana').evaluate(el=>getComputedStyle(el,'::before').opacity),'0','Idle sprite is hidden during gaze');
  const activeScale=await page.locator('#r4Hana').evaluate(el=>({idle:parseFloat(getComputedStyle(el,'::before').height),gaze:parseFloat(getComputedStyle(el.querySelector('.r4-hana-look-pose')).height)}));
  assert(Math.abs(activeScale.idle-activeScale.gaze)<1,'Displayed gaze matches the settled idle dimensions');

@@ -22,10 +22,10 @@
   const paragraph=text=>{const p=document.createElement('p');p.textContent=text;return p};
   const portraitExpressions=['gentle','happy','thought','surprise','concern','serious'];
   const hanaV2Names=['gentle','happy','thought','surprise','concern','serious','sleepy','neutral','excited'];
-  const hanaV2Base='images/pixel-ui/';
-  const pixelPortraitNames={gentle:'neutral',happy:'joy',thought:'thinking',surprise:'surprise',concern:'sadness',serious:'neutral',sleepy:'sleepy',neutral:'neutral',excited:'laughter'};
+  const hanaV2Base='images/characters/hana-current/';
+  const pixelPortraitNames={gentle:'neutral',happy:'joy',thought:'thinking',surprise:'surprise',concern:'sadness',serious:'serious',sleepy:'sleepy',neutral:'neutral',excited:'laughter'};
   const hanaV2Ready=new Set();
-  const hanaV2Url=name=>hanaV2Base+(name==='full'?'hana-v8/idle/01.png':'hana-v5/portraits/'+(pixelPortraitNames[name]||'neutral')+'.png')+'?v=20261012-pixel-ui-02';
+  const hanaV2Url=name=>hanaV2Base+(name==='full'?'world/idle/01.webp':'portraits/'+(pixelPortraitNames[name]||'neutral')+'.webp')+'?v=20261015-hana-regenerated-01';
   for(const name of ['full',...hanaV2Names]){
     const img=new Image();
     img.onload=()=>{
@@ -42,22 +42,22 @@
   Promise.all([1,2,3,4].map(frame=>new Promise(resolve=>{
     const image=new Image();
     image.onload=()=>resolve(true);image.onerror=()=>resolve(false);
-    image.src='images/pixel-ui/hana-v8/idle/0'+frame+'.png';
+    image.src='images/characters/hana-current/world/idle/0'+frame+'.webp';
   }))).then(loaded=>{if(loaded.every(Boolean))game.classList.add('hana-idle-ready')});
   // The approved full-body variants share the idle canvas and baseline.
   const worldExpressionReady=new Set();
   for(const name of new Set(Object.values(pixelPortraitNames))){
     const img=new Image();img.onload=()=>{worldExpressionReady.add(name);syncWorldExpression()};
-    img.src='images/pixel-ui/hana-v8/'+name+'.png';
+    img.src='images/characters/hana-current/world/'+name+'.webp';
   }
   function syncWorldExpression(clear=false){
     const name=pixelPortraitNames[hanaV2Names[expression]]||'neutral';
     const active=!clear&&name!=='neutral'&&worldExpressionReady.has(name);
     game.classList.toggle('has-world-expression',active);
-    if(active)game.style.setProperty('--hana-world-expression','url("images/pixel-ui/hana-v8/'+name+'.png")');
+    if(active)game.style.setProperty('--hana-world-expression','url("images/characters/hana-current/world/'+name+'.webp")');
     else game.style.removeProperty('--hana-world-expression');
     const sprite=game.querySelector('#openingHanaSprite');
-    if(sprite&&!clear){sprite.dataset.emotion=active?name:'idle';if(active)sprite.src='images/pixel-ui/hana-v8/'+name+'.png'}
+    if(sprite&&!clear){sprite.dataset.emotion=active?name:'idle';if(active)sprite.src='images/characters/hana-current/world/'+name+'.webp'}
   }
   function panel(title){
     if(modal)modal.close();

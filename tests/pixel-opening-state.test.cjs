@@ -16,6 +16,9 @@ test('paginated opening and resumed source IDs retain camera and door state',()=
  assert.equal(state('opening_24_response_01').emotion,'sadness','longest LOG ID must beat opening_24 prefix');
 });
 test('all prototype opening and character assets are vendored locally',()=>{
- const assets=['white-room.png','title-background-pixel.png',...['01','02','03','04'].map(f=>'hana-v8/idle/'+f+'.png'),...['neutral','joy','anger','sadness','laughter','surprise','confused','thinking','sleepy'].flatMap(n=>['hana-v8/'+n+'.png','hana-v5/portraits/'+n+'.png']),...['question','sweat','thinking'].map(n=>'bubbles-side/right/'+n+'.png')];
+ const assets=['white-room.png','title-background-pixel.png',...['question','sweat','thinking'].map(n=>'bubbles-side/right/'+n+'.png')];
  for(const asset of assets)assert(fs.existsSync(path.join(root,'images/pixel-ui',asset)),asset);
+ const current=['01','02','03','04'].map(f=>'world/idle/'+f+'.webp');
+ for(const name of ['neutral','joy','anger','sadness','laughter','surprise','confused','thinking','sleepy'])current.push('world/'+name+'.webp','portraits/'+name+'.webp');
+ for(const asset of current)assert(fs.existsSync(path.join(root,'images/characters/hana-current',asset)),asset);
 });

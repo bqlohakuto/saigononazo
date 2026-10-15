@@ -15,7 +15,7 @@
 #game .r6-door:hover,#game .r6-door:focus-visible{filter:brightness(1.14)}
 #game .r6-wall-text{position:absolute;left:21%;top:24%;width:20%;padding:0;border:0;background:none;color:#44424e;font-family:monospace;font-size:clamp(9px,1.35vw,19px);font-weight:700;line-height:1.7;text-align:left;cursor:pointer;box-shadow:none}
 #game .r6-hana{position:absolute;left:63%;top:29%;width:14%;height:57%;padding:0;border:0;background:transparent;pointer-events:auto;cursor:pointer}
-#game .r6-hana::before{position:absolute;inset:0;content:'';background:url('images/pixel-ui/hana-v8/idle/01.png') center bottom/contain no-repeat;image-rendering:pixelated;animation:hanaExplorationIdle 2.4s steps(1,end) infinite;pointer-events:none}
+#game .r6-hana::before{position:absolute;inset:0;content:'';background:url('images/characters/hana-current/world/idle/01.webp') center bottom/contain no-repeat;image-rendering:pixelated;animation:hanaExplorationIdle 2.4s steps(1,end) infinite;pointer-events:none}
 .r6-lever{position:absolute;left:39%;top:65%;width:22%;height:25%}
 .r6-lever img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;pointer-events:none}
 #game .r6-lever button{position:absolute;top:0;bottom:0;width:50%;border:0;background:transparent;padding:0;cursor:pointer;box-shadow:none}

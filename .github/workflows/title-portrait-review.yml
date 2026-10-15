@@ -31,9 +31,13 @@ jobs:
           done
           exit 1
       - run: node tests/title-portrait-loading.browser.cjs
+      - run: node --test tests/hana-assets.test.cjs tests/cache-version.test.cjs tests/pixel-opening-state.test.cjs tests/room4-hana-look-source.test.cjs
+      - run: node tests/hana-assets.browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: title-portrait-review
-          path: artifacts/title-portrait/
+          path: |
+            artifacts/title-portrait/
+            artifacts/hana-assets/
           retention-days: 14

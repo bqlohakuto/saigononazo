@@ -32,5 +32,5 @@ assert(css.includes('prefers-reduced-motion:reduce'),'Reduced-motion support pre
 assert.match(css,/\.r4hana\.is-looking-up \.r4-hana-look-pose/);
 console.log('Room 4 ceiling-gaze trigger and CSS source checks passed');
 
-assert.match(css,/images\/characters\/hana-v8\/looking-up\.png/);
+assert.match(css,/images\/characters\/hana-current\/world\/look-up\/04\.webp/);
 assert(!css.includes('clip-path:inset(30%'),'No cut-and-tilt head workaround');

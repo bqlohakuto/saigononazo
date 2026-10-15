@@ -57,16 +57,10 @@ async function finish(page){
   await readyImages(page);await page.screenshot({path:path.join(dir,'room03-sleep.png')});
   await page.evaluate(()=>showFourthRoom({}));await finish(page);
   await page.evaluate(()=>r4SetHanaLookUp(true));
-  const anchors=await page.locator('#r4Hana').evaluate(el=>{
-   const a=getComputedStyle(el,'::before'),pose=el.querySelector('.r4-hana-look-pose'),probe=document.createElement('i');
-   // Resolve the pseudo-element's CSS lengths in its actual containing block.
-   // Chromium can return calc() for bottom, which parseFloat cannot compare.
-   probe.style.cssText='position:absolute;visibility:hidden;pointer-events:none';
-   for(const key of ['width','height','bottom','left','transform'])probe.style[key]=a[key];
-   el.append(probe);const idle=probe.getBoundingClientRect(),gaze=pose.getBoundingClientRect();
-   const result=[idle.bottom,gaze.bottom,idle.height,gaze.height,getComputedStyle(pose).backgroundImage];probe.remove();return result;
-  });
-  console.log('GAZE ANCHORS',spec.name,JSON.stringify(anchors));assert(Math.abs(anchors[0]-anchors[1])<1,JSON.stringify(anchors));assert(Math.abs(anchors[2]-anchors[3])<1);assert.match(anchors[4],/hana-current\/world\/look-up\/04.webp/);
+  // Detailed geometry is covered by room4-visual.browser.cjs. This pass
+  // checks the dedicated asset and visibility without injecting layout probes.
+  assert.match(await page.locator('.r4-hana-look-pose').evaluate(e=>getComputedStyle(e).backgroundImage),/hana-current\/world\/look-up\/04.webp/);
+  assert.equal(await page.locator('.r4-hana-look-pose').evaluate(e=>getComputedStyle(e).opacity),'1');
   await readyImages(page);await page.screenshot({path:path.join(dir,'room04-look-up.png')});
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.evaluate(()=>{r4SetHanaLookUp(false);r4SetHanaLookUp(true)});await page.waitForTimeout(750);

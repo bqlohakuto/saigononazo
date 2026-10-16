@@ -1192,7 +1192,7 @@
   function r7Cover(id){
     const book=r7Book(id);if(!book||!room7State.collected.includes(id))return;
     const placed=room7State.placed.includes(id);
-    const m=r7Modal(book.title,'<div class="r7-cover-view"><img class="r7-cover" src="'+r7Asset(id,'cover')+'" alt="'+book.title+'の表紙"><div><h2>'+book.title+'</h2><p>上端に赤い栞のリボンが見える。</p><p>'+ (placed?'本棚に収まっている。':'本の中身は、棚の正しい場所に戻してから確かめよう。')+'</p><button type="button" id="r7UseBook">'+(placed?'栞のページを開く':'本棚に戻す')+'</button></div></div>','r7Shelf');
+    const m=r7Modal(book.title,'<div class="r7-cover-view"><img class="r7-cover" src="'+r7Asset(id,'cover')+'" alt="'+book.title+'の表紙"><div><h2>'+book.title+'</h2><p>上端に赤い栞のリボンが見える。</p><button type="button" id="r7UseBook">'+(placed?'栞のページを開く':'本棚に戻す')+'</button></div></div>','r7Shelf');
     m.panel.querySelector('#r7UseBook').onclick=()=>{m.close();if(placed)r7Read(id);else{room7State.view='back';saveGame();renderR7();r7Shelf(id)}};
   }
   function r7ShelfArt(){

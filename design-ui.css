@@ -677,3 +677,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 
 /* Keep the enlarged inspection shelf bounded to ten book slots. */
 #game .r7-shelf-zoom{box-sizing:border-box;width:auto;max-width:100%;aspect-ratio:1320/650;align-self:center;padding:0;border-bottom-width:clamp(5px,1cqw,14px)}
+
+/* Leave the curtain, desk drawer and diary accessible in the left view. */
+#game .r7-scene[data-view=left] .r7-hana.hana-v2-world{left:74%!important}
+#game .r7-scene[data-view=left] #r7Photo{z-index:5}

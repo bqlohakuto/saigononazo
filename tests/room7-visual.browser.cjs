@@ -18,6 +18,11 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
    const click=s=>p.locator(s).click();
    const shot=async name=>{await p.waitForTimeout(120);await p.screenshot({path:path.join(out,spec.name+'-'+name+'.png')})};
    const fit=async()=>{const bad=await p.evaluate(()=>{const panel=document.querySelector('.r7-panel'),rect=document.querySelector('#game').getBoundingClientRect();if(!panel)return[];return[...panel.querySelectorAll('.device-close,#r7UseBook,#r7Take,#r7SearchAction,#r7Zoom,#r7BackShelf,#r7RotateLeft,#r7RotateRight,#r7DialDone,.r7-slot')].filter(e=>{const r=e.getBoundingClientRect();const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return r.width>0&&(r.left<rect.left-2||r.right>rect.right+2||r.top<rect.top-2||r.bottom>rect.bottom+2||!e.contains(hit))}).map(e=>e.id||e.className)});assert.deepEqual(bad,[],spec.name+' controls fit')};
+   async function shelfFits(){
+    const bounds=await p.evaluate(()=>{const row=document.querySelector('.r7-shelf-row').getBoundingClientRect();return [...document.querySelectorAll('.r7-spine-slot img')].map(im=>{const r=im.getBoundingClientRect();return {top:r.top-row.top,bottom:r.bottom-row.bottom,height:r.height,rowHeight:row.height}})});
+    assert.ok(bounds.length>=4,spec.name+' fixed spines visible');
+    for(const r of bounds){assert.ok(r.top>=-1&&r.bottom<=1,spec.name+' spine stays above shelf board');assert.ok(Math.abs(r.height-r.rowHeight)<1,spec.name+' grid row respects shelf height')}
+   }
    async function turn(view){for(let i=0;i<4&&(await state()).view!==view;i++)await click('#r7TurnRight');assert.equal((await state()).view,view)}
    await finish();await p.evaluate(()=>document.fonts.ready);await shot('front');
    await click('#r7Dial');await fit();assert.equal(await p.locator('.r7-overlay .r7-dial-wheel text').count(),12);await click('#r7RotateLeft');assert.equal((await state()).selectedZodiac,'丑');await shot('dial');await click('#r7DialDone');
@@ -30,7 +35,7 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
    await fit();await shot('shelf-before');await click('[data-held="bremen"]');await click('[data-slot="1"]');assert.equal((await state()).placed.length,0);
    for(const [id,slot]of [['bremen',8],['mitten',7],['monkey',5],['wolf',3],['rabbit',2],['ikkyu',1]]){await click('[data-held="'+id+'"]');await click('[data-slot="'+slot+'"]')}
    await finish();assert.equal((await state()).booksSolved,true);await click('#r7Shelf');await fit();await shot('shelf-complete');
-   await click('[data-slot="7"]');await p.locator('.r7-open-book').evaluate(im=>im.decode());await fit();await shot('open-book');await click('#r7Zoom');assert.ok(await p.locator('.r7-reader-panel.is-zoomed').count());await click('#r7Zoom');await click('#r7BackShelf');await click('.r7-overlay .device-close');
+   await click('[data-slot="7"]');await p.locator('.r7-open-book').evaluate(im=>im.decode());await fit();await shot('open-book');await click('#r7Zoom');assert.ok(await p.locator('.r7-reader-panel.is-zoomed').count());await click('#r7Zoom');await click('#r7BackShelf');await click('.r7-overlay .device-close');await shelfFits();await shot('shelf-world-complete');
    const saved=await state();await p.reload({waitUntil:'load'});await p.locator('#continueButton').click();await p.locator('.save-slot-action:not([disabled])').last().click();await p.locator('.save-slot-action.is-confirm').click();await p.locator('.r7-scene').waitFor();assert.deepEqual(await state(),saved,spec.name+' actual saved-game resume');
    await turn('front');
    for(const target of ['寅','卯','未','申','亥','酉']){await click('#r7Dial');for(let i=0;i<12&&(await state()).selectedZodiac!==target;i++)await click('#r7RotateLeft');await click('#r7DialDone');await click('#r7Door');await finish()}

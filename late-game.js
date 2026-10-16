@@ -1140,8 +1140,7 @@
     Dialogue.stop();currentScene='room07';room7State=normalizeR7(savedState);renderR7();saveGame();
     if(room7State.doorIndex===6&&!room7State.completed){r7Memory();return;}
     if(!room7State.introSeen){room7State.introSeen=true;saveGame();showRoomDialog([
-      line('r7_intro_01','ト書き','本棚と書斎の家具が並ぶ、静かな部屋。正面には一枚の扉がある。'),
-      line('r7_intro_02','問題文','物語が導くのは、あなたの進む軌跡。')
+      line('r7_intro_01','ト書き','本棚と書斎の家具が並ぶ、静かな部屋。正面には一枚の扉がある。')
     ]);}
   };
   function r7Hotspot(id,label,rect){return '<button type="button" id="'+id+'" class="r7-target" style="left:'+rect[0]+'%;top:'+rect[1]+'%;width:'+rect[2]+'%;height:'+rect[3]+'%" aria-label="'+label+'"></button>'}
@@ -1187,7 +1186,7 @@
     const got=room7State.collected.includes(book.id),opened=room7State.searched[source];
     const m=r7Modal(data.name,'<div class="r7-search"><h2>'+data.name+'</h2><p>'+r7Escape(got?'ここにあった本は、すでに手に取った。':opened?data.after:data.before)+'</p>'+(!got?(opened?'<img class="r7-cover" src="'+r7Asset(book.id,'cover')+'" alt="'+book.title+'の表紙"><p>'+book.title+'</p><button type="button" id="r7Take">本を手に取る</button>':'<button type="button" id="r7SearchAction">'+data.action+'</button>'):'')+'</div>',data.opener);
     m.panel.querySelector('#r7SearchAction')?.addEventListener('click',()=>{room7State.searched[source]=true;saveGame();recordLog({logId:'r7_search_'+source,logType:'investigation',speaker:'ト書き',text:data.after});m.close();r7Search(source)});
-    m.panel.querySelector('#r7Take')?.addEventListener('click',()=>{if(!room7State.collected.includes(book.id))room7State.collected.push(book.id);saveGame();recordLog({logId:'r7_collect_'+book.id,logType:'investigation',speaker:'ト書き',text:'『'+book.title+'』を手に取った。上端から、赤い栞のリボンが見える。'});m.close();renderR7();r7Cover(book.id)});
+    m.panel.querySelector('#r7Take')?.addEventListener('click',()=>{if(!room7State.collected.includes(book.id))room7State.collected.push(book.id);saveGame();m.close();renderR7();showRoomDialog([line('r7_collect_'+book.id,'ト書き','本を手に取った。')])});
   }
   function r7Cover(id){
     const book=r7Book(id);if(!book||!room7State.collected.includes(id))return;
@@ -1261,7 +1260,7 @@
   }
   window.Room7LibraryUI={items:()=>currentScene==='room07'&&room7State?R7_BOOKS.filter(b=>room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id)).map(b=>({id:b.id,name:b.title,art:'本',description:'赤い栞の挟まれた本。',target:'r7Shelf'})):[],use:id=>r7Cover(id)};
   function r7Door(z){
-    if(!room7State.booksSolved){r7Notice('扉には十二支の操作盤が付いている。「物語が導くのは、あなたの進む軌跡」と書かれている。','r7_door_status');return}
+    if(!room7State.booksSolved){showRoomDialog([line('r7_door_status','ト書き','扉には十二支の操作盤が付いている。'),line('r7_door_puzzle','問題文','物語が導くのは、あなたの進む軌跡。')]);return}
     if(room7State.completed)return;
     if(z!==R7_DOORS[room7State.doorIndex])return; // Preserve the existing wrong-selection behavior.
     const isLast=room7State.doorIndex===R7_DOORS.length-1;

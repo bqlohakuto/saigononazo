@@ -11,7 +11,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  assert.equal(q('.r7-scene').dataset.view,'front');assert.ok(q('#r7Dial'));assert.equal(w.document.querySelectorAll('[data-zodiac]').length,0,'one door instead of twelve');
  click('#r7Door');finish();assert.equal(saved().doorIndex,0,'unplaced books prevent accidental progress');
  const turn=view=>{for(let i=0;i<4&&saved().view!==view;i++)click('#r7TurnRight');assert.equal(saved().view,view)};
- const take=(view,target)=>{turn(view);click(target);click('#r7SearchAction');assert.ok(q('#r7Take'));click('#r7Take');assert.equal(q('.r7-open-book'),null,'collected book cannot be read early');click('.r7-overlay .device-close')};
+ const take=(view,target)=>{turn(view);click(target);click('#r7SearchAction');assert.ok(q('#r7Take'));click('#r7Take');assert.equal(q('.r7-open-book'),null,'collected book cannot be read early');assert.equal(q('#r7UseBook'),null,'no direct shelf shortcut after pickup');assert.equal(q('.r7-cover-view'),null,'pickup shows text only');finish()};
  take('left','#r7Drawer');take('left','#r7Curtain');take('left','#r7Diary');take('right','#r7Stack');take('right','#r7Box');take('front','#r7Cabinet');
  assert.deepEqual(saved().collected,['ikkyu','rabbit','wolf','monkey','mitten','bremen']);
  const before=saved();run('showSeventhRoom('+JSON.stringify(before)+')');assert.deepEqual(saved(),before,'exploration survives reload');

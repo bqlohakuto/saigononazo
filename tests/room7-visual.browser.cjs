@@ -24,10 +24,10 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
     for(const r of bounds){assert.ok(r.top>=-1&&r.bottom<=1,spec.name+' spine stays above shelf board');assert.ok(Math.abs(r.height-r.rowHeight)<1,spec.name+' grid row respects shelf height')}
    }
    async function turn(view){for(let i=0;i<4&&(await state()).view!==view;i++)await click('#r7TurnRight');assert.equal((await state()).view,view)}
-   await finish();await p.evaluate(()=>document.fonts.ready);await shot('front');
+   await finish();assert.equal(await p.getByText('物語が導くのは、あなたの進む軌跡。',{exact:true}).count(),0,'entry does not reveal puzzle');await click('#r7Door');await finish();await p.evaluate(()=>document.fonts.ready);await shot('front');
    await click('#r7Dial');await fit();assert.equal(await p.locator('.r7-overlay .r7-dial-wheel text').count(),12);await click('#r7RotateLeft');assert.equal((await state()).selectedZodiac,'丑');await shot('dial');await click('#r7DialDone');
    for(const [view,target]of [['left','r7Drawer'],['left','r7Curtain'],['left','r7Diary'],['right','r7Stack'],['right','r7Box'],['front','r7Cabinet']]){
-    await turn(view);await click('#'+target);await fit();await click('#r7SearchAction');await p.locator('.r7-search .r7-cover').waitFor();await fit();await click('#r7Take');await p.locator('#r7UseBook').waitFor();await fit();assert.equal(await p.locator('.r7-open-book').count(),0);await click('.r7-overlay .device-close');
+    await turn(view);await click('#'+target);await fit();await click('#r7SearchAction');await p.locator('.r7-search .r7-cover').waitFor();await fit();await click('#r7Take');await p.locator('#roomNextButton').waitFor();assert.equal(await p.locator('#r7UseBook').count(),0,'no shelf shortcut on pickup');assert.equal(await p.locator('.r7-cover-view').count(),0,'no cover panel on pickup');await finish();assert.equal(await p.locator('.r7-open-book').count(),0);
    }
    assert.equal((await state()).collected.length,6);await turn('left');await shot('left');await turn('right');await shot('right');
    // Exercise the common inventory and its room-specific use path.

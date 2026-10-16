@@ -7,15 +7,22 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  for(const [,file]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<script src="([^?]+)\?/g))vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file});
  const run=s=>vm.runInContext(s,ctx),q=s=>w.document.querySelector(s),click=s=>{assert.ok(q(s),'control '+s);q(s).click()},saved=()=>JSON.parse(w.localStorage.getItem('saigononazo-save-v1')).rooms.room07;
  const finish=()=>{for(let n=0;n<500&&q('#roomNextButton');n++)click('#roomNextButton');assert.equal(q('#roomNextButton'),null, q('#roomNextButton')?'dialogue remains: '+q('#roomMessage')?.textContent+' disabled='+q('#roomNextButton').disabled:'')};
- run('settings.instantText=true;showSeventhRoom({introSeen:true})');
+ run('settings.instantText=true;showSeventhRoom({})');finish();
+ assert.ok(run('GameLog.list()').some(x=>x.text==='隣を見ると、これまでと同じようにハナさんがいる。'));
+ assert.ok(!run('GameLog.list()').some(x=>x.speaker==='問題文'),'puzzle waits for door inspection');
  assert.equal(q('.r7-scene').dataset.view,'front');assert.ok(q('#r7Dial'));assert.equal(w.document.querySelectorAll('[data-zodiac]').length,0,'one door instead of twelve');
  click('#r7Door');finish();assert.equal(saved().doorIndex,0,'unplaced books prevent accidental progress');
  const turn=view=>{for(let i=0;i<4&&saved().view!==view;i++)click('#r7TurnRight');assert.equal(saved().view,view)};
- const take=(view,target)=>{turn(view);click(target);click('#r7SearchAction');assert.ok(q('#r7Take'));click('#r7Take');assert.equal(q('.r7-open-book'),null,'collected book cannot be read early');assert.equal(q('#r7UseBook'),null,'no direct shelf shortcut after pickup');assert.equal(q('.r7-cover-view'),null,'pickup shows text only');finish()};
+ click('#r7Hana');finish();assert.ok(run('GameLog.list()').some(x=>x.text==='心配してくれてありがとう。'));
+ turn('back');click('#r7Shelf');finish();click('.r7-overlay .device-close');
+ assert.equal(saved().shelfExamined,true);click('#r7Shelf');
+ assert.equal(q('#roomMessage').textContent.includes('本棚の一段に、ところどころ空きがある。'),true);finish();click('.r7-overlay .device-close');
+ const take=(view,target)=>{turn(view);click(target);if(q('#r7SearchAction'))click('#r7SearchAction');assert.ok(q('#r7Take'));click('#r7Take');assert.equal(q('.r7-open-book'),null,'collected book cannot be read early');assert.equal(q('#r7UseBook'),null,'no direct shelf shortcut after pickup');assert.equal(q('.r7-cover-view'),null,'pickup shows text only');finish()};
  take('left','#r7Drawer');take('left','#r7Curtain');take('left','#r7Diary');take('right','#r7Stack');take('right','#r7Box');take('front','#r7Cabinet');
  assert.deepEqual(saved().collected,['ikkyu','rabbit','wolf','monkey','mitten','bremen']);
  const before=saved();run('showSeventhRoom('+JSON.stringify(before)+')');assert.deepEqual(saved(),before,'exploration survives reload');
- turn('back');click('#r7Shelf');assert.equal(w.document.querySelectorAll('.r7-slot.is-filled').length,4,'four fixed books initially');
+ const pickupLog=run('GameLog.list()');assert.ok(pickupLog.some(x=>x.text==='少し気になったので、ひとまず持っておくことにした。'));assert.ok(pickupLog.some(x=>x.text==='謎に関係しているのかもしれない。'));assert.equal(pickupLog.filter(x=>x.text==='中を開こうとしたが、開けない。').length,4);
+ turn('back');click('#r7Shelf');finish();assert.ok(run('GameLog.list()').some(x=>x.text==='持っている本も、ここに並んでいたのかな。'));assert.equal(w.document.querySelectorAll('.r7-slot.is-filled').length,4,'four fixed books initially');
  click('[data-slot="0"]');assert.match(q('.r7-shelf-status').textContent,/赤ずきん/);assert.equal(q('.r7-open-book'),null,'fixed books only show title');
  click('[data-held="bremen"]');click('[data-slot="1"]');assert.equal(saved().placed.length,0,'wrong slot retains book');assert.ok(saved().collected.includes('bremen'));
  // Return in reverse order: completed shelf order must not depend on input order.
@@ -39,3 +46,4 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  for(const book of run('Room7LibraryUI.items()'))assert.ok(book.name);
  console.log('PASS room7: six searches, inventory, four fixed books, wrong/correct returns, all six reads, twelve-position dial, save/load, migration, accident memory and room8.');await new Promise(r=>setTimeout(r,30));dom.window.close();
 })().catch(e=>{console.error(e);process.exitCode=1});
+

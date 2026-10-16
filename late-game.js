@@ -388,8 +388,8 @@
   }
 
   const R5_MEMORY_LINES=[
-    line("r5m001","ト書き","気がつくと、俺はダイニングテーブルの前に座っていた。まだ段ボールの残る部屋。壁際には、開封されたばかりの家具。床には、片付け途中の荷物がいくつも置かれている。引っ越してきて、まだそれほど経っていない頃だ。"),
-    line("r5m002","ト書き","俺の目の前には、一枚の紙が置かれていた。そこには――妙に耳の長い、謎の生き物が描かれている。"),
+    line("r5m001","ト書き","気がつくと、僕はダイニングテーブルの前に座っていた。まだ段ボールの残る部屋。壁際には、開封されたばかりの家具。床には、片付け途中の荷物がいくつも置かれている。引っ越してきて、まだそれほど経っていない頃だ。"),
+    line("r5m002","ト書き","僕の目の前には、一枚の紙が置かれていた。そこには――妙に耳の長い、謎の生き物が描かれている。"),
     line("r5m003","主人公","……これ、何？"),
     line("r5m004","ト書き","向かいに座っていた彼女が、きょとんとした顔をする。"),
     line("r5m005","彼女","ウサギ。"),
@@ -401,12 +401,12 @@
     line("r5m011","彼女","下の二本は足！"),
     line("r5m012","主人公","なるほど……。"),
     line("r5m013","彼女","その『なるほど』絶対納得してないでしょ。"),
-    line("r5m014","ト書き","俺はもう一度、紙を見る。言われてみれば、ウサギに――。"),
+    line("r5m014","ト書き","僕はもう一度、紙を見る。言われてみれば、ウサギに――。"),
     line("r5m015","主人公","……見えなくもない、かな。"),
     line("r5m016","彼女","ほら！"),
     line("r5m017","主人公","ギリギリね。"),
     line("r5m018","彼女","もういい！"),
-    line("r5m019","ト書き","彼女は紙を取り返そうと手を伸ばす。俺は少しだけ紙を持ち上げて、それを避けた。"),
+    line("r5m019","ト書き","彼女は紙を取り返そうと手を伸ばす。僕は少しだけ紙を持ち上げて、それを避けた。"),
     line("r5m020","主人公","で、なんで急にウサギ？"),
     line("r5m021","彼女","問題。"),
     line("r5m022","主人公","問題？"),
@@ -426,14 +426,14 @@
     line("r5m036","彼女","カニ。"),
     line("r5m037","主人公","…………。"),
     line("r5m038","彼女","その間やめて！"),
-    line("r5m039","ト書き","俺は思わず笑った。"),
+    line("r5m039","ト書き","僕は思わず笑った。"),
     line("r5m040","彼女","笑ったなー？"),
     line("r5m041","主人公","いや、だって……。"),
     line("r5m042","彼女","じゃあ自分で描いてみてよ！"),
     line("r5m043","主人公","……いいですよ"),
-    line("r5m044","ト書き","俺は謎の生物の横にカニの絵を描いた。絵を描くのは好きだ。"),
+    line("r5m044","ト書き","僕は謎の生物の横にカニの絵を描いた。絵を描くのは好きだ。"),
     line("r5m045","彼女","ずるい。"),
-    line("r5m046","ト書き","俺の描いたカニを見た彼女は、ほほを膨らませながらノートを閉じる。"),
+    line("r5m046","ト書き","僕の描いたカニを見た彼女は、ほほを膨らませながらノートを閉じる。"),
     line("r5m047","主人公","でも、意外だな。"),
     line("r5m048","彼女","何が？"),
     line("r5m049","主人公","謎解きが好きなのは知ってたけど、作るのも好きだったんだ。"),
@@ -478,7 +478,7 @@
     line("r5m088","主人公","解けるまで食べれないの？？"),
     line("r5m089","彼女","頑張れ。"),
     line("r5m090","主人公","怒らせたかな……。"),
-    line("r5m091","ト書き","彼女は声を上げて笑った。その笑い声を聞きながら、俺はもう一度、紙を見る。下手なウサギ。意味の分からない数字。妙に楽しそうな彼女。"),
+    line("r5m091","ト書き","彼女は声を上げて笑った。その笑い声を聞きながら、僕はもう一度、紙を見る。下手なウサギ。意味の分からない数字。妙に楽しそうな彼女。"),
     line("r5m092","ト書き","――こんな人だったんだ。知っているつもりだった。長い間、一緒にいた。それでも。一緒に暮らして初めて知ることが、まだこんなにあった。"),
 
     line("r5m100","ト書き","一緒に暮らし始めてから、分かったことがある。まず――。朝が、弱い。"),
@@ -533,16 +533,16 @@
     line("r5m164","彼女","説明書って長いじゃん。"),
     line("r5m165","主人公","必要だから長いんだよ。"),
     line("r5m166","彼女","じゃあ読んで。"),
-    line("r5m167","主人公","俺が？"),
+    line("r5m167","主人公","僕が？"),
     line("r5m168","彼女","得意でしょ？"),
     line("r5m169","主人公","そういう問題じゃ……。"),
-    line("r5m170","ト書き","気がつけば、俺が設定をしていた。彼女は隣で楽しそうに画面を覗き込んでいる。"),
+    line("r5m170","ト書き","気がつけば、僕が設定をしていた。彼女は隣で楽しそうに画面を覗き込んでいる。"),
     line("r5m171","主人公","自分でも覚えてよ。"),
     line("r5m172","彼女","次から覚える。"),
     line("r5m173","主人公","絶対覚えないやつ。"),
     line("r5m174","彼女","失礼だなー。"),
 
-    line("r5m180","ト書き","予定のない休日。昼過ぎ。俺はソファで本を読んでいた。"),
+    line("r5m180","ト書き","予定のない休日。昼過ぎ。僕はソファで本を読んでいた。"),
     line("r5m181","彼女","ねえ。"),
     line("r5m182","主人公","ん？"),
     line("r5m183","彼女","出かけよ。"),
@@ -577,7 +577,7 @@
     line("r5m212","彼女","いいじゃん。"),
     line("r5m213","主人公","まあ……いいけど。"),
     line("r5m214","ト書き","夕食を終えて、二人で外へ出た。彼女は何も聞かなかった。仕事で何があったのか。どうして疲れているのか。何も聞かずに、隣を歩いている。"),
-    line("r5m215","主人公","……俺、そんなに分かりやすかった？"),
+    line("r5m215","主人公","……僕、そんなに分かりやすかった？"),
     line("r5m216","彼女","何が？"),
     line("r5m217","主人公","今日。"),
     line("r5m218","彼女","別に。"),
@@ -587,7 +587,7 @@
     line("r5m222","主人公","……それだけ？"),
     line("r5m223","彼女","それだけ。"),
     line("r5m224","ト書き","それ以上は何も言わなかった。でも、その日は少しだけ楽になっていた。"),
-    line("r5m225","ト書き","一緒に暮らすまで知らなかった。朝が弱いこと。料理は全部感覚でやること。説明書を読まないこと。予定がなくても外へ出たがること。そして、俺が何も言わなくても気づくこと。"),
+    line("r5m225","ト書き","一緒に暮らすまで知らなかった。朝が弱いこと。料理は全部感覚でやること。説明書を読まないこと。予定がなくても外へ出たがること。そして、僕が何も言わなくても気づくこと。"),
     line("r5m226","ト書き","知っているつもりだった。だけど――。彼女のことを知るのは、まだ途中だった。"),
 
     line("r5m230","ト書き","それからしばらくして。彼女の作る謎は、少しずつ凝ったものになっていった。ある日の夜。夕食を終えると、彼女が棚から大きめの台紙を取り出した。"),
@@ -611,7 +611,7 @@
     line("r5m248","ト書き","一枚を置く。続けてもう一枚。少しずつ、置くべき場所が分かってくる。彼女は向かい側から、黙ってこちらを見ていた。"),
     line("r5m249","主人公","……その顔やめて。"),
     line("r5m250","彼女","何も言ってないよ。"),
-    line("r5m251","主人公","俺が悩んでるの楽しんでるでしょ。"),
+    line("r5m251","主人公","僕が悩んでるの楽しんでるでしょ。"),
     line("r5m252","彼女","ちょっとだけ。"),
     line("r5m253","主人公","やっぱり。"),
     line("r5m254","ト書き","最後に残ったカードを見る。蝶。"),
@@ -659,7 +659,7 @@
     line("r5m296","主人公","実験台じゃなくて？"),
     line("r5m297","彼女","テストプレイヤー。"),
     line("r5m298","主人公","言い方変えただけじゃん。"),
-    line("r5m299","ト書き","彼女は楽しそうに笑った。彼女が謎を作る。俺がそれを解く。"),
+    line("r5m299","ト書き","彼女は楽しそうに笑った。彼女が謎を作る。僕がそれを解く。"),
     line("r5m300","ト書き","それが僕たちの日常だった。")
   ];
 
@@ -667,7 +667,7 @@
     showRoomDialog(R5_MEMORY_LINES,()=>{
       showRoomDialog([
         line("r5_after_01","ト書き","視界が、ゆっくりと元の部屋へ戻っていく。冷蔵庫の音も。食器の音も。彼女の笑い声も。少しずつ遠ざかっていく。"),
-        line("r5_after_02","ト書き","気がつくと、俺はまたダイニングテーブルの前に立っていた。"),
+        line("r5_after_02","ト書き","気がつくと、僕はまたダイニングテーブルの前に立っていた。"),
         line("r5_after_03","ト書き","手元を見る。そこには――記憶の中で彼女が描いていたものと、まったく同じウサギの絵。妙に長い耳。少し崩れた輪郭。見間違えるはずがない。"),
         line("r5_after_04","主人公","……ハナさん。"),
         line("r5_after_05","ハナ","ん？"),
@@ -1069,7 +1069,7 @@
     line("r6_after_003","主人公・心の声","それでも――あと少しで、全部思い出せる。",{thought:true}),
     line("r6_after_004","主人公・心の声","そんな気がした。",{thought:true}),
     line("r6_after_005","ト書き","隣に立つハナさんを見る。"),
-    line("r6_after_006","主人公・心の声","ここまで、ずっと俺を助けてくれた。",{thought:true}),
+    line("r6_after_006","主人公・心の声","ここまで、ずっと僕を助けてくれた。",{thought:true}),
     line("r6_after_007","主人公・心の声","一つ一つを繋げていけば、答えはもう、ほとんど出ている。",{thought:true}),
     line("r6_after_008","主人公・心の声","きっと、ハナさんは――。",{thought:true}),
     line("r6_after_009","主人公","……。"),
@@ -1082,7 +1082,7 @@
     line("r6_after_016","ト書き","一度だけ、扉を見る。"),
     line("r6_after_017","主人公","……行きましょう、ハナさん。"),
     line("r6_after_018","ハナ","うん。"),
-    line("r6_after_019","ト書き","俺はまだ、その答えを口にしないまま、次の扉へ手を伸ばした。")
+    line("r6_after_019","ト書き","僕はまだ、その答えを口にしないまま、次の扉へ手を伸ばした。")
   ];
   function r6Complete(){
     showRoomDialog([
@@ -1128,20 +1128,255 @@
     const index=Number.isInteger(s.doorIndex)?Math.min(6,Math.max(0,s.doorIndex)):0;
     return {libraryVersion:1,collected,placed,read,order:R7_BOOKS.filter(b=>placed.includes(b.id)).map(b=>b.id),
       booksSolved:placed.length===6,doorIndex:placed.length===6?index:0,completed:!!s.completed,
-      introSeen:!!s.introSeen,view:['front','right','back','left'].includes(s.view)?s.view:'front',
+      introSeen:!!s.introSeen,doorExamined:!!s.doorExamined,shelfExamined:!!s.shelfExamined,view:['front','right','back','left'].includes(s.view)?s.view:'front',
       selectedZodiac:R7_ZODIAC.includes(s.selectedZodiac)?s.selectedZodiac:'子',
       searched:Object.fromEntries(R7_BOOKS.map(b=>[b.source,!!s.searched?.[b.source]])),
       arrangedSeen:!!s.arrangedSeen||!!restored};
   }
+  const R7_TEXT={
+  "intro": [
+    [
+      "ト書き",
+      "扉を抜け、白く染まった視界が戻るのを待つ。"
+    ],
+    [
+      "ト書き",
+      "もう何度も繰り返した感覚だ。"
+    ],
+    [
+      "ト書き",
+      "初めは戸惑うばかりだったけれど、いつの間にか慣れてきていた。"
+    ],
+    [
+      "ト書き",
+      "少しずつ、目の前の景色が輪郭を取り戻していく。"
+    ],
+    [
+      "ト書き",
+      "壁に沿って並ぶ本棚。"
+    ],
+    [
+      "ト書き",
+      "その中に、たくさんの本が収まっている。"
+    ],
+    [
+      "ト書き",
+      "……図書室のような、誰かの書斎のような。"
+    ],
+    [
+      "ト書き",
+      "隣を見ると、これまでと同じようにハナさんがいる。"
+    ],
+    [
+      "ト書き",
+      "この部屋の謎を解けば、きっと一番大事なことを思い出せる――。"
+    ],
+    [
+      "ト書き",
+      "でも、なぜ大事なことを忘れてしまったのか。"
+    ],
+    [
+      "ト書き",
+      "それが、一向にわからないままだった。"
+    ]
+  ],
+  "door": [
+    [
+      "ト書き",
+      "見慣れた扉に、丸い金色の操作盤が取り付けられている。"
+    ],
+    [
+      "ト書き",
+      "縁に沿って並んでいるのは、十二支の文字だ。"
+    ],
+    [
+      "ト書き",
+      "一番上には、文字盤を指す矢印がある。"
+    ],
+    [
+      "主人公",
+      "……時計？"
+    ],
+    [
+      "ト書き",
+      "よく見ると、文字盤は手で回せるようになっていた。"
+    ],
+    [
+      "ト書き",
+      "その下に、文字が刻まれている。"
+    ],
+    [
+      "問題文",
+      "散らばった記憶を辿り、忘れてはならないものを見つけ出せ"
+    ],
+    [
+      "主人公",
+      "忘れてはならないもの……。"
+    ],
+    [
+      "ト書き",
+      "文字を読み終え、ドアノブに手をかける。"
+    ],
+    [
+      "ト書き",
+      "……開かない。"
+    ],
+    [
+      "主人公",
+      "この文字盤も、謎に関係しているんでしょうか。"
+    ],
+    [
+      "ハナ",
+      "……うん。そうだね。"
+    ]
+  ],
+  "hana": [
+    [
+      "主人公",
+      "ハナさん。"
+    ],
+    [
+      "ハナ",
+      "……ん？"
+    ],
+    [
+      "ト書き",
+      "少し遅れて、ハナさんがこちらを向いた。"
+    ],
+    [
+      "主人公",
+      "疲れていませんか？"
+    ],
+    [
+      "ハナ",
+      "ちょっと、ぼんやりしてただけ。"
+    ],
+    [
+      "主人公",
+      "少し休みましょうか。"
+    ],
+    [
+      "ハナ",
+      "大丈夫だよ。心配してくれてありがとう。"
+    ],
+    [
+      "主人公",
+      "……無理はしないでくださいね。"
+    ],
+    [
+      "ハナ",
+      "うん。"
+    ],
+    [
+      "ト書き",
+      "聞きたいことは、ほかにもあった。"
+    ],
+    [
+      "ト書き",
+      "でも、ハナさんの顔を見ていると、やっぱり言葉にはできなかった。"
+    ]
+  ],
+  "pickup_first": [
+    [
+      "ト書き",
+      "本を一冊、手に取った。"
+    ],
+    [
+      "ト書き",
+      "見覚えのある題名だ。"
+    ],
+    [
+      "ト書き",
+      "中を開こうとしたが、表紙が動かない。"
+    ],
+    [
+      "主人公",
+      "……開かない？"
+    ],
+    [
+      "ト書き",
+      "無理に力を入れると、傷めてしまいそうだ。"
+    ],
+    [
+      "ト書き",
+      "少し気になったので、ひとまず持っておくことにした。"
+    ]
+  ],
+  "pickup_second": [
+    [
+      "ト書き",
+      "本を一冊、手に取った。"
+    ],
+    [
+      "ト書き",
+      "中を開こうとしたが、この本も開かない。"
+    ],
+    [
+      "主人公",
+      "……さっきの本と同じだ。"
+    ],
+    [
+      "ト書き",
+      "謎に関係しているのかもしれない。"
+    ],
+    [
+      "ト書き",
+      "この本も持っておくことにした。"
+    ]
+  ],
+  "pickup_later": [
+    [
+      "ト書き",
+      "中を開こうとしたが、開けない。"
+    ],
+    [
+      "ト書き",
+      "この本も持っておくことにした。"
+    ]
+  ],
+  "shelf_first": [
+    [
+      "ト書き",
+      "本棚の一段に、ところどころ空きがある。"
+    ],
+    [
+      "ト書き",
+      "残っている本の背表紙には、見覚えのある物語の題名が並んでいた。"
+    ],
+    [
+      "主人公",
+      "……何冊か、抜けているみたいだ。"
+    ],
+    [
+      "ト書き",
+      "本が収まっていたらしい隙間に、目を向けた。"
+    ]
+  ],
+  "shelf_empty": [
+    [
+      "ト書き",
+      "本棚の一段に、ところどころ空きがある。"
+    ]
+  ],
+  "shelf_held": [
+    [
+      "ト書き",
+      "本棚の一段に、ところどころ空きがある。"
+    ],
+    [
+      "主人公",
+      "持っている本も、ここに並んでいたのかな。"
+    ]
+  ]
+};
+  const r7Lines=(key,suffix="")=>R7_TEXT[key].map(([speaker,text],i)=>line("r7_"+key+suffix+"_"+(i+1),speaker,text));
   function r7Objective(){return room7State.completed?'第八の部屋へ':room7State.booksSolved?'物語が導く道を調べる':'部屋を調べる'}
-  function r7Notice(text,id){showRoomNotice(text,id||'r7_notice')}
-  function r7Hana(){showRoomDialog([line('r7_hana_watch','ハナ',room7State.booksSolved?'……何か、思い出せそう？':'記録が残っていても、思い出せないことってあるよね。')]);}
+  function r7Notice(text,id){showRoomDialog(text.split('\n').map((text,i)=>line((id||'r7_notice')+'_'+i,'ト書き',text)))}
+  function r7Hana(){showRoomDialog(r7Lines('hana'));}
   window.showSeventhRoom=function(savedState){
     Dialogue.stop();currentScene='room07';room7State=normalizeR7(savedState);renderR7();saveGame();
     if(room7State.doorIndex===6&&!room7State.completed){r7Memory();return;}
-    if(!room7State.introSeen){room7State.introSeen=true;saveGame();showRoomDialog([
-      line('r7_intro_01','ト書き','本棚と書斎の家具が並ぶ、静かな部屋。正面には一枚の扉がある。')
-    ]);}
+    if(!room7State.introSeen){room7State.introSeen=true;saveGame();showRoomDialog(r7Lines('intro'));}
   };
   function r7Hotspot(id,label,rect){return '<button type="button" id="'+id+'" class="r7-target" style="left:'+rect[0]+'%;top:'+rect[1]+'%;width:'+rect[2]+'%;height:'+rect[3]+'%" aria-label="'+label+'"></button>'}
   function renderR7(){
@@ -1160,8 +1395,8 @@
     bind('r7Dial',r7Dial);bind('r7Door',()=>room7State.completed?transition('第八の部屋へ',()=>showEighthRoom(roomStates.room08)):r7Door(room7State.selectedZodiac));
     const sources={r7Drawer:'drawer',r7Curtain:'curtain',r7Diary:'diary',r7Stack:'stack',r7Box:'box',r7Cabinet:'cabinet'};
     Object.entries(sources).forEach(([id,source])=>bind(id,()=>r7Search(source)));
-    bind('r7Shelf',()=>r7Shelf());
-    const notices={r7Photo:['風景は写っているのに、人物の部分だけが白く抜け落ちている。','photo'],r7Letters:['宛名も差出人も読めない。手紙だけが、ここに残されている。','letters'],r7Cups:['コップは二つある。それなのに、椅子は一脚しかない。','cups'],r7Clock:['文字盤はあるのに、針がない。時刻を知ることはできない。','clock'],r7Lamp:['ランプには電球がついていない。明かりがともることはない。','lamp'],r7Frame:['壁に四角い跡だけが残っている。ここには、何が飾られていたのだろう。','frame'],r7FrontRecords:['本と記録の箱が並んでいる。何かを覚えておくために残したものだろうか。','records']};
+    bind('r7Shelf',r7InspectShelf);
+    const notices={"r7Photo": ["写真立てが置かれている。\n風景ははっきり写っているのに、人物の部分だけが白く抜け落ちていた。\n誰が写っていたのか、わからない。", "photo"], "r7Letters": ["手紙が置かれている。\n宛名も差出人の名前も、文字がにじんで読めない。\n誰から誰へ送られたものなのだろう。", "letters"], "r7Cups": ["テーブルに、コップが二つ置かれている。\nけれど、椅子は一脚しかない。\nもう一脚は、どこへいったのだろう。", "cups"], "r7Clock": ["壁に時計が掛かっている。\n文字盤はあるのに、針がない。\nこれでは、止まっているのかさえわからない。", "clock"], "r7Lamp": ["ランプのスイッチを入れてみたが、明かりはつかない。\n覗き込むと、電球がついていなかった。", "lamp"], "r7Frame": ["壁に、四角い跡が残っている。\n何かが掛かっていたらしく、そこだけ壁の色が少し違う。\n絵だろうか。それとも、写真だろうか。", "frame"], "r7FrontRecords": ["本や箱が並んでいる。\n箱にはラベルが貼られているが、文字がかすれて読めない。", "records"]};
     Object.entries(notices).forEach(([id,[text,log]])=>bind(id,()=>r7Notice(text,'r7_'+log)));
     if(room7State.completed&&view==='front'){const door=game.querySelector('#r7Door');door.id='r7Next';door.setAttribute('aria-label','第八の部屋へ進む');}
     setHud('room07','第七の部屋',r7Objective,r7Hana);
@@ -1174,19 +1409,25 @@
     return {overlay,panel:overlay.querySelector('section'),close};
   }
   const R7_SEARCH={
-    drawer:{name:'机の引き出し',action:'引き出しを開ける',before:'机には、閉じた引き出しがある。',after:'引き出しの奥に、赤い栞の挟まれた本があった。',opener:'r7Drawer'},
-    curtain:{name:'窓辺',action:'カーテンを動かす',before:'曇りガラスの向こうは見えない。カーテンの陰が気になる。',after:'カーテンを動かすと、窓辺に置かれた本が見えた。',opener:'r7Curtain'},
-    diary:{name:'机上の日記',action:'日記を閉じる',before:'日記には、途中から何も書かれていない行がある。ページの下に、別の本が重なっている。',after:'日記を閉じると、その下にあった本が見つかった。',opener:'r7Diary'},
-    stack:{name:'床の積み本',action:'積まれた本を調べる',before:'本が何冊も積まれている。',after:'積まれた本の中に、赤い栞が見える。',opener:'r7Stack'},
-    box:{name:'本棚の収納箱',action:'収納箱を開ける',before:'棚の下段に、収納箱がある。',after:'箱の中に、一冊の本がしまわれていた。',opener:'r7Box'},
-    cabinet:{name:'正面の収納棚',action:'棚の扉を開ける',before:'低い収納棚の扉は閉まっている。',after:'棚の中に、赤い栞の挟まれた本があった。',opener:'r7Cabinet'}
+    drawer:{name:'机の引き出し',action:'引き出しを開ける',before:"机の引き出しを開けた。",after:"奥に、一冊の本が入っている。",opener:'r7Drawer'},
+    curtain:{name:'窓辺',action:'カーテンを動かす',before:"窓は曇りガラスになっていて、外の景色は見えない。",after:"カーテンを少し動かすと、窓辺に一冊の本が置かれていた。",opener:'r7Curtain'},
+    diary:{name:'机上の日記',action:'日記を閉じる',before:"開いた日記が置かれている。\n文章は途中で途切れ、その先は白紙だった。",after:"日記を閉じると、下に別の本が重なっていた。",opener:'r7Diary'},
+    stack:{name:'床の積み本',action:'積まれた本を調べる',before:"床に、何冊もの本が積まれている。",after:"背表紙を見ていくと、一冊だけ逆さまに重なっていた。",opener:'r7Stack'},
+    box:{name:'本棚の収納箱',action:'収納箱を開ける',before:"棚の下段に、収納箱がある。",after:"ふたを開けると、中に一冊の本が入っていた。",opener:'r7Box'},
+    cabinet:{name:'正面の収納棚',action:'棚の扉を開ける',before:"低い収納棚がある。",after:"扉を開けると、中に一冊の本がしまわれていた。",opener:'r7Cabinet'}
   };
   function r7Search(source){
     const data=R7_SEARCH[source],book=R7_BOOKS.find(b=>b.source===source);if(!book)return;
     const got=room7State.collected.includes(book.id),opened=room7State.searched[source];
-    const m=r7Modal(data.name,'<div class="r7-search"><h2>'+data.name+'</h2><p>'+r7Escape(got?'ここにあった本は、すでに手に取った。':opened?data.after:data.before)+'</p>'+(!got?(opened?'<img class="r7-cover" src="'+r7Asset(book.id,'cover')+'" alt="'+book.title+'の表紙"><p>'+book.title+'</p><button type="button" id="r7Take">本を手に取る</button>':'<button type="button" id="r7SearchAction">'+data.action+'</button>'):'')+'</div>',data.opener);
+    if(source==='drawer'&&!got&&!opened){room7State.searched[source]=true;saveGame();r7Search(source);return;}
+    const m=r7Modal(data.name,'<div class="r7-search"><h2>'+data.name+'</h2><p>'+r7Escape(got?'ここにあった本は、すでに手に取った。':opened?data.before+'\n'+data.after:data.before).replace(/\n/g,'<br>')+'</p>'+(!got?(opened?'<img class="r7-cover" src="'+r7Asset(book.id,'cover')+'" alt="'+book.title+'の表紙"><p>'+book.title+'</p><button type="button" id="r7Take">本を手に取る</button>':'<button type="button" id="r7SearchAction">'+data.action+'</button>'):'')+'</div>',data.opener);
     m.panel.querySelector('#r7SearchAction')?.addEventListener('click',()=>{room7State.searched[source]=true;saveGame();recordLog({logId:'r7_search_'+source,logType:'investigation',speaker:'ト書き',text:data.after});m.close();r7Search(source)});
-    m.panel.querySelector('#r7Take')?.addEventListener('click',()=>{if(!room7State.collected.includes(book.id))room7State.collected.push(book.id);saveGame();m.close();renderR7();showRoomDialog([line('r7_collect_'+book.id,'ト書き','本を手に取った。')])});
+    m.panel.querySelector('#r7Take')?.addEventListener('click',()=>{
+      if(room7State.collected.includes(book.id))return;
+      const count=room7State.collected.length;
+      room7State.collected.push(book.id);saveGame();m.close();renderR7();
+      showRoomDialog(r7Lines(count===0?'pickup_first':count===1?'pickup_second':'pickup_later','_'+book.id));
+    });
   }
   function r7Cover(id){
     const book=r7Book(id);if(!book||!room7State.collected.includes(id))return;
@@ -1198,6 +1439,13 @@
     return Array.from({length:10},(_,slot)=>{const fixed=R7_FIXED.find(b=>b.slot===slot),placed=R7_BOOKS.find(b=>b.slot===slot&&room7State.placed.includes(b.id)),book=fixed||placed;
       return '<span class="r7-spine-slot">'+(book?'<img src="'+r7Asset(book.id,'spine')+'" alt="">'+(placed?'<span class="r7-red-ribbon"></span>':''):'')+'</span>';
     }).join('');
+  }
+  function r7InspectShelf(){
+    if(room7State.booksSolved){r7Shelf();return;}
+    const held=room7State.collected.some(id=>!room7State.placed.includes(id));
+    const key=held?'shelf_held':room7State.shelfExamined?'shelf_empty':'shelf_first';
+    room7State.shelfExamined=true;saveGame();
+    showRoomDialog(r7Lines(key),()=>r7Shelf());
   }
   function r7Shelf(selectedId){
     let selected=r7Book(selectedId)&&room7State.collected.includes(selectedId)&&!room7State.placed.includes(selectedId)?selectedId:null;
@@ -1244,7 +1492,12 @@
     const labels=R7_ZODIAC.map((z,i)=>'<text x="500" y="190" text-anchor="middle" dominant-baseline="middle" transform="rotate('+i*30+' 500 500)">'+z+'</text>').join('');
     return '<div class="r7-dial-art"><div class="r7-dial-wheel" style="transform:rotate('+angle+'deg)"><img src="images/items/room07/zodiac-disc.webp" alt=""><svg viewBox="0 0 1000 1000" aria-hidden="true">'+labels+'</svg></div><img class="r7-fixed-pointer" src="images/items/room07/zodiac-pointer.webp" alt="固定された金色の矢印"></div>'+(interactive?'<p class="r7-dial-selection" aria-live="polite">12時：<strong>'+room7State.selectedZodiac+'</strong></p>':'');
   }
+  function r7InspectDoor(onComplete){
+    room7State.doorExamined=true;saveGame();
+    showRoomDialog(r7Lines('door'),onComplete);
+  }
   function r7Dial(){
+    if(!room7State.doorExamined){r7InspectDoor(r7Dial);return;}
     const m=r7Modal('十二支操作盤','<div class="r7-dial-inspection">'+r7DialMarkup(true)+'<div class="r7-dial-actions"><button type="button" id="r7RotateLeft" aria-label="文字盤を左へ30度回す">↶</button><button type="button" id="r7DialDone">この行き先に合わせる</button><button type="button" id="r7RotateRight" aria-label="文字盤を右へ30度回す">↷</button></div></div>','r7Dial');
     const wheel=m.panel.querySelector('.r7-dial-wheel'),value=m.panel.querySelector('.r7-dial-selection strong');
     let steps=-R7_ZODIAC.indexOf(room7State.selectedZodiac);
@@ -1260,7 +1513,7 @@
   }
   window.Room7LibraryUI={items:()=>currentScene==='room07'&&room7State?R7_BOOKS.filter(b=>room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id)).map(b=>({id:b.id,name:b.title,art:'本',description:'赤い栞の挟まれた本。',target:'r7Shelf'})):[],use:id=>r7Cover(id)};
   function r7Door(z){
-    if(!room7State.booksSolved){showRoomDialog([line('r7_door_status','ト書き','扉には十二支の操作盤が付いている。'),line('r7_door_puzzle','問題文','物語が導くのは、あなたの進む軌跡。')]);return}
+    if(!room7State.doorExamined||!room7State.booksSolved){r7InspectDoor();return;}
     if(room7State.completed)return;
     if(z!==R7_DOORS[room7State.doorIndex])return; // Preserve the existing wrong-selection behavior.
     const isLast=room7State.doorIndex===R7_DOORS.length-1;
@@ -1449,7 +1702,7 @@
       line("r8_solve_03","花音","正解！",{logKind:"heroine"}),
       line("r8_solve_04","花音","ちゃんと解けたね？",{logKind:"heroine"}),
       line("r8_solve_05","主人公","花音……"),
-      line("r8_solve_06","主人公","花音……俺――"),
+      line("r8_solve_06","主人公","花音……僕――"),
       line("r8_solve_07","花音","そんなに呼ばなくても、聞こえてるよ",{logKind:"heroine"}),
       line("r8_solve_08","主人公","……思い出した"),
       line("r8_solve_09","主人公","全部、思い出したよ"),
@@ -1457,7 +1710,7 @@
       line("r8_solve_11","主人公","喧嘩したことも、仲直りしたことも"),
       line("r8_solve_12","主人公","一緒に謎を解いたことも……全部"),
       line("r8_solve_13","主人公","……ずっと、ありがとう"),
-      line("r8_solve_14","主人公","俺、花音と一緒にいられてよかった"),
+      line("r8_solve_14","主人公","僕、花音と一緒にいられてよかった"),
       line("r8_solve_15","主人公","本当に……大好きだった"),
       line("r8_solve_16","花音","……うん",{logKind:"heroine"}),
       line("r8_solve_17","花音","私もだよ",{logKind:"heroine"}),
@@ -1471,7 +1724,7 @@
       line("r8_solve_25","花音","脱出成功、おめでとう！",{logKind:"heroine"}),
       line("r8_solve_26","主人公","……行けない"),
       line("r8_solve_27","花音","え？",{logKind:"heroine"}),
-      line("r8_solve_28","主人公","花音を置いて、俺一人でなんて行けない"),
+      line("r8_solve_28","主人公","花音を置いて、僕一人でなんて行けない"),
       line("r8_solve_29","主人公","やっと思い出したのに"),
       line("r8_solve_30","主人公","やっと、また名前を呼べたのに……"),
       line("r8_solve_31","ト書き","主人公は花音の手を強く握る。"),
@@ -1483,11 +1736,11 @@
       line("r8_solve_37","主人公","……花音だって、泣いてるじゃん"),
       line("r8_solve_38","花音","……ほんとだ",{logKind:"heroine"}),
       line("r8_solve_39","ト書き","二人の頬を、涙が静かに伝っていく。"),
-      line("r8_solve_40","主人公","……俺、行くよ"),
+      line("r8_solve_40","主人公","……僕、行くよ"),
       line("r8_solve_41","花音","……うん",{logKind:"heroine"}),
       line("r8_solve_42","主人公","でも、これで終わりにはしない"),
-      line("r8_solve_43","主人公","最後の謎が解けても、俺たちの謎解きはこれからも続けよう"),
-      line("r8_solve_44","主人公","花音が作った謎を、今度は俺がみんなに届ける"),
+      line("r8_solve_43","主人公","最後の謎が解けても、僕たちの謎解きはこれからも続けよう"),
+      line("r8_solve_44","主人公","花音が作った謎を、今度は僕がみんなに届ける"),
       line("r8_solve_45","主人公","だから、これが最後じゃない"),
       line("r8_solve_46","主人公","これからも一緒に、謎解きを続けよう"),
       line("r8_solve_47","花音","……うん",{logKind:"heroine"}),
@@ -1513,3 +1766,4 @@
     document.getElementById("r8Title").onclick=()=>showTitle();
   }
 })();
+

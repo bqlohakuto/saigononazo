@@ -28,7 +28,7 @@ const room3FlashbackLines=[
  {logId:"room3_flashback_09",logType:"dialogue",speaker:"先輩",text:"ほんとかな～？ 女の子連れ込もうとしてるんじゃないの～～？"},
  {logId:"room3_flashback_10",logType:"dialogue",speaker:"主人公",text:"しませんって！！"},
  {logId:"room3_flashback_11",logType:"narration",speaker:"ト書き",text:"思わず、声が大きくなる。"},
- {logId:"room3_flashback_12",logType:"dialogue",speaker:"主人公",text:"俺、この部屋にあげるのは先輩だけって決めてますから！"},
+ {logId:"room3_flashback_12",logType:"dialogue",speaker:"主人公",text:"僕、この部屋にあげるのは先輩だけって決めてますから！"},
  {logId:"room3_flashback_13",logType:"dialogue",speaker:"先輩",text:"…………。……何それ。…………。"},
  {logId:"room3_flashback_14",logType:"narration",speaker:"ト書き",text:"言ってから、自分が何を口にしたのかに気づく。"},
  {logId:"room3_flashback_15",logType:"dialogue",speaker:"主人公",text:"いや……えっと……"},
@@ -48,12 +48,12 @@ const room3FlashbackLines=[
  {logId:"room3_flashback_29",logType:"dialogue",speaker:"先輩",text:"ほんと？ 迷ったら連絡して"},
  {logId:"room3_flashback_30",logType:"dialogue",speaker:"主人公",text:"はい！"},
  {logId:"room3_flashback_31",logType:"narration",speaker:"ト書き",text:"通話を切る。スマートフォンを握ったまま、大きく息を吐いた。"},
- {logId:"room3_flashback_32",logType:"dialogue",speaker:"主人公",text:"……何言ってんだ、俺"},
+ {logId:"room3_flashback_32",logType:"dialogue",speaker:"主人公",text:"……何言ってんだ、僕"},
  {logId:"room3_flashback_33",logType:"narration",speaker:"ト書き",text:"けれど、もう引き返すつもりはなかった。――しばらくして。教えてもらった川沿いに着く。川に沿って、満開に近い桜がどこまでも続いていた。"},
  {logId:"room3_flashback_34",logType:"narration",speaker:"ト書き",text:"街灯に照らされた桜の花が、夜の川沿いを淡く彩っている。風が吹くたび、花びらが数枚、ゆっくりと舞い落ちる。四月に入ったばかりの夜は、まだ少し肌寒い。桜並木の下で、先輩を待っていた。"},
  {logId:"room3_flashback_35",logType:"narration",speaker:"ト書き",text:"少しすると、先輩が少し小走りでこちらに近づいてきた。"},
  {logId:"room3_flashback_36",logType:"dialogue",speaker:"先輩",text:"ごめん、待った？"},
- {logId:"room3_flashback_37",logType:"dialogue",speaker:"主人公",text:"いえ、俺も今来たところです"},
+ {logId:"room3_flashback_37",logType:"dialogue",speaker:"主人公",text:"いえ、僕も今来たところです"},
  {logId:"room3_flashback_38",logType:"dialogue",speaker:"先輩",text:"ほんと？ ……って、なんだかデートの会話みたい"},
  {logId:"room3_flashback_39",logType:"narration",speaker:"ト書き",text:"少し息を整えながら、先輩がこちらを見る。"},
  {logId:"room3_flashback_40",logType:"dialogue",speaker:"先輩",text:"……寒くない？"},
@@ -77,10 +77,10 @@ const room3FlashbackLines=[
  {logId:"room3_flashback_58",logType:"narration",speaker:"ト書き",text:"ゆっくりと、大きく深呼吸をした。"},
  {logId:"room3_flashback_59",logType:"dialogue",speaker:"主人公",text:"先輩"},
  {logId:"room3_flashback_60",logType:"dialogue",speaker:"先輩",text:"うん"},
- {logId:"room3_flashback_61",logType:"dialogue",speaker:"主人公",text:"俺、ずっと思ってたんです。先輩と会えなかった間、ずっと。次に会ったら、もう離れたくないって。先輩には、いつも隣にいてほしいって思ったんです。先輩は、俺にとってそれだけ大切な人なんです。"},
+ {logId:"room3_flashback_61",logType:"dialogue",speaker:"主人公",text:"僕、ずっと思ってたんです。先輩と会えなかった間、ずっと。次に会ったら、もう離れたくないって。先輩には、いつも隣にいてほしいって思ったんです。先輩は、僕にとってそれだけ大切な人なんです。"},
  {logId:"room3_flashback_62",logType:"dialogue",speaker:"先輩",text:"……それって、つまりどういうこと？"},
- {logId:"room3_flashback_63",logType:"narration",speaker:"ト書き",text:"先輩は、俺が何を言いたいのか分かっているようだった。少しからかうような笑みを浮かべながら、まっすぐこちらを見ている。"},
- {logId:"room3_flashback_64",logType:"dialogue",speaker:"主人公",text:"俺と……付き合ってください"},
+ {logId:"room3_flashback_63",logType:"narration",speaker:"ト書き",text:"先輩は、僕が何を言いたいのか分かっているようだった。少しからかうような笑みを浮かべながら、まっすぐこちらを見ている。"},
+ {logId:"room3_flashback_64",logType:"dialogue",speaker:"主人公",text:"僕と……付き合ってください"},
  {logId:"room3_flashback_65",logType:"dialogue",speaker:"先輩",text:"……遅いよ"},
  {logId:"room3_flashback_66",logType:"dialogue",speaker:"主人公",text:"え？"},
  {logId:"room3_flashback_67",logType:"dialogue",speaker:"先輩",text:"ずっと待ってたんだから、その言葉"},
@@ -254,3 +254,4 @@ function showThirdRoomHana(){
  room2State.nextRoomTransitionSeen=true;saveGame();Dialogue.stop();game.innerHTML=`<div class="room-transition room3-transition" aria-label="第三の部屋へ移動"><img src="images/background/room01/room01_door_halfopen.png" alt="扉を通って次の部屋へ"></div>`;
  setTimeout(()=>{if(game.querySelector(".room3-transition"))showThirdRoom(roomStates.room03)},1100);
 }
+

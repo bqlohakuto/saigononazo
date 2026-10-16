@@ -602,7 +602,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r7-target:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
 #game .r7-nav{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;pointer-events:none;z-index:8;padding:0 1%}
 #game .r7-nav button{pointer-events:auto;width:44px;height:48px;border:1px solid var(--paper-line);background:var(--paper);color:var(--ink);font-size:20px}
-#game .r7-scene .r7-hana.hana-v2-world{position:absolute!important;left:3%!important;bottom:0!important;top:auto!important;height:53%!important;width:20%!important;z-index:4!important;pointer-events:auto;border:0;background-color:transparent;cursor:pointer;padding:0;max-width:none!important}
+#game .r7-scene .r7-hana.hana-v2-world{position:absolute!important;left:3%!important;bottom:14%!important;top:auto!important;height:68%!important;width:25.7%!important;z-index:4!important;pointer-events:auto;border:0;background-color:transparent;cursor:pointer;padding:0;max-width:none!important}
 #game .r7-hana::after{content:'';position:absolute;left:50%;top:2%;width:16px;height:16px;border:2px solid #e9c36a;border-radius:50%;box-shadow:0 0 0 2px #35332e88}
 #game.has-dialogue .r7-target::after,#game.has-dialogue .r7-hana::after,#game.has-dialogue .r7-nav{visibility:hidden}
 #game .r7-dial-target{position:absolute;z-index:5;left:41.2%;top:11.2%;width:18.2%;aspect-ratio:1;border:0;padding:0;background:none;cursor:pointer}
@@ -657,7 +657,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r7-slot>img{max-height:100%;min-height:0}
 #game .r7-dial-wheel svg text{font-family:'DotGothic16',sans-serif;font-weight:400}
 /* Keep the companion clear of the cabinet's main investigation target. */
-#game .r7-scene[data-view=front] .r7-hana.hana-v2-world{left:21%!important;width:17%!important}
+#game .r7-scene[data-view=front] .r7-hana.hana-v2-world{left:17%!important;width:23%!important}
 #game .r7-target.is-investigated::after{border-color:#72b68a;background:#79bf921a}
 /* Read the approved spreads at full scene height, including on phones. */
 #game .r7-overlay:has(.r7-reader-panel){padding:0!important}

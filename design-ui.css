@@ -611,9 +611,9 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r7-dial-wheel>img,#game .r7-dial-wheel>svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #game .r7-dial-wheel svg text{font-family:'Yu Mincho','Hiragino Mincho ProN',serif;font-size:84px;font-weight:600;fill:#24170d}
 #game .r7-fixed-pointer{position:absolute;left:17.6%;top:-14.4%;width:64.8%;height:auto;pointer-events:none;z-index:2}
-#game .r7-shelf-row{position:absolute;left:35.1%;top:25.2%;width:29.6%;height:16.4%;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));pointer-events:none;z-index:2}
+#game .r7-shelf-row{position:absolute;left:35.8%;top:22.3%;width:28.4%;height:19.7%;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));pointer-events:none;z-index:2}
 #game .r7-spine-slot{position:relative;display:block;height:100%;min-width:0}
-#game .r7-spine-slot img{display:block;width:100%;height:100%;object-fit:fill}
+#game .r7-spine-slot img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
 #game .r7-red-ribbon{position:absolute;top:-5%;left:68%;width:14%;height:13%;background:#b72329;border:1px solid #69171a;clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%);z-index:2}
 #game .r7-overlay{position:absolute;inset:0;display:grid;place-items:center}
 #game .r7-panel{position:relative;box-sizing:border-box;width:94%;height:92%;padding:5% 3% 2%;background:var(--paper);border:1px solid var(--gold);color:var(--ink);overflow:hidden}
@@ -630,7 +630,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r7-shelf-inspection{height:100%;display:flex;flex-direction:column;gap:8px;align-items:stretch}
 #game .r7-shelf-zoom{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));height:65%;min-height:0;padding:2% 2% 0;background:linear-gradient(#3b2418,#624028);border:clamp(5px,1cqw,14px) solid #9b5e2f;box-shadow:inset 0 6px 12px #0008;flex-shrink:1}
 #game .r7-slot{position:relative;height:100%;padding:0;border:0;border-radius:0!important;background:none;min-width:0;cursor:pointer}
-#game .r7-slot>img{width:100%;height:100%;object-fit:fill;display:block}
+#game .r7-slot>img{width:100%;height:100%;object-fit:contain;object-position:center bottom;display:block}
 #game .r7-slot:not(.is-filled):hover,#game .r7-slot:not(.is-filled):focus-visible{background:#f7dfad44}
 #game .r7-empty-slot{position:absolute;inset:8% 15% 2%;border-bottom:2px solid #f4d59d66}
 #game .r7-shelf-status{flex-shrink:0;min-height:1.7em;margin:0!important;text-align:center}
@@ -674,3 +674,6 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .design-settings select{max-width:100%;min-height:36px}
 @media(pointer:coarse){#game .gameplay-top-button{min-height:40px;padding:4px 8px}#game .gameplay-hud-actions{gap:4px}}
 @media(orientation:portrait) and (pointer:coarse){#game .design-title-fullscreen{display:none}}
+
+/* Match the ten 132 × 650 spines to the shelf, without stretching the artwork. */
+#game .r7-shelf-zoom{box-sizing:border-box;width:auto;max-width:100%;aspect-ratio:1320/650;align-self:center;padding:0;border-bottom-width:clamp(5px,1cqw,14px)}

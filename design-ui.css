@@ -2,8 +2,10 @@
 /* Confirmed UI direction, 2026-10-11. Scenario and puzzle colors are independent. */
 :root{--paper:#faf7ee;--ink:#35332e;--gold:#ae9157;--paper-line:#d9ccb0;--ui-duration:150ms}
 body{background:#171b19!important;font-family:"Yu Gothic",Meiryo,sans-serif}
-#game-container{width:min(100vw,177.7778svh)!important;height:min(56.25vw,100svh)!important;max-width:none!important;max-height:none!important;aspect-ratio:16/9;position:relative;margin:auto;overflow:hidden;container-type:inline-size}
-#game{width:100%;height:100%;position:relative}
+:root{--display-width:calc(100vw - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px));--display-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+@supports(height:100dvh){:root{--display-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}}
+#game-container{width:min(var(--display-width),calc(var(--display-height)*16/9))!important;height:min(calc(var(--display-width)*9/16),var(--display-height))!important;max-width:none!important;max-height:none!important;aspect-ratio:16/9;position:absolute;left:calc(env(safe-area-inset-left,0px) + var(--display-width)/2);top:calc(env(safe-area-inset-top,0px) + var(--display-height)/2);transform:translate(-50%,-50%);margin:0;overflow:hidden;container-type:inline-size}
+#game{width:100%;height:100%;max-width:none;position:relative}
 #game.gameplay-ui-active{--ui-ink:var(--ink);--ui-muted:#7b7568;--ui-paper:var(--paper);--ui-border:var(--paper-line);--ui-accent:var(--gold);--ui-dark:var(--paper)}
 #game button:not(.title-button):not(.object):not(.late-object){font-family:inherit;border-radius:5px;touch-action:manipulation}
 #game :is(.gameplay-panel,.menu-panel,.phone-screen,.piano-screen,.room2-puzzle,.room3-puzzle-panel,.room3-chat-panel,.r4-mini,.r4-light-panel,.late-panel,.inspection-panel,.save-slot-panel){background:var(--paper)!important;color:var(--ink)!important;border:1px solid var(--gold)!important;border-radius:8px!important;max-height:92%;box-shadow:0 14px 45px #10161055;padding:clamp(12px,2cqw,30px);overflow:auto}
@@ -125,7 +127,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 #game .design-sound-caption[hidden]{display:none}
 #game .is-keyboard-open{max-height:100%;overflow:auto}
 #game .is-keyboard-open input:focus{scroll-margin:20px}
-@media(orientation:portrait) and (pointer:coarse){#game .design-orientation{display:grid}#game-container{width:100vw!important;height:100svh!important;aspect-ratio:auto}}
+@media(orientation:portrait) and (pointer:coarse){#game .design-orientation{display:grid}#game-container{width:var(--display-width)!important;height:var(--display-height)!important;aspect-ratio:auto}}
 @media(max-height:550px){#game .room-dialog{height:34%;padding-bottom:32px!important}#game .hana-portrait{bottom:25%;height:67%}#game .design-panel{gap:5px;padding:1.5%}#game .design-content{gap:4px}#game .design-panel>header{padding-bottom:4px}#game .design-panel button{min-height:30px}#game .design-settings{gap:5px 15px}#game .room2-rule{font-size:10px}#game .room2-answer-slot,#game .room2-palette-token{min-height:34px}#game .room2-puzzle{gap:5px 3%}#game .save-slot-card{min-height:54px;padding:7px}#game .save-slot-guide{margin:0;font-size:11px}}
 @media(prefers-reduced-motion:no-preference){#game :is(.device-overlay,.inspection-overlay,.design-overlay){animation:designFade var(--ui-duration) ease-out}@keyframes designFade{from{opacity:0}to{opacity:1}}}
 @media(prefers-reduced-motion:reduce){#game *{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
@@ -587,8 +589,9 @@ body{background:#0b1322!important;display:grid;place-items:center}
 
 /* Room 7: approved four-view library and independent puzzle layers. */
 #game .r7-full{position:absolute;inset:0;height:100%;min-height:0;padding:0;overflow:hidden;background:#30251c}
-#game .r7-room-wrap{position:absolute;inset:0;display:grid;place-items:center}
-#game .r7-scene{position:relative;height:100%;max-width:100%;aspect-ratio:3/2;background-position:center;background-size:100% 100%;background-repeat:no-repeat}
+#game .r7-room-wrap{position:absolute;inset:0;display:flex;align-items:flex-start;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y;scrollbar-width:none}
+#game .r7-room-wrap::-webkit-scrollbar{display:none}
+#game .r7-scene{position:relative;flex:none;margin:auto;height:100%;max-width:100%;aspect-ratio:3/2;background-position:center;background-size:100% 100%;background-repeat:no-repeat}
 #game .r7-scene[data-view=front]{background-image:url('images/background/room07/front.webp')}
 #game .r7-scene[data-view=left]{background-image:url('images/background/room07/left.webp')}
 #game .r7-scene[data-view=right]{background-image:url('images/background/room07/right.webp')}
@@ -664,3 +667,10 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r7-reader #r7Zoom{position:absolute;right:118px;bottom:6px;z-index:3}
 #game .r7-reader #r7BackShelf{position:absolute;right:6px;bottom:6px;z-index:3}
 #game:has(.r7-overlay) .gameplay-hud{visibility:hidden}
+
+/* Direct fullscreen access keeps the mobile playfield available without opening settings. */
+#game .design-title-fullscreen{position:absolute;right:2%;top:2%;z-index:66;min-height:40px;padding:7px 12px;border:1px solid var(--paper-line);background:var(--paper);color:var(--ink);font-size:clamp(12px,1.3cqw,18px)}
+#game .design-display-note{font-size:clamp(11px,1.2cqw,17px);line-height:1.6;margin:4px 0}
+#game .design-settings select{max-width:100%;min-height:36px}
+@media(pointer:coarse){#game .gameplay-top-button{min-height:40px;padding:4px 8px}#game .gameplay-hud-actions{gap:4px}}
+@media(orientation:portrait) and (pointer:coarse){#game .design-title-fullscreen{display:none}}

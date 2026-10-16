@@ -21,6 +21,50 @@
   const state=()=>{roomStates.uiDesign||={};const s=roomStates.uiDesign;s.investigated||={};s.hints||={};s.inputs||={};s.visited||=[];return s};
   const button=(label,fn,cls='')=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.className=cls;b.onclick=fn;return b};
   const paragraph=text=>{const p=document.createElement('p');p.textContent=text;return p};
+  const fullscreenElement=()=>document.fullscreenElement||document.webkitFullscreenElement;
+  const standalone=()=>navigator.standalone===true||matchMedia('(display-mode:standalone)').matches||(!fullscreenElement()&&matchMedia('(display-mode:fullscreen)').matches);
+  let roomImageSize=localStorage.getItem('saigononazo-room-image-size')==='large'?'large':'fit',roomImageKey='',lastRoomImage=null,fullscreenBusy=false;
+  function displayHelp(failed=false){
+    const m=panel('全画面表示');
+    m.content.append(paragraph(standalone()?'ホーム画面から起動した表示でプレイ中です。端末を横向きにすると、画面を広く使えます。':failed?'このブラウザでは全画面への切り替えができませんでした。ブラウザで直接開くか、ホーム画面から起動してください。':'このブラウザでは全画面ボタンに対応していません。ホーム画面から起動すると、アドレスバーのない表示でプレイできます。'));
+    if(!standalone())m.content.append(paragraph('iPhone・iPad：Safariの共有メニュー →「ホーム画面に追加」。追加したアイコンから開き、端末を横向きにしてください。'),paragraph('Android：ブラウザのメニュー →「ホーム画面に追加」または「アプリをインストール」。'));
+  }
+  async function toggleFullscreen(){
+    if(fullscreenBusy)return;
+    if(standalone()){displayHelp();return}
+    const root=document.documentElement,active=fullscreenElement(),request=root.requestFullscreen||root.webkitRequestFullscreen,exit=document.exitFullscreen||document.webkitExitFullscreen;
+    if(active?!exit:!request){displayHelp();return}
+    fullscreenBusy=true;
+    try{
+      if(active)await exit.call(document);
+      else{
+        // Request directly within the tap handler; user activation cannot survive a deferred click.
+        await request.call(root,{navigationUI:'hide'});
+        if(matchMedia('(pointer:coarse)').matches&&screen.orientation?.lock)try{await screen.orientation.lock('landscape')}catch{}
+      }
+    }catch{displayHelp(true)}finally{fullscreenBusy=false;syncDisplayButtons()}
+  }
+  function syncDisplayButtons(){
+    const active=!!fullscreenElement(),label=active?'全画面を終了':standalone()?'画面の案内':'全画面';
+    document.querySelectorAll('[data-display-fullscreen]').forEach(b=>{if(b.textContent!==label)b.textContent=label;b.setAttribute('aria-pressed',String(active));b.disabled=fullscreenBusy});
+  }
+  function fullscreenButton(cls=''){const b=button('全画面',toggleFullscreen,cls);b.dataset.displayFullscreen='';return b}
+  function syncRoomImage(){
+    const scene=game.querySelector('.r7-scene'),wrap=scene?.parentElement;
+    if(!scene){lastRoomImage=null;return}
+    const key=[wrap.clientWidth,wrap.clientHeight,roomImageSize].join(':');
+    if(lastRoomImage===scene&&roomImageKey===key)return;
+    lastRoomImage=scene;roomImageKey=key;
+    if(roomImageSize==='large'){
+      const width=Math.min(wrap.clientWidth,wrap.clientHeight*1.5)*1.2;
+      scene.style.width=width+'px';scene.style.height=width/1.5+'px';scene.style.maxWidth='none';
+    }else{scene.style.removeProperty('width');scene.style.removeProperty('height');scene.style.removeProperty('max-width')}
+    wrap.scrollLeft=(wrap.scrollWidth-wrap.clientWidth)/2;wrap.scrollTop=(wrap.scrollHeight-wrap.clientHeight)/2;
+  }
+  document.addEventListener('fullscreenchange',syncDisplayButtons);
+  document.addEventListener('webkitfullscreenchange',syncDisplayButtons);
+  if(window.ResizeObserver)new ResizeObserver(syncRoomImage).observe(game);
+  else window.addEventListener('resize',syncRoomImage);
   const portraitExpressions=['gentle','happy','thought','surprise','concern','serious'];
   const hanaV2Names=['gentle','happy','thought','surprise','concern','serious','sleepy','neutral','excited'];
   const hanaV2Base='images/characters/hana-current/';
@@ -134,7 +178,9 @@
     function checkbox(label,key){const l=document.createElement('label'),input=document.createElement('input');input.type='checkbox';input.checked=!!settings[key];input.onchange=()=>{settings[key]=input.checked;saveSettings()};l.append(input,document.createTextNode(label));grid.append(l)}
     range('BGM', 'bgmVolume',0,100);range('効果音','seVolume',0,100);range('文字速度（小さいほど速い）','textSpeed',15,100);checkbox('文字を一度に表示','instantText');checkbox('音の情景描写を表示','soundCaptions');
     const size=document.createElement('label');size.append(document.createTextNode('文字サイズ'));const select=document.createElement('select');[['medium','標準'],['large','大']].forEach(([value,text])=>{const o=document.createElement('option');o.value=value;o.textContent=text;select.append(o)});select.value=document.documentElement.dataset.gameTextSize||'medium';select.onchange=()=>{document.documentElement.dataset.gameTextSize=select.value;localStorage.setItem('saigononazo-gameplay-ui-v1',JSON.stringify({textSize:select.value}));GameplayUI.setTextSize?.(select.value)};size.append(select);grid.append(size);
-    const actions=document.createElement('div');actions.className='design-actions';actions.append(button('セーブ',()=>{m.close();GameplayUI.openDataMenu('save')}),button('ロード',()=>{m.close();GameplayUI.openDataMenu('load')}),button('操作説明',()=>{m.close();help()}),button('全画面 / ウィンドウ',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.getElementById('game-container').requestFullscreen()}catch{}}));m.content.append(actions);
+    const imageSize=document.createElement('label'),imageSelect=document.createElement('select');imageSize.append(document.createTextNode('部屋画像（第七の部屋）'));imageSelect.id='roomImageSize';[['fit','全体を表示'],['large','拡大（120%）']].forEach(([value,text])=>{const o=document.createElement('option');o.value=value;o.textContent=text;imageSelect.append(o)});imageSelect.value=roomImageSize;imageSelect.onchange=()=>{roomImageSize=imageSelect.value;localStorage.setItem('saigononazo-room-image-size',roomImageSize);syncRoomImage()};imageSize.append(imageSelect);grid.append(imageSize);
+    const imageNote=paragraph('拡大時は部屋の背景をスワイプして見渡せます。');imageNote.className='design-display-note';m.content.append(imageNote);
+    const actions=document.createElement('div');actions.className='design-actions';actions.append(button('セーブ',()=>{m.close();GameplayUI.openDataMenu('save')}),button('ロード',()=>{m.close();GameplayUI.openDataMenu('load')}),button('操作説明',()=>{m.close();help()}),fullscreenButton());m.content.append(actions);syncDisplayButtons();
     const title=button('タイトルへ戻る',()=>{title.textContent='セーブしてタイトルへ戻りますか？';title.onclick=()=>{saveGame();m.close();Dialogue.stop();showTitle()}});m.content.append(title);
   }
   const r5Items=[['mirror','鏡','◇'],['fish','魚','魚'],['butterfly','蝶','蝶'],['flower','花','花'],['squid','イカ','イカ'],['chair','椅子','椅子'],['cannon','大砲','大砲']];
@@ -161,11 +207,14 @@
     if(currentScene!=='opening')text='黄色の輪は未調査、緑の輪は調査済みです。輪のある場所をクリック / タップして調べます。\n\n'+text;
     if(currentScene==='room02')text+='\n\nいろしるパズル：候補を押した順に１〜５へ入ります。同じ候補で取り消し、同じ記号の別の色で入れ替え。入力済みの枠を２つ押すと交換できます。「解答」で判定します。';
     if(game.querySelector('.device-overlay input,.device-overlay textarea,.room input,.late-room input'))text+='\n\n入力欄では解答ボタンを押して送信します。';
-    text+='\n\nスマホは横向きでプレイしてください。';pageText(m.content,text);
+    text+='\n\nスマホは横向きでプレイしてください。右上の「全画面」で表示を広げられます。対応していないブラウザでは、ホーム画面からの起動方法を案内します。第七の部屋は設定から画像を拡大でき、背景をスワイプして見渡せます。';pageText(m.content,text);
   }
   function investigationRevision(el){const s=roomStates[currentScene]||{};const base=['doorUnlocked','unlocked','completed','memorySeen'].map(k=>String(!!s[k])).join(':');return el?.id==='hanaButton'?base+'|topics:'+window.HanaChoiceUI.getAvailableChoiceIds().join(','):base}
   function syncHud(){
-    const actions=game.querySelector('.gameplay-hud-actions');if(actions&&!actions.dataset.design){actions.dataset.design='true';actions.replaceChildren(button('持ち物',inventory,'gameplay-top-button'),button('記録',records,'gameplay-top-button'),button('設定',options,'gameplay-top-button'))}
+    const actions=game.querySelector('.gameplay-hud-actions');if(actions&&!actions.dataset.design){actions.dataset.design='true';actions.replaceChildren(button('持ち物',inventory,'gameplay-top-button'),button('記録',records,'gameplay-top-button'),button('設定',options,'gameplay-top-button'),fullscreenButton('gameplay-top-button'))}
+    const title=game.querySelector('.title-screen');let titleDisplay=game.querySelector('.design-title-fullscreen');
+    if(title&&!titleDisplay){titleDisplay=fullscreenButton('design-title-fullscreen');game.append(titleDisplay)}else if(!title)titleDisplay?.remove();
+    syncDisplayButtons();syncRoomImage();
     // Full-body character for the later rooms; disappears while talking or after the final farewell.
     const late=game.querySelector('.late-room');
     const mayShow=['room05','room06','room07','room08'].includes(currentScene);

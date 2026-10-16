@@ -1155,7 +1155,7 @@
     game.innerHTML='<main class="room late-room r7-full" aria-label="図書室"><div class="r7-room-wrap"><section class="r7-scene" data-view="'+view+'" aria-label="'+({front:'正面の扉',left:'記録のある書斎',right:'欠けたものがある書斎',back:'大きな本棚'})[view]+'">'+objects+
       (view==='front'?'<button type="button" class="r7-dial-target" id="r7Dial" aria-label="十二支操作盤を拡大">'+r7DialMarkup(false)+'</button>':'')+
       (view==='back'?'<div class="r7-shelf-row" aria-hidden="true">'+r7ShelfArt()+'</div>':'')+
-      '<button type="button" class="r7-hana hana-v2-world" id="r7Hana" aria-label="ハナに話しかける"></button></section><nav class="r7-nav" aria-label="部屋を見回す"><button type="button" id="r7TurnLeft" aria-label="左を向く">◀</button><button type="button" id="r7TurnRight" aria-label="右を向く">▶</button></nav></div></main>';
+      '<button type="button" class="r7-hana hana-v2-world" id="r7Hana" aria-label="ハナに話しかける"></button></section></div><nav class="r7-nav" aria-label="部屋を見回す"><button type="button" id="r7TurnLeft" aria-label="左を向く">◀</button><button type="button" id="r7TurnRight" aria-label="右を向く">▶</button></nav></main>';
     const bind=(id,fn)=>game.querySelector('#'+id)?.addEventListener('click',fn);
     bind('r7TurnLeft',()=>r7Turn(-1));bind('r7TurnRight',()=>r7Turn(1));bind('r7Hana',r7Hana);
     bind('r7Dial',r7Dial);bind('r7Door',()=>room7State.completed?transition('第八の部屋へ',()=>showEighthRoom(roomStates.room08)):r7Door(room7State.selectedZodiac));

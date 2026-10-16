@@ -1,0 +1,12 @@
+{
+  "id": "./",
+  "name": "最後の謎が解けるまで",
+  "short_name": "最後の謎",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0b1322",
+  "theme_color": "#0b1322"
+}

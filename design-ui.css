@@ -584,3 +584,83 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .late-room .hana-v2-world,
 #game .pixel-opening-hana img,
 #game .hana-portrait:is([data-expression=gentle],[data-expression=neutral]){image-rendering:auto}
+
+/* Room 7: approved four-view library and independent puzzle layers. */
+#game .r7-full{position:absolute;inset:0;height:100%;min-height:0;padding:0;overflow:hidden;background:#30251c}
+#game .r7-room-wrap{position:absolute;inset:0;display:grid;place-items:center}
+#game .r7-scene{position:relative;height:100%;max-width:100%;aspect-ratio:3/2;background-position:center;background-size:100% 100%;background-repeat:no-repeat}
+#game .r7-scene[data-view=front]{background-image:url('images/background/room07/front.webp')}
+#game .r7-scene[data-view=left]{background-image:url('images/background/room07/left.webp')}
+#game .r7-scene[data-view=right]{background-image:url('images/background/room07/right.webp')}
+#game .r7-scene[data-view=back]{background-image:url('images/background/room07/back.webp')}
+#game .r7-target{position:absolute;border:0;border-radius:0!important;padding:0;min-height:0;background:transparent;cursor:pointer;z-index:3}
+#game .r7-target::after{content:'';position:absolute;left:50%;top:50%;width:16px;height:16px;border:2px solid #e9c36a;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 2px #35332e88;pointer-events:none}
+#game .r7-target:hover{background:#fff6}
+#game .r7-target:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+#game .r7-nav{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;pointer-events:none;z-index:8;padding:0 1%}
+#game .r7-nav button{pointer-events:auto;width:44px;height:48px;border:1px solid var(--paper-line);background:var(--paper);color:var(--ink);font-size:20px}
+#game .r7-scene .r7-hana.hana-v2-world{position:absolute!important;left:3%!important;bottom:0!important;top:auto!important;height:53%!important;width:20%!important;z-index:4!important;pointer-events:auto;border:0;background-color:transparent;cursor:pointer;padding:0;max-width:none!important}
+#game .r7-hana::after{content:'';position:absolute;left:50%;top:2%;width:16px;height:16px;border:2px solid #e9c36a;border-radius:50%;box-shadow:0 0 0 2px #35332e88}
+#game.has-dialogue .r7-target::after,#game.has-dialogue .r7-hana::after,#game.has-dialogue .r7-nav{visibility:hidden}
+#game .r7-dial-target{position:absolute;z-index:5;left:41.2%;top:11.2%;width:18.2%;aspect-ratio:1;border:0;padding:0;background:none;cursor:pointer}
+#game .r7-dial-art{position:relative;width:100%;aspect-ratio:1;touch-action:none;user-select:none}
+#game .r7-dial-wheel{position:absolute;inset:0;transform-origin:50% 50%;transition:transform .25s ease}
+#game .r7-dial-wheel>img,#game .r7-dial-wheel>svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#game .r7-dial-wheel svg text{font-family:'Yu Mincho','Hiragino Mincho ProN',serif;font-size:84px;font-weight:600;fill:#24170d}
+#game .r7-fixed-pointer{position:absolute;left:17.6%;top:-14.4%;width:64.8%;height:auto;pointer-events:none;z-index:2}
+#game .r7-shelf-row{position:absolute;left:35.1%;top:25.2%;width:29.6%;height:16.4%;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));pointer-events:none;z-index:2}
+#game .r7-spine-slot{position:relative;display:block;height:100%;min-width:0}
+#game .r7-spine-slot img{display:block;width:100%;height:100%;object-fit:fill}
+#game .r7-red-ribbon{position:absolute;top:-5%;left:68%;width:14%;height:13%;background:#b72329;border:1px solid #69171a;clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%);z-index:2}
+#game .r7-overlay{position:absolute;inset:0;display:grid;place-items:center}
+#game .r7-panel{position:relative;box-sizing:border-box;width:94%;height:92%;padding:5% 3% 2%;background:var(--paper);border:1px solid var(--gold);color:var(--ink);overflow:hidden}
+#game .r7-panel>.device-close{position:absolute;top:8px;right:8px;z-index:10}
+#game .r7-panel h2{font-size:clamp(15px,2cqw,26px);margin:0 0 10px}
+#game .r7-panel p{font-size:clamp(13px,1.6cqw,22px);line-height:1.6}
+#game .r7-panel button:not(.device-close):not(.r7-slot){min-height:40px;padding:7px 12px;background:var(--paper);border:1px solid var(--paper-line);color:var(--ink);font-size:clamp(12px,1.35cqw,20px)}
+#game .r7-search{height:100%;display:flex;flex-direction:column;align-items:center;gap:5px;overflow:auto}
+#game .r7-search p{margin:5px 0;text-align:center}
+#game .r7-cover{min-height:0;max-height:65%;max-width:42%;object-fit:contain}
+#game .r7-cover-view{height:100%;display:flex;align-items:center;justify-content:center;gap:5%;overflow:auto}
+#game .r7-cover-view>.r7-cover{height:95%;max-height:95%;width:42%;max-width:42%;object-fit:contain}
+#game .r7-cover-view>div{width:43%}
+#game .r7-shelf-inspection{height:100%;display:flex;flex-direction:column;gap:8px;align-items:stretch}
+#game .r7-shelf-zoom{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));height:65%;min-height:0;padding:2% 2% 0;background:linear-gradient(#3b2418,#624028);border:clamp(5px,1cqw,14px) solid #9b5e2f;box-shadow:inset 0 6px 12px #0008;flex-shrink:1}
+#game .r7-slot{position:relative;height:100%;padding:0;border:0;border-radius:0!important;background:none;min-width:0;cursor:pointer}
+#game .r7-slot>img{width:100%;height:100%;object-fit:fill;display:block}
+#game .r7-slot:not(.is-filled):hover,#game .r7-slot:not(.is-filled):focus-visible{background:#f7dfad44}
+#game .r7-empty-slot{position:absolute;inset:8% 15% 2%;border-bottom:2px solid #f4d59d66}
+#game .r7-shelf-status{flex-shrink:0;min-height:1.7em;margin:0!important;text-align:center}
+#game .r7-held-books{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;min-height:0;overflow:auto}
+#game .r7-held-books button[aria-pressed=true]{background:#eadab7!important;border-color:var(--gold)!important}
+#game .r7-reader-panel{width:98%;height:98%;padding:0;background:#30251c}
+#game .r7-reader{height:100%;display:grid;grid-template-columns:1fr auto auto;grid-template-rows:minmax(0,1fr) auto;gap:5px}
+#game .r7-reading-viewport{grid-column:1/-1;overflow:auto;min-height:0;display:flex;align-items:center;justify-content:center}
+#game .r7-open-book{width:100%;height:100%;object-fit:contain;display:block}
+#game .r7-reader #r7Zoom{grid-column:2}
+#game .r7-reader #r7BackShelf{grid-column:3}
+#game .r7-reader-panel.is-zoomed .r7-reading-viewport{display:block}
+#game .r7-reader-panel.is-zoomed .r7-open-book{width:170%;height:auto;max-width:none}
+#game .r7-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+#game .r7-dial-inspection{height:100%;display:grid;grid-template-rows:minmax(0,1fr) auto auto;justify-items:center;align-items:center;gap:4px}
+#game .r7-dial-inspection>.r7-dial-art{height:100%;width:auto;max-width:80%;aspect-ratio:1}
+#game .r7-dial-selection{margin:0!important}
+#game .r7-dial-actions{display:flex;justify-content:center;gap:8px}
+@media(max-height:450px){#game .r7-panel{padding-top:42px}#game .r7-panel p{font-size:13px}#game .r7-shelf-zoom{height:58%}#game .r7-shelf-inspection{gap:4px}#game .r7-panel button:not(.device-close):not(.r7-slot){min-height:36px;padding:4px 8px}#game .r7-nav button{width:36px;height:42px}#game .r7-target::after{width:12px;height:12px}}
+@media(prefers-reduced-motion:reduce){#game .r7-dial-wheel{transition:none}}
+/* A bounded grid row must not inherit the natural 650px sprite height. */
+#game .r7-shelf-zoom{grid-template-rows:minmax(0,1fr)}
+#game .r7-slot{min-height:0;overflow:visible}
+#game .r7-slot>img{max-height:100%;min-height:0}
+#game .r7-dial-wheel svg text{font-family:'DotGothic16',sans-serif;font-weight:400}
+/* Keep the companion clear of the cabinet's main investigation target. */
+#game .r7-scene[data-view=front] .r7-hana.hana-v2-world{left:21%!important;width:17%!important}
+#game .r7-target.is-investigated::after{border-color:#72b68a;background:#79bf921a}
+/* Read the approved spreads at full scene height, including on phones. */
+#game .r7-overlay:has(.r7-reader-panel){padding:0!important}
+#game .r7-panel.r7-reader-panel{width:100%;height:100%;padding:0;border:0}
+#game .r7-reader{display:block;position:relative}
+#game .r7-reading-viewport{height:100%;width:100%}
+#game .r7-reader #r7Zoom{position:absolute;right:118px;bottom:6px;z-index:3}
+#game .r7-reader #r7BackShelf{position:absolute;right:6px;bottom:6px;z-index:3}
+#game:has(.r7-overlay) .gameplay-hud{visibility:hidden}

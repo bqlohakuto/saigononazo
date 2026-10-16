@@ -1097,85 +1097,190 @@
   }
 
   // ---------- Room 7 ----------
+  // The 2026-10-16 library replaces the old twelve-door scene. Memory dialogue below is unchanged.
   const R7_BOOKS=[
-    {id:"ikkyu",title:"一休さん",animals:"虎",zodiac:"寅"},
-    {id:"rabbit",title:"ウサギとカメ",animals:"うさぎ、かめ",zodiac:"卯"},
-    {id:"wolf",title:"オオカミ少年",animals:"オオカミ、羊",zodiac:"未"},
-    {id:"monkey",title:"さるかに合戦",animals:"猿、かに",zodiac:"申"},
-    {id:"pigs",title:"三匹の子豚",animals:"豚、オオカミ",zodiac:"亥"},
-    {id:"bremen",title:"ブレーメンの音楽隊",animals:"ロバ、犬、猫、鶏",zodiac:"酉"}
+    {id:'ikkyu',title:'一休さん',animals:'とら',zodiac:'寅',slot:1,source:'drawer',view:'left',
+      body:'びょうぶには、いまにも とびだしてきそうな とらが えがかれていました。\n\n「この とらを そとへ おいだしてください。わたしが つかまえてみせましょう」\n\nいっきゅうさんは なわを かまえ、にっこり わらいました。'},
+    {id:'rabbit',title:'ウサギとカメ',animals:'うさぎ',zodiac:'卯',slot:2,source:'curtain',view:'left',
+      body:'「まだまだ よゆうが あるさ」\n\nうさぎは みちの さきを ながめると、おおきな きの したに ねころびました。\n\nきもちの よい かぜに ふかれ、いつしか ふかい ねむりに おちていました。'},
+    {id:'wolf',title:'オオカミ少年',animals:'ひつじ',zodiac:'未',slot:3,source:'diary',view:'left',
+      body:'ひつじたちは、おかの うえで くさを たべていました。\n\nその そばで、しょうねんが また おおごえを あげます。\n\nかけつけた むらびとを みて、しょうねんは おなかを かかえて わらいました。'},
+    {id:'monkey',title:'さるかに合戦',animals:'さる',zodiac:'申',slot:5,source:'stack',view:'right',
+      body:'さるは かきの きに するすると のぼりました。\n\nえだには、よく じゅくした みが たくさん なっています。\n\n「うまい、うまい」\n\nさるは あまい みを ほおばり、いつまでも おりてきませんでした。'},
+    {id:'mitten',title:'てぶくろ',animals:'いのしし',zodiac:'亥',slot:7,source:'box',view:'right',
+      body:'ゆきみちを あるいてきた いのししが、おちていた てぶくろの まえで あしを とめました。\n\n「これは あたたかそうだ。わたしも なかに いれてくれないか」\n\nそう いって、いりぐちから そっと はなさきを さしこみました。'},
+    {id:'bremen',title:'ブレーメンの音楽隊',animals:'にわとり',zodiac:'酉',slot:8,source:'cabinet',view:'front',
+      body:'にわとりは まどの むこうを のぞきこみました。\n\nへやの なかでは、どろぼうたちが ごちそうを かこんでいます。\n\nあいずと ともに、にわとりは ちからいっぱい なきました。\n\n「こけこっこお！」'}
   ];
-  const R7_ZODIAC=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-  const R7_DOORS=["寅","卯","未","申","亥","酉"];
+  const R7_FIXED=[{id:'redhood',title:'赤ずきん',slot:0},{id:'kaguya',title:'かぐや姫',slot:4},{id:'crane',title:'鶴の恩返し',slot:6},{id:'rapunzel',title:'ラプンツェル',slot:9}];
+  const R7_ZODIAC=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const R7_DOORS=['寅','卯','未','申','亥','酉'];
+  const r7Book=id=>R7_BOOKS.find(b=>b.id===id);
+  const r7Asset=(id,part)=>'images/items/room07/'+id+'-'+part+'.webp';
+  const r7Escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function normalizeR7(saved){
-    const s=saved&&typeof saved==="object"?saved:{};
-    return {order:Array.isArray(s.order)?[...s.order]:[],booksSolved:!!s.booksSolved,doorIndex:Number.isInteger(s.doorIndex)?s.doorIndex:0,completed:!!s.completed,introSeen:!!s.introSeen};
+    const s=saved&&typeof saved==='object'?saved:{},legacy=s.libraryVersion!==1;
+    const clean=value=>Array.isArray(value)?[...new Set(value.map(id=>id==='pigs'?'mitten':id).filter(id=>r7Book(id)))]:[];
+    const restored=legacy&&(s.booksSolved||s.completed);
+    const collected=restored?R7_BOOKS.map(b=>b.id):clean(legacy?s.order:s.collected);
+    const placed=restored?[...collected]:clean(s.placed).filter(id=>collected.includes(id));
+    const read=restored?[...placed]:clean(s.read).filter(id=>placed.includes(id));
+    const index=Number.isInteger(s.doorIndex)?Math.min(6,Math.max(0,s.doorIndex)):0;
+    return {libraryVersion:1,collected,placed,read,order:R7_BOOKS.filter(b=>placed.includes(b.id)).map(b=>b.id),
+      booksSolved:placed.length===6,doorIndex:placed.length===6?index:0,completed:!!s.completed,
+      introSeen:!!s.introSeen,view:['front','right','back','left'].includes(s.view)?s.view:'front',
+      selectedZodiac:R7_ZODIAC.includes(s.selectedZodiac)?s.selectedZodiac:'子',
+      searched:Object.fromEntries(R7_BOOKS.map(b=>[b.source,!!s.searched?.[b.source]])),
+      arrangedSeen:!!s.arrangedSeen||!!restored};
   }
+  function r7Objective(){return room7State.completed?'第八の部屋へ':room7State.booksSolved?'物語が導く道を調べる':'部屋を調べる'}
+  function r7Notice(text,id){showRoomNotice(text,id||'r7_notice')}
+  function r7Hana(){showRoomDialog([line('r7_hana_watch','ハナ',room7State.booksSolved?'……何か、思い出せそう？':'記録が残っていても、思い出せないことってあるよね。')]);}
   window.showSeventhRoom=function(savedState){
-    Dialogue.stop();currentScene="room07";room7State=normalizeR7(savedState);renderR7();saveGame();
-    setHud("room07","第七の部屋",()=>room7State.completed?"第八の部屋へ":room7State.booksSolved?"正しい十二支の扉を順に選ぶ":"6冊を五十音順に並べる",()=>showRoomNotice("ハナは十二の扉を見回している。","r7_hana_watch"));
-    if(!room7State.introSeen){
-      room7State.introSeen=true;saveGame();
-      showRoomDialog([
-        pending("第7の部屋導入の具体的なト書き。12角形・十二支の扉・机上の6冊は確定。"),
-        line("r7_intro_01","ト書き","十二角形の部屋。十二の壁それぞれに、干支を示す扉がある。"),
-        line("r7_intro_02","問題文","物語が導くのは、あなたの進む軌跡。"),
-        line("r7_final_pressed_flower","ト書き","中央の机には六冊の絵本がバラバラに置かれ、どの本にも押し花の栞が挟まっている。")
-      ]);
-    }
+    Dialogue.stop();currentScene='room07';room7State=normalizeR7(savedState);renderR7();saveGame();
+    if(room7State.doorIndex===6&&!room7State.completed){r7Memory();return;}
+    if(!room7State.introSeen){room7State.introSeen=true;saveGame();showRoomDialog([
+      line('r7_intro_01','ト書き','本棚と書斎の家具が並ぶ、静かな部屋。正面には一枚の扉がある。'),
+      line('r7_intro_02','問題文','物語が導くのは、あなたの進む軌跡。')
+    ]);}
   };
+  function r7Hotspot(id,label,rect){return '<button type="button" id="'+id+'" class="r7-target" style="left:'+rect[0]+'%;top:'+rect[1]+'%;width:'+rect[2]+'%;height:'+rect[3]+'%" aria-label="'+label+'"></button>'}
   function renderR7(){
-    const bookButtons=R7_BOOKS.map(b=>'<button class="r7-book" data-book="'+b.id+'" '+(room7State.order.includes(b.id)?"disabled":"")+'><strong>'+b.title+'</strong><small>栞のページ：'+b.animals+'</small></button>').join("");
-    game.innerHTML='<main class="room late-room"><header class="room-header"><p class="room-label">第七の部屋</p><p class="room-color-status">十二支の部屋</p></header>'+
-      '<section class="late-stage zodiac"><div class="r7-books"><h3>机の上の6冊</h3>'+bookButtons+
-      '<p class="r7-order">並び：<span id="r7OrderText"></span></p><button class="late-sub-action" id="r7OrderReset">並べ直す</button></div>'+
-      '<div class="r7-doors '+(room7State.booksSolved?"active":"")+'"><h3>十二の扉</h3>'+R7_ZODIAC.map(z=>'<button data-zodiac="'+z+'" '+(!room7State.booksSolved?"disabled":"")+'>'+z+'</button>').join("")+'<p>正解進行 '+room7State.doorIndex+' / 6</p></div>'+
-      (room7State.completed?'<button class="late-next" id="r7Next">第八の部屋へ</button>':'')+
-      '</section><p class="explore-status" id="exploreStatus">絵本の栞ページに登場する動物を確認してください。</p></main>';
-    document.querySelectorAll("[data-book]").forEach(b=>b.onclick=()=>r7AddBook(b.dataset.book));
-    document.getElementById("r7OrderReset").onclick=()=>{room7State.order=[];room7State.booksSolved=false;room7State.doorIndex=0;saveGame();renderR7()};
-    document.querySelectorAll("[data-zodiac]").forEach(b=>b.onclick=()=>r7Door(b.dataset.zodiac));
-    document.getElementById("r7Next")?.addEventListener("click",()=>transition("第八の部屋へ",()=>showEighthRoom(roomStates.room08)));
-    document.getElementById("r7OrderText").textContent=room7State.order.map(id=>R7_BOOKS.find(b=>b.id===id)?.title).join(" → ")||"未選択";
-    setHud("room07","第七の部屋",()=>room7State.completed?"第八の部屋へ":room7State.booksSolved?"正しい十二支の扉を順に選ぶ":"6冊を五十音順に並べる",()=>showRoomNotice("ハナは十二の扉を見回している。","r7_hana_watch"));
+    const view=room7State.view;
+    let objects='';
+    if(view==='front')objects=r7Hotspot('r7Door','扉',[35.4,4.1,28.5,75.2])+r7Hotspot('r7Cabinet','収納棚を開ける',[1,52,22,22])+r7Hotspot('r7FrontRecords','収納棚の記録',[79,44,20,27]);
+    if(view==='left')objects=r7Hotspot('r7Drawer','机の引き出しを開ける',[35,52,15,25])+r7Hotspot('r7Curtain','窓辺とカーテン',[3,8,29,53])+r7Hotspot('r7Diary','机の日記',[47,42,18,10])+r7Hotspot('r7Photo','写真立て',[74,34,12,14])+r7Hotspot('r7Letters','手紙',[66,42,8,8]);
+    if(view==='right')objects=r7Hotspot('r7Stack','床に積まれた本',[38.4,62,7.5,15])+r7Hotspot('r7Box','本棚の収納箱',[28.7,62,9.5,10])+r7Hotspot('r7Cups','二つのコップと一脚の椅子',[54,41,30,10])+r7Hotspot('r7Clock','針のない時計',[78,7,12,18])+r7Hotspot('r7Lamp','電球のないランプ',[88,20,9,12])+r7Hotspot('r7Frame','額を外した跡',[59,14,18,20]);
+    if(view==='back')objects=r7Hotspot('r7Shelf','本棚の中央段',[35,22,30,22]);
+    game.innerHTML='<main class="room late-room r7-full" aria-label="図書室"><div class="r7-room-wrap"><section class="r7-scene" data-view="'+view+'" aria-label="'+({front:'正面の扉',left:'記録のある書斎',right:'欠けたものがある書斎',back:'大きな本棚'})[view]+'">'+objects+
+      (view==='front'?'<button type="button" class="r7-dial-target" id="r7Dial" aria-label="十二支操作盤を拡大">'+r7DialMarkup(false)+'</button>':'')+
+      (view==='back'?'<div class="r7-shelf-row" aria-hidden="true">'+r7ShelfArt()+'</div>':'')+
+      '<button type="button" class="r7-hana hana-v2-world" id="r7Hana" aria-label="ハナに話しかける"></button></section><nav class="r7-nav" aria-label="部屋を見回す"><button type="button" id="r7TurnLeft" aria-label="左を向く">◀</button><button type="button" id="r7TurnRight" aria-label="右を向く">▶</button></nav></div></main>';
+    const bind=(id,fn)=>game.querySelector('#'+id)?.addEventListener('click',fn);
+    bind('r7TurnLeft',()=>r7Turn(-1));bind('r7TurnRight',()=>r7Turn(1));bind('r7Hana',r7Hana);
+    bind('r7Dial',r7Dial);bind('r7Door',()=>room7State.completed?transition('第八の部屋へ',()=>showEighthRoom(roomStates.room08)):r7Door(room7State.selectedZodiac));
+    const sources={r7Drawer:'drawer',r7Curtain:'curtain',r7Diary:'diary',r7Stack:'stack',r7Box:'box',r7Cabinet:'cabinet'};
+    Object.entries(sources).forEach(([id,source])=>bind(id,()=>r7Search(source)));
+    bind('r7Shelf',()=>r7Shelf());
+    const notices={r7Photo:['風景は写っているのに、人物の部分だけが白く抜け落ちている。','photo'],r7Letters:['宛名も差出人も読めない。手紙だけが、ここに残されている。','letters'],r7Cups:['コップは二つある。それなのに、椅子は一脚しかない。','cups'],r7Clock:['文字盤はあるのに、針がない。時刻を知ることはできない。','clock'],r7Lamp:['ランプには電球がついていない。明かりがともることはない。','lamp'],r7Frame:['壁に四角い跡だけが残っている。ここには、何が飾られていたのだろう。','frame'],r7FrontRecords:['本と記録の箱が並んでいる。何かを覚えておくために残したものだろうか。','records']};
+    Object.entries(notices).forEach(([id,[text,log]])=>bind(id,()=>r7Notice(text,'r7_'+log)));
+    if(room7State.completed&&view==='front'){const door=game.querySelector('#r7Door');door.id='r7Next';door.setAttribute('aria-label','第八の部屋へ進む');}
+    setHud('room07','第七の部屋',r7Objective,r7Hana);
   }
-  function r7AddBook(id){
-    room7State.order.push(id);saveGame();
-    if(id==="bremen")recordLog(line("r7_final_bremen","ト書き","『ブレーメンの音楽隊』。栞のページにはロバ、犬、猫、鶏が登場している。"));
-    if(room7State.order.length===6){
-      const correct=R7_BOOKS.every((b,i)=>room7State.order[i]===b.id);
-      if(correct){
-        room7State.booksSolved=true;saveGame();
-        showRoomDialog([
-          line("r7_books_ok_01","ト書き","六冊が五十音順に並んだ。"),
-          line("r7_books_ok_02","主人公","十二支にいる動物だけ拾うと……"),
-          line("r7_books_ok_03","主人公","寅、卯、未、申、亥、酉"),
-          line("r7_books_ok_04","主人公","『進む軌跡』……この順番で扉を選ぶってことか")
-        ],renderR7);return;
-      }
-      showRoomNotice("並びは違うようだ。","r7_books_wrong");room7State.order=[];saveGame();
+  function r7Turn(delta){const order=['front','right','back','left'];room7State.view=order[(order.indexOf(room7State.view)+delta+4)%4];saveGame();renderR7()}
+  function r7Modal(name,content,openerId){
+    const overlay=document.createElement('div');overlay.className='device-overlay r7-overlay';
+    overlay.innerHTML='<section class="r7-panel" aria-label="'+r7Escape(name)+'"><button type="button" class="device-close" aria-label="閉じる">閉じる</button>'+content+'</section>';
+    game.appendChild(overlay);const close=activateDeviceModal(overlay,openerId,overlay.querySelector('.device-close'));
+    return {overlay,panel:overlay.querySelector('section'),close};
+  }
+  const R7_SEARCH={
+    drawer:{name:'机の引き出し',action:'引き出しを開ける',before:'机には、閉じた引き出しがある。',after:'引き出しの奥に、赤い栞の挟まれた本があった。',opener:'r7Drawer'},
+    curtain:{name:'窓辺',action:'カーテンを動かす',before:'曇りガラスの向こうは見えない。カーテンの陰が気になる。',after:'カーテンを動かすと、窓辺に置かれた本が見えた。',opener:'r7Curtain'},
+    diary:{name:'机上の日記',action:'日記を閉じる',before:'日記には、途中から何も書かれていない行がある。ページの下に、別の本が重なっている。',after:'日記を閉じると、その下にあった本が見つかった。',opener:'r7Diary'},
+    stack:{name:'床の積み本',action:'積まれた本を調べる',before:'本が何冊も積まれている。',after:'積まれた本の中に、赤い栞が見える。',opener:'r7Stack'},
+    box:{name:'本棚の収納箱',action:'収納箱を開ける',before:'棚の下段に、収納箱がある。',after:'箱の中に、一冊の本がしまわれていた。',opener:'r7Box'},
+    cabinet:{name:'正面の収納棚',action:'棚の扉を開ける',before:'低い収納棚の扉は閉まっている。',after:'棚の中に、赤い栞の挟まれた本があった。',opener:'r7Cabinet'}
+  };
+  function r7Search(source){
+    const data=R7_SEARCH[source],book=R7_BOOKS.find(b=>b.source===source);if(!book)return;
+    const got=room7State.collected.includes(book.id),opened=room7State.searched[source];
+    const m=r7Modal(data.name,'<div class="r7-search"><h2>'+data.name+'</h2><p>'+r7Escape(got?'ここにあった本は、すでに手に取った。':opened?data.after:data.before)+'</p>'+(!got?(opened?'<img class="r7-cover" src="'+r7Asset(book.id,'cover')+'" alt="'+book.title+'の表紙"><p>'+book.title+'</p><button type="button" id="r7Take">本を手に取る</button>':'<button type="button" id="r7SearchAction">'+data.action+'</button>'):'')+'</div>',data.opener);
+    m.panel.querySelector('#r7SearchAction')?.addEventListener('click',()=>{room7State.searched[source]=true;saveGame();recordLog({logId:'r7_search_'+source,logType:'investigation',speaker:'ト書き',text:data.after});m.close();r7Search(source)});
+    m.panel.querySelector('#r7Take')?.addEventListener('click',()=>{if(!room7State.collected.includes(book.id))room7State.collected.push(book.id);saveGame();recordLog({logId:'r7_collect_'+book.id,logType:'investigation',speaker:'ト書き',text:'『'+book.title+'』を手に取った。上端から、赤い栞のリボンが見える。'});m.close();renderR7();r7Cover(book.id)});
+  }
+  function r7Cover(id){
+    const book=r7Book(id);if(!book||!room7State.collected.includes(id))return;
+    const placed=room7State.placed.includes(id);
+    const m=r7Modal(book.title,'<div class="r7-cover-view"><img class="r7-cover" src="'+r7Asset(id,'cover')+'" alt="'+book.title+'の表紙"><div><h2>'+book.title+'</h2><p>上端に赤い栞のリボンが見える。</p><p>'+ (placed?'本棚に収まっている。':'本の中身は、棚の正しい場所に戻してから確かめよう。')+'</p><button type="button" id="r7UseBook">'+(placed?'栞のページを開く':'本棚に戻す')+'</button></div></div>','r7Shelf');
+    m.panel.querySelector('#r7UseBook').onclick=()=>{m.close();if(placed)r7Read(id);else{room7State.view='back';saveGame();renderR7();r7Shelf(id)}};
+  }
+  function r7ShelfArt(){
+    return Array.from({length:10},(_,slot)=>{const fixed=R7_FIXED.find(b=>b.slot===slot),placed=R7_BOOKS.find(b=>b.slot===slot&&room7State.placed.includes(b.id)),book=fixed||placed;
+      return '<span class="r7-spine-slot">'+(book?'<img src="'+r7Asset(book.id,'spine')+'" alt="">'+(placed?'<span class="r7-red-ribbon"></span>':''):'')+'</span>';
+    }).join('');
+  }
+  function r7Shelf(selectedId){
+    let selected=r7Book(selectedId)&&room7State.collected.includes(selectedId)&&!room7State.placed.includes(selectedId)?selectedId:null;
+    const m=r7Modal('本棚の中央段','<div class="r7-shelf-inspection"><div class="r7-shelf-zoom" aria-label="十冊分の本棚"></div><p class="r7-shelf-status" role="status" aria-live="polite"></p><div class="r7-held-books" aria-label="手元の本"></div></div>','r7Shelf');
+    const row=m.panel.querySelector('.r7-shelf-zoom'),held=m.panel.querySelector('.r7-held-books'),status=m.panel.querySelector('.r7-shelf-status');
+    function draw(){
+      row.innerHTML=Array.from({length:10},(_,slot)=>{
+        const fixed=R7_FIXED.find(b=>b.slot===slot),placed=R7_BOOKS.find(b=>b.slot===slot&&room7State.placed.includes(b.id)),book=fixed||placed;
+        return '<button type="button" class="r7-slot'+(book?' is-filled':'')+'" data-slot="'+slot+'" aria-label="'+(book?r7Escape(book.title)+(placed?'、赤い栞のある本を読む':'の背表紙'):(slot+1)+'番目の空きに本を戻す')+'">'+(book?'<img src="'+r7Asset(book.id,'spine')+'" alt="'+book.title+'">'+(placed?'<span class="r7-red-ribbon" aria-hidden="true"></span>':''):'<span class="r7-empty-slot" aria-hidden="true"></span>')+'</button>';
+      }).join('');
+      const available=R7_BOOKS.filter(b=>room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id));
+      held.innerHTML=available.map(b=>'<button type="button" data-held="'+b.id+'" aria-pressed="'+(selected===b.id)+'">'+b.title+'</button>').join('');
+      status.textContent=selected?'『'+r7Book(selected).title+'』を戻す場所を選ぶ。':available.length?'手元の本を選んで、棚の空きに戻そう。':room7State.booksSolved?'赤い栞のある本を開ける。':'棚には、本が抜けた空きがある。';
+      row.querySelectorAll('[data-slot]').forEach(button=>button.onclick=()=>{
+        const slot=Number(button.dataset.slot),fixed=R7_FIXED.find(b=>b.slot===slot),placed=R7_BOOKS.find(b=>b.slot===slot&&room7State.placed.includes(b.id));
+        if(fixed){status.textContent='背表紙に『'+fixed.title+'』と書かれている。';return}
+        if(placed){m.close();r7Read(placed.id);return}
+        if(!selected){status.textContent='まず、戻す本を手元から選ぼう。';return}
+        const book=r7Book(selected);if(book.slot!==slot){status.textContent='ここではないようだ。本は手元に残っている。';return}
+        room7State.placed.push(book.id);room7State.order=R7_BOOKS.filter(b=>room7State.placed.includes(b.id)).map(b=>b.id);room7State.booksSolved=room7State.placed.length===6;
+        recordLog({logId:'r7_return_'+book.id,logType:'investigation',speaker:'ト書き',text:'『'+book.title+'』が、棚の空きにぴたりと収まった。中を読めそうだ。'});saveGame();
+        const justSolved=room7State.booksSolved&&!room7State.arrangedSeen;
+        if(justSolved)room7State.arrangedSeen=true;
+        saveGame();m.close();renderR7();
+        if(justSolved)showRoomDialog([line('r7_books_ok_01','ト書き','六冊の本が、棚の空きに収まった。'),line('r7_books_ok_02','主人公','本の並びが大事なのかな？')]);
+        else r7Shelf();
+      });
+      held.querySelectorAll('[data-held]').forEach(b=>b.onclick=()=>{selected=b.dataset.held;draw()});
     }
-    renderR7();
+    draw();
   }
+  function r7Read(id){
+    const book=r7Book(id);if(!book||!room7State.placed.includes(id))return;
+    if(!room7State.read.includes(id))room7State.read.push(id);
+    recordLog({logId:id==='bremen'?'r7_final_bremen':'r7_read_'+id,logType:'investigation',speaker:'ト書き',text:book.body});
+    recordLog({logId:'r7_final_pressed_flower',logType:'investigation',speaker:'ト書き',text:'左のページに、赤いリボンの付いた押し花の栞が挟まっている。'});saveGame();
+    const m=r7Modal('栞のページ','<div class="r7-reader"><div class="r7-reading-viewport"><img class="r7-open-book" src="'+r7Asset(id,'open')+'" alt="左ページに'+book.animals+'の挿絵と押し花の栞。右ページにひらがなの本文。"><p class="r7-sr-only">'+r7Escape(book.body)+'</p></div><button type="button" id="r7Zoom" aria-pressed="false">拡大</button><button type="button" id="r7BackShelf">本棚に戻る</button></div>','r7Shelf');
+    m.panel.classList.add('r7-reader-panel');
+    m.panel.querySelector('#r7Zoom').onclick=e=>{const large=m.panel.classList.toggle('is-zoomed');e.currentTarget.textContent=large?'縮小':'拡大';e.currentTarget.setAttribute('aria-pressed',String(large))};
+    m.panel.querySelector('#r7BackShelf').onclick=()=>{m.close();r7Shelf()};
+  }
+  function r7DialMarkup(interactive){
+    const angle=-R7_ZODIAC.indexOf(room7State.selectedZodiac)*30;
+    const labels=R7_ZODIAC.map((z,i)=>'<text x="500" y="190" text-anchor="middle" dominant-baseline="middle" transform="rotate('+i*30+' 500 500)">'+z+'</text>').join('');
+    return '<div class="r7-dial-art"><div class="r7-dial-wheel" style="transform:rotate('+angle+'deg)"><img src="images/items/room07/zodiac-disc.webp" alt=""><svg viewBox="0 0 1000 1000" aria-hidden="true">'+labels+'</svg></div><img class="r7-fixed-pointer" src="images/items/room07/zodiac-pointer.webp" alt="固定された金色の矢印"></div>'+(interactive?'<p class="r7-dial-selection" aria-live="polite">12時：<strong>'+room7State.selectedZodiac+'</strong></p>':'');
+  }
+  function r7Dial(){
+    const m=r7Modal('十二支操作盤','<div class="r7-dial-inspection">'+r7DialMarkup(true)+'<div class="r7-dial-actions"><button type="button" id="r7RotateLeft" aria-label="文字盤を左へ30度回す">↶</button><button type="button" id="r7DialDone">この行き先に合わせる</button><button type="button" id="r7RotateRight" aria-label="文字盤を右へ30度回す">↷</button></div></div>','r7Dial');
+    const wheel=m.panel.querySelector('.r7-dial-wheel'),value=m.panel.querySelector('.r7-dial-selection strong');
+    let steps=-R7_ZODIAC.indexOf(room7State.selectedZodiac);
+    const set=()=>{room7State.selectedZodiac=R7_ZODIAC[((-steps%12)+12)%12];wheel.style.transform='rotate('+steps*30+'deg)';value.textContent=room7State.selectedZodiac;saveGame()};
+    m.panel.querySelector('#r7RotateLeft').onclick=()=>{steps--;set()};m.panel.querySelector('#r7RotateRight').onclick=()=>{steps++;set()};
+    m.panel.querySelector('#r7DialDone').onclick=()=>{m.close();renderR7()};
+    // Native buttons provide keyboard/touch operation; dragging snaps at each 30-degree sector.
+    const art=m.panel.querySelector('.r7-dial-art');let drag=null;
+    const angle=e=>{const r=wheel.getBoundingClientRect();return Math.atan2(e.clientY-r.top-r.height/2,e.clientX-r.left-r.width/2)*180/Math.PI};
+    art.addEventListener('pointerdown',e=>{drag={last:angle(e),total:steps*30};art.setPointerCapture(e.pointerId)});
+    art.addEventListener('pointermove',e=>{if(!drag)return;const a=angle(e);let delta=a-drag.last;if(delta>180)delta-=360;if(delta< -180)delta+=360;drag.total+=delta;drag.last=a;const next=Math.round(drag.total/30);if(next!==steps){steps=next;set()}});
+    art.addEventListener('pointerup',()=>{drag=null});art.addEventListener('pointercancel',()=>{drag=null});
+  }
+  window.Room7LibraryUI={items:()=>currentScene==='room07'&&room7State?R7_BOOKS.filter(b=>room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id)).map(b=>({id:b.id,name:b.title,art:'本',description:'赤い栞の挟まれた本。',target:'r7Shelf'})):[],use:id=>r7Cover(id)};
   function r7Door(z){
-    if(z!==R7_DOORS[room7State.doorIndex])return; // wrong doors deliberately do not react.
+    if(!room7State.booksSolved){r7Notice('扉には十二支の操作盤が付いている。「物語が導くのは、あなたの進む軌跡」と書かれている。','r7_door_status');return}
+    if(room7State.completed)return;
+    if(z!==R7_DOORS[room7State.doorIndex])return; // Preserve the existing wrong-selection behavior.
     const isLast=room7State.doorIndex===R7_DOORS.length-1;
     room7State.doorIndex++;saveGame();
     if(!isLast){
       showRoomDialog([
-        line("r7_door_"+z+"_01","ト書き",z+"の扉が開く。"),
-        line("r7_door_"+z+"_02","ト書き","主人公は扉の外から中を覗き込む。少しすると、扉は閉じた。"),
-        pending(z+"の扉の先に見える具体的な短い記憶・情景。")
+        line('r7_door_'+z+'_01','ト書き',z+'に合わせた扉が開く。'),
+        line('r7_door_'+z+'_02','ト書き','主人公は扉の外から中を覗き込む。少しすると、扉は閉じた。'),
+        pending(z+'の扉の先に見える具体的な短い記憶・情景。')
       ],renderR7);return;
     }
     showRoomDialog([
-      line("r7_last_01","ト書き","酉の扉が開く。"),
-      line("r7_last_02","主人公","……"),
-      line("r7_last_03","ト書き","いつものように中を覗こうとした、その瞬間。"),
-      line("r7_last_04","主人公","え――"),
-      line("r7_last_05","ト書き","身体が扉の向こうへ引かれる。"),
-      line("r7_last_06","ハナ","……！"),
-      line("r7_last_07","ト書き","視界が大きく揺れ、そのまま主人公は部屋の中へ吸い込まれていく。")
+      line('r7_last_01','ト書き','酉に合わせた扉が開く。'),
+      line('r7_last_02','主人公','……'),
+      line('r7_last_03','ト書き','いつものように中を覗こうとした、その瞬間。'),
+      line('r7_last_04','主人公','え――'),
+      line('r7_last_05','ト書き','身体が扉の向こうへ引かれる。'),
+      line('r7_last_06','ハナ','……！'),
+      line('r7_last_07','ト書き','視界が大きく揺れ、そのまま主人公は部屋の中へ吸い込まれていく。')
     ],r7Memory);
   }
   function r7Memory(){

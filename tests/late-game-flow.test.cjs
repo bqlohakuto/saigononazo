@@ -68,10 +68,19 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   // Room 7: books -> zodiac doors -> accident memory.
   click('#r6Next');await wait(720);
   assert.equal(save().currentScene,'room07');
-  for(const id of ['ikkyu','rabbit','wolf','monkey','pigs','bremen']) click('[data-book="'+id+'"]');
   finish();
-  assert.equal(save().rooms.room07.booksSolved,true);
-  for(const z of ['寅','卯','未','申','亥','酉']){click('[data-zodiac="'+z+'"]');finish();}
+  const turn=view=>{for(let i=0;i<4&&save().rooms.room07.view!==view;i++)click('#r7TurnRight')};
+  for(const [view,target]of [['left','r7Drawer'],['left','r7Curtain'],['left','r7Diary'],['right','r7Stack'],['right','r7Box'],['front','r7Cabinet']]){
+    turn(view);click('#'+target);click('#r7SearchAction');click('#r7Take');click('.r7-overlay .device-close');
+  }
+  turn('back');click('#r7Shelf');
+  for(const [id,slot]of [['ikkyu',1],['rabbit',2],['wolf',3],['monkey',5],['mitten',7],['bremen',8]]){click('[data-held="'+id+'"]');click('[data-slot="'+slot+'"]')}
+  finish();assert.equal(save().rooms.room07.booksSolved,true);
+  click('#r7Shelf');for(const slot of [1,2,3,5,7,8]){click('[data-slot="'+slot+'"]');click('#r7BackShelf')}click('.r7-overlay .device-close');
+  turn('front');
+  for(const zodiac of ['寅','卯','未','申','亥','酉']){
+    click('#r7Dial');for(let i=0;i<12&&save().rooms.room07.selectedZodiac!==zodiac;i++)click('#r7RotateLeft');click('#r7DialDone');click('#r7Door');finish();
+  }
   assert.equal(save().rooms.room07.completed,true);
   assert.ok(q('#r7Next'));
 

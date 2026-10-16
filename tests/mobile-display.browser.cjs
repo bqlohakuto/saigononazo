@@ -14,6 +14,7 @@ const root=path.resolve(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR;
   });
   const p=await context.newPage();p.on('pageerror',e=>errors.push(e.message));
   const shot=async name=>{if(out){fs.mkdirSync(out,{recursive:true});await p.screenshot({path:path.join(out,name+'.png')})}};
+  const finish=async()=>{for(let i=0;i<500&&await p.locator('#roomNextButton').count();i++)await p.locator('#roomNextButton').click()};
   const fit=async()=>{const b=await p.locator('#game-container').boundingBox(),v=p.viewportSize();assert(b.x>=-.5&&b.y>=-.5&&b.x+b.width<=v.width+.5&&b.y+b.height<=v.height+.5);assert(Math.abs(b.width/b.height-16/9)<.01);return b};
   await p.goto('https://display.local/');await p.locator('.design-title-fullscreen').click();
   await p.waitForFunction(()=>document.fullscreenElement===document.documentElement);await fit();
@@ -36,9 +37,9 @@ const root=path.resolve(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR;
   assert.equal((await p.locator('#r7TurnLeft').boundingBox()).y,navBefore.y,'navigation stays fixed while room pans');
   await shot('mobile-room-enlarged');
   // Every part of the original image remains reachable, including the upper dial.
-  await p.locator('.r7-room-wrap').evaluate(e=>e.scrollTop=0);await p.locator('#r7Dial').click();assert.equal(await p.locator('.r7-overlay .r7-dial-wheel text').count(),12);await p.locator('#r7DialDone').click();
+  await p.locator('.r7-room-wrap').evaluate(e=>e.scrollTop=0);await p.locator('#r7Dial').click();await finish();assert.equal(await p.locator('.r7-overlay .r7-dial-wheel text').count(),12);await p.locator('#r7DialDone').click();
   for(const targets of [['#r7Cabinet'],['#r7Box','#r7Stack'],['#r7Shelf'],['#r7Drawer','#r7Curtain','#r7Diary']]){
-   for(const selector of targets){await p.locator(selector).click();await p.locator('.r7-overlay .device-close').click()}
+   for(const selector of targets){await p.locator(selector).click();await finish();await p.locator('.r7-overlay .device-close').click()}
    await p.locator('#r7TurnRight').click();
   }
   await p.getByRole('button',{name:'全画面',exact:true}).click();await p.waitForFunction(()=>!!document.fullscreenElement);await fit();await shot('mobile-fullscreen');

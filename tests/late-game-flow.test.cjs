@@ -71,28 +71,30 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   finish();
   const turn=view=>{for(let i=0;i<4&&save().rooms.room07.view!==view;i++)click('#r7TurnRight')};
   for(const [view,target]of [['left','r7Drawer'],['left','r7Curtain'],['left','r7Diary'],['right','r7Stack'],['right','r7Box'],['front','r7Cabinet']]){
-    turn(view);click('#'+target);click('#r7SearchAction');click('#r7Take');click('.r7-overlay .device-close');
+    turn(view);click('#'+target);if(q('#r7SearchAction'))click('#r7SearchAction');click('#r7Take');finish();
   }
-  turn('back');click('#r7Shelf');
+  turn('back');click('#r7Shelf');finish();
   for(const [id,slot]of [['ikkyu',1],['rabbit',2],['wolf',3],['monkey',5],['mitten',7],['bremen',8]]){click('[data-held="'+id+'"]');click('[data-slot="'+slot+'"]')}
   finish();assert.equal(save().rooms.room07.booksSolved,true);
-  click('#r7Shelf');for(const slot of [1,2,3,5,7,8]){click('[data-slot="'+slot+'"]');click('#r7BackShelf')}click('.r7-overlay .device-close');
-  turn('front');
+  click('#r7Shelf');for(const slot of [1,2,3,5,7,8]){click('[data-slot="'+slot+'"]');finish();click('#r7BackShelf')}click('.r7-overlay .device-close');
+  turn('front');click('#r7Door');finish();
   for(const zodiac of ['寅','卯','未','申','亥','酉']){
-    click('#r7Dial');for(let i=0;i<12&&save().rooms.room07.selectedZodiac!==zodiac;i++)click('#r7RotateLeft');click('#r7DialDone');click('#r7Door');finish();
+    click('#r7Dial');for(let i=0;i<12&&save().rooms.room07.selectedZodiac!==zodiac;i++)click('#r7RotateLeft');click('#r7DialDone');finish();
   }
   assert.equal(save().rooms.room07.completed,true);
-  assert.ok(q('#r7Next'));
+  assert.equal(q('#r7Next'),null,'accident continues directly into room 8');
 
   // Room 8: final conversation -> real LOG highlights -> name -> ending.
-  click('#r7Next');await wait(720);
   assert.equal(save().currentScene,'room08');
   await wait(100);finish();
   assert.equal(save().rooms.room08.puzzleReady,true);
   click('#r8Paper');click('#r8Back');click('.device-close');
-  click('#gameplayLogButton');
-  assert.ok(w.document.querySelectorAll('.gameplay-log-row.final-clue').length>=4,'final clue rows should be highlighted');
-  click('.gameplay-panel-close');
+  await wait(0);
+  [...w.document.querySelectorAll('.gameplay-hud-actions button')].find(b=>b.textContent==='記録').click();
+  click('.design-tabs [data-room="room07"]');
+  click('.design-tabs [data-category="investigation"]');
+  assert.ok(w.document.querySelectorAll('.design-record.final-clue').length>=1,'actual room-seven clues are highlighted in the current record UI');
+  click('.design-panel header button');
   click('#r8Paper');
   q('#r8Answer').value='花音';
   click('#r8Submit');finish();
@@ -103,5 +105,5 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(q('.late-ending h1').textContent,'END');
 
   console.log('PASS: Room 6 live-map/legal-Othello -> Room 7 zodiac -> Room 8 final puzzle -> END.');
-  dom.window.close();
+  await wait(30);dom.window.close();
 })().catch(e=>{console.error(e);process.exitCode=1});

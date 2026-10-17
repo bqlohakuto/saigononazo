@@ -63,8 +63,14 @@
     if(!room5State.introSeen){
       room5State.introSeen=true;saveGame();
       showRoomDialog([
-        pending("第5入室時の最終セリフ・ト書きは未確定。現在は確定している部屋構成からプレイを開始します。"),
-        line("r5_intro_room","ト書き","同棲を始めた二人のアパートを模した、まだ少し殺風景なリビング。中央のダイニングテーブルには、大きなパネルが置かれている。")
+        line("r5_intro_01","ト書き","白い光が引いていく。"),
+        line("r5_intro_02","ト書き","目の前には、リビングが広がっていた。\nソファとテレビ。\nダイニングテーブル。\nその奥には、キッチンもある。"),
+        line("r5_intro_03","主人公","……誰かの家、でしょうか。"),
+        line("r5_intro_04","ト書き","部屋を見渡す。\n初めて来たはずなのに、妙に落ち着かなかった。"),
+        line("r5_intro_05","ハナ","……どうしたの？"),
+        line("r5_intro_06","主人公","いえ。なんでもありません。"),
+        line("r5_intro_07","ト書き","壁には、大きなパネルが掛かっている。\n丸い枠が並び、そのうちの一つには絵がはまっていた。"),
+        line("r5_intro_08","ト書き","妙に耳の長い、ウサギの絵だった。")
       ]);
     }
   };
@@ -672,7 +678,18 @@
         line("r5_after_04","主人公","……ハナさん。"),
         line("r5_after_05","ハナ","ん？"),
         line("r5_after_06","主人公","この絵って、ハナさんが描いたんですか？"),
-        pending("この質問に対してハナがどこまで答えるかの最終台詞は未確定。ここでは明確な答えを避け、第6へ疑念を持ち越します。")
+        line("r5_after_reply_01","ト書き","ハナさんは、僕の手元を見た。"),
+        line("r5_after_reply_02","ハナ","……その絵のこと、思い出したんだね。"),
+        line("r5_after_reply_03","主人公","はい。記憶の中に、同じものが出てきたんです。"),
+        line("r5_after_reply_04","ハナ","そっか。"),
+        line("r5_after_reply_05","ト書き","ハナさんの口元が、少しだけ緩んだ。"),
+        line("r5_after_reply_06","主人公","……ハナさん？"),
+        line("r5_after_reply_07","ハナ","ごめんね。\n今は、まだ話せないの。"),
+        line("r5_after_reply_08","ト書き","また、答えてはもらえなかった。"),
+        line("r5_after_reply_09","ト書き","それでも、絵を見た時の表情だけが、妙に心に残った。"),
+        line("r5_after_reply_10","主人公","……わかりました。"),
+        line("r5_after_reply_11","ト書き","もう一度、手元の絵を見る。"),
+        line("r5_after_reply_12","ト書き","あの人が描いたものを、ハナさんも知っている。\nそう思うと、ほかにも確かめたいことが浮かんできた。")
       ],()=>{
         room5State.memorySeen=true;room5State.completed=true;saveGame();renderR5();
       });
@@ -1392,7 +1409,10 @@
   function r7Notice(text,id){showRoomDialog(text.split('\n').map((text,i)=>line((id||'r7_notice')+'_'+i,'ト書き',text)))}
   function r7Hana(){showRoomDialog(r7Lines('hana'));}
   window.showSeventhRoom=function(savedState){
-    Dialogue.stop();currentScene='room07';room7State=normalizeR7(savedState);renderR7();saveGame();
+    Dialogue.stop();currentScene='room07';room7State=normalizeR7(savedState);
+    // Completed legacy saves also continue directly into the living room.
+    if(room7State.completed){showEighthRoom(roomStates.room08);return;}
+    renderR7();saveGame();
     if(room7State.doorIndex===6&&!room7State.completed){r7Memory();return;}
     if(!room7State.introSeen){room7State.introSeen=true;saveGame();showRoomDialog(r7Lines('intro'));}
   };
@@ -1612,7 +1632,7 @@
       line("r7_mem_35","ト書き","次の瞬間。視界が、赤く染まる。"),
       line("r7_mem_36","ト書き","音が遠のく。彼女の姿も、街の景色も、すべて赤の向こうに滲んでいく。"),
       line("r7_mem_37","ト書き","――そこで、記憶が途切れる。")
-    ],()=>{room7State.completed=true;saveGame();renderR7()});
+    ],()=>{room7State.completed=true;saveGame();showEighthRoom(roomStates.room08)});
   }
 
   // ---------- Room 8 ----------
@@ -1627,7 +1647,7 @@
   ];
   function normalizeR8(saved){
     const s=saved&&typeof saved==="object"?saved:{};
-    return {introSeen:!!s.introSeen,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,ended:!!s.ended};
+    return {introSeen:!!s.introSeen,introLogId:typeof s.introLogId==="string"?s.introLogId:null,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,ended:!!s.ended};
   }
   window.showEighthRoom=function(savedState){
     Dialogue.stop();currentScene="room08";room8State=normalizeR8(savedState);saveGame();
@@ -1636,20 +1656,55 @@
     if(room8State.solved&&!room8State.finalTalkSeen){r8PuzzleRoom();setTimeout(r8SolvedDialogue,80);return}
     if(room8State.puzzleReady){r8PuzzleRoom();return}
     r8Living();
-    setHud("room08","第八の部屋",()=>"花音との最後の時間",()=>{});
-    if(!room8State.introSeen){room8State.introSeen=true;saveGame();setTimeout(r8Intro,80)}
+    setHud("room08","第八の部屋",()=>"ハナとの最後の時間",()=>{});
+    // introSeen was written before completion in older saves. Replay unfinished
+    // dialogue (or resume its saved source line) instead of leaving an inert room.
+    r8Intro();
   };
   function r8Living(){
-    game.innerHTML='<main class="room late-room r8-living"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">リビング</p></header><section class="late-stage living final-living"><div class="r8-table"><span>ダイニングテーブル</span><span>ハナが椅子に座っている</span></div></section></main>';
+    game.innerHTML='<main class="room late-room r8-living" data-hana-pose="seated"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">リビング</p></header><section class="late-stage living final-living"><div class="r8-table"><span>ダイニングテーブル</span><span>ハナが椅子に座っている</span></div></section></main>';
   }
   function r8Intro(){
-    showRoomDialog([
-      line("r8_001","主人公","……ここ……"),
-      line("r8_002","ト書き","ハナは主人公を見る。少しだけ笑って、向かいの椅子を指す。"),
-      line("r8_003","ハナ","ねえ、座って？"),
-      line("r8_004","ト書き","主人公はしばらくハナを見つめ、それからゆっくりと椅子に腰を下ろす。"),
+    const lines=[
+        line("r8_entry_01","主人公","……っ。"),
+        line("r8_entry_02","ト書き","全身に汗をかいていた。"),
+        line("r8_entry_03","ト書き","息を整えようとしても、うまくいかない。"),
+        line("r8_entry_04","ト書き","顔を上げると、ハナさんが不安そうな顔でこちらを見つめていた。\nダイニングテーブルの向こうの椅子に、座っている。"),
+        line("r8_entry_05","ト書き","見覚えのあるリビングだった。\nさっきまでいた、本棚に囲まれた部屋ではない。"),
+        line("r8_entry_06","主人公","……ここは……。"),
+        line("r8_entry_07","ト書き","思い出したことを整理しようとする。\nけれど、あの光景と目の前の部屋が、うまく結びつかない。"),
+        line("r8_entry_08","主人公","僕たちは……事故に……？"),
+        line("r8_entry_09","ト書き","ここが現実ではないことは、最初からわかっていた。\nそれなのに、現実の僕たちが今どうなっているのか、考えたことがなかった。"),
+        line("r8_reunion_01","主人公","……ハナさん。"),
+        line("r8_reunion_02","主人公","僕たちは、今……どうなっているんですか。"),
+        line("r8_reunion_03","ト書き","声に出すと、急に怖くなった。"),
+        line("r8_reunion_04","ト書き","さっきまで見えていた光景が、何度も頭をよぎる。\n近づいてくるトラック。\n彼女に向かって伸ばした手。\nその先を、僕は知らない。"),
+        line("r8_reunion_05","ハナ","……君は、まだ戻れるよ。",{expression:"concern"}),
+        line("r8_reunion_06","主人公","戻れる……んですか。"),
+        line("r8_reunion_07","ハナ","うん。元の世界に。"),
+        line("r8_reunion_08","ト書き","少しだけ、息ができた。"),
+        line("r8_reunion_09","ト書き","けれど、聞きたかったのは、それだけじゃなかった。"),
+        line("r8_reunion_10","主人公","……彼女は？"),
+        line("r8_reunion_11","ト書き","ハナさんは、テーブルに置いた自分の手へ目を落とした。"),
+        line("r8_reunion_12","ト書き","重ねていた指を、ゆっくりとほどく。\nそれから、僕を見た。"),
+        line("r8_reunion_13","ハナ","……わたしのことも、ちゃんと話すね。",{expression:"concern"}),
+        line("r8_reunion_14","ト書き","息が、止まった。"),
+        line("r8_reunion_15","主人公","ハナさん……。"),
+        line("r8_reunion_16","ト書き","ハナさんは、向かいの椅子を指した。"),
+        line("r8_reunion_17","ハナ","ねえ、座って？"),
+        line("r8_reunion_18","ト書き","椅子の背に手をかける。\nうまく力が入らなくて、両手で支えながら腰を下ろした。"),
+        line("r8_reunion_19","ト書き","テーブルを挟んで、彼女と向かい合う。"),
+        line("r8_reunion_20","ト書き","何度も、こうして座っていた。\n食事をして。\n彼女が持ってきた紙を広げて。\nどうでもいいことを話していた。"),
+        line("r8_reunion_21","ト書き","目の前にいる人を、もう一度見る。"),
+        line("r8_reunion_22","主人公","……やっぱり、君だったんだ。"),
+        line("r8_reunion_23","ハナ","うん。"),
+        line("r8_reunion_24","ハナ","ずっと、そばにいたよ。"),
+        line("r8_reunion_25","ト書き","聞きたいことは、まだたくさんあった。"),
+        line("r8_reunion_26","ト書き","どうして、ここにいるのか。\n現実に戻ったら、彼女はどこにいるのか。"),
+        line("r8_reunion_27","ト書き","それなのに、次の言葉が出てこない。"),
+        line("r8_reunion_28","ト書き","彼女も、すぐには話さなかった。\n僕が顔を上げるまで、向かいの席で待っていた。"),
       line("r8_005","ハナ","ねえ"),
-      line("r8_006","主人公","……はい"),
+      line("r8_006","主人公","……うん"),
       line("r8_007","ハナ","ここまでの謎解き、どうだった？"),
       line("r8_008","主人公","難しかった、かな。全部忘れてたから"),
       line("r8_009","主人公","でも、思い出したよ"),
@@ -1661,7 +1716,26 @@
       line("r8_015","主人公","……"),
       line("r8_016","ハナ","私は楽しかったよ？"),
       line("r8_017","ハナ","やっぱり、君が謎を解けた時の顔、好きだなあ"),
-      pending("ここで花音が『二人で謎を解いた思い出』を話す具体的な会話全文。"),
+        line("r8_memories_01","ハナ","……あのウサギも、覚えてた？"),
+        line("r8_memories_02","主人公","覚えてるよ。"),
+        line("r8_memories_03","主人公","耳が四本あるやつ。"),
+        line("r8_memories_04","ハナ","だから、下の二本は足だって。"),
+        line("r8_memories_05","ト書き","少しだけ、彼女の声にいつもの調子が戻った。"),
+        line("r8_memories_06","主人公","でも、すぐわかった。"),
+        line("r8_memories_07","ハナ","ウサギだって？"),
+        line("r8_memories_08","主人公","君が描いた絵だって。"),
+        line("r8_memories_09","ハナ","……そこは、ウサギって言ってよ。"),
+        line("r8_memories_10","ト書き","彼女が小さく笑った。\n僕も、少しだけ口元が緩む。"),
+        line("r8_memories_11","ハナ","散歩に連れ出すのにも、謎を使ったよね。"),
+        line("r8_memories_12","主人公","あれは、簡単すぎたよ。"),
+        line("r8_memories_13","ハナ","あの日は、あれでよかったの。"),
+        line("r8_memories_14","主人公","……うん。"),
+        line("r8_memories_15","主人公","外に出て、よかった。"),
+        line("r8_memories_16","ト書き","仕事のことばかり考えていた夜。\n何も言わずに、隣を歩いてくれた彼女。"),
+        line("r8_memories_17","ト書き","問題の答えより、そのあとのことをよく覚えていた。"),
+        line("r8_memories_18","ハナ","……よかった。"),
+        line("r8_memories_19","ト書き","同じテーブルで、同じように笑っている。"),
+        line("r8_memories_20","ト書き","手を伸ばせば、元の暮らしに戻れそうだった。\nでも、さっきの問いに、まだ答えはもらっていない。"),
       line("r8_018","主人公","……ねえ"),
       line("r8_019","ハナ","ん？"),
       line("r8_020","主人公","聞きたいことがある"),
@@ -1687,33 +1761,69 @@
       line("r8_040","主人公","……これ、どういうこと？"),
       line("r8_041","ト書き","彼女は消えていく部屋を見回す。少しだけ寂しそうに笑う。"),
       line("r8_042","ハナ","……もう、時間がないみたい"),
+        line("r8_time_01","主人公","時間って……。"),
+        line("r8_time_02","ハナ","わたしが、こうして君と話していられる時間。"),
+        line("r8_time_03","ト書き","テーブルの向こうで、彼女は僕を見ていた。"),
+        line("r8_time_04","主人公","……待ってよ。"),
+        line("r8_time_05","主人公","まだ、話したいことがある。"),
+        line("r8_time_06","ハナ","うん。"),
+        line("r8_time_07","ハナ","わたしも、いっぱいあるよ。"),
+        line("r8_time_08","ト書き","返ってきた声は、思っていたよりも小さかった。"),
+        line("r8_time_09","ト書き","彼女は一度だけ息を吸う。\nそれから、顔を上げた。"),
       line("r8_043","ハナ","だから、最後のお願い！"),
       line("r8_044","主人公","……"),
       line("r8_045","ハナ","最後の謎を解いて"),
-      line("r8_046","ト書き","その言葉を言い終えた瞬間。部屋の景色が、一気に消えていく。"),
-      line("r8_047","ト書き","テレビも。棚も。椅子も。最後に残ったのは、一つの机だけ。"),
+        line("r8_stand_01","ト書き","彼女がゆっくりと席を立った。"),
+        line("r8_stand_02","ト書き","僕も立ち上がり、テーブルの向こうへ手を伸ばす。"),
+        line("r8_stand_03","ト書き","その時、彼女の姿に白い光が重なった。"),
+      line("r8_046","ト書き","部屋の景色が、一気に消えていく。"),
+      line("r8_047","ト書き","残っていた家具も、椅子も。最後に残ったのは、一つの机だけ。"),
       line("r8_048","主人公","……！"),
       line("r8_049","ト書き","そこに、もう彼女の姿はなかった。机の上には、一枚の紙が置かれている。")
-    ],()=>{room8State.puzzleReady=true;saveGame();r8PuzzleRoom()});
+    ];
+    const found=lines.findIndex(entry=>entry.logId===room8State.introLogId);
+    const start=found<0?0:found;
+    const standIndex=lines.findIndex(entry=>entry.logId==='r8_stand_01');
+    const goneIndex=lines.findIndex(entry=>entry.logId==='r8_049');
+    showRoomDialog(lines.slice(start),()=>{
+      room8State.introSeen=true;room8State.introLogId=null;room8State.puzzleReady=true;
+      saveGame();r8PuzzleRoom();
+    },entry=>{
+      // expandScenario adds sentence suffixes. Store the stable authored ID so
+      // page wrapping on another screen cannot shift the saved position.
+      const index=lines.findIndex(source=>entry.logId.startsWith(source.logId+'_'));
+      if(index<0)return;
+      room8State.introLogId=lines[index].logId;
+      const living=game.querySelector('.r8-living');
+      if(living){
+        const pose=index>=goneIndex?'gone':index>=standIndex?'standing':'seated';
+        living.dataset.hanaPose=pose;
+        living.querySelector('.r8-table span:last-child').textContent=pose==='seated'?'ハナが椅子に座っている':pose==='standing'?'ハナが立っている':'一枚の紙';
+      }
+      saveGame();
+    });
   }
   function r8PuzzleRoom(){
     game.innerHTML='<main class="room late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">何もない部屋</p></header><section class="late-stage empty"><button class="r8-paper" id="r8Paper">一枚の紙</button></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
     document.getElementById("r8Paper").onclick=r8Paper;
     setHud("room08","最後の謎",()=>"彼女の名前を思い出す",()=>{},r8IsFinalClue);
-    if(room8State.backSeen)r8ArmLogHint();
+    if(room8State.backSeen)queueMicrotask(r8ArmLogHint);
   }
   function r8Paper(){
     const o=document.createElement("div");o.className="device-overlay late-overlay";
     o.innerHTML='<section class="late-panel r8-puzzle"><button class="device-close" aria-label="閉じる">×</button><h2>最後の謎</h2>'+
       '<div class="r8-paper-face"><p class="r8-question">私はだーれだ？</p><p>ヒント！<br>君のことが一番好きな人だよ</p></div>'+
       '<button class="late-sub-action" id="r8Back">紙の裏を見る</button>'+
-      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><strong>【未確定：紙の裏の完成文面】</strong><p>ここまでの思い出を、もう一度振り返ってみて。</p><p>どの思い出にも、同じ二つが隠れているよ。</p><p>順番に迷ったら、一番最初の思い出を思い出して。</p></div>'+
+      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>ここまでの思い出を、もう一度振り返ってみて。</p><p>どの部屋にも、同じ二つが隠れているよ。</p><p>順番に迷ったら、一番最初の部屋を思い出してね。</p><p>ポスターで見つけたものを先に。<br>君の手で鳴らしたものを、その次に。</p><p>……わかったら、名前で呼んでね。</p></div>'+
       '<label class="r8-answer">答え<input id="r8Answer" type="text" autocomplete="off" maxlength="12"></label><button class="late-main-action" id="r8Submit">答える</button><p id="r8Feedback"></p></section>';
     game.appendChild(o);activateDeviceModal(o,"r8Paper",o.querySelector("#r8Back"));
     o.querySelector("#r8Back").onclick=()=>{room8State.backSeen=true;saveGame();o.querySelector("#r8BackText").classList.add("show");r8ArmLogHint()};
     o.querySelector("#r8Submit").onclick=()=>{
       const value=o.querySelector("#r8Answer").value.trim();
-      if(!["花音","かのん","カノン"].includes(value)){o.querySelector("#r8Feedback").textContent="……違う気がする。";return}
+      if(!value){o.querySelector("#r8Feedback").textContent="……名前を、思い出そう。";return}
+      if(!["花音","かのん","カノン"].includes(value)){
+        o.querySelector("#r8Feedback").textContent="……違う。僕が呼びたいのは、この名前じゃない。\nもう一度、ここまでの出来事を思い返した。";return
+      }
       o.remove();room8State.solved=true;saveGame();r8SolvedDialogue();
     };
   }
@@ -1728,7 +1838,7 @@
     return R8_FINAL_LOG_IDS.some(prefix=>id.startsWith(prefix));
   }
   function r8ArmLogHint(){
-    const btn=document.getElementById("gameplayLogButton");
+    const btn=document.getElementById("gameplayLogButton")||[...game.querySelectorAll(".gameplay-hud-actions button")].find(button=>button.textContent==="記録");
     if(!btn)return;
     btn.classList.add("late-log-pulse");
     btn.title="過去のLOGに変化がある";
@@ -1738,7 +1848,12 @@
       line("r8_solve_01","主人公","……花音"),
       line("r8_solve_02","ト書き","少しの沈黙。そして――"),
       line("r8_solve_03","花音","正解！",{logKind:"heroine"}),
+      line("r8_return_01","ト書き","顔を上げる。"),
+      line("r8_return_02","ト書き","さっきまで誰もいなかった机の向こうに、彼女が立っていた。"),
+      line("r8_return_03","ト書き","いつものように、少し得意そうに笑っている。"),
       line("r8_solve_04","花音","ちゃんと解けたね？",{logKind:"heroine"}),
+      line("r8_return_04","ト書き","机を回り込み、彼女のそばへ行く。"),
+      line("r8_return_05","ト書き","確かめるように、もう一度その名前を呼んだ。"),
       line("r8_solve_05","主人公","花音……"),
       line("r8_solve_06","主人公","花音……僕――"),
       line("r8_solve_07","花音","そんなに呼ばなくても、聞こえてるよ",{logKind:"heroine"}),

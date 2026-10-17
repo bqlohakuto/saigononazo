@@ -686,3 +686,8 @@ body{background:#0b1322!important;display:grid;place-items:center}
 @keyframes r7-books-glow{0%,100%{filter:none}40%{filter:brightness(1.7) drop-shadow(0 0 6px #fff4cf)}70%{filter:brightness(1.2) drop-shadow(0 0 3px #fff4cf)}}
 #game .r7-books-glow img{animation:r7-books-glow .9s ease-out 1}
 @media(prefers-reduced-motion:reduce){#game .r7-books-glow img{animation:none;filter:brightness(1.2) drop-shadow(0 0 3px #fff4cf)}}
+
+/* The final conversation begins seated; use its dialogue portraits. */
+#game .r8-living[data-hana-pose="seated"] > .hana-v2-world,
+#game .r8-living[data-hana-pose="gone"] > .hana-v2-world{display:none!important}
+#r8Feedback{white-space:pre-line}

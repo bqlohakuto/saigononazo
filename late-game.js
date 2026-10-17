@@ -1118,20 +1118,38 @@
   const r7Book=id=>R7_BOOKS.find(b=>b.id===id);
   const r7Asset=(id,part)=>'images/items/room07/'+id+'-'+part+'.webp';
   const r7Escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const r7PlacedAt=slot=>r7Book(room7State.slots[slot]);
+  function r7Placement(slots){
+    const placed=Object.keys(slots).map(Number).sort((a,b)=>a-b).map(slot=>slots[slot]);
+    return {placed,order:[...placed],booksSolved:placed.length===6&&R7_BOOKS.every(b=>slots[b.slot]===b.id)};
+  }
   function normalizeR7(saved){
-    const s=saved&&typeof saved==='object'?saved:{},legacy=s.libraryVersion!==1;
+    const s=saved&&typeof saved==='object'?saved:{},legacy=![1,2].includes(s.libraryVersion);
     const clean=value=>Array.isArray(value)?[...new Set(value.map(id=>id==='pigs'?'mitten':id).filter(id=>r7Book(id)))]:[];
     const restored=legacy&&(s.booksSolved||s.completed);
     const collected=restored?R7_BOOKS.map(b=>b.id):clean(legacy?s.order:s.collected);
-    const placed=restored?[...collected]:clean(s.placed).filter(id=>collected.includes(id));
-    const read=restored?[...placed]:clean(s.read).filter(id=>placed.includes(id));
+    const slots={};
+    if(s.libraryVersion===2){
+      if(s.slots&&typeof s.slots==='object'&&!Array.isArray(s.slots)){
+        for(const [key,id]of Object.entries(s.slots)){
+          const slot=Number(key);
+          if(!R7_BOOKS.some(b=>b.slot===slot)||!collected.includes(id)||Object.values(slots).includes(id))continue;
+          slots[slot]=id;
+        }
+      }
+    }else{
+      for(const id of restored?collected:clean(s.placed).filter(id=>collected.includes(id)))slots[r7Book(id).slot]=id;
+    }
+    const placement=r7Placement(slots);
+    const read=placement.booksSolved?(restored?[...placement.placed]:clean(s.read).filter(id=>placement.placed.includes(id))):[];
     const index=Number.isInteger(s.doorIndex)?Math.min(6,Math.max(0,s.doorIndex)):0;
-    return {libraryVersion:1,collected,placed,read,order:R7_BOOKS.filter(b=>placed.includes(b.id)).map(b=>b.id),
-      booksSolved:placed.length===6,doorIndex:placed.length===6?index:0,completed:!!s.completed,
+    return {libraryVersion:2,collected,slots,...placement,read,
+      doorIndex:placement.booksSolved?index:0,completed:placement.booksSolved&&!!s.completed,
       introSeen:!!s.introSeen,doorExamined:!!s.doorExamined,shelfExamined:!!s.shelfExamined,view:['front','right','back','left'].includes(s.view)?s.view:'front',
       selectedZodiac:R7_ZODIAC.includes(s.selectedZodiac)?s.selectedZodiac:'子',
       searched:Object.fromEntries(R7_BOOKS.map(b=>[b.source,!!s.searched?.[b.source]])),
-      arrangedSeen:!!s.arrangedSeen||!!restored};
+      firstBookOpened:!!s.firstBookOpened||read.length>0,
+      arrangedSeen:placement.booksSolved&&(!!s.arrangedSeen||!!restored)};
   }
   const R7_TEXT={
   "intro": [
@@ -1436,7 +1454,7 @@
     m.panel.querySelector('#r7UseBook').onclick=()=>{m.close();if(placed)r7Read(id);else{room7State.view='back';saveGame();renderR7();r7Shelf(id)}};
   }
   function r7ShelfArt(){
-    return Array.from({length:10},(_,slot)=>{const fixed=R7_FIXED.find(b=>b.slot===slot),placed=R7_BOOKS.find(b=>b.slot===slot&&room7State.placed.includes(b.id)),book=fixed||placed;
+    return Array.from({length:10},(_,slot)=>{const fixed=R7_FIXED.find(b=>b.slot===slot),placed=r7PlacedAt(slot),book=fixed||placed;
       return '<span class="r7-spine-slot">'+(book?'<img src="'+r7Asset(book.id,'spine')+'" alt="">'+(placed?'<span class="r7-red-ribbon"></span>':''):'')+'</span>';
     }).join('');
   }
@@ -1453,32 +1471,58 @@
     const row=m.panel.querySelector('.r7-shelf-zoom'),held=m.panel.querySelector('.r7-held-books'),status=m.panel.querySelector('.r7-shelf-status');
     function draw(){
       row.innerHTML=Array.from({length:10},(_,slot)=>{
-        const fixed=R7_FIXED.find(b=>b.slot===slot),placed=R7_BOOKS.find(b=>b.slot===slot&&room7State.placed.includes(b.id)),book=fixed||placed;
-        return '<button type="button" class="r7-slot'+(book?' is-filled':'')+'" data-slot="'+slot+'" aria-label="'+(book?r7Escape(book.title)+(placed?'、赤い栞のある本を読む':'の背表紙'):(slot+1)+'番目の空きに本を戻す')+'">'+(book?'<img src="'+r7Asset(book.id,'spine')+'" alt="'+book.title+'">'+(placed?'<span class="r7-red-ribbon" aria-hidden="true"></span>':''):'<span class="r7-empty-slot" aria-hidden="true"></span>')+'</button>';
+        const fixed=R7_FIXED.find(b=>b.slot===slot),placed=r7PlacedAt(slot),book=fixed||placed;
+        return '<button type="button" class="r7-slot'+(book?' is-filled':'')+'" data-slot="'+slot+'" aria-label="'+(book?r7Escape(book.title)+(placed?(room7State.booksSolved?'を手に取る':'を取り出す'):'の背表紙'):(slot+1)+'番目の空きに本を戻す')+'">'+(book?'<img src="'+r7Asset(book.id,'spine')+'" alt="'+book.title+'">'+(placed?'<span class="r7-red-ribbon" aria-hidden="true"></span>':''):'<span class="r7-empty-slot" aria-hidden="true"></span>')+'</button>';
       }).join('');
       const available=R7_BOOKS.filter(b=>room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id));
       held.innerHTML=available.map(b=>'<button type="button" data-held="'+b.id+'" aria-pressed="'+(selected===b.id)+'">'+b.title+'</button>').join('');
-      status.textContent=selected?'『'+r7Book(selected).title+'』を戻す場所を選ぶ。':available.length?'手元の本を選んで、棚の空きに戻そう。':room7State.booksSolved?'赤い栞のある本を開ける。':'棚には、本が抜けた空きがある。';
+      status.textContent=selected?'『'+r7Book(selected).title+'』を戻す場所を選ぶ。':room7State.booksSolved?'本が並んでいる。':room7State.placed.length===6?'本は開かない。':available.length?'手元の本を選んで、棚の空きに戻そう。':'棚には、本が抜けた空きがある。';
       row.querySelectorAll('[data-slot]').forEach(button=>button.onclick=()=>{
-        const slot=Number(button.dataset.slot),fixed=R7_FIXED.find(b=>b.slot===slot),placed=R7_BOOKS.find(b=>b.slot===slot&&room7State.placed.includes(b.id));
+        const slot=Number(button.dataset.slot),fixed=R7_FIXED.find(b=>b.slot===slot),placed=r7PlacedAt(slot);
         if(fixed){status.textContent='背表紙に『'+fixed.title+'』と書かれている。';return}
-        if(placed){m.close();r7Read(placed.id);return}
+        if(placed){
+          if(room7State.booksSolved){m.close();r7Read(placed.id);return}
+          delete room7State.slots[slot];Object.assign(room7State,r7Placement(room7State.slots));
+          selected=placed.id;saveGame();draw();return;
+        }
         if(!selected){status.textContent='まず、戻す本を手元から選ぼう。';return}
-        const book=r7Book(selected);if(book.slot!==slot){status.textContent='ここではないようだ。本は手元に残っている。';return}
-        room7State.placed.push(book.id);room7State.order=R7_BOOKS.filter(b=>room7State.placed.includes(b.id)).map(b=>b.id);room7State.booksSolved=room7State.placed.length===6;
-        recordLog({logId:'r7_return_'+book.id,logType:'investigation',speaker:'ト書き',text:'『'+book.title+'』が、棚の空きにぴたりと収まった。中を読めそうだ。'});saveGame();
+        const book=r7Book(selected);
+        room7State.slots[slot]=book.id;Object.assign(room7State,r7Placement(room7State.slots));
+        selected=null;
+        recordLog({logId:'r7_return_'+book.id,logType:'investigation',speaker:'ト書き',text:'『'+book.title+'』を棚に戻した。'});
         const justSolved=room7State.booksSolved&&!room7State.arrangedSeen;
         if(justSolved)room7State.arrangedSeen=true;
-        saveGame();m.close();renderR7();
-        if(justSolved)showRoomDialog([line('r7_books_ok_01','ト書き','六冊の本が、棚の空きに収まった。'),line('r7_books_ok_02','主人公','本の並びが大事なのかな？')]);
-        else r7Shelf();
+        saveGame();
+        if(justSolved){m.close();renderR7();r7BooksGlow();return}
+        // Keep the inspection panel open; no position feedback is given before all six are present.
+        draw();
       });
       held.querySelectorAll('[data-held]').forEach(b=>b.onclick=()=>{selected=b.dataset.held;draw()});
+      const worldShelf=game.querySelector('.r7-shelf-row');if(worldShelf)worldShelf.innerHTML=r7ShelfArt();
     }
     draw();
   }
+  function r7BooksGlow(){
+    const shelf=game.querySelector('.r7-shelf-row');
+    shelf?.classList.add('r7-books-glow');
+    setTimeout(()=>shelf?.classList.remove('r7-books-glow'),950);
+    showRoomDialog([
+      line('r7_books_glow_01','ト書き','棚に並んだ本が、一瞬、淡く光った。'),
+      line('r7_books_glow_02','主人公','……今、光った？'),
+      line('r7_books_glow_03','ト書き','見た目は、さっきと変わらない。'),
+      line('r7_books_glow_04','ト書き','でも、何か変わったところがあるのかもしれない。')
+    ]);
+  }
   function r7Read(id){
-    const book=r7Book(id);if(!book||!room7State.placed.includes(id))return;
+    const book=r7Book(id);if(!book||!room7State.booksSolved||!room7State.placed.includes(id))return;
+    if(!room7State.firstBookOpened){
+      room7State.firstBookOpened=true;saveGame();
+      showRoomDialog([
+        line('r7_first_open_01','ト書き','本を一冊、手に取った。'),
+        line('r7_first_open_02','ト書き','さっきは動かなかった表紙が、今度はすんなりと開いた。'),
+        line('r7_first_open_03','主人公','……開いた。')
+      ],()=>r7Read(id));return;
+    }
     if(!room7State.read.includes(id))room7State.read.push(id);
     recordLog({logId:id==='bremen'?'r7_final_bremen':'r7_read_'+id,logType:'investigation',speaker:'ト書き',text:book.body});
     recordLog({logId:'r7_final_pressed_flower',logType:'investigation',speaker:'ト書き',text:'左のページに、赤いリボンの付いた押し花の栞が挟まっている。'});saveGame();
@@ -1498,12 +1542,12 @@
   }
   function r7Dial(){
     if(!room7State.doorExamined){r7InspectDoor(r7Dial);return;}
-    const m=r7Modal('十二支操作盤','<div class="r7-dial-inspection">'+r7DialMarkup(true)+'<div class="r7-dial-actions"><button type="button" id="r7RotateLeft" aria-label="文字盤を左へ30度回す">↶</button><button type="button" id="r7DialDone">この行き先に合わせる</button><button type="button" id="r7RotateRight" aria-label="文字盤を右へ30度回す">↷</button></div></div>','r7Dial');
+    const m=r7Modal('十二支操作盤','<div class="r7-dial-inspection">'+r7DialMarkup(true)+'<div class="r7-dial-actions"><button type="button" id="r7RotateLeft" aria-label="文字盤を左へ30度回す">↶</button><button type="button" id="r7DialDone">この干支を選択する</button><button type="button" id="r7RotateRight" aria-label="文字盤を右へ30度回す">↷</button></div></div>','r7Dial');
     const wheel=m.panel.querySelector('.r7-dial-wheel'),value=m.panel.querySelector('.r7-dial-selection strong');
     let steps=-R7_ZODIAC.indexOf(room7State.selectedZodiac);
     const set=()=>{room7State.selectedZodiac=R7_ZODIAC[((-steps%12)+12)%12];wheel.style.transform='rotate('+steps*30+'deg)';value.textContent=room7State.selectedZodiac;saveGame()};
     m.panel.querySelector('#r7RotateLeft').onclick=()=>{steps--;set()};m.panel.querySelector('#r7RotateRight').onclick=()=>{steps++;set()};
-    m.panel.querySelector('#r7DialDone').onclick=()=>{m.close();renderR7()};
+    m.panel.querySelector('#r7DialDone').onclick=()=>{m.close();renderR7();if(room7State.booksSolved)r7Door(room7State.selectedZodiac)};
     // Native buttons provide keyboard/touch operation; dragging snaps at each 30-degree sector.
     const art=m.panel.querySelector('.r7-dial-art');let drag=null;
     const angle=e=>{const r=wheel.getBoundingClientRect();return Math.atan2(e.clientY-r.top-r.height/2,e.clientX-r.left-r.width/2)*180/Math.PI};
@@ -1518,17 +1562,11 @@
     if(z!==R7_DOORS[room7State.doorIndex])return; // Preserve the existing wrong-selection behavior.
     const isLast=room7State.doorIndex===R7_DOORS.length-1;
     room7State.doorIndex++;saveGame();
-    if(!isLast){
-      showRoomDialog([
-        line('r7_door_'+z+'_01','ト書き',z+'に合わせた扉が開く。'),
-        line('r7_door_'+z+'_02','ト書き','主人公は扉の外から中を覗き込む。少しすると、扉は閉じた。'),
-        pending(z+'の扉の先に見える具体的な短い記憶・情景。')
-      ],renderR7);return;
-    }
+    if(!isLast){renderR7();return;}
     showRoomDialog([
       line('r7_last_01','ト書き','酉に合わせた扉が開く。'),
       line('r7_last_02','主人公','……'),
-      line('r7_last_03','ト書き','いつものように中を覗こうとした、その瞬間。'),
+      line('r7_last_03','ト書き','扉の向こうを確かめようとした、その瞬間。'),
       line('r7_last_04','主人公','え――'),
       line('r7_last_05','ト書き','身体が扉の向こうへ引かれる。'),
       line('r7_last_06','ハナ','……！'),

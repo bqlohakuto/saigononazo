@@ -681,3 +681,8 @@ body{background:#0b1322!important;display:grid;place-items:center}
 /* Leave the curtain, desk drawer and diary accessible in the left view. */
 #game .r7-scene[data-view=left] .r7-hana.hana-v2-world{left:74%!important}
 #game .r7-scene[data-view=left] #r7Photo{z-index:5}
+
+/* Room 7: one gentle pulse after all six books are in the correct order. */
+@keyframes r7-books-glow{0%,100%{filter:none}40%{filter:brightness(1.7) drop-shadow(0 0 6px #fff4cf)}70%{filter:brightness(1.2) drop-shadow(0 0 3px #fff4cf)}}
+#game .r7-books-glow img{animation:r7-books-glow .9s ease-out 1}
+@media(prefers-reduced-motion:reduce){#game .r7-books-glow img{animation:none;filter:brightness(1.2) drop-shadow(0 0 3px #fff4cf)}}

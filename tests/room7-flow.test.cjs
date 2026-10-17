@@ -24,17 +24,28 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  const pickupLog=run('GameLog.list()');assert.ok(pickupLog.some(x=>x.text==='少し気になったので、ひとまず持っておくことにした。'));assert.ok(pickupLog.some(x=>x.text==='謎に関係しているのかもしれない。'));assert.equal(pickupLog.filter(x=>x.text==='中を開こうとしたが、開けない。').length,4);
  turn('back');click('#r7Shelf');finish();assert.ok(run('GameLog.list()').some(x=>x.text==='持っている本も、ここに並んでいたのかな。'));assert.equal(w.document.querySelectorAll('.r7-slot.is-filled').length,4,'four fixed books initially');
  click('[data-slot="0"]');assert.match(q('.r7-shelf-status').textContent,/赤ずきん/);assert.equal(q('.r7-open-book'),null,'fixed books only show title');
- click('[data-held="bremen"]');click('[data-slot="1"]');assert.equal(saved().placed.length,0,'wrong slot retains book');assert.ok(saved().collected.includes('bremen'));
- // Return in reverse order: completed shelf order must not depend on input order.
- for(const [id,slot]of [['bremen',8],['mitten',7],['monkey',5],['wolf',3],['rabbit',2],['ikkyu',1]]){click('[data-held="'+id+'"]');click('[data-slot="'+slot+'"]');if(!q('.r7-overlay'))finish()}
+ // Any empty slot accepts a book without revealing whether its position is correct.
+ click('[data-held="bremen"]');click('[data-slot="1"]');assert.equal(saved().placed.length,1);assert.equal(saved().slots[1],'bremen');assert.equal(saved().booksSolved,false);assert.equal(q('.r7-open-book'),null);
+ for(const [id,slot]of [['mitten',7],['monkey',5],['wolf',3],['rabbit',2],['ikkyu',8]]){click('[data-held="'+id+'"]');click('[data-slot="'+slot+'"]');assert.equal(saved().booksSolved,false,'wrong complete order stays locked')}
+ assert.equal(saved().placed.length,6);assert.equal(q('.r7-books-glow'),null);assert.match(q('.r7-shelf-status').textContent,/本は開かない/);
+ const wrong=saved();click('.r7-overlay .device-close');run('showSeventhRoom('+JSON.stringify(wrong)+')');assert.deepEqual(saved(),wrong,'wrong full arrangement survives reload');click('#r7Shelf');finish();
+ click('[data-slot="1"]');assert.equal(saved().placed.length,5);assert.equal(q('.r7-open-book'),null,'taking an unsolved book out never opens it');
+ click('[data-slot="8"]');assert.equal(saved().placed.length,4);click('[data-slot="1"]');click('[data-held="bremen"]');click('[data-slot="8"]');
+ assert.ok(q('.r7-books-glow'),'correct complete arrangement pulses once');finish();
  assert.equal(saved().booksSolved,true);assert.deepEqual(saved().order,['ikkyu','rabbit','wolf','monkey','mitten','bremen']);
- const log=run('GameLog.list()');assert.ok(log.some(x=>x.text==='本の並びが大事なのかな？'));assert.ok(!log.some(x=>x.text==='寅、卯、未、申、亥、酉'),'no automatic solution spoiler');
+ const log=run('GameLog.list()');assert.ok(log.some(x=>x.text==='棚に並んだ本が、一瞬、淡く光った。'));assert.ok(!log.some(x=>x.text==='寅、卯、未、申、亥、酉'),'no automatic solution spoiler');
  click('#r7Shelf');
- for(const slot of [1,2,3,5,7,8]){click('[data-slot="'+slot+'"]');assert.ok(q('.r7-open-book'));assert.equal(q('.r7-reader h2'),null,'no title on opened spread');click('#r7Zoom');assert.ok(q('.is-zoomed'));click('#r7BackShelf')}
- assert.equal(saved().read.length,6);click('.r7-overlay .device-close');
+ for(const slot of [1,2,3,5,7,8]){click('[data-slot="'+slot+'"]');finish();assert.ok(q('.r7-open-book'));assert.equal(q('.r7-reader h2'),null,'no title on opened spread');click('#r7Zoom');assert.ok(q('.is-zoomed'));click('#r7BackShelf')}
+ assert.equal(saved().read.length,6);assert.equal(run('GameLog.list()').filter(x=>x.text==='……開いた。').length,1,'first-opening narration only once');click('.r7-overlay .device-close');
  const snapshot=saved();run('showSeventhRoom('+JSON.stringify(snapshot)+')');assert.deepEqual(saved(),snapshot,'placement and reading persist');
  turn('front');click('#r7Dial');click('#r7RotateLeft');assert.equal(saved().selectedZodiac,'丑');assert.ok(q('.r7-fixed-pointer'));click('#r7DialDone');click('#r7Door');assert.equal(saved().doorIndex,0,'wrong zodiac does not advance');
- for(const target of ['寅','卯','未','申','亥','酉']){click('#r7Dial');for(let i=0;i<12&&saved().selectedZodiac!==target;i++)click('#r7RotateLeft');assert.equal(saved().selectedZodiac,target);click('#r7DialDone');click('#r7Door');finish()}
+ for(const [i,target]of ['寅','卯','未','申','亥','酉'].entries()){
+  click('#r7Dial');for(let n=0;n<12&&saved().selectedZodiac!==target;n++)click('#r7RotateLeft');assert.equal(saved().selectedZodiac,target);click('#r7DialDone');
+  assert.equal(saved().doorIndex,i+1);
+  if(i<5){assert.equal(q('#roomNextButton'),null,'no intermediate memory or door-opening dialogue');assert.equal(saved().completed,false);if(i===2){const midway=saved();run('showSeventhRoom('+JSON.stringify(midway)+')');assert.deepEqual(saved(),midway,'partial zodiac sequence survives reload');}}
+  else finish();
+ }
+ assert.ok(!run('GameLog.list()').some(x=>x.text.includes('具体的な短い記憶')),'no pending intermediate memories');
  assert.equal(saved().completed,true);assert.ok(q('#r7Next'));click('#r7Next');await new Promise(r=>setTimeout(r,720));assert.equal(run('currentScene'),'room08');
  // Old saves preserve completed book sequence, including the retired pigs id.
  run('showSeventhRoom({introSeen:true,order:["ikkyu","rabbit","wolf","monkey","pigs","bremen"],booksSolved:true,doorIndex:3})');assert.equal(saved().placed.length,6);assert.ok(saved().collected.includes('mitten'));assert.equal(saved().doorIndex,3);
@@ -43,6 +54,8 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  run('showSeventhRoom({introSeen:true,booksSolved:true,doorIndex:6})');finish();assert.equal(saved().completed,true);
  // New saves reject unknown/duplicate books and out-of-range dial progress.
  run('showSeventhRoom({libraryVersion:1,introSeen:true,collected:["bad","ikkyu","ikkyu"],placed:["wolf"],read:["wolf"],doorIndex:99})');assert.deepEqual(saved().collected,['ikkyu']);assert.equal(saved().placed.length,0);assert.equal(saved().doorIndex,0);
+ run('showSeventhRoom({libraryVersion:1,introSeen:true,collected:["bremen"],placed:["bremen"],read:["bremen"]})');assert.equal(saved().slots[8],'bremen');assert.equal(saved().booksSolved,false);assert.equal(saved().read.length,0,'old partial saves cannot read before full solution');
+ run('showSeventhRoom({libraryVersion:2,introSeen:true,collected:["ikkyu","rabbit"],slots:{0:"ikkyu",1:"ikkyu",2:"ikkyu",3:"bad"},booksSolved:true,doorIndex:4})');assert.deepEqual(saved().slots,{1:'ikkyu'});assert.equal(saved().doorIndex,0,'corrupt slot data cannot unlock dial');
  for(const book of run('Room7LibraryUI.items()'))assert.ok(book.name);
  console.log('PASS room7: six searches, inventory, four fixed books, wrong/correct returns, all six reads, twelve-position dial, save/load, migration, accident memory and room8.');await new Promise(r=>setTimeout(r,30));dom.window.close();
 })().catch(e=>{console.error(e);process.exitCode=1});

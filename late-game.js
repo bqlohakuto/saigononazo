@@ -1821,7 +1821,7 @@
     });
   }
   function r8PuzzleRoom(){
-    game.innerHTML='<main class="room late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">何もない部屋</p></header><section class="late-stage empty"><button class="r8-paper" id="r8Paper">一枚の紙</button></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
+    game.innerHTML='<main class="room late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">何もない部屋</p></header><section class="late-stage empty r8-final-stage"><div class="r8-last-desk" aria-label="最後に残った机"><div class="r8-last-desk-legs" aria-hidden="true"></div><div class="r8-last-desk-top"><button class="r8-paper" id="r8Paper">一枚の紙</button></div></div></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
     document.getElementById("r8Paper").onclick=r8Paper;
     setHud("room08","最後の謎",()=>"彼女の名前を思い出す",()=>{},r8IsFinalClue);
     if(room8State.backSeen)queueMicrotask(r8ArmLogHint);

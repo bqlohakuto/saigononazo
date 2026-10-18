@@ -30,9 +30,32 @@ jobs:
       - run: npx playwright install --with-deps chromium webkit
       - name: Check dialogue and memory presentation rules
         run: node --test tests/memory-visuals.test.cjs tests/dialogue.test.cjs tests/cache-version.test.cjs
+      - name: Wait for the approved revision on GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          files=(index.html memory-visuals.js design-ui.js design-ui.css images/background/memories/room01/music-room.png images/background/memories/room01/walk-home.png images/characters/memories/room01/girl-approved.png)
+          for attempt in $(seq 1 24); do
+            ready=1
+            for file in "${files[@]}"; do
+              if ! curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "https://bqlohakuto.github.io/saigononazo/$file?verify=$GITHUB_SHA-$attempt" -o /tmp/memory-published-file; then
+                ready=0
+                break
+              fi
+              if ! cmp -s "$file" /tmp/memory-published-file; then
+                echo "Waiting for published $file ($attempt/24)"
+                ready=0
+                break
+              fi
+            done
+            if [ "$ready" = 1 ]; then exit 0; fi
+            sleep 10
+          done
+          exit 1
       - name: Review piano, recollection and return on desktop and landscape Safari engine
         env:
           UI_SCREENSHOT_DIR: artifacts/memory-novel
+          PUBLIC_BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://bqlohakuto.github.io/saigononazo/' || '' }}
         run: node tests/memory-novel.browser.cjs
       - name: Keep review screenshots
         if: always()

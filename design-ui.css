@@ -464,7 +464,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
  bottom:calc(-1 * min(3.875vw,6.8889svh));
  width:min(19.9vw,35.3778svh);
  height:min(31vw,55.1111svh);
- background:url("images/characters/hana-current/world/look-up/04.webp") center bottom/contain no-repeat;
+ background:url("images/characters/hana-hires/poses/look-up-left.webp") center bottom/contain no-repeat;
  image-rendering:pixelated;
  transform:translateX(-50%);
  opacity:0;
@@ -477,17 +477,12 @@ body{background:#0b1322!important;display:grid;place-items:center}
 }
 #game .room4-stage .r4hana.is-looking-up .r4-hana-look-pose{
  opacity:1;
- animation:r4HanaLookUp .65s steps(1,end) both,r4HanaGazeBreath 3.6s .65s ease-in-out infinite;
+ animation:r4HanaLookUp .18s ease-out both;
 }
+/* Only the approved pose is shown; retired frames must never flash during entry. */
 @keyframes r4HanaLookUp{
- 0%{background-image:url("images/characters/hana-current/world/look-up/01.webp")}
- 33%{background-image:url("images/characters/hana-current/world/look-up/02.webp")}
- 66%{background-image:url("images/characters/hana-current/world/look-up/03.webp")}
- 100%{background-image:url("images/characters/hana-current/world/look-up/04.webp")}
-}
-@keyframes r4HanaGazeBreath{
- 0%,100%{transform:translateX(-50%) scaleY(1)}
- 50%{transform:translateX(-50%) scaleY(1.004)}
+ from{opacity:0}
+ to{opacity:1}
 }
 #game .room4-stage .r4-hana-look-pose{transform-origin:50% 96%}
 @media(prefers-reduced-motion:reduce){

@@ -1,0 +1,22 @@
+{
+  "approvedSource": "exec-f8e458ac-aedd-4b44-a70f-5bf6508b798d.png",
+  "sourceSha256": "53c4b9484c2ba62d1518a72accb31eebaf51b40b5539ca2853e7ccc89a2a7a4c",
+  "canvas": [
+    1024,
+    2048
+  ],
+  "sourceBounds": [
+    180,
+    76,
+    711,
+    1735
+  ],
+  "scale": 1.136829415310428,
+  "offset": [
+    6,
+    27
+  ],
+  "shoeBaseline": 1999,
+  "direction": "upper image-left; actor stands on screen right",
+  "asset": "poses/look-up-left.webp"
+}

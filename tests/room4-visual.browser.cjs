@@ -74,7 +74,7 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  assert(await page.locator('#r4Hana').evaluate(el=>el.classList.contains('is-looking-up')),'Hana looks up during narration');
  await page.waitForFunction(()=>getComputedStyle(document.querySelector('#r4Hana .r4-hana-look-pose')).opacity==='1');
  assert.equal(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).opacity),'1','Dedicated full-body gaze is visible');
- assert.deepEqual(await page.evaluate(async()=>{const img=new Image();img.src='images/characters/hana-current/world/look-up/04.webp';await img.decode();return [img.naturalWidth,img.naturalHeight]}),[512,1024]);
+ assert.deepEqual(await page.evaluate(async()=>{const img=new Image();img.src='images/characters/hana-hires/poses/look-up-left.webp';await img.decode();return [img.naturalWidth,img.naturalHeight]}),[1024,2048]);
  const pose=await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>({
    transform:getComputedStyle(el).transform,
    animationName:getComputedStyle(el).animationName,
@@ -82,7 +82,7 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  }));
  assert.notEqual(pose.transform,'none','Dedicated gaze artwork is positioned for reduced-motion users');
  assert.equal(pose.clipPath,'none','The gaze uses a complete dedicated sprite');
- assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/look-up\/04\.webp/);
+ assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/poses\/look-up-left\.webp/);
  assert.equal(await page.locator('#r4Hana').evaluate(el=>getComputedStyle(el,'::before').opacity),'0','Idle sprite is hidden during gaze');
  const initialScale=await assertGazeAligned(page,dir,'entry');
  assert(Math.abs(initialScale.idle.height-canvasWidth*.31)<1,'Entry layout has settled at the intended companion scale');
@@ -98,7 +98,7 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.waitForTimeout(750);
  await assertGazeAligned(page,dir,'motion');
- assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/look-up\/04\.webp/);
+ assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/poses\/look-up-left\.webp/);
  await page.emulateMedia({reducedMotion:'reduce'});
  await page.screenshot({path:path.join(dir,'front-hana-looking-up.png')});
  await page.evaluate(()=>{

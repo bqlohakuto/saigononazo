@@ -91,3 +91,10 @@
  .r5-counter-slot{min-height:82px}
  .r5-actions>*{flex:1 1 100%}
 }
+
+/* Room 8: restrained text-only epilogue; artwork may replace these stages later. */
+.r8-epilogue-fade{min-height:100vh;background:#0e1117}
+.r8-epilogue-stage{min-height:100vh;display:grid;place-items:center;box-sizing:border-box;transition:background .6s ease}
+.r8-epilogue-stage[data-place="hospital"]{background:linear-gradient(180deg,#f2f4f5 0%,#e3e9ec 100%);color:#505965}
+.r8-epilogue-stage[data-place="home"]{background:linear-gradient(160deg,#e8e1d7 0%,#cfc2b4 100%);color:#605449}
+.r8-epilogue-place{font-size:clamp(14px,2.4vw,20px);letter-spacing:.24em;opacity:.7;text-align:center;padding:16px}

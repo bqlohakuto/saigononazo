@@ -932,3 +932,11 @@
 - キャッシュ `20261018-room01-door-only-01`。公開後は既存の公開オープニング・回想・部屋表示のCIで確認する。
 - 公開コード `d5c82c2eff506f2c0de2d9dff7a1df1e1aa89357`。Pages [39113460327](https://github.com/bqlohakuto/saigononazo/actions/runs/39113460327)、公開オープニング [39113460663](https://github.com/bqlohakuto/saigononazo/actions/runs/39113460663)、公開第1回想 [39113460583](https://github.com/bqlohakuto/saigononazo/actions/runs/39113460583) が成功。公開PC Chromium・横向きWebKitの第1の部屋の撮影で、扉だけの調査表示になっていることを目視確認。画像HTTP・初回画像表示・第2/3/5/7・部屋選択も成功。
 - 別件の未解決事項：第4の見上げ寸法チェック [39113460622](https://github.com/bqlohakuto/saigononazo/actions/runs/39113460622) は初回・同一コミット再実行の両方で `Displayed gaze matches the settled idle dimensions` が失敗。過去の制作記録にも同じ寸法検証の失敗と再実行成功があるが、今回は解消していない。第1の扉表示修正とは分けて引き継ぐ。第4の素材・表示コード・検査期待値は今回変更していない。
+
+
+## 2026-10-18 第4の見上げ寸法の同期修正
+
+- 上記の見上げ寸法失敗を実画面で再現。入室時の共通UI配置が確定する前に寸法を固定しており、確定後の通常姿勢よりPCで約11px、横スマホで約7px小さい状態が残っていた。待機時間だけでは直らない表示不具合。
+- 第4のステージをResizeObserverで監視し、配置確定・コンテナ寸法変更時に通常姿勢と見上げ画像の幅・高さ・足元を同期。再入室・ステージ破棄時は監視を解除する。
+- 既存の専用見上げ画像と台詞に連動する切替を保持。検証に入室時・window.resizeを伴わない配置変更・復元・通常モーションでの寸法比較を追加。失敗時は寸法値とスクリーンショットを残す。
+- 最新mainのシナリオ校閲修正を取り込んで検証。room4.jsのキャッシュは20261018-room04-gaze-sync-01。公開版Chrome/WebKitの結果は追記する。

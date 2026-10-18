@@ -1,8 +1,33 @@
 const assert=require('node:assert/strict');
 const {chromium,webkit}=require('playwright');
 const fs=require('node:fs'),path=require('node:path');
-const url=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononazo/';
+const root=path.resolve(__dirname,'..'),local=process.env.ROOM4_REVIEW_LOCAL==='1';
+const url=process.env.PUBLIC_BASE_URL||(local?'https://room4.local/':'https://bqlohakuto.github.io/saigononazo/');
 const version=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8').match(/room4.js\?v=([^"']+)/)[1];
+async function gazeDimensions(page){
+ return page.locator('#r4Hana').evaluate(async el=>{
+  // Include container layout and ResizeObserver delivery, not an arbitrary delay.
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  const idle=getComputedStyle(el,'::before'),gaze=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
+  const dimensions=style=>Object.fromEntries(['width','height','bottom'].map(key=>[key,parseFloat(style[key])]));
+  return {idle:dimensions(idle),gaze:dimensions(gaze)};
+ });
+}
+async function assertGazeAligned(page,dir,label){
+ const matches=scale=>['width','height','bottom'].every(key=>Number.isFinite(scale.idle[key])&&Number.isFinite(scale.gaze[key])&&Math.abs(scale.idle[key]-scale.gaze[key])<1);
+ let scale=await gazeDimensions(page);
+ if(!matches(scale)){
+  await page.waitForFunction(()=>{
+   const el=document.getElementById('r4Hana'),idle=getComputedStyle(el,'::before'),gaze=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
+   return ['width','height','bottom'].every(key=>Math.abs(parseFloat(idle[key])-parseFloat(gaze[key]))<1);
+  },null,{timeout:2000}).catch(()=>{});
+  scale=await gazeDimensions(page);
+ }
+ if(!matches(scale))await page.screenshot({path:path.join(dir,'gaze-size-failure-'+label+'.png')});
+ assert(matches(scale),'Gaze canvas and foot anchor match idle after '+label+': '+JSON.stringify(scale));
+ console.log('GAZE '+label+' '+JSON.stringify(scale));
+ return scale;
+}
 async function finish(page){
  for(let i=0;i<240&&await page.locator('.room-dialog-overlay').count();i++){
   await page.locator('#roomNextButton').click({force:true});await page.waitForTimeout(15);
@@ -17,14 +42,20 @@ async function finish(page){
   await page.locator('.design-overlay').waitFor({state:'detached'});
  }
 }
-(async()=>{for(const spec of [{name:'desktop',engine:chromium,viewport:{width:1366,height:768},channel:'chrome'},{name:'landscape-webkit',engine:webkit,viewport:{width:852,height:393}}]){
+const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
+(async()=>{for(const spec of [{name:'desktop',engine:chromium,viewport:{width:1366,height:768},channel:local?undefined:'chrome',mobile:false},{name:mobileEngine===webkit?'landscape-webkit':'landscape-chromium',engine:mobileEngine,viewport:{width:852,height:393},mobile:true}]){
  const browser=await spec.engine.launch({headless:true,...(spec.channel?{channel:spec.channel}:{})});
  try{
- const ctx=await browser.newContext({viewport:spec.viewport,isMobile:!spec.channel,hasTouch:!spec.channel,reducedMotion:'reduce'});
+ const ctx=await browser.newContext({viewport:spec.viewport,isMobile:spec.mobile,hasTouch:spec.mobile,reducedMotion:'reduce'});
  await ctx.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
  const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ if(local)await page.route('https://room4.local/**',async route=>{
+  const file=path.resolve(root,decodeURIComponent(new URL(route.request().url()).pathname).replace(/^\//,'')||'index.html');
+  if(!file.startsWith(root+path.sep)||!fs.existsSync(file))return route.fulfill({status:404,body:''});
+  await route.fulfill({path:file});
+ });
  let deployed=false;for(let i=0;i<24;i++){await page.goto(url+'?room4_review='+Date.now());if((await page.locator('script[src*="room4.js"]').getAttribute('src')).includes(version)){deployed=true;break}await page.waitForTimeout(8000)}assert(deployed,'Expected deployed version');
- const dir=path.join('artifacts/room04',spec.name);fs.mkdirSync(dir,{recursive:true});
+ const dir=path.join(process.env.UI_SCREENSHOT_DIR||'artifacts/room04',spec.name);fs.mkdirSync(dir,{recursive:true});
  await page.waitForSelector('#game.hana-v2-full-ready');
  // The original introduction must trigger the ceiling-gaze pose on its confirmed narration.
  await page.evaluate(()=>{settings.instantText=true;showFourthRoom()});
@@ -53,8 +84,22 @@ async function finish(page){
  assert.equal(pose.clipPath,'none','The gaze uses a complete dedicated sprite');
  assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/look-up\/04\.webp/);
  assert.equal(await page.locator('#r4Hana').evaluate(el=>getComputedStyle(el,'::before').opacity),'0','Idle sprite is hidden during gaze');
- const activeScale=await page.locator('#r4Hana').evaluate(el=>({idle:parseFloat(getComputedStyle(el,'::before').height),gaze:parseFloat(getComputedStyle(el.querySelector('.r4-hana-look-pose')).height)}));
- assert(Math.abs(activeScale.idle-activeScale.gaze)<1,'Displayed gaze matches the settled idle dimensions');
+ const initialScale=await assertGazeAligned(page,dir,'entry');
+ assert(Math.abs(initialScale.idle.height-canvasWidth*.31)<1,'Entry layout has settled at the intended companion scale');
+ // Reproduce the room layout settling without a window resize or another line.
+ await page.locator('.room-stage-wrap').evaluate(el=>{el.style.width='calc(100% - 48px)'});
+ await page.waitForFunction(height=>parseFloat(getComputedStyle(document.getElementById('r4Hana'),'::before').height)<height-1,initialScale.idle.height);
+ const resizedScale=await assertGazeAligned(page,dir,'container-resize');
+ assert(resizedScale.idle.height<initialScale.idle.height-1,'The room container actually changed size');
+ await page.locator('.room-stage-wrap').evaluate(el=>el.style.removeProperty('width'));
+ await page.waitForFunction(height=>Math.abs(parseFloat(getComputedStyle(document.getElementById('r4Hana'),'::before').height)-height)<1,initialScale.idle.height);
+ await assertGazeAligned(page,dir,'container-restored');
+ // The normal motion setting must retain the same sizing and use the final pose.
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.waitForTimeout(750);
+ await assertGazeAligned(page,dir,'motion');
+ assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/look-up\/04\.webp/);
+ await page.emulateMedia({reducedMotion:'reduce'});
  await page.screenshot({path:path.join(dir,'front-hana-looking-up.png')});
  await page.evaluate(()=>{
   for(let i=0;i<30&&!/^r4i10(?:_\d+)?$/.test(GameLog.list().at(-1)?.id||'');i++)Dialogue.advance();
@@ -131,7 +176,7 @@ async function finish(page){
  await page.evaluate(()=>{const saved=JSON.parse(JSON.stringify(room4State));showFourthRoom(saved)});await finish(page);assert.equal(await page.locator('.room4-stage').getAttribute('data-view'),'left');assert(await page.locator('#r4LightOverlay').isVisible());
  await page.locator('#r4TurnRight').click();assert.equal(await page.locator('#r4LightOverlay').isVisible(),false,'Light only appears in projection view');
  await page.locator('#r4TurnLeft').click();await page.locator('#r4Stand').click();assert(await page.locator('.room-four').evaluate(el=>el.inert));
- if(spec.name==='landscape-webkit'){
+ if(spec.mobile){
   const bounds=await page.locator('.r4-panel-ui').evaluate(panel=>{
    const rect=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
    return {panel:rect(panel),buttons:[...panel.querySelectorAll('.r4-panels button,.r4-shine')].map(rect)};

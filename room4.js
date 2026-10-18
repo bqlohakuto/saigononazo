@@ -1,8 +1,10 @@
 const R4_ANGLES=[0,0,0,0,0],R4_INITIAL=[2,1,0,3,2],R4_PANEL_KEYS=["star","lightPuzzle","meteors","wall","box"],R4_RAINBOW=["青O","赤M","紫S","黄T","藍R","橙E","緑E"];
+let r4HanaGazeObserver;
 function r4Count(){return [room4State.wall,room4State.box,room4State.star,room4State.lightPuzzle,room4State.meteors].filter(Boolean).length}
 function r4All(){return r4Count()===5}
 function r4Correct(){return r4All()&&room4State.angles.every((v,i)=>v===R4_ANGLES[i])}
 function showFourthRoom(savedState){
+ r4HanaGazeObserver?.disconnect();r4HanaGazeObserver=null;
  Dialogue.stop();firstRoomState=undefined;room2State=undefined;room3State=undefined;currentScene="room04";
  room4State={door:false,wall:false,box:false,star:false,lightPuzzle:false,meteors:false,angles:[...R4_INITIAL],panelRotationVersion:1,rainbow:[...R4_RAINBOW],lightOn:false,completed:false,memorySeen:false,nextRoomTransitionSeen:false,hanaSleepSeen:false,highlightEnabled:true,view:"front",...savedState};
  if(!Array.isArray(room4State.angles)||room4State.angles.length!==5)room4State.angles=[...R4_INITIAL];
@@ -23,7 +25,24 @@ function showFourthRoom(savedState){
   r4SetHanaLookUp(/^r4i0[6-9](?:_\d+)?$/.test(line.logId||""));
  });
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room04",title:"第四の部屋",objective:()=>room4State.completed?"次の部屋へ進む":r4All()?"5枚のパネルの向きを合わせる":"5枚のガラスパネルを集める",onCompanion:r4Hana,getHighlights:()=>!!room4State.highlightEnabled,setHighlights:v=>{room4State.highlightEnabled=!!v;saveGame()}});
+ r4ObserveHanaGazePose();
  saveGame();
+}
+function r4ObserveHanaGazePose(){
+ const stage=game.querySelector(".room-four .room-stage-wrap");
+ if(!stage||typeof ResizeObserver==="undefined")return;
+ // The shared room UI can resize this container after the first pose is shown,
+ // without firing window.resize. Keep both poses aligned as that layout settles.
+ const observer=new ResizeObserver(()=>{
+  if(!stage.isConnected){
+   observer.disconnect();
+   if(r4HanaGazeObserver===observer)r4HanaGazeObserver=null;
+   return;
+  }
+  r4SyncHanaGazePose();
+ });
+ r4HanaGazeObserver=observer;
+ observer.observe(stage);
 }
 function r4SyncHanaGazePose(){
  const hana=game.querySelector(".room4-stage #r4Hana"),pose=hana?.querySelector(".r4-hana-look-pose");
@@ -31,7 +50,7 @@ function r4SyncHanaGazePose(){
  // WebKit resolves container units differently for children and pseudo-elements.
  // Match the rendered idle sprite, including its foot anchor, in either engine.
  const idle=getComputedStyle(hana,"::before"),height=parseFloat(idle.height);
- if(!Number.isFinite(height))return;
+ if(!Number.isFinite(height)||height<=0)return;
  pose.style.width=idle.width;
  pose.style.height=idle.height;
  pose.style.bottom=idle.bottom;

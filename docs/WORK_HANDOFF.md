@@ -930,3 +930,5 @@
 - PC 1366×768・横852×393のChromiumで、扉上の調査表示が1つになった画面を目視確認。初回調査、再確認、探索アイテムの解禁、解錠済み保存状態からの出口選択と探索継続を確認。JSエラーなし。
 - 関連する既存の調査・探索・旧セーブ・キャッシュ検査6件が成功。併せて実行した旧来の遷移境界テスト1件は `Missing .room-transition-overlay` で失敗し、変更前 `a3e3c5e` のコードでも同じ失敗を再現。既存の仮DOMテストの問題として保持。
 - キャッシュ `20261018-room01-door-only-01`。公開後は既存の公開オープニング・回想・部屋表示のCIで確認する。
+- 公開コード `d5c82c2eff506f2c0de2d9dff7a1df1e1aa89357`。Pages [39113460327](https://github.com/bqlohakuto/saigononazo/actions/runs/39113460327)、公開オープニング [39113460663](https://github.com/bqlohakuto/saigononazo/actions/runs/39113460663)、公開第1回想 [39113460583](https://github.com/bqlohakuto/saigononazo/actions/runs/39113460583) が成功。公開PC Chromium・横向きWebKitの第1の部屋の撮影で、扉だけの調査表示になっていることを目視確認。画像HTTP・初回画像表示・第2/3/5/7・部屋選択も成功。
+- 別件の未解決事項：第4の見上げ寸法チェック [39113460622](https://github.com/bqlohakuto/saigononazo/actions/runs/39113460622) は初回・同一コミット再実行の両方で `Displayed gaze matches the settled idle dimensions` が失敗。過去の制作記録にも同じ寸法検証の失敗と再実行成功があるが、今回は解消していない。第1の扉表示修正とは分けて引き継ぐ。第4の素材・表示コード・検査期待値は今回変更していない。

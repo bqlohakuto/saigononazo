@@ -28,6 +28,8 @@ test('Room 5 shows the full face, Room 6-7 emphasize expressions', () => {
 
 test('Current-time and after-memory lines are not recollection images', () => {
   for (const [room, logId] of [
+    ['room01', 'room1_after_memory_01'], ['room01', 'room1_memory_03'],
+    ['room01', 'room1_memory_03_01'],
     ['room02', 'room2_after_memory_001'], ['room04', 'r4a10'],
     ['room05', 'r5_after_05'], ['room07', 'r7_last_06'], ['room08', 'r8_003']
   ]) assert.equal(visuals.get(room, { logId }), null);
@@ -37,4 +39,37 @@ test('Text pagination preserves the source memory identifier', () => {
   assert.equal(visuals.get('room07', {
     logId: 'page', logSource: { logId: 'r7_mem_35' }
   }).reveal, 'expressive');
+});
+
+test('Room 1 changes background at the walk home and displays her only in their spoken conversation', () => {
+  const data = {};
+  vm.runInNewContext(fs.readFileSync(path.resolve(__dirname, '../scenario.js'), 'utf8') + '\nthis.first = firstRoomScenario;', data);
+  for (const line of data.first.memory) {
+    const visual = visuals.get('room01', line);
+    assert.ok(visual, line.logId);
+    if (line.logType !== 'dialogue' || line.thought) assert.equal(visual.sprite, undefined, line.logId);
+    if (visual.sprite) assert.ok(fs.existsSync(path.resolve(__dirname, '..', visual.sprite)));
+    assert.ok(fs.existsSync(path.resolve(__dirname, '..', visual.background)));
+  }
+  for (const [id,location,visible] of [
+    ['room1_memory_music_room_10','music-room',false],
+    ['room1_memory_music_room_16','music-room',true],
+    ['room1_memory_music_room_17','music-room',true],
+    ['room1_memory_bus_01','walk-home',false],
+    ['room1_memory_bus_02','walk-home',true],
+    ['room1_memory_bus_24','walk-home',true],
+    ['room1_memory_bus_26','walk-home',false]
+  ]) {
+    const visual = visuals.get('room01', data.first.memory.find(l=>l.logId===id));
+    assert.equal(visual.location,location,id);
+    assert.equal(!!visual.sprite,visible,id);
+  }
+  for (const line of data.first.afterMemory) assert.equal(visuals.get('room01', line), null, line.logId);
+});
+
+test('Paginated Room 1 dialogue retains its location and hides the sprite on thoughts', () => {
+  const original = { logId: 'room1_memory_bus_02_01', logType: 'dialogue', speaker: '先輩' };
+  assert.equal(visuals.get('room01', { ...original, logId: 'page', logSource: original }).location, 'walk-home');
+  assert.ok(visuals.get('room01', original).sprite);
+  assert.equal(visuals.get('room01', { ...original, speaker: '主人公', thought: true }).sprite, undefined);
 });

@@ -1,0 +1,44 @@
+name: First memory novel review
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 'codex/room01-memory-novel']
+    paths:
+      - 'memory-visuals.js'
+      - 'design-ui.js'
+      - 'design-ui.css'
+      - 'index.html'
+      - 'images/background/memories/**'
+      - 'images/characters/memories/**'
+      - 'tests/memory-*.cjs'
+      - '.github/workflows/memory-novel-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  first-memory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Check dialogue and memory presentation rules
+        run: node --test tests/memory-visuals.test.cjs tests/dialogue.test.cjs tests/cache-version.test.cjs
+      - name: Review piano, recollection and return on desktop and landscape Safari engine
+        env:
+          UI_SCREENSHOT_DIR: artifacts/memory-novel
+        run: node tests/memory-novel.browser.cjs
+      - name: Keep review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-memory-desktop-and-landscape
+          path: artifacts/memory-novel/
+          if-no-files-found: warn
+          retention-days: 14

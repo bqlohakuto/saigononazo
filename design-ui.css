@@ -691,3 +691,16 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r8-living[data-hana-pose="seated"] > .hana-v2-world,
 #game .r8-living[data-hana-pose="gone"] > .hana-v2-world{display:none!important}
 #r8Feedback{white-space:pre-line}
+
+/* Recollections use their own scene and a faded ivory / gray-brown dialogue palette. */
+#game .memory-scene{position:absolute;inset:0;z-index:50;overflow:hidden;pointer-events:none;background:#d6cbb9}
+#game .memory-background{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.72) sepia(.12) contrast(.94)}
+#game .memory-girl{position:absolute;left:12%;bottom:-36%;height:128%;width:auto;max-width:none;object-fit:contain;image-rendering:auto}
+#game .memory-girl[hidden]{display:none!important}
+#game:has(.room-dialog:not(.dialog-hidden)) .memory-girl{clip-path:inset(0 0 48% 0)}
+#game[data-memory-stage] :is(.hana-object,.room2-hana,.room3-hana,.r4hana,.hana-v2-world){visibility:hidden}
+#game .room-dialog-overlay[data-memory-stage]{--paper:#e7dfce;--ink:#514a43;--gold:#9b8a76;--paper-line:#c4b6a1}
+#game .room-dialog-overlay[data-memory-stage] .room-dialog{box-shadow:inset 0 0 0 3px #f2eadc,4px 4px 0 #665c4e35}
+#game .room-dialog-overlay[data-memory-stage] .message-speaker,
+#game .room-dialog-overlay[data-memory-stage] .next-button{color:#796b5d}
+#game .room-dialog-overlay[data-memory-stage] .design-controls button[aria-pressed=true]{background:#d4c8b4;color:#514a43}

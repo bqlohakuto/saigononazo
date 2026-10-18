@@ -232,7 +232,7 @@
     game.querySelectorAll('.device-close,.inspection-close').forEach(el=>{if(el.textContent==='×')el.textContent='閉じる'});
     game.querySelectorAll('input:not([type=range]):not([type=checkbox])').forEach(el=>{if(inputHooked.has(el))return;inputHooked.add(el);const overlay=el.closest('.device-overlay');if(!overlay)return;const key=currentScene+':'+(overlay.querySelector('h2')?.textContent||overlay.querySelector('section')?.className)+':'+(el.id||el.className||'answer');el.value=state().inputs[key]??el.value;el.addEventListener('input',()=>{state().inputs[key]=el.value;saveGame()})});
     game.querySelectorAll('.room3-answer-submit,.room3-final-submit,.r4-answer,.piano-submit,[id$="Submit"]').forEach(el=>{el.classList.add('design-submit');if(/確認|答える/.test(el.textContent))el.textContent='解答'});
-    const overlay=game.querySelector('.room-dialog-overlay');game.classList.toggle('has-dialogue',!!overlay);if(overlay)decorateDialogue(overlay);else syncWorldExpression(true);
+    const overlay=game.querySelector('.room-dialog-overlay');game.classList.toggle('has-dialogue',!!overlay);if(overlay)decorateDialogue(overlay);else{syncWorldExpression(true);window.MemoryVisuals?.sync(null)}
     if(!game.querySelector('.design-orientation')){const o=document.createElement('div');o.className='design-orientation';o.innerHTML='<div><h2>横向きでプレイ</h2><p>端末を横向きにしてください。<br>ゲームの進行は保持されます。</p></div>';game.append(o)}
   }
   function decorateDialogue(overlay){
@@ -257,6 +257,7 @@
   function displayLine(line,kind){
     const memoryVisual=window.MemoryVisuals?.get(currentScene,line);
     const flashback=!!memoryVisual;
+    window.MemoryVisuals?.sync(memoryVisual);
     const overlay=game.querySelector('.room-dialog-overlay');
     if(overlay){if(memoryVisual)overlay.dataset.memoryStage=memoryVisual.reveal;else delete overlay.dataset.memoryStage;}
     if(currentScene==='opening')portraitVisible=kind==='heroine'&&!!game.querySelector('.opening[data-hana-visible="true"]');else portraitVisible=!flashback&&kind==='heroine';
@@ -271,8 +272,8 @@
   }
   function syncPlayback(){game.querySelectorAll('[data-design-auto]').forEach(b=>{b.setAttribute('aria-pressed',String(Dialogue.isAutoEnabled()));b.disabled=!!game.querySelector('.room-dialog .auto-button')?.disabled;const label=Dialogue.isAutoEnabled()?'AUTO ON':'AUTO OFF';if(b.textContent!==label)b.textContent=label});game.querySelectorAll('[data-design-log]').forEach(b=>b.setAttribute('aria-pressed',String(!!game.querySelector('.room-dialog.is-log-open'))));game.querySelectorAll('[data-design-skip]').forEach(b=>{const source=game.querySelector('.room-dialog .skip-button');b.disabled=!source||source.disabled;b.setAttribute('aria-pressed',source?.getAttribute('aria-pressed')||'false')})}
   function onInstall(c){cancelUse();config=c;recordRoom=c.sceneId||currentScene;inspectionTarget='';if(!state().visited.includes(recordRoom))state().visited.push(recordRoom);queueMicrotask(()=>{syncHud();if(!localStorage.getItem('saigononazo-help-seen')){localStorage.setItem('saigononazo-help-seen','1');if(!game.querySelector('.room-dialog-overlay,.device-overlay'))help()}})}
-  function beginDialogue(lines){dialogueGroup=currentScene+':'+Date.now()+':'+(++sequence);portraitVisible=lines.some(l=>l.speaker==='ハナ'||l.speaker==='花音')&&!lines.some(l=>window.MemoryVisuals?.get(currentScene,l));expression=0}
-  function endDialogue(){syncWorldExpression(true);dialogueGroup='';game.classList.remove('has-dialogue');game.querySelector('.inspection-focus-background')?.remove()}
+  function beginDialogue(lines){dialogueGroup=currentScene+':'+Date.now()+':'+(++sequence);portraitVisible=lines.some(l=>l.speaker==='ハナ'||l.speaker==='花音')&&!lines.some(l=>window.MemoryVisuals?.get(currentScene,l));expression=0;window.MemoryVisuals?.prepare(currentScene,lines)}
+  function endDialogue(){syncWorldExpression(true);window.MemoryVisuals?.sync(null);dialogueGroup='';game.classList.remove('has-dialogue');game.querySelector('.inspection-focus-background')?.remove()}
   function savePreview(){
     const image=game.querySelector('.room-background,.room-bg');if(image?.getAttribute('src'))return image.getAttribute('src');
     const canvas=document.createElement('canvas');canvas.width=240;canvas.height=135;const ctx=canvas.getContext('2d');if(!ctx)return '';

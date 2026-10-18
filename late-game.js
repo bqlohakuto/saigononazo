@@ -1829,7 +1829,7 @@
     };
   }
   const R8_FINAL_LOG_IDS=[
-    "room1_poster_03","room1_piano","room2_final_hanamaru","room2_memory_003",
+    "room1_poster_03","room1_piano","room2_memory_053_flower_01","room2_final_hanamaru","room2_memory_003",
     "room3_final_ringtone","room3_flashback_34","r4f01","r4_final_zodiac_flowers",
     "r5_final_humming","r5_final_flower","r6_final_signal","r6_final_lavender",
     "r7_final_bremen","r7_final_pressed_flower"

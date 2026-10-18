@@ -327,7 +327,6 @@ function showFirstRoom(savedState){
      <img class="first-room-keyboard" id="roomKeyboard" src="${firstRoomKeyboard.image}" alt="" draggable="false" hidden>
      <div class="room-wall" data-wall="front" hidden>
       <button class="object door-object" id="doorButton" aria-label="正面の扉を調べる"><span>正面の扉</span></button>
-      <button class="object question-object is-locked" id="questionButton" aria-label="扉の問題文を調べる" disabled><span>問題文</span></button>
       <button class="object hana-object" id="hanaButton" aria-label="ハナに話しかける"><span>ハナ</span></button>
      </div>
      <div class="room-wall" data-wall="right" hidden><button class="object" id="shelfButton" aria-label="三段棚を調べる"><span>三段棚</span></button><button class="object item-object is-locked" id="posterButton" aria-label="ポスターを調べる" disabled><span class="first-room-poster-paper"><img src="images/items/item_poster.png?v=20261012-pixel-items-01" alt="" draggable="false"></span><span>ポスター</span></button></div>
@@ -339,7 +338,6 @@ function showFirstRoom(savedState){
    <p class="explore-status" id="exploreStatus" aria-live="polite"></p>
   </main>`;
  document.getElementById("doorButton").addEventListener("click",inspectRoomDoor);
- document.getElementById("questionButton").addEventListener("click",showDoorQuestion);
  document.getElementById("hanaButton").addEventListener("click",talkToHana);
  document.getElementById("phoneButton").addEventListener("click",()=>inspectRoomItem("phone"));
  document.getElementById("pianoButton").addEventListener("click",()=>inspectRoomItem("piano"));
@@ -351,11 +349,6 @@ function showFirstRoom(savedState){
  if(typeof ResizeObserver!=="undefined"){firstRoomArtworkObserver=new ResizeObserver(positionFirstRoomKeyboard);firstRoomArtworkObserver.observe(document.getElementById("roomStage"))}
  renderFirstRoomWall();
  firstRoomWalls.forEach(wall=>{const background=new Image();background.src=wall.background});
- if(firstRoomState.doorInspected||firstRoomState.questionSeen){
-  const question=document.getElementById("questionButton");
-  question.disabled=false;
-  question.classList.remove("is-locked");
- }
  if(firstRoomState.questionSeen)unlockRoomItems();
  if(firstRoomState.doorUnlocked)document.getElementById("doorButton").classList.add("is-unlocked");
  if(savedState){
@@ -437,9 +430,6 @@ function inspectDoor(){
  showRoomDialog([...firstRoomScenario.doorIntroduction,...firstRoomScenario.doorQuestion],()=>{
   firstRoomState.doorInspected=true;
   firstRoomState.questionSeen=true;
-  const question=document.getElementById("questionButton");
-  question.disabled=false;
-  question.classList.remove("is-locked");
   unlockRoomItems();
   saveGame();
  });

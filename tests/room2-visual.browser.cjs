@@ -112,6 +112,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-answer-slot').count(),5,'Exactly five answer slots');
    assert.equal(await page.locator('.room2-palette-token').count(),10,'Five red and five blue symbols');
    for(const color of ['赤','青'])assert.equal(await page.locator('.room2-palette-token[data-color="'+color+'"]').count(),5);
+   for(const color of ['赤','青'])assert.deepEqual(await page.locator('.room2-palette-token[data-color="'+color+'"] i').allTextContents(),['〇','△','□','×','＋'],'Palette matches the adopted desk artwork from left to right');
    await page.screenshot({path:path.join(dir,'02-room02-puzzle.png')});
    await page.locator('.room2-palette-token').first().click();
    assert.equal(await page.locator('.room2-answer-slot i').count(),1,'Selecting token fills a single answer slot');

@@ -1,5 +1,5 @@
 // 第二の部屋。素材画像は room02/ 以下へ差し替えられるようCSS上の仮背景で構成。
-const ROOM2_SYMBOLS=["〇","□","△","×","＋"];
+const ROOM2_SYMBOLS=["〇","△","□","×","＋"];
 const ROOM2_COLORS=["赤","青"];
 const ROOM2_DIALOGUES={
  "0H":[["見事に全部違うね！","嬉しそうに言わないでください……"],["一個は入ってる！","でも場所は全部違うんですよね……"],["二個見つけたね","ここから場所を探せばいいのか"],["三つも合ってるよ！","位置が全部違うのが困りますけどね"],["ほとんど合ってる！","なのに一つもヒットじゃないんですね……"],["全部ある！","全部場所が違う……逆にすごいですね"]],
@@ -79,7 +79,7 @@ function inspectSecondRoomDesk(){
  if(!room2State.doorInspected){showRoomNotice("まずは正面の扉を調べよう。","room2_desk_locked");return}
  if(!room2State.deskInspected){room2State.deskInspected=true;saveGame();document.getElementById("r2Blocks").disabled=false}
  showRoomDialog([
-  {logId:"room2_desk_01",logType:"investigation",speaker:"ト書き",text:"机の上には、〇、□、△、×、＋の記号が書かれたブロックが置かれている。それぞれ、赤と青の2色がある。"},
+  {logId:"room2_desk_01",logType:"investigation",speaker:"ト書き",text:"机の上には、〇、△、□、×、＋の記号が書かれたブロックが置かれている。それぞれ、赤と青の2色がある。"},
   {logId:"room2_desk_02",logType:"investigation",speaker:"ト書き",text:"その奥には、ブロックをはめ込めそうな5つの枠が並んでいた。枠の横には『HIT』『BLOW』と書かれた表示がある。"},
   {logId:"room2_desk_03",logType:"narration",speaker:"主人公",thought:true,text:"このブロックを、枠にはめればいいのか……？"}
  ]);
@@ -108,7 +108,7 @@ function showSecondRoomPuzzle(){
  };
  overlay.querySelector(".room2-hint-paper").addEventListener("click",()=>{close();showRoomDialog([
   {logId:"room2_rules_01",logType:"investigation",speaker:"紙",text:"ルール"},
-  {logId:"room2_rules_02",logType:"investigation",speaker:"紙",text:"〇、□、△、×、＋の5種類の記号を、5つの枠に一つずつ配置する。それぞれの記号には、赤か青のどちらかの色を選ぶ。"},
+  {logId:"room2_rules_02",logType:"investigation",speaker:"紙",text:"〇、△、□、×、＋の5種類の記号を、5つの枠に一つずつ配置する。それぞれの記号には、赤か青のどちらかの色を選ぶ。"},
   {logId:"room2_rules_03",logType:"investigation",speaker:"紙",text:"答えと記号・色・位置のすべてが一致しているものをHITとする。記号と色は正しいが、位置が違うものをBLOWとする。判定結果を手がかりに正しい組み合わせを導き出せ。8回以内に正解すればクリア。"},
   {logId:"room2_rules_04",logType:"dialogue",speaker:"主人公",text:"なるほど……このブロックを組み合わせて、正解を探すってことか"}
  ],()=>showSecondRoomPuzzle())});

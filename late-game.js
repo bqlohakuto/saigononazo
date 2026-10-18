@@ -1545,7 +1545,7 @@
       ],()=>r7Read(id));return;
     }
     if(!room7State.read.includes(id))room7State.read.push(id);
-    recordLog({logId:id==='bremen'?'r7_final_bremen':'r7_read_'+id,logType:'investigation',speaker:'ト書き',text:book.body});
+    recordLog({logId:id==='bremen'?'r7_final_bremen':'r7_read_'+id,logType:'investigation',speaker:'ト書き',text:id==='bremen'?'『ブレーメンの音楽隊』\n\n'+book.body:book.body});
     recordLog({logId:'r7_final_pressed_flower',logType:'investigation',speaker:'ト書き',text:'左のページに、赤いリボンの付いた押し花の栞が挟まっている。'});saveGame();
     const m=r7Modal('栞のページ','<div class="r7-reader"><div class="r7-reading-viewport"><img class="r7-open-book" src="'+r7Asset(id,'open')+'" alt="左ページに'+book.animals+'の挿絵と押し花の栞。右ページにひらがなの本文。"><p class="r7-sr-only">'+r7Escape(book.body)+'</p></div><button type="button" id="r7Zoom" aria-pressed="false">拡大</button><button type="button" id="r7BackShelf">本棚に戻る</button></div>','r7Shelf');
     m.panel.classList.add('r7-reader-panel');

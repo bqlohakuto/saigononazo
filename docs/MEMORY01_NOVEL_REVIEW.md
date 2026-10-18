@@ -42,7 +42,7 @@
 - 回想分類・実シナリオとの対応・会話送り・AUTO・SKIP・キャッシュ・シナリオ整合の関連単体26件成功。
 - Chromiumの1366×768、852×393、667×375で、実際のピアノ正解入力→回想→本編復帰→解錠→保存後のロードを確認。
 - 地の文・心の声・乗車後の非表示、背景切替、LOGと会話非表示からの復帰、場面中断時のレイヤー除去を確認。JSエラーと素材404なし。
-- Safari系WebKitの横画面検証は `.github/workflows/memory-novel-review.yml` で実行。iPhone実機は未確認。
+- [CI 39112171384](https://github.com/bqlohakuto/saigononazo/actions/runs/39112171384) が成功。関連単体22件、PC Chromium 1366×768、Safari系WebKitの横画面852×393・667×375で上記の実操作を確認。iPhone実機は未確認。
 
 ## 生成方法とプロンプト
 

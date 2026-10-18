@@ -910,7 +910,7 @@
 - `memory-visuals.js` で第1回想の背景と彼女の表示を原本LOG IDに対応させ、`design-ui.js` の共通会話表示へ接続。会話前・地の文・心の声・顧問や部員の発言・バス乗車後は背景のみ。先輩と主人公の会話時だけ彼女を表示。現在のハナの画像は回想中に出さない。
 - 回想枠は色褪せたアイボリーと灰褐色。回想後の最初の行から通常背景・配色へ復帰。既存の `room1_memory_03` は「今のは……僕の記憶？」という回想後の行なので、回想判定から除外。台詞本文・LOG ID・解答条件・解錠順序は変更しない。
 - 関連単体26件成功。ChromiumのPC1366×768／横852×393／横667×375で、実際のピアノ正解入力→背景切替→立ち絵表示と非表示→本編復帰→解錠→セーブロード、LOG・会話非表示からの復帰、場面中断の後始末を検証。JSエラー・404なし。実画面を目視確認。
-- `.github/workflows/memory-novel-review.yml` を追加。PC Chromium＋スマホ横2サイズのWebKit、関連単体を確認用ブランチとmainで検証する。ローカルWebKitは実行用ライブラリ不足のため、WebKit結果はCIを参照。iPhone実機は未検証。
+- `.github/workflows/memory-novel-review.yml` を追加。PC Chromium＋スマホ横2サイズのWebKit、関連単体を確認用ブランチとmainで検証する。CI [39112171384](https://github.com/bqlohakuto/saigononazo/actions/runs/39112171384) で関連単体22件・PC Chromium 1366×768・WebKit 852×393/667×375がすべて成功。ローカルWebKitは実行用ライブラリ不足のためCIで補完。iPhone実機は未検証。
 - 既存のgame-flow仮DOMテストは従来からの3失敗とtitleの仮DOM警告を保持。今回の変更ファイルを読み込まないテスト群であり、既存シナリオやテストの期待値を変更して回避していない。
 - 生成プロンプト・素材状態・実装画面は `docs/MEMORY01_NOVEL_REVIEW.md`。キャッシュ `20261018-memory-novel-01`。
 - 次は新作背景2枚の採用確認。採用後にmainへ反映し、次の回想の背景・年齢に合う立ち絵へ進む。

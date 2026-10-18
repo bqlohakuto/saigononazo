@@ -1648,11 +1648,11 @@
   ];
   function normalizeR8(saved){
     const s=saved&&typeof saved==="object"?saved:{};
-    return {introSeen:!!s.introSeen,introLogId:typeof s.introLogId==="string"?s.introLogId:null,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,ended:!!s.ended};
+    return {introSeen:!!s.introSeen,introLogId:typeof s.introLogId==="string"?s.introLogId:null,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,ended:!!s.ended,epilogueSeen:!!s.epilogueSeen,epilogueLogId:typeof s.epilogueLogId==="string"?s.epilogueLogId:null};
   }
   window.showEighthRoom=function(savedState){
     Dialogue.stop();currentScene="room08";room8State=normalizeR8(savedState);saveGame();
-    if(room8State.ended){r8EndScreen();return}
+    if(room8State.ended){if(room8State.epilogueSeen)r8EndScreen();else r8Epilogue();return}
     if(room8State.solved&&room8State.finalTalkSeen){r8AfterSolved();return}
     if(room8State.solved&&!room8State.finalTalkSeen){r8PuzzleRoom();setTimeout(r8SolvedDialogue,80);return}
     if(room8State.puzzleReady){r8PuzzleRoom();return}
@@ -1927,9 +1927,50 @@
         line("r8_end_name_02","主人公・心の声","……そうだ。僕の名前だ。",{thought:true}),
         line("r8_end_04","主人公","……花音"),
         line("r8_end_05","ト書き","花音の姿は、光の中へ消えていった。")
-      ],()=>{room8State.ended=true;saveGame();r8EndScreen()});
+      ],()=>{room8State.ended=true;saveGame();r8EpilogueFade();});
     };
     setHud("room08","第八の部屋",()=>"最後の扉を開く",()=>{});
+  }
+  // The epilogue begins only after the farewell has finished. Save the
+  // stage before fading so resuming during the transition cannot skip it.
+  function r8EpilogueFade(){
+    Dialogue.stop();
+    game.innerHTML='<div class="r8-epilogue-fade" aria-label="暗転"></div>';
+    setTimeout(r8Epilogue,650);
+  }
+  function r8Epilogue(){
+    Dialogue.stop();
+    const lines=[
+      line("r8_epilogue_01","ト書き","白い天井。規則的な機械の音。"),
+      line("r8_epilogue_02","ト書き","重いまぶたを、ゆっくりと開いた。"),
+      line("r8_epilogue_03","主人公・心の声","……戻って、きたんだ。",{thought:true}),
+      line("r8_epilogue_04","ト書き","まだ、身体は思うように動かない。それでも、覚えていた。あの部屋のことも、最後に聞いた声も。"),
+      line("r8_epilogue_05","ト書き","――それから、しばらくして。"),
+      line("r8_epilogue_06","ト書き","二人で暮らした部屋。机の上には、彼女が書きためたノートがあった。"),
+      line("r8_epilogue_07","ト書き","作りかけの謎。何度も引き直した線。小さな書き込み。ページをめくるたびに、彼女の姿が浮かんだ。"),
+      line("r8_epilogue_08","ト書き","僕はパソコンを開き、ノートを隣に置いた。"),
+      line("r8_epilogue_09","主人公・心の声","彼女が作った謎を、今度は僕が届けていく。",{thought:true})
+    ];
+    const found=lines.findIndex(entry=>entry.logId===room8State.epilogueLogId);
+    const start=found<0?0:found;
+    const placeFor=index=>index>=5?"home":"hospital";
+    game.innerHTML='<main class="r8-epilogue-stage" data-place="'+placeFor(start)+'"><p class="r8-epilogue-place">'+(start>=5?"二人の部屋":"病室")+'</p></main>';
+    showRoomDialog(lines.slice(start),()=>{
+      room8State.epilogueSeen=true;
+      room8State.epilogueLogId=null;
+      saveGame();
+      r8EndScreen();
+    },entry=>{
+      const index=lines.findIndex(source=>entry.logId===source.logId||entry.logId.startsWith(source.logId+"_"));
+      if(index<0)return;
+      room8State.epilogueLogId=lines[index].logId;
+      const stage=game.querySelector(".r8-epilogue-stage");
+      if(stage){
+        stage.dataset.place=placeFor(index);
+        stage.querySelector(".r8-epilogue-place").textContent=index>=5?"二人の部屋":"病室";
+      }
+      saveGame();
+    });
   }
   function r8EndScreen(){
     Dialogue.stop();

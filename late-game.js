@@ -1923,6 +1923,8 @@
         line("r8_end_01","ト書き","主人公は最後の扉を開いた。"),
         line("r8_end_02","ト書き","扉の向こうへ進み、振り返る。花音の姿は光に包まれていく。"),
         line("r8_end_03","花音","じゃあね、"+(playerName||"主人公"),{logKind:"heroine"}),
+        line("r8_end_name_01","ト書き","あのとき聞こえなかった名前が、今度ははっきり聞こえた。"),
+        line("r8_end_name_02","主人公・心の声","……そうだ。僕の名前だ。",{thought:true}),
         line("r8_end_04","主人公","……花音"),
         line("r8_end_05","ト書き","花音の姿は、光の中へ消えていった。")
       ],()=>{room8State.ended=true;saveGame();r8EndScreen()});

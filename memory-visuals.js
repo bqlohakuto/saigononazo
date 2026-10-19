@@ -34,9 +34,13 @@
       }
     }
     if (sceneId === 'room02') {
-      // Reuse the approved Room 1 music room in both school-era beats.
-      visual.location = 'music-room';
-      visual.background = 'images/background/memories/room01/music-room.png';
+      // The opening visit is at middle school; line 015 begins high school.
+      const beat = id.match(/^room0?2_memory_(\d+)/);
+      const highSchool = /final_hanamaru/.test(id) || Number(beat?.[1]) >= 15;
+      visual.location = highSchool ? 'high-school-music-room' : 'music-room';
+      visual.background = highSchool
+        ? 'images/background/memories/room02/high-school-music-room.png'
+        : 'images/background/memories/room01/music-room.png';
       if (line.logType === 'dialogue' && !line.thought && ['先輩', '主人公'].includes(line.speaker)) {
         visual.sprite = 'images/characters/memories/room02/girl-blazer.png';
       }

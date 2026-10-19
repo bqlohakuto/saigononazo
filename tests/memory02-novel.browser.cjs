@@ -52,7 +52,8 @@ const specs = [
       }
       async function inspect(id, girl, shot) {
         await advanceTo(id);
-        assert.equal(await page.locator('.memory-background').getAttribute('src'), 'images/background/memories/room01/music-room.png');
+        const highSchool = id === 'room2_final_hanamaru' || Number(id.match(/memory_(\d+)/)?.[1]) >= 15;
+        assert.equal(await page.locator('.memory-background').getAttribute('src'), highSchool ? 'images/background/memories/room02/high-school-music-room.png' : 'images/background/memories/room01/music-room.png');
         await page.locator('.memory-background').evaluate(im => im.decode());
         assert.equal(await page.locator('.memory-girl:visible').count(), girl ? 1 : 0, id);
         if (girl) {
@@ -65,6 +66,8 @@ const specs = [
       await inspect('room2_memory_001', false, 'background');
       await inspect('room2_memory_004', true, 'blazer');
       await inspect('room2_memory_012', false);
+      await inspect('room2_memory_014', false);
+      await inspect('room2_memory_015', false, 'high-school-background');
       await inspect('room2_memory_018', false);
       await inspect('room2_memory_021', true);
       await inspect('room2_memory_053_flower_01', true, 'hanamaru');

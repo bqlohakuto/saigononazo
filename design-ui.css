@@ -392,6 +392,25 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .phone-softkeys>:first-child{border-right:1px solid #d2dbe7}
 #game .phone-softkeys button:disabled{color:#93a0b4}
 #game .phone-lcd button:focus-visible{outline:2px solid #367da0;outline-offset:-2px}
+/* Transparent hit targets aligned to the existing 941x1671 pixel-art flip phone. */
+#game .phone-hardware-keys{position:absolute;inset:0;z-index:2;pointer-events:none}
+#game .phone-hardware-key{position:absolute;display:block;min-width:0;min-height:0;padding:0;border:0;border-radius:6px;background:transparent;color:transparent;pointer-events:auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#game .phone-hardware-key:active{background:rgba(212,240,255,.22)}
+#game .phone-hardware-key:focus-visible{outline:2px solid #c8f5ff;outline-offset:-2px;background:rgba(212,240,255,.14)}
+#game .phone-key-soft-left{left:25.2%;top:64.8%;width:12%;height:3.3%}
+#game .phone-key-soft-right{left:63.8%;top:64.8%;width:12%;height:3.3%}
+#game .phone-key-mail{left:24.8%;top:68.6%;width:11.8%;height:3.5%}
+#game .phone-key-clear{left:63.9%;top:68.6%;width:12%;height:3.5%}
+#game .phone-key-up{left:44.3%;top:64.1%;width:11.4%;height:2.3%}
+#game .phone-key-left{left:38.5%;top:66.4%;width:5.8%;height:4.1%}
+#game .phone-key-ok{left:44.3%;top:66.4%;width:11.4%;height:4.1%;border-radius:40%}
+#game .phone-key-right{left:55.7%;top:66.4%;width:5.8%;height:4.1%}
+#game .phone-key-down{left:44.3%;top:70.5%;width:11.4%;height:2.2%}
+#game .phone-key-num-1{left:23.2%;top:73.1%;width:17.5%;height:3.5%}
+#game .phone-key-num-2{left:41.8%;top:73.1%;width:17.4%;height:3.5%}
+#game .phone-key-num-3{left:60.1%;top:73.1%;width:17.5%;height:3.5%}
+#game .phone-key-num-4{left:23.2%;top:77.1%;width:17.5%;height:3.6%}
+#game .phone-lcd .mail-item.is-cursor{outline:2px solid #3e7da2;outline-offset:-2px;background:#deeff9}
 /* Room 3 companion uses the existing independent idle/expression sprite. */
 #game.hana-v2-full-ready .room3-hana::before{width:21.5cqw;height:33.6cqw;bottom:-5.25cqw}
 #game.hana-v2-full-ready .room3-hana{--hana-head-offset:26.4cqw}

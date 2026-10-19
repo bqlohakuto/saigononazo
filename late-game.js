@@ -1943,6 +1943,7 @@
       line("r8_solve_23","花音","じゃあ！",{logKind:"heroine"}),
       line("r8_solve_24","花音","最後の謎も解けたし、出口に行かないとね！",{logKind:"heroine"}),
       line("r8_solve_25","花音","脱出成功、おめでとう！",{logKind:"heroine"}),
+      line("r8_solve_25_voice","ト書き","最後の一言だけ、少し声が震えていた。"),
       line("r8_solve_26","主人公","……行けない"),
       line("r8_solve_27","花音","え？",{logKind:"heroine"}),
       line("r8_solve_28","主人公","花音を置いて、僕一人でなんて行けない"),

@@ -134,10 +134,8 @@ const firstRoomScenario = {
             { logId: "room1_hana_hint3_02", logType: "dialogue", speaker: "ハナ", text: "でも、『会話』って一方通行じゃないよね？" }
         ],
         [
-            { logId: "room1_hana_hint4_01", logType: "dialogue", speaker: "ハナ", text: "曲名を、もう一度よく見てみたら？" },
-            { logId: "room1_hana_hint4_02", logType: "dialogue", speaker: "ハナ", text: "ほら、“音”がそのまま名前になってるような曲が、一つあるよね" },
-            { logId: "room1_hana_hint4_03", logType: "dialogue", speaker: "主人公", text: "ドレミのうた？" },
-            { logId: "room1_hana_hint4_04", logType: "dialogue", speaker: "ハナ", text: "そう。メールの会話の中に、それっぽいものは出てこなかった？" }
+            { logId: "room1_hana_hint4_01", logType: "dialogue", speaker: "ハナ", text: "曲名を見て、音階を思い浮かべるものはなかった？" },
+            { logId: "room1_hana_hint4_02", logType: "dialogue", speaker: "ハナ", text: "その曲を頭の中で歌いながら、メールを読み返してみて" }
         ]
     ],
     doorIntroduction: [

@@ -82,8 +82,8 @@
       choices.push({id: "piano", label: "ピアノについて", lines: firstRoomScenario.hanaPiano});
     }
     if (firstRoomState.questionSeen && !firstRoomState.doorUnlocked && !firstRoomState.melodySolved) {
-      const available = firstRoomState.posterInspected && mailSeen
-        ? Math.min(4, Math.max(2, Number(firstRoomState.hintLevel || 0) + 1)) : 1;
+      // ヒントは調査状況と無関係に、直前の段階を読んだ後で一つずつ解放する。
+      const available = Math.min(firstRoomScenario.hanaHints.length, Math.max(1, Number(firstRoomState.hintLevel || 0) + 1));
       for (let level = 1; level <= available; level++) {
         choices.push({
           id: `hint-${level}`,

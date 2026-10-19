@@ -1995,8 +1995,9 @@
   function r8Epilogue(){
     Dialogue.stop();
     const lines=[
-      line("r8_epilogue_01","ト書き","白い天井。規則的な機械の音。"),
+      line("r8_epilogue_01","ト書き","規則的な機械の音が、耳に届く。"),
       line("r8_epilogue_02","ト書き","重いまぶたを、ゆっくりと開いた。"),
+      line("r8_epilogue_02_ceiling","ト書き","白い天井が見えた。"),
       line("r8_epilogue_03","主人公・心の声","……戻って、きたんだ。",{thought:true}),
       line("r8_epilogue_04","ト書き","まだ、身体は思うように動かない。それでも、覚えていた。あの部屋のことも、最後に聞いた声も。"),
       line("r8_epilogue_05","ト書き","――それから、しばらくして。"),

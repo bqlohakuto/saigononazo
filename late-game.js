@@ -1881,7 +1881,7 @@
     o.innerHTML='<section class="late-panel r8-puzzle"><button class="device-close" aria-label="閉じる">×</button><h2>最後の謎</h2>'+
       '<div class="r8-paper-face"><p class="r8-question">私はだーれだ？</p><p>ヒント！<br>君のことが一番好きな人だよ</p></div>'+
       '<button class="late-sub-action" id="r8Back">紙の裏を見る</button>'+
-      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>ここまでの思い出を、もう一度振り返ってみて。</p><p>どの部屋にも、同じ二つが隠れているよ。</p><p>順番に迷ったら、一番最初の部屋を思い出してね。</p><p>ポスターで見つけたものを先に。<br>君の手で鳴らしたものを、その次に。</p><p>……わかったら、名前で呼んでね。</p></div>'+
+      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>ここまでの思い出を、もう一度振り返ってみて。</p><p>これまでの七つの部屋には、二つの共通点があるよ。</p><p>順番に迷ったら、一番最初の部屋を思い出してね。</p><p>……わかったら、名前で呼んでね。</p></div>'+
       '<label class="r8-answer">答え<input id="r8Answer" type="text" autocomplete="off" maxlength="12"></label><button class="late-main-action" id="r8Submit">答える</button><p id="r8Feedback"></p></section>';
     game.appendChild(o);activateDeviceModal(o,"r8Paper",o.querySelector("#r8Back"));
     o.querySelector("#r8Back").onclick=()=>{room8State.backSeen=true;saveGame();o.querySelector("#r8BackText").classList.add("show");r8ArmLogHint()};

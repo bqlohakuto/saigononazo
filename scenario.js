@@ -108,9 +108,9 @@ const firstRoomScenario = {
         { logId: "room1_hana_poster_08", logType: "dialogue", speaker: "ハナ", text: "でも、曲名がこんなにたくさんあると、どれなのか迷うね" }
     ],
     hanaPhone: [
-        { logId: "room1_hana_phone_01", logType: "dialogue", speaker: "主人公", text: "『会話』って、メールのことなんでしょうか？" },
-        { logId: "room1_hana_phone_02", logType: "dialogue", speaker: "ハナ", text: "わたしも、メールのことだと思うな" },
-        { logId: "room1_hana_phone_03", logType: "dialogue", speaker: "主人公", text: "じゃあ……『会話に隠された音楽』って、メールの中に音楽が隠されてるってこと……？" }
+        { logId: "room1_hana_phone_01", logType: "dialogue", speaker: "主人公", text: "この携帯、誰のものなんでしょうか？" },
+        { logId: "room1_hana_phone_02", logType: "dialogue", speaker: "ハナ", text: "どうだろうね。何か気になることはあった？" },
+        { logId: "room1_hana_phone_03", logType: "dialogue", speaker: "主人公", text: "……もう少し、メールを読んでみます" }
     ],
     hanaPiano: [
         { logId: "room1_hana_piano_01", logType: "dialogue", speaker: "主人公", text: "ハナさんはピアノ、弾けますか？" },

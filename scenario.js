@@ -138,6 +138,16 @@ const firstRoomScenario = {
             { logId: "room1_hana_hint4_02", logType: "dialogue", speaker: "ハナ", text: "その曲を頭の中で歌いながら、メールを読み返してみて" }
         ]
     ],
+    // ヒント4を読み終えたプレイヤーだけが任意で確認できる音階の連想例。正解の8音の順番は示さない。
+    scaleReference: [
+        { note: "ド", example: "ドーナツ" },
+        { note: "レ", example: "レモン" },
+        { note: "ミ", example: "みんな" },
+        { note: "ファ", example: "ファイト" },
+        { note: "ソ", example: "青い空" },
+        { note: "ラ", example: "ラッパ（トランペットなど）" },
+        { note: "シ", example: "幸せ" }
+    ],
     doorIntroduction: [
         { logId: "room1_door_first_01", logType: "investigation", speaker: "ト書き", text: "扉を調べた。" },
         { logId: "room1_door_wooden", logType: "investigation", speaker: "ト書き", text: "木製の扉だ。" },

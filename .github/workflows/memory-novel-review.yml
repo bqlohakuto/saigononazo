@@ -1,9 +1,9 @@
-name: First memory novel review
+name: Memory novel review
 
 on:
   workflow_dispatch:
   push:
-    branches: [main, 'codex/room01-memory-novel']
+    branches: [main, 'codex/room01-memory-novel', 'codex/room02-memory-blazer']
     paths:
       - 'memory-visuals.js'
       - 'design-ui.js'
@@ -11,7 +11,7 @@ on:
       - 'index.html'
       - 'images/background/memories/**'
       - 'images/characters/memories/**'
-      - 'tests/memory-*.cjs'
+      - 'tests/memory*.cjs'
       - '.github/workflows/memory-novel-review.yml'
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         shell: bash
         run: |
-          files=(index.html memory-visuals.js design-ui.js design-ui.css images/background/memories/room01/music-room.png images/background/memories/room01/walk-home.png images/characters/memories/room01/girl-approved.png)
+          files=(index.html memory-visuals.js design-ui.js design-ui.css images/background/memories/room01/music-room.png images/background/memories/room01/walk-home.png images/characters/memories/room01/girl-approved.png images/characters/memories/room02/girl-blazer.png)
           for attempt in $(seq 1 24); do
             ready=1
             for file in "${files[@]}"; do
@@ -57,6 +57,11 @@ jobs:
           UI_SCREENSHOT_DIR: artifacts/memory-novel
           PUBLIC_BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://bqlohakuto.github.io/saigononazo/' || '' }}
         run: node tests/memory-novel.browser.cjs
+      - name: Review the second recollection directly on desktop and landscape Safari engine
+        env:
+          UI_SCREENSHOT_DIR: artifacts/memory-novel
+          PUBLIC_BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://bqlohakuto.github.io/saigononazo/' || '' }}
+        run: node tests/memory02-novel.browser.cjs
       - name: Keep review screenshots
         if: always()
         uses: actions/upload-artifact@v4

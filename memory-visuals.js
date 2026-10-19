@@ -7,7 +7,8 @@
   const memoryIdByRoom = Object.freeze({
     // room1_memory_03 is an existing AFTER-memory line: 「今のは……僕の記憶？」.
     room01: /^room0?1_memory_(?:music_room|bus)_/,
-    room02: /^room0?2_memory_/,
+    // The flower-mark recollection keeps its editorial LOG ID.
+    room02: /^room0?2_(?:memory_|final_hanamaru(?:_|$))/,
     room03: /^room0?3_flashback_/,
     room04: /^r4f\d+$/,
     room05: /^r5_memory_/,
@@ -30,6 +31,14 @@
       const present = outdoors ? Number(beat[2]) >= 2 && Number(beat[2]) <= 24 : Number(beat[2]) >= 16;
       if (present && line.logType === 'dialogue' && !line.thought && ['先輩', '主人公'].includes(line.speaker)) {
         visual.sprite = 'images/characters/memories/room01/girl-approved.png';
+      }
+    }
+    if (sceneId === 'room02') {
+      // Reuse the approved Room 1 music room in both school-era beats.
+      visual.location = 'music-room';
+      visual.background = 'images/background/memories/room01/music-room.png';
+      if (line.logType === 'dialogue' && !line.thought && ['先輩', '主人公'].includes(line.speaker)) {
+        visual.sprite = 'images/characters/memories/room02/girl-blazer.png';
       }
     }
     return visual;

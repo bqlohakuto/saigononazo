@@ -73,3 +73,24 @@ test('Paginated Room 1 dialogue retains its location and hides the sprite on tho
   assert.ok(visuals.get('room01', original).sprite);
   assert.equal(visuals.get('room01', { ...original, speaker: '主人公', thought: true }).sprite, undefined);
 });
+
+test('Every Room 2 recollection line has the shared music room, with the blazer only during their dialogue', () => {
+  const data = {};
+  vm.runInNewContext(fs.readFileSync(path.resolve(__dirname, '../room2-flashback.js'), 'utf8') + '\nthis.lines = room2FlashbackContent;', data);
+  for (const source of data.lines) {
+    const line = { ...source, logType: source.thought || source.speaker === 'ト書き' ? 'narration' : 'dialogue' };
+    const visual = visuals.get('room02', line);
+    assert.ok(visual, source.logId);
+    assert.equal(visual.background, 'images/background/memories/room01/music-room.png', source.logId);
+    const talking = !source.thought && ['先輩', '主人公'].includes(source.speaker);
+    assert.equal(!!visual.sprite, talking, source.logId);
+    if (talking) {
+      assert.equal(visual.sprite, 'images/characters/memories/room02/girl-blazer.png');
+      assert.ok(fs.existsSync(path.resolve(__dirname, '..', visual.sprite)));
+    }
+  }
+  const flower = data.lines.find(l => l.logId === 'room2_final_hanamaru');
+  assert.ok(flower);
+  assert.equal(visuals.get('room02', { ...flower, logId: 'page', logSource: flower }).location, 'music-room');
+  assert.equal(visuals.get('room02', { ...flower, logId: flower.logId + '_01' }).sprite, undefined);
+});

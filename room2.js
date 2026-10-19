@@ -30,14 +30,14 @@ function showSecondRoom(savedState){
    <button class="object room2-object room2-hana" id="r2Hana"><span>ハナ</span></button>
    <img class="room2-desk-foreground-art" src="images/background/room02/room02_desk_foreground.png?v=20261013-room02-clean-alpha-01" alt="" aria-hidden="true" draggable="false" decoding="async">
   </section></div>
-  <nav class="room-navigation"><span></span><p>机のブロックを調べよう</p><span></span></nav><p class="explore-status" id="exploreStatus">気になる場所をクリックしてください。</p>
+  <div class="room-navigation" aria-hidden="true"></div><p class="explore-status" id="exploreStatus">気になる場所をクリックしてください。</p>
  </main>`;
  document.getElementById("r2Door").addEventListener("click",()=>inspectSecondRoomDoor());
  document.getElementById("r2Desk").addEventListener("click",()=>inspectSecondRoomDesk());
  document.getElementById("r2Blocks").addEventListener("click",()=>showSecondRoomPuzzle());
  document.getElementById("r2Hana").addEventListener("click",()=>showSecondRoomHana());
  if(!savedState){showRoomDialog(room2IntroLines)} else if(savedState.nextRoomTransitionSeen){showThirdRoomBoundary()}else {showRoomNotice("続きから再開しました。","room2_resumed")}
- if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room02",title:"第二の部屋",objective:()=>room2State.unlocked?"扉を調べて次へ進む":"机の謎を解く",onCompanion:showSecondRoomHana,getHighlights:()=>!!room2State.highlightEnabled,setHighlights:enabled=>{room2State.highlightEnabled=!!enabled;saveGame()}});
+ if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room02",title:"第二の部屋",objective:()=>room2State.unlocked?"扉を調べて次へ進む":"部屋を調べる",onCompanion:showSecondRoomHana,getHighlights:()=>!!room2State.highlightEnabled,setHighlights:enabled=>{room2State.highlightEnabled=!!enabled;saveGame()}});
  saveGame();
 }
 
@@ -56,7 +56,7 @@ const room2IntroLines=[
  {logId:"room2_intro_01",logType:"narration",speaker:"ト書き",text:"視界を覆っていた光が、ゆっくりと薄れていく。目を開けると、また別の部屋に立っていた。正面には、一枚の扉。部屋の中央には、机が一つ置かれている。それ以外には、目立ったものはほとんどない。"},
  {logId:"room2_intro_02",logType:"narration",speaker:"主人公",thought:true,text:"今度は、ずいぶん何もない部屋だな……"},
  {logId:"room2_intro_03",logType:"narration",speaker:"ト書き",text:"机の上には、何かが並べられているようだ。"},
- {logId:"room2_intro_04",logType:"dialogue",speaker:"ハナ",text:"今度はあれが謎みたいだね"}
+ {logId:"room2_intro_04",logType:"dialogue",speaker:"ハナ",text:"今度は、どんな部屋なんだろうね"}
 ];
 function inspectSecondRoomDoor(){
  if(room2State.unlocked){showRoomDialog([{logId:"room2_next_door_01",logType:"investigation",speaker:"ト書き",text:"扉は開いている。このまま先へ進めそうだ。"}],()=>showRoomChoices([

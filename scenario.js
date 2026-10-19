@@ -115,10 +115,8 @@ const firstRoomScenario = {
     hanaPiano: [
         { logId: "room1_hana_piano_01", logType: "dialogue", speaker: "主人公", text: "ハナさんはピアノ、弾けますか？" },
         { logId: "room1_hana_piano_02", logType: "dialogue", speaker: "ハナ", text: "少しならね" },
-        { logId: "room1_hana_piano_03", logType: "dialogue", speaker: "主人公", text: "『音楽を奏でよ』って、ピアノで演奏するってことですよね" },
-        { logId: "room1_hana_piano_04", logType: "dialogue", speaker: "ハナ", text: "うん。でも、弾くのは君だと思うよ" },
-        { logId: "room1_hana_piano_05", logType: "dialogue", speaker: "主人公", text: "やっぱり、僕が……" },
-        { logId: "room1_hana_piano_06", logType: "dialogue", speaker: "ハナ", text: "たぶんね。あとは、何を弾けばいいか…かな" }
+        { logId: "room1_hana_piano_03", logType: "dialogue", speaker: "主人公", text: "僕は、あまり弾けないんです" },
+        { logId: "room1_hana_piano_04", logType: "dialogue", speaker: "ハナ", text: "そうなんだ。でも、音を鳴らすだけでも楽しいよね" }
     ],
     // ヒント1: 扉を確認後。2: ポスターとメールを確認後。3〜4: プレイヤーが次のヒントを希望したとき。
     hanaHints: [

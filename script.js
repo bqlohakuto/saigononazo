@@ -704,7 +704,8 @@ function showPianoScreen(){
  noteButtons.forEach(key=>key.addEventListener("click",()=>{
   if(solved)return;
   const melody=normalize();
-  if([...melody].length+1>8)return;
+  const enteredNotes=melody.match(/ファ|[ドレミソラシ]|./gu)||[];
+  if(enteredNotes.length>=8)return;
   const note=key.dataset.note;
   updateInput(melody+note);
   GameAudio.playPianoNote?.(note);

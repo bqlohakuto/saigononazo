@@ -167,7 +167,6 @@ const firstRoomScenario = {
         { logId: "room1_poster_02", logType: "investigation", speaker: "主人公", thought: true, text: "8月13日、日曜日。18時30分開演……" },
         { logId: "room1_poster_03", logType: "investigation", speaker: "主人公", thought: true, text: "演奏曲は、青春アミーゴ、宙船、水戸黄門のテーマ、きよしのズンドコ節、アンパンマンのマーチ、世界に一つだけの花、ドレミのうた……など" },
         { logId: "room1_poster_04", logType: "narration", speaker: "主人公", thought: true, text: "なぜだか、懐かしい感じがする" },
-        { logId: "room1_poster_05", logType: "narration", speaker: "主人公", thought: true, text: "この中のどれかを演奏しないといけないのか……？" }
     ],
     phoneIntroduction: [
         { logId: "room1_phone_introduction_01", logType: "investigation", speaker: "ト書き", text: "机の上に携帯電話が置かれている。" },

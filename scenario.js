@@ -130,9 +130,8 @@ const firstRoomScenario = {
             { logId: "room1_hana_hint2_02", logType: "dialogue", speaker: "ハナ", text: "書かれていた言葉を、もう一度読んでみて" }
         ],
         [
-            { logId: "room1_hana_hint3_01", logType: "dialogue", speaker: "ハナ", text: "ピアノで演奏するのは、8音みたいだね" },
-            { logId: "room1_hana_hint3_02", logType: "dialogue", speaker: "ハナ", text: "メール1通で1音……なのかな？" },
-            { logId: "room1_hana_mail_hint_01", logType: "dialogue", speaker: "ハナ", text: "受信したメールだけじゃ、数が合わないみたいだけど……" }
+            { logId: "room1_hana_hint3_01", logType: "dialogue", speaker: "ハナ", text: "メールって、受信と送信に分かれているよね" },
+            { logId: "room1_hana_hint3_02", logType: "dialogue", speaker: "ハナ", text: "でも、『会話』って一方通行じゃないよね？" }
         ],
         [
             { logId: "room1_hana_hint4_01", logType: "dialogue", speaker: "ハナ", text: "曲名を、もう一度よく見てみたら？" },

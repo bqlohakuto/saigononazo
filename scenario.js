@@ -67,6 +67,9 @@ const firstRoomScenario = {
         { logId: "room1_hana_first_10", logType: "dialogue", speaker: "主人公", text: "わかりました……えっと、ハナさん" },
         { logId: "room1_hana_first_11", logType: "dialogue", speaker: "ハナ", text: "ハナ……さん……か。ちょっと固いけど、はじめは仕方ないか" },
         { logId: "room1_hana_first_12", logType: "dialogue", speaker: "ハナ", text: "私のことはまだ話せないけど、この部屋のことなら答えられることもあるよ" },
+        { logId: "room1_hana_first_puzzle_intro_01", logType: "dialogue", speaker: "ハナ", text: "君の記憶を取り戻すために、これからいくつかの謎を解いてもらうよ" },
+        { logId: "room1_hana_first_puzzle_intro_02", logType: "dialogue", speaker: "主人公", text: "謎解き……ですか？" },
+        { logId: "room1_hana_first_puzzle_intro_03", logType: "dialogue", speaker: "ハナ", text: "そう！　まずは、この部屋の最初の謎からね" },
         { logId: "room1_hana_first_13", logType: "dialogue", speaker: "ハナ", text: "気になることがあったら、また聞いてね" }
     ],
     hanaAbout: [
@@ -91,7 +94,7 @@ const firstRoomScenario = {
         { logId: "room1_hana_room_05", logType: "dialogue", speaker: "ハナ", text: "君が忘れているだけで、きっとどこかに記憶を取り戻す手がかりがあるよ" }
     ],
     hanaFirstPuzzle: [
-        { logId: "room1_hana_first_puzzle_01", logType: "dialogue", speaker: "主人公", text: "最初の謎って言ってましたけど、謎ってなんですか？" },
+        { logId: "room1_hana_first_puzzle_01", logType: "dialogue", speaker: "主人公", text: "さっき言ってた最初の謎って、どこにあるんですか？" },
         { logId: "room1_hana_before_question_01", logType: "dialogue", speaker: "ハナ", text: "まずは部屋を調べてみようか。何か気になるものはない？" }
     ],
     hanaPoster: [

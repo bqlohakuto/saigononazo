@@ -16,10 +16,13 @@ function room2RandomAnswer(){
 }
 function showSecondRoom(savedState){
  Dialogue.stop();firstRoomState=undefined;currentScene="room02";
- room2State={doorInspected:false,deskInspected:false,sheetFound:false,hanaHints:0,answer:room2RandomAnswer(),guess:[],attempts:0,run:1,history:[],unlocked:false,flashbackSeen:false,highlightEnabled:true,leftmostHintRevealed:false,...savedState};
+ room2State={doorInspected:false,deskInspected:false,sheetFound:false,hanaHints:0,answer:room2RandomAnswer(),guess:[],attempts:0,run:1,history:[],unlocked:false,flashbackSeen:false,challengeActive:false,challengeCleared:false,challengeBest:null,highlightEnabled:true,leftmostHintRevealed:false,...savedState};
  if(!Array.isArray(room2State.answer)||room2State.answer.length!==5||!Array.isArray(room2State.guess))room2State={...room2State,answer:room2RandomAnswer(),guess:[]};
  if(!Array.isArray(room2State.history))room2State.history=[];
  room2State.leftmostHintRevealed=room2State.leftmostHintRevealed===true;
+ room2State.challengeActive=room2State.unlocked===true&&room2State.challengeActive===true;
+ room2State.challengeCleared=room2State.challengeCleared===true;
+ room2State.challengeBest=Number.isInteger(room2State.challengeBest)&&room2State.challengeBest>=1&&room2State.challengeBest<=8?room2State.challengeBest:null;
  game.innerHTML=`<main class="room room-two room2-arriving ${room2State.unlocked?"is-restored":""}" aria-label="第二の部屋">
   <header class="room-header"><p class="room-label">第二の部屋</p><p class="room-color-status">${room2State.unlocked?"色を取り戻した部屋":"淡い記憶の部屋"}</p></header>
   <div class="room-stage-wrap"><section class="room-stage room2-stage" aria-label="第二の部屋">
@@ -34,7 +37,7 @@ function showSecondRoom(savedState){
  </main>`;
  document.getElementById("r2Door").addEventListener("click",()=>inspectSecondRoomDoor());
  document.getElementById("r2Desk").addEventListener("click",()=>inspectSecondRoomDesk());
- document.getElementById("r2Blocks").addEventListener("click",()=>showSecondRoomPuzzle());
+ document.getElementById("r2Blocks").addEventListener("click",()=>room2State.unlocked&&!room2State.challengeActive?showRoom2ChallengeMenu():showSecondRoomPuzzle());
  document.getElementById("r2Hana").addEventListener("click",()=>showSecondRoomHana());
  if(!savedState){showRoomDialog(room2IntroLines)} else if(savedState.nextRoomTransitionSeen){showThirdRoomBoundary()}else {showRoomNotice("続きから再開しました。","room2_resumed")}
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room02",title:"第二の部屋",objective:()=>room2State.unlocked?"扉を調べて次へ進む":"部屋を調べる",onCompanion:showSecondRoomHana,getHighlights:()=>!!room2State.highlightEnabled,setHighlights:enabled=>{room2State.highlightEnabled=!!enabled;saveGame()}});
@@ -66,13 +69,13 @@ function inspectSecondRoomDoor(){
   ],showThirdRoomBoundary)},
   {label:"もう少し部屋をしらべてみる",onSelect:()=>showRoomNotice("まだ何か調べられるかもしれない。","room2_transition_stay")}
  ]));return}
- if(room2State.doorInspected){showRoomNotice("扉には『8回以内を目指し、正しい組み合わせを導け』と刻まれている。","room2_door_again");return}
+ if(room2State.doorInspected){showRoomNotice("扉には『正しい組み合わせを導け』と刻まれている。","room2_door_again");return}
  room2State.doorInspected=true;saveGame();
  showRoomDialog([
   {logId:"room2_door_01",logType:"investigation",speaker:"ト書き",text:"木製の扉だ。ドアノブを回してみた。"},
   {logId:"room2_door_02",logType:"investigation",speaker:"主人公",text:"やっぱり開かないか"},
-  {logId:"room2_door_03",logType:"investigation",speaker:"ト書き",text:"鍵がかかっているようだ。扉には文字が刻まれている。『8回以内を目指し、正しい組み合わせを導け』"},
-  {logId:"room2_door_04",logType:"dialogue",speaker:"主人公",text:"8回以内……？ 正しい組み合わせって、何のことだろう"}
+  {logId:"room2_door_03",logType:"investigation",speaker:"ト書き",text:"鍵がかかっているようだ。扉には文字が刻まれている。『正しい組み合わせを導け』"},
+  {logId:"room2_door_04",logType:"dialogue",speaker:"主人公",text:"正しい組み合わせ……？　どういう意味だろう"}
  ]);
 }
 function inspectSecondRoomDesk(){
@@ -84,18 +87,47 @@ function inspectSecondRoomDesk(){
   {logId:"room2_desk_03",logType:"narration",speaker:"主人公",thought:true,text:"このブロックを、枠にはめればいいのか……？"}
  ]);
 }
+function showRoom2ChallengeMenu(){
+ if(!room2State.unlocked)return;
+ const message=room2State.challengeBest!==null?`8回チャレンジの自己ベストは${room2State.challengeBest}回。何度でも挑戦できる。`:"この謎を8回以内で解くチャレンジに挑戦できる。成功しても失敗しても、本編の進行には影響しない。";
+ showRoomDialog([{logId:"room2_challenge_offer",logType:"investigation",speaker:"ト書き",text:message}],()=>showRoomChoices([
+  {label:"8回チャレンジに挑戦する",onSelect:beginRoom2Challenge},
+  {label:"今はやめる",onSelect:()=>showRoomNotice("先へ進むこともできる。","room2_challenge_skip")}
+ ]));
+}
+function beginRoom2Challenge(){
+ room2State.challengeActive=true;room2State.answer=room2RandomAnswer();
+ room2State.guess=[];room2State.history=[];room2State.attempts=0;
+ room2State.leftmostHintRevealed=false;room2State.run=(room2State.run||1)+1;
+ saveGame();showSecondRoomPuzzle();
+}
+function finishRoom2Challenge(close,success){
+ const attempts=room2State.attempts;
+ room2State.challengeActive=false;
+ if(success){
+  room2State.challengeCleared=true;
+  room2State.challengeBest=room2State.challengeBest===null?attempts:Math.min(room2State.challengeBest,attempts);
+ }
+ saveGame();close();
+ const message=success?`8回チャレンジ達成！　${attempts}回で正解した。自己ベスト：${room2State.challengeBest}回。`:"8回以内には正解できなかった。でも、物語の進行には影響しない。";
+ showRoomDialog([{logId:`room2_challenge_result_${room2State.run}`,logType:"investigation",speaker:"ト書き",text:message}],()=>showRoomChoices([
+  {label:"もう一度挑戦する",onSelect:beginRoom2Challenge},
+  {label:"部屋に戻る",onSelect:()=>showRoomNotice("机からいつでも再挑戦できる。","room2_challenge_return")}
+ ]));
+}
 function showSecondRoomPuzzle(){
+ const isChallenge=room2State.challengeActive===true;
  const overlay=document.createElement("div");overlay.className="device-overlay room2-puzzle-overlay";
- overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>記号と色を並べる</h2><p class="room2-rule">駒を選んで5枠を埋めます。同じ駒を選ぶと外れ、色違いを選ぶと色が変わります。枠を2つタップすると順番を入れ替えられます。</p><div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">全消去</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-hint-paper">ルールの紙</button><button type="button" class="room2-leftmost-request" hidden>左端のヒントを見る</button></div><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-live="polite"><p class="room2-reaction-speaker"></p><p class="room2-reaction-text"></p><button type="button" class="room2-reaction-next">次へ</button></section><div class="room2-history" aria-label="これまでの判定"></div></section>`;
+ overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>${isChallenge?"8回チャレンジ":"記号と色を並べる"}</h2><p class="room2-rule">駒を選んで5枠を埋めます。同じ駒を選ぶと外れ、色違いを選ぶと色が変わります。枠を2つタップすると順番を入れ替えられます。${isChallenge?"8回以内に正解すれば達成。9回目はありません。":"正解まで何回でも挑戦できます。"}</p><div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">全消去</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-hint-paper">ルールの紙</button><button type="button" class="room2-leftmost-request" hidden>左端のヒントを見る</button></div><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-live="polite"><p class="room2-reaction-speaker"></p><p class="room2-reaction-text"></p><button type="button" class="room2-reaction-next">次へ</button></section><div class="room2-history" aria-label="これまでの判定"></div></section>`;
  game.appendChild(overlay);
  const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),hint=overlay.querySelector(".room2-leftmost-hint"),hintRequest=overlay.querySelector(".room2-leftmost-request"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null;
  const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".device-close"));
  overlay.querySelector(".room2-clear").onclick=()=>{room2State.guess=[];selectedSlot=null;saveGame();render()};
  let reactionLines=[],reactionIndex=0,reactionDone=null;
  const setGuessEnabled=enabled=>overlay.querySelectorAll(".room2-answer-slot,.room2-palette-token,.room2-submit,.room2-hint-paper,.room2-leftmost-request,.room2-clear").forEach(button=>button.disabled=!enabled||(button.classList.contains("room2-submit")&&room2State.guess.length!==5));
- const nextReaction=()=>{if(reactionIndex+1<reactionLines.length){reactionIndex++;const line=reactionLines[reactionIndex];reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionIndex===reactionLines.length-1?"推理を続ける":"次へ";recordLog(line);return}reactionPanel.hidden=true;setGuessEnabled(true);reactionDone?.();reactionDone=null};
+ const nextReaction=()=>{if(reactionIndex+1<reactionLines.length){reactionIndex++;const line=reactionLines[reactionIndex];reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionIndex===reactionLines.length-1?(isChallenge&&room2State.attempts>=8?"結果を見る":"推理を続ける"):"次へ";recordLog(line);return}reactionPanel.hidden=true;setGuessEnabled(true);reactionDone?.();reactionDone=null};
  reactionPanel.querySelector(".room2-reaction-next").addEventListener("click",nextReaction);
- const showReaction=(lines,onDone)=>{reactionLines=lines||[];reactionDone=onDone;reactionIndex=0;if(!reactionLines.length){reactionPanel.hidden=true;reactionDone?.();reactionDone=null;return}setGuessEnabled(false);const line=reactionLines[0];reactionPanel.hidden=false;reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionLines.length===1?"推理を続ける":"次へ";recordLog(line)};
+ const showReaction=(lines,onDone)=>{reactionLines=lines||[];reactionDone=onDone;reactionIndex=0;if(!reactionLines.length){reactionPanel.hidden=true;reactionDone?.();reactionDone=null;return}setGuessEnabled(false);const line=reactionLines[0];reactionPanel.hidden=false;reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionLines.length===1?(isChallenge&&room2State.attempts>=8?"結果を見る":"推理を続ける"):"次へ";recordLog(line)};
  const render=()=>{
   slots.innerHTML=ROOM2_SYMBOLS.map((_,index)=>{const piece=room2State.guess[index];return `<button type="button" class="room2-answer-slot${selectedSlot===index?" is-selected":""}" data-slot="${index}" aria-label="枠${index+1}${piece?` ${piece.color}${piece.symbol}`:" 空"}" aria-pressed="${selectedSlot===index}">${piece?`<i class="${piece.color==="赤"?"red":"blue"}">${piece.symbol}</i>`:`<span>枠${index+1}</span>`}</button>`}).join("");
   slots.querySelectorAll("[data-slot]").forEach(button=>button.addEventListener("click",()=>{const index=Number(button.dataset.slot);if(!room2State.guess[index])return;if(selectedSlot===null){selectedSlot=index}else if(selectedSlot===index){selectedSlot=null}else{[room2State.guess[selectedSlot],room2State.guess[index]]=[room2State.guess[index],room2State.guess[selectedSlot]];selectedSlot=null;saveGame()}render()}));
@@ -103,12 +135,12 @@ function showSecondRoomPuzzle(){
   palette.querySelectorAll("[data-symbol]").forEach(button=>button.addEventListener("click",()=>{const token={symbol:button.dataset.symbol,color:button.dataset.color};const index=room2State.guess.findIndex(piece=>piece.symbol===token.symbol);if(index>=0){if(room2State.guess[index].color===token.color)room2State.guess.splice(index,1);else room2State.guess[index]=token}else if(room2State.guess.length<5)room2State.guess.push(token);selectedSlot=null;feedback.textContent=room2State.guess.length===5?"":"5つの枠をすべて埋めてください。";saveGame();render()}));
   history.innerHTML=room2State.history.map(entry=>`<div class="room2-history-row"><span>${entry.guess.map(piece=>`<i class="${piece.color=== "赤"?"red":"blue"}">${piece.symbol}</i>`).join("")}</span><b>${entry.hit}H ${entry.blow}B</b></div>`).join("");
   overlay.querySelector(".room2-submit").disabled=room2State.guess.length!==5;
-  hintRequest.hidden=room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked;
+  hintRequest.hidden=isChallenge||room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked;
   hint.hidden=!room2State.leftmostHintRevealed;
   hint.textContent=room2State.leftmostHintRevealed?`開示された左端の記号：「${room2State.answer[0].symbol}」`:"";
  };
  hintRequest.addEventListener("click",()=>{
-  if(room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked)return;
+  if(isChallenge||room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked)return;
   room2State.leftmostHintRevealed=true;
   saveGame();
   render();
@@ -117,7 +149,7 @@ function showSecondRoomPuzzle(){
  overlay.querySelector(".room2-hint-paper").addEventListener("click",()=>{close();showRoomDialog([
   {logId:"room2_rules_01",logType:"investigation",speaker:"紙",text:"ルール"},
   {logId:"room2_rules_02",logType:"investigation",speaker:"紙",text:"〇、△、□、×、＋の5種類の記号を、5つの枠に一つずつ配置する。それぞれの記号には、赤か青のどちらかの色を選ぶ。"},
-  {logId:"room2_rules_03",logType:"investigation",speaker:"紙",text:"答えと記号・色・位置のすべてが一致しているものをHITとする。記号と色は正しいが、位置が違うものをBLOWとする。判定結果を手がかりに正しい組み合わせを導き出せ。目標は8回以内。8回を超えても正解すればクリア。"},
+  {logId:"room2_rules_03",logType:"investigation",speaker:"紙",text:isChallenge?"答えと記号・色・位置がすべて一致するとHIT、記号と色が一致し位置が異なるとBLOW。8回以内にすべて正解すれば達成。8回で未正解なら挑戦終了。":"答えと記号・色・位置がすべて一致するとHIT、記号と色が一致し位置が異なるとBLOW。判定結果を手がかりに正しい組み合わせを導き出せ。回数制限はない。"},
   {logId:"room2_rules_04",logType:"dialogue",speaker:"主人公",text:"なるほど……このブロックを組み合わせて、正解を探すってことか"}
  ],()=>showSecondRoomPuzzle())});
  overlay.querySelector(".room2-submit").addEventListener("click",()=>{
@@ -125,14 +157,14 @@ function showSecondRoomPuzzle(){
   const result=room2Evaluate(room2State.guess,room2State.answer);room2State.attempts++;
   room2State.history.push({guess:room2State.guess.map(piece=>({...piece})),...result});room2State.guess=[];
   saveGame();render();
-  if(result.hit===5){handleRoom2Correct(close);return}
-  feedback.textContent=`${result.hit} HIT　${result.blow} BLOW　（${room2State.attempts}回目）`;
+  if(result.hit===5){if(isChallenge)finishRoom2Challenge(close,true);else handleRoom2Correct(close);return}
+  feedback.textContent=`${result.hit} HIT　${result.blow} BLOW${isChallenge?`　（${room2State.attempts}/8回）`:""}`;
   const pair=ROOM2_DIALOGUES[`${result.hit}H`]?.[result.blow];
   const reaction=pair?.map((text,index)=>({logId:`room2_judge_${room2State.attempts}_${result.hit}_${result.blow}_${index}`,logType:"dialogue",speaker:index===0?"ハナ":"主人公",text}))||[];
-  const milestone=[4,6,7].includes(room2State.attempts)?room2MilestoneLines(room2State.attempts):[];
-  const reachedLimit=room2State.attempts===8;
-  const limitLines=reachedLimit?room2LimitLines():[];
-  if(reaction.length||milestone.length||limitLines.length)showReaction([...reaction,...milestone,...limitLines]);
+  const milestone=isChallenge&&[4,6,7].includes(room2State.attempts)?room2MilestoneLines(room2State.attempts):[];
+  const challengeFailed=isChallenge&&room2State.attempts>=8;
+  if(reaction.length||milestone.length)showReaction([...reaction,...milestone],challengeFailed?()=>finishRoom2Challenge(close,false):null);
+  else if(challengeFailed)finishRoom2Challenge(close,false);
  });
  render();overlay.querySelector(".device-close").focus();
 }
@@ -151,18 +183,10 @@ function room2MilestoneLines(attempt){
  const sets={4:[["あと4回だね","ハナ"],["もう半分使ったんですね……","主人公"],["でも、最初よりかなり絞れてるんじゃない？","ハナ"],["焦らず、今までの結果を見ながら考えてみよう！","ハナ"],["……そうですね。まだ大丈夫です","主人公"]],6:[["あと2回……！","ハナ"],["さすがに、ちょっと緊張してきました","主人公"],["ここまで来たら、適当に変えちゃダメだよ！","ハナ"],["今までのヒットとブローをもう一回見て、確実なところから考えよう","ハナ"],["……一度整理してみます","主人公"]],7:[["あと一回……！","ハナ"],["ハナさんのほうが緊張してません？","主人公"],["だって、ここまで一緒に考えてきたんだもん！","ハナ"],["大丈夫。最後まで一緒に考えるから","ハナ"],["わかりました。これで決めます","主人公"]]};
  return sets[attempt].map((line,index)=>({logId:`room2_attempt_${attempt}_${index}`,logType:"dialogue",speaker:line[1],text:line[0]}));
 }
-function room2LimitLines(){
- return [
-  {logId:"room2_limit_first_01",logType:"dialogue",speaker:"主人公",text:"……8回以内には解けませんでした"},
-  {logId:"room2_limit_first_02",logType:"dialogue",speaker:"ハナ",text:"でも、ここで終わりじゃないよ"},
-  {logId:"room2_limit_first_03",logType:"dialogue",speaker:"ハナ",text:"解けるまでやればいいじゃん。わたしも一緒に考えるから"},
-  {logId:"room2_limit_first_04",logType:"dialogue",speaker:"主人公",text:"……はい。もう少し、考えてみます"}
- ];
-}
+
 function handleRoom2Correct(close){
- const attempts=room2State.attempts;
  close();
- const lines=attempts<=4?[["……解けた","主人公"],["えっ！すごい！はやい！","ハナ"],["運がよかっただけです……","主人公"]]:attempts<=6?[["正解！","ハナ"],["解けました","主人公"],["余裕あったね！すごいよ！","ハナ"]]:attempts<=8?[["正解！","ハナ"],["……やっと解けた","主人公"],["お疲れさま！難しかったね！","ハナ"]]:[["……解けた","主人公"],["うん！　8回は超えたけど、最後まで諦めなかったね！","ハナ"],["自分で答えにたどり着けて、よかったです","主人公"]];
+ const lines=[["……解けた","主人公"],["やった！　正解だね！","ハナ"],["はい。なんとかたどり着けました","主人公"]];
  showRoomDialog(lines.map((line,index)=>({logId:`room2_correct_${index}`,logType:"dialogue",speaker:line[1],text:line[0]})),()=>completeRoom2());
 }
 function completeRoom2(){
@@ -172,7 +196,7 @@ function completeRoom2(){
   ...room2FlashbackContent.map(line=>({...line,logType:line.thought||line.speaker==="ト書き"?"narration":"dialogue"}))
  ],()=>showRoomDialog([
   ...room2AfterFlashbackContent.map(line=>({...line,logType:line.thought||line.speaker==="ト書き"?"narration":"dialogue"}))
- ],()=>{const door=document.getElementById("r2Door");door?.classList.add("is-unlocked");showRoomNotice("扉の鍵が開いた。","room2_unlocked","narration")}));
+ ],()=>{const door=document.getElementById("r2Door");door?.classList.add("is-unlocked");showRoomNotice("扉の鍵が開いた。机のブロックから『8回チャレンジ』にも挑戦できる。","room2_unlocked","narration")}));
 }
 function showSecondRoomHana(){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;

@@ -2004,7 +2004,7 @@
       line("r8_epilogue_06","ト書き","退院した僕は、二人で暮らしていた部屋に戻った。"),
       line("r8_epilogue_home_notebook","ト書き","机の上には、彼女が書きためたノートがあった。"),
       line("r8_epilogue_07","ト書き","作りかけの謎。何度も引き直した線。小さな書き込み。ページをめくるたびに、彼女の姿が浮かんだ。"),
-      line("r8_epilogue_08","ト書き","僕はパソコンを開き、ノートを隣に置いた。"),
+      line("r8_epilogue_08","ト書き","パソコンの前に座り、ノートを広げた。"),
       line("r8_epilogue_09","主人公・心の声","彼女が作った謎を、今度は僕が届けていく。",{thought:true})
     ];
     const found=lines.findIndex(entry=>entry.logId===room8State.epilogueLogId);

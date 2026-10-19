@@ -126,9 +126,8 @@ const firstRoomScenario = {
             { logId: "room1_hana_hint1_03", logType: "dialogue", speaker: "ハナ", text: "まずは、それぞれが何を指しているか考えてみよっか" }
         ],
         [
-            { logId: "room1_hana_hint2_01", logType: "dialogue", speaker: "ハナ", text: "『会話に隠された音楽』かぁ……" },
-            { logId: "room1_hana_hint2_02", logType: "dialogue", speaker: "ハナ", text: "メールと、ポスターの演奏曲……何かつながってるのかな？" },
-            { logId: "room1_hana_hint2_03", logType: "dialogue", speaker: "ハナ", text: "ドーナツ……食べたいな" }
+            { logId: "room1_hana_hint2_01", logType: "dialogue", speaker: "ハナ", text: "見つけたものを、別々に見るだけじゃなくて、つなげて考えてみるのはどう？" },
+            { logId: "room1_hana_hint2_02", logType: "dialogue", speaker: "ハナ", text: "書かれていた言葉を、もう一度読んでみて" }
         ],
         [
             { logId: "room1_hana_hint3_01", logType: "dialogue", speaker: "ハナ", text: "ピアノで演奏するのは、8音みたいだね" },

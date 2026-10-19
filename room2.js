@@ -19,7 +19,7 @@ function showSecondRoom(savedState){
  room2State={doorInspected:false,deskInspected:false,sheetFound:false,hanaHints:0,answer:room2RandomAnswer(),guess:[],attempts:0,run:1,history:[],unlocked:false,flashbackSeen:false,highlightEnabled:true,leftmostHintRevealed:false,...savedState};
  if(!Array.isArray(room2State.answer)||room2State.answer.length!==5||!Array.isArray(room2State.guess))room2State={...room2State,answer:room2RandomAnswer(),guess:[]};
  if(!Array.isArray(room2State.history))room2State.history=[];
- room2State.leftmostHintRevealed=room2ShouldRevealLeftmostHint(room2State.history,room2State.attempts);
+ room2State.leftmostHintRevealed=room2State.leftmostHintRevealed===true;
  game.innerHTML=`<main class="room room-two room2-arriving ${room2State.unlocked?"is-restored":""}" aria-label="第二の部屋">
   <header class="room-header"><p class="room-label">第二の部屋</p><p class="room-color-status">${room2State.unlocked?"色を取り戻した部屋":"淡い記憶の部屋"}</p></header>
   <div class="room-stage-wrap"><section class="room-stage room2-stage" aria-label="第二の部屋">
@@ -86,13 +86,13 @@ function inspectSecondRoomDesk(){
 }
 function showSecondRoomPuzzle(){
  const overlay=document.createElement("div");overlay.className="device-overlay room2-puzzle-overlay";
- overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>記号と色を並べる</h2><p class="room2-rule">駒を選んで5枠を埋めます。同じ駒を選ぶと外れ、色違いを選ぶと色が変わります。枠を2つタップすると順番を入れ替えられます。</p><div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">全消去</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-hint-paper">ルールの紙</button></div><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-live="polite"><p class="room2-reaction-speaker"></p><p class="room2-reaction-text"></p><button type="button" class="room2-reaction-next">次へ</button></section><div class="room2-history" aria-label="これまでの判定"></div></section>`;
+ overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>記号と色を並べる</h2><p class="room2-rule">駒を選んで5枠を埋めます。同じ駒を選ぶと外れ、色違いを選ぶと色が変わります。枠を2つタップすると順番を入れ替えられます。</p><div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">全消去</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-hint-paper">ルールの紙</button><button type="button" class="room2-leftmost-request" hidden>左端のヒントを見る</button></div><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-live="polite"><p class="room2-reaction-speaker"></p><p class="room2-reaction-text"></p><button type="button" class="room2-reaction-next">次へ</button></section><div class="room2-history" aria-label="これまでの判定"></div></section>`;
  game.appendChild(overlay);
- const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),hint=overlay.querySelector(".room2-leftmost-hint"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null;
+ const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),hint=overlay.querySelector(".room2-leftmost-hint"),hintRequest=overlay.querySelector(".room2-leftmost-request"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null;
  const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".device-close"));
  overlay.querySelector(".room2-clear").onclick=()=>{room2State.guess=[];selectedSlot=null;saveGame();render()};
  let reactionLines=[],reactionIndex=0,reactionDone=null;
- const setGuessEnabled=enabled=>overlay.querySelectorAll(".room2-answer-slot,.room2-palette-token,.room2-submit,.room2-hint-paper,.room2-clear").forEach(button=>button.disabled=!enabled||(button.classList.contains("room2-submit")&&room2State.guess.length!==5));
+ const setGuessEnabled=enabled=>overlay.querySelectorAll(".room2-answer-slot,.room2-palette-token,.room2-submit,.room2-hint-paper,.room2-leftmost-request,.room2-clear").forEach(button=>button.disabled=!enabled||(button.classList.contains("room2-submit")&&room2State.guess.length!==5));
  const nextReaction=()=>{if(reactionIndex+1<reactionLines.length){reactionIndex++;const line=reactionLines[reactionIndex];reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionIndex===reactionLines.length-1?"推理を続ける":"次へ";recordLog(line);return}reactionPanel.hidden=true;setGuessEnabled(true);reactionDone?.();reactionDone=null};
  reactionPanel.querySelector(".room2-reaction-next").addEventListener("click",nextReaction);
  const showReaction=(lines,onDone)=>{reactionLines=lines||[];reactionDone=onDone;reactionIndex=0;if(!reactionLines.length){reactionPanel.hidden=true;reactionDone?.();reactionDone=null;return}setGuessEnabled(false);const line=reactionLines[0];reactionPanel.hidden=false;reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionLines.length===1?"推理を続ける":"次へ";recordLog(line)};
@@ -103,9 +103,17 @@ function showSecondRoomPuzzle(){
   palette.querySelectorAll("[data-symbol]").forEach(button=>button.addEventListener("click",()=>{const token={symbol:button.dataset.symbol,color:button.dataset.color};const index=room2State.guess.findIndex(piece=>piece.symbol===token.symbol);if(index>=0){if(room2State.guess[index].color===token.color)room2State.guess.splice(index,1);else room2State.guess[index]=token}else if(room2State.guess.length<5)room2State.guess.push(token);selectedSlot=null;feedback.textContent=room2State.guess.length===5?"":"5つの枠をすべて埋めてください。";saveGame();render()}));
   history.innerHTML=room2State.history.map(entry=>`<div class="room2-history-row"><span>${entry.guess.map(piece=>`<i class="${piece.color=== "赤"?"red":"blue"}">${piece.symbol}</i>`).join("")}</span><b>${entry.hit}H ${entry.blow}B</b></div>`).join("");
   overlay.querySelector(".room2-submit").disabled=room2State.guess.length!==5;
+  hintRequest.hidden=room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked;
   hint.hidden=!room2State.leftmostHintRevealed;
   hint.textContent=room2State.leftmostHintRevealed?`開示された左端の記号：「${room2State.answer[0].symbol}」`:"";
  };
+ hintRequest.addEventListener("click",()=>{
+  if(room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked)return;
+  room2State.leftmostHintRevealed=true;
+  saveGame();
+  render();
+  showReaction(room2LeftmostHintLines(room2State.run,room2State.answer[0].symbol));
+ });
  overlay.querySelector(".room2-hint-paper").addEventListener("click",()=>{close();showRoomDialog([
   {logId:"room2_rules_01",logType:"investigation",speaker:"紙",text:"ルール"},
   {logId:"room2_rules_02",logType:"investigation",speaker:"紙",text:"〇、△、□、×、＋の5種類の記号を、5つの枠に一つずつ配置する。それぞれの記号には、赤か青のどちらかの色を選ぶ。"},
@@ -116,14 +124,11 @@ function showSecondRoomPuzzle(){
   if(room2State.guess.length!==5){feedback.textContent="5つの枠をすべて埋めてください。";return}
   const result=room2Evaluate(room2State.guess,room2State.answer);room2State.attempts++;
   room2State.history.push({guess:room2State.guess.map(piece=>({...piece})),...result});room2State.guess=[];
-  const revealLeftmostNow=result.hit!==ROOM2_SYMBOLS.length&&room2State.attempts===5&&room2ShouldRevealLeftmostHint(room2State.history,room2State.attempts);
-  if(revealLeftmostNow)room2State.leftmostHintRevealed=true;
   saveGame();render();
   if(result.hit===5){handleRoom2Correct(close);return}
   feedback.textContent=`${result.hit} HIT　${result.blow} BLOW　（${room2State.attempts}回目）`;
   const pair=ROOM2_DIALOGUES[`${result.hit}H`]?.[result.blow];
   const reaction=pair?.map((text,index)=>({logId:`room2_judge_${room2State.attempts}_${result.hit}_${result.blow}_${index}`,logType:"dialogue",speaker:index===0?"ハナ":"主人公",text}))||[];
-  if(revealLeftmostNow)reaction.push(...room2LeftmostHintLines(room2State.run,room2State.answer[0].symbol));
   const milestone=[4,6,7].includes(room2State.attempts)?room2MilestoneLines(room2State.attempts):[];
   const reachedLimit=room2State.attempts===8;
   const limitLines=reachedLimit?room2LimitLines():[];
@@ -136,16 +141,10 @@ function room2Evaluate(guess,answer){
  guess.forEach((piece,index)=>{const target=answer[index];if(piece.symbol===target.symbol&&piece.color===target.color){hit++;return}if(answer.some((candidate,candidateIndex)=>candidateIndex!==index&&candidate.symbol===piece.symbol&&candidate.color===piece.color))blow++});
  return {hit,blow};
 }
-function room2ShouldRevealLeftmostHint(history,attempts){
- if(!Array.isArray(history)||!Number.isInteger(attempts)||attempts<5||history.length<5)return false;
- const firstFive=history.slice(0,5);
- if(firstFive.some(result=>result?.hit===ROOM2_SYMBOLS.length))return false;
- return firstFive.some(result=>Number.isInteger(result?.hit)&&Number.isInteger(result?.blow)&&result.hit+result.blow===ROOM2_SYMBOLS.length);
-}
 function room2LeftmostHintLines(run,symbol){
  return [
-  {logId:`room2_leftmost_hint_${run}_01`,logType:"dialogue",speaker:"ハナ",text:"これまでの判定を見返してたら、五つ全部の色が合った回があったよ！"},
-  {logId:`room2_leftmost_hint_${run}_02`,logType:"dialogue",speaker:"ハナ",text:`仕掛けが反応してる……正解の左端は「${symbol}」みたい。`}
+  {logId:`room2_leftmost_hint_${run}_01`,logType:"dialogue",speaker:"ハナ",text:"左端の記号だけ、教えるね。"},
+  {logId:`room2_leftmost_hint_${run}_02`,logType:"dialogue",speaker:"ハナ",text:`正解の左端にある記号は「${symbol}」だよ。色と残りの並びは、君が考えてみて。`}
  ];
 }
 function room2MilestoneLines(attempt){

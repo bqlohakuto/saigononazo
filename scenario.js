@@ -122,8 +122,8 @@ const firstRoomScenario = {
     hanaHints: [
         [
             { logId: "room1_hana_after_question_01", logType: "dialogue", speaker: "主人公", text: "『会話に隠された、音楽を奏でよ』……" },
-            { logId: "room1_hana_after_question_02", logType: "dialogue", speaker: "ハナ", text: "会話……会話するもの……それから、音楽……演奏……？" },
-            { logId: "room1_hana_hint1_03", logType: "narration", speaker: "主人公", thought: true, text: "ハナさんも考えているようだ……" }
+            { logId: "room1_hana_after_question_02", logType: "dialogue", speaker: "ハナ", text: "『会話』と『音楽』、一度に考えると難しいよね" },
+            { logId: "room1_hana_hint1_03", logType: "dialogue", speaker: "ハナ", text: "まずは、それぞれが何を指しているか考えてみよっか" }
         ],
         [
             { logId: "room1_hana_hint2_01", logType: "dialogue", speaker: "ハナ", text: "『会話に隠された音楽』かぁ……" },

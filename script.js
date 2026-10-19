@@ -563,20 +563,40 @@ function activateDeviceModal(overlay,openerId,initialFocus,onClose){
 function showPhoneScreen(){
  const overlay=document.createElement("div");
  overlay.className="device-overlay flip-phone-overlay";
- overlay.innerHTML=`<section class="phone-screen flip-phone" aria-label="携帯電話のメール"><img class="flip-phone-body" src="images/items/phone-open-frame.png?v=20261012-flip-phone-thickness-02" alt="" draggable="false"><div class="phone-lcd"><div class="phone-status" aria-hidden="true"><span>▂▄▆　✉</span><span class="phone-clock">20:15</span><span>▰</span></div><header class="phone-lcd-title"><p>メール</p></header><div class="mail-tabs"><button type="button" data-folder="inbox" class="is-active">受信BOX</button><button type="button" data-folder="sent">送信BOX</button></div><div class="mail-list"></div><article class="mail-detail" aria-live="polite" hidden><p>メールを選んで内容を確認する。</p></article><footer class="phone-softkeys"><button type="button" class="device-close" aria-label="閉じる">閉じる</button><button type="button" class="phone-list-back" hidden>一覧へ</button><button type="button" class="phone-next-mail" hidden>次のメール</button><span class="phone-list-guide">メールを選択</span></footer></div></section>`;
+ const hardwareButtons = [
+  ["soft-left","左ソフトキー：一覧へ戻る・閉じる"],
+  ["soft-right","右ソフトキー：受信と送信を切り替える"],
+  ["mail","メールボタン：一覧へ戻る"],
+  ["clear","戻るボタン：一覧へ戻る・閉じる"],
+  ["up","十字キー上：前のメール"],
+  ["down","十字キー下：次のメール"],
+  ["left","十字キー左：受信BOX"],
+  ["right","十字キー右：送信BOX"],
+  ["ok","決定：メールを開く・次へ進む"],
+  ["num-1","数字1：1通目のメール"],
+  ["num-2","数字2：2通目のメール"],
+  ["num-3","数字3：3通目のメール"],
+  ["num-4","数字4：4通目のメール"]
+ ].map(([action,label])=>`<button type="button" class="phone-hardware-key phone-key-${action}" data-phone-key="${action}" aria-label="${label}"></button>`).join("");
+ overlay.innerHTML=`<section class="phone-screen flip-phone" aria-label="携帯電話のメール"><img class="flip-phone-body" src="images/items/phone-open-frame.png?v=20261012-flip-phone-thickness-02" alt="" draggable="false"><div class="phone-lcd"><div class="phone-status" aria-hidden="true"><span>▂▄▆　✉</span><span class="phone-clock">20:15</span><span>▰</span></div><header class="phone-lcd-title"><p>メール</p></header><div class="mail-tabs"><button type="button" data-folder="inbox" class="is-active">受信BOX</button><button type="button" data-folder="sent">送信BOX</button></div><div class="mail-list"></div><article class="mail-detail" aria-live="polite" hidden><p>メールを選んで内容を確認する。</p></article><footer class="phone-softkeys"><button type="button" class="device-close" aria-label="閉じる">閉じる</button><button type="button" class="phone-list-back" hidden>一覧へ</button><button type="button" class="phone-next-mail" hidden>次のメール</button><span class="phone-list-guide">メールを選択</span></footer></div><div class="phone-hardware-keys" aria-label="携帯電話の物理ボタン">${hardwareButtons}</div></section>`;
  game.appendChild(overlay);
- let folder="inbox",selectedMailId=null;
+ let folder="inbox",selectedMailId=null,cursorIndex=0;
+ let closePhone;
  const list=overlay.querySelector(".mail-list"),detail=overlay.querySelector(".mail-detail");
  const tabs=overlay.querySelector(".mail-tabs"),back=overlay.querySelector(".phone-list-back"),next=overlay.querySelector(".phone-next-mail"),closeButton=overlay.querySelector(".device-close"),guide=overlay.querySelector(".phone-list-guide"),title=overlay.querySelector(".phone-lcd-title p");
  const setView=reading=>{
-  list.hidden=reading;tabs.hidden=reading;detail.hidden=!reading;back.hidden=!reading;next.hidden=!reading;closeButton.hidden=reading;guide.hidden=reading;
+  list.hidden=reading;tabs.hidden=false;detail.hidden=!reading;back.hidden=!reading;next.hidden=!reading;closeButton.hidden=reading;guide.hidden=reading;
   title.textContent=reading?(folder==="inbox"?"受信メール":"送信メール"):"メール";
  };
  recordLog({logId:"room1_phone_select_prompt",logType:"investigation",speaker:"システム",logColor:"#222222",text:"メールを選んで内容を確認する。"});
+ const markCursor=()=>{
+  list.querySelectorAll(".mail-item").forEach(item=>item.classList.toggle("is-cursor",Number(item.dataset.index)===cursorIndex));
+ };
  const openMail=index=>{
   const mail=firstRoomScenario.phoneMail[folder][index];if(!mail)return;
-  selectedMailId=mail.id;
+  selectedMailId=mail.id;cursorIndex=index;
   list.querySelectorAll(".mail-item").forEach(item=>{const selected=Number(item.dataset.index)===index;item.classList.toggle("is-selected",selected);item.setAttribute("aria-current",String(selected))});
+  markCursor();
   (folder==="inbox" ? firstRoomState.openedInbox : firstRoomState.openedSent).add(mail.id);
   saveGame();
   detail.innerHTML=`<p>${folder==="inbox" ? "From" : "To"}:先輩　${mail.time}</p><h3>件名：${mail.subject}</h3><p>${mail.text.replace(/\n/g,"<br>")}</p>`;
@@ -590,12 +610,69 @@ function showPhoneScreen(){
   overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.classList.toggle("is-active",tab.dataset.folder===folder));
   list.innerHTML=firstRoomScenario.phoneMail[folder].map((mail,index)=>`<button type="button" class="mail-item${mail.id===selectedMailId?" is-selected":""}" data-index="${index}"${mail.id===selectedMailId?' aria-current="true"':""}><strong>${folder==="inbox" ? "From" : "To"}:先輩</strong><span>${mail.time}</span><small>${mail.subject}</small></button>`).join("");
   list.querySelectorAll(".mail-item").forEach(button=>button.addEventListener("click",()=>openMail(Number(button.dataset.index))));
+  markCursor();
  };
- overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.addEventListener("click",()=>{folder=tab.dataset.folder;selectedMailId=null;detail.innerHTML="<p>メールを選んで内容を確認する。</p>";setView(false);render()}));
+ const switchFolder=target=>{
+  if(target!=="inbox"&&target!=="sent")return;
+  folder=target;selectedMailId=null;cursorIndex=0;
+  detail.innerHTML="<p>メールを選んで内容を確認する。</p>";
+  setView(false);render();
+ };
+ overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.addEventListener("click",()=>switchFolder(tab.dataset.folder)));
  back.addEventListener("click",()=>{setView(false);list.querySelector('.is-selected')?.focus({preventScroll:true})});
  next.addEventListener("click",()=>openMail(firstRoomScenario.phoneMail[folder].findIndex(mail=>mail.id===selectedMailId)+1));
+ const backOrClose=()=>{
+  if(!detail.hidden){setView(false);list.querySelector(".is-cursor")?.focus({preventScroll:true});}
+  else closePhone?.();
+ };
+ const goToList=()=>{
+  if(!detail.hidden)setView(false);
+  list.querySelector(".is-cursor")?.focus({preventScroll:true});
+ };
+ const moveMail=step=>{
+  const count=firstRoomScenario.phoneMail[folder].length;
+  if(!count)return;
+  if(!detail.hidden){
+   const index=firstRoomScenario.phoneMail[folder].findIndex(mail=>mail.id===selectedMailId);
+   const target=index+step;
+   if(target>=0&&target<count)openMail(target);
+  }else{
+   cursorIndex=(cursorIndex+step+count)%count;
+   markCursor();
+   list.querySelector(".is-cursor")?.scrollIntoView({block:"nearest"});
+  }
+ };
+ const confirmMail=()=>{
+  if(detail.hidden)openMail(cursorIndex);
+  else{
+   const index=firstRoomScenario.phoneMail[folder].findIndex(mail=>mail.id===selectedMailId);
+   if(index+1<firstRoomScenario.phoneMail[folder].length)openMail(index+1);
+   else goToList();
+  }
+ };
+ const pressPhoneKey=action=>{
+  if(action==="up"){moveMail(-1);return;}
+  if(action==="down"){moveMail(1);return;}
+  if(action==="left"){switchFolder("inbox");return;}
+  if(action==="right"){switchFolder("sent");return;}
+  if(action==="soft-right"){switchFolder(folder==="inbox"?"sent":"inbox");return;}
+  if(action==="soft-left"||action==="clear"){backOrClose();return;}
+  if(action==="mail"){goToList();return;}
+  if(action==="ok"){confirmMail();return;}
+  if(action.startsWith("num-")){
+   const index=Number(action.slice(4))-1;
+   if(index>=0&&index<firstRoomScenario.phoneMail[folder].length)openMail(index);
+  }
+ };
+ overlay.querySelectorAll("[data-phone-key]").forEach(button=>button.addEventListener("click",()=>pressPhoneKey(button.dataset.phoneKey)));
+ overlay.addEventListener("keydown",event=>{
+  if(!["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(event.key))return;
+  event.preventDefault();
+  event.stopPropagation();
+  pressPhoneKey({ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right"}[event.key]);
+ });
  render();setView(false);
- activateDeviceModal(overlay,"phoneButton",overlay.querySelector('[data-folder="inbox"]'),()=>{
+ closePhone=activateDeviceModal(overlay,"phoneButton",overlay.querySelector('[data-folder="inbox"]'),()=>{
   if(!firstRoomState.phoneReflectionSeen&&hasCheckedAllMail("inbox")&&hasCheckedAllMail("sent")){
    showRoomDialog(firstRoomScenario.phoneAfterAllMail,()=>{firstRoomState.phoneReflectionSeen=true;saveGame()});
   }
@@ -606,26 +683,51 @@ function showPianoScreen(){
  if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked){showFirstRoomMemory();return}
  const overlay=document.createElement("div");
  overlay.className="device-overlay";
- overlay.innerHTML=`<section class="piano-screen" aria-label="ピアノ"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>ピアノ</h2><p>8音の音階を入力する。</p><label>音階<input id="melodyInput" type="text" inputmode="text" autocomplete="off" placeholder="例：ドレミ" aria-label="演奏する8音の音階"></label><p class="piano-result" aria-live="polite"></p><button type="button" id="playMelodyButton">演奏する</button></section>`;
+ const notes=["ド","レ","ミ","ファ","ソ","ラ","シ"];
+ const keys=notes.map(note=>`<button type="button" class="piano-note-key" data-note="${note}" aria-label="${note}の鍵盤"><span>${note}</span></button>`).join("");
+ overlay.innerHTML=`<section class="piano-screen room1-piano-panel" aria-label="ピアノ"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>ピアノ</h2><p>8音の音階を入力する。</p><div class="piano-keyboard" role="group" aria-label="音階の鍵盤">${keys}<span class="piano-sharp piano-sharp-1" aria-hidden="true"></span><span class="piano-sharp piano-sharp-2" aria-hidden="true"></span><span class="piano-sharp piano-sharp-3" aria-hidden="true"></span><span class="piano-sharp piano-sharp-4" aria-hidden="true"></span><span class="piano-sharp piano-sharp-5" aria-hidden="true"></span></div><div class="piano-keyboard-tools"><button type="button" class="piano-undo">1音戻す</button><button type="button" class="piano-clear">全消去</button></div><label>音階（文字入力もできます）<input id="melodyInput" type="text" inputmode="text" autocomplete="off" placeholder="例：ドレミ" aria-label="演奏する8音の音階"></label><p class="piano-result" aria-live="polite"></p><button type="button" id="playMelodyButton">演奏する</button></section>`;
  game.appendChild(overlay);
  recordLog({logId:"room1_piano_prompt",logType:"investigation",speaker:"システム",logColor:"#222222",text:"8音の音階を入力する。"});
  const input=overlay.querySelector("#melodyInput"),result=overlay.querySelector(".piano-result"),button=overlay.querySelector("#playMelodyButton");
- const close=activateDeviceModal(overlay,"pianoButton",input,()=>{
+ const noteButtons=[...overlay.querySelectorAll(".piano-note-key")];
+ const undo=overlay.querySelector(".piano-undo"),clear=overlay.querySelector(".piano-clear");
+ const close=activateDeviceModal(overlay,"pianoButton",noteButtons[0],()=>{
   if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked)showFirstRoomMemory();
  });
  let solved=false;
- const finish=()=>{
-  close();
+ const normalizeMelody=value=>value.normalize("NFKC").replace(/[ぁ-ゖ]/gu,char=>String.fromCharCode(char.charCodeAt(0)+0x60)).replace(/[\s、。・,.\/|_-]/gu,"");
+ const normalize=()=>normalizeMelody(input.value);
+ const updateInput=value=>{
+  input.value=value;
+  result.textContent="";
+  input.dispatchEvent(new Event("input",{bubbles:true}));
  };
+ noteButtons.forEach(key=>key.addEventListener("click",()=>{
+  if(solved)return;
+  const melody=normalize();
+  const enteredNotes=melody.match(/ファ|[ドレミソラシ]|./gu)||[];
+  if(enteredNotes.length>=8)return;
+  const note=key.dataset.note;
+  updateInput(melody+note);
+  GameAudio.playPianoNote?.(note);
+ }));
+ undo.addEventListener("click",()=>{
+  if(solved)return;
+  const melody=normalize();
+  const parts=melody.match(/ファ|[ドレミソラシ]|./gu)||[];
+  parts.pop();
+  updateInput(parts.join(""));
+ });
+ clear.addEventListener("click",()=>{if(!solved)updateInput("");});
+ const finish=()=>{close();};
  button.addEventListener("click",()=>{
   if(solved){finish();return}
   firstRoomState.pianoAttempted=true;
   saveGame();
-  const melody=input.value.replace(/[\s、。・,]/g,"");
+  const melody=normalize();
   const melodyMatches=melody===firstRoomScenario.melody.join("");
-  const mailComplete=hasCheckedAllMail("inbox")&&hasCheckedAllMail("sent");
-  if(!melodyMatches||!mailComplete||!firstRoomState.hanaIntroduced){
-   const guidance=!firstRoomState.hanaIntroduced?"先にハナに話しかけてみよう。":!mailComplete&&melodyMatches?"携帯電話の受信メールと送信メールを、すべて確認する必要がありそうだ。":firstRoomScenario.pianoIncorrect.map(line=>line.text).join("\n");
+  if(!melodyMatches){
+   const guidance=firstRoomScenario.pianoIncorrect.map(line=>line.text).join("\n");
    showLoggedText(result,guidance,"room1_piano_incorrect","investigation","#8f1c1c");
    return;
   }
@@ -635,6 +737,9 @@ function showPianoScreen(){
   GameAudio.play("memoryMelody");
   showLoggedText(result,`${firstRoomScenario.melody.join("・")}♪`,"room1_piano_correct","investigation","#8f1c1c");
   input.disabled=true;
+  noteButtons.forEach(key=>key.disabled=true);
+  undo.disabled=true;
+  clear.disabled=true;
   button.disabled=true;
   setTimeout(finish,600);
  });

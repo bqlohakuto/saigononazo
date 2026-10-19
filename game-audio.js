@@ -149,6 +149,31 @@
     }
   }
 
+  // Short synthesized note preview, only while the player presses a piano key.
+  async function playPianoNote(note) {
+    const frequencies={ド:261.63,レ:293.66,ミ:329.63,ファ:349.23,ソ:392.00,ラ:440.00,シ:493.88};
+    const frequency=frequencies[note];
+    if(!frequency || document.hidden) return false;
+    if(!await unlock() || !context || !master || context.state!=="running") return false;
+    try {
+      const oscillator=context.createOscillator();
+      const envelope=context.createGain();
+      const now=context.currentTime;
+      const peak=Math.max(0.0001,0.18*categoryVolumes.se);
+      oscillator.type="triangle";
+      oscillator.frequency.setValueAtTime(frequency,now);
+      envelope.gain.setValueAtTime(0.0001,now);
+      envelope.gain.exponentialRampToValueAtTime(peak,now+0.018);
+      envelope.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
+      oscillator.connect(envelope);
+      envelope.connect(master);
+      oscillator.onended=()=>{oscillator.disconnect();envelope.disconnect();};
+      oscillator.start(now);
+      oscillator.stop(now+0.46);
+      return true;
+    } catch (_) {return false;}
+  }
+
   function setVolume(value) {
     if (!Number.isFinite(value)) return;
     volume = Math.min(1, Math.max(0, value));
@@ -167,5 +192,5 @@
   document.addEventListener("visibilitychange", () => { if (document.hidden) pausePage(); });
   global.addEventListener("pagehide", pausePage);
   if (typeof global.fetch === "function") Object.keys(sounds).forEach(loadFile);
-  global.GameAudio = { unlock, play, stop, stopAll, fadeOut, setVolume,setCategoryVolumes };
+  global.GameAudio = { unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes };
 })(window);

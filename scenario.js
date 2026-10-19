@@ -67,6 +67,9 @@ const firstRoomScenario = {
         { logId: "room1_hana_first_10", logType: "dialogue", speaker: "主人公", text: "わかりました……えっと、ハナさん" },
         { logId: "room1_hana_first_11", logType: "dialogue", speaker: "ハナ", text: "ハナ……さん……か。ちょっと固いけど、はじめは仕方ないか" },
         { logId: "room1_hana_first_12", logType: "dialogue", speaker: "ハナ", text: "私のことはまだ話せないけど、この部屋のことなら答えられることもあるよ" },
+        { logId: "room1_hana_first_puzzle_intro_01", logType: "dialogue", speaker: "ハナ", text: "君の記憶を取り戻すために、これからいくつかの謎を解いてもらうよ" },
+        { logId: "room1_hana_first_puzzle_intro_02", logType: "dialogue", speaker: "主人公", text: "謎解き……ですか？" },
+        { logId: "room1_hana_first_puzzle_intro_03", logType: "dialogue", speaker: "ハナ", text: "そう！　まずは、この部屋の最初の謎からね" },
         { logId: "room1_hana_first_13", logType: "dialogue", speaker: "ハナ", text: "気になることがあったら、また聞いてね" }
     ],
     hanaAbout: [
@@ -91,7 +94,7 @@ const firstRoomScenario = {
         { logId: "room1_hana_room_05", logType: "dialogue", speaker: "ハナ", text: "君が忘れているだけで、きっとどこかに記憶を取り戻す手がかりがあるよ" }
     ],
     hanaFirstPuzzle: [
-        { logId: "room1_hana_first_puzzle_01", logType: "dialogue", speaker: "主人公", text: "最初の謎って言ってましたけど、謎ってなんですか？" },
+        { logId: "room1_hana_first_puzzle_01", logType: "dialogue", speaker: "主人公", text: "さっき言ってた最初の謎って、どこにあるんですか？" },
         { logId: "room1_hana_before_question_01", logType: "dialogue", speaker: "ハナ", text: "まずは部屋を調べてみようか。何か気になるものはない？" }
     ],
     hanaPoster: [
@@ -105,41 +108,45 @@ const firstRoomScenario = {
         { logId: "room1_hana_poster_08", logType: "dialogue", speaker: "ハナ", text: "でも、曲名がこんなにたくさんあると、どれなのか迷うね" }
     ],
     hanaPhone: [
-        { logId: "room1_hana_phone_01", logType: "dialogue", speaker: "主人公", text: "『会話』って、メールのことなんでしょうか？" },
-        { logId: "room1_hana_phone_02", logType: "dialogue", speaker: "ハナ", text: "わたしも、メールのことだと思うな" },
-        { logId: "room1_hana_phone_03", logType: "dialogue", speaker: "主人公", text: "じゃあ……『会話に隠された音楽』って、メールの中に音楽が隠されてるってこと……？" }
+        { logId: "room1_hana_phone_01", logType: "dialogue", speaker: "主人公", text: "この携帯、誰のものなんでしょうか？" },
+        { logId: "room1_hana_phone_02", logType: "dialogue", speaker: "ハナ", text: "どうだろうね。何か気になることはあった？" },
+        { logId: "room1_hana_phone_03", logType: "dialogue", speaker: "主人公", text: "……もう少し、メールを読んでみます" }
     ],
     hanaPiano: [
         { logId: "room1_hana_piano_01", logType: "dialogue", speaker: "主人公", text: "ハナさんはピアノ、弾けますか？" },
         { logId: "room1_hana_piano_02", logType: "dialogue", speaker: "ハナ", text: "少しならね" },
-        { logId: "room1_hana_piano_03", logType: "dialogue", speaker: "主人公", text: "『音楽を奏でよ』って、ピアノで演奏するってことですよね" },
-        { logId: "room1_hana_piano_04", logType: "dialogue", speaker: "ハナ", text: "うん。でも、弾くのは君だと思うよ" },
-        { logId: "room1_hana_piano_05", logType: "dialogue", speaker: "主人公", text: "やっぱり、僕が……" },
-        { logId: "room1_hana_piano_06", logType: "dialogue", speaker: "ハナ", text: "たぶんね。あとは、何を弾けばいいか…かな" }
+        { logId: "room1_hana_piano_03", logType: "dialogue", speaker: "主人公", text: "僕は、あまり弾けないんです" },
+        { logId: "room1_hana_piano_04", logType: "dialogue", speaker: "ハナ", text: "そうなんだ。でも、音を鳴らすだけでも楽しいよね" }
     ],
-    // ヒント1: 扉を確認後。2: ポスターとメールを確認後。3〜4: プレイヤーが次のヒントを希望したとき。
+    // ヒント1〜4: 扉の謎を確認後、プレイヤーが各段階を読むたびに次のヒントを解放する。調査状況による制限なし。
     hanaHints: [
         [
             { logId: "room1_hana_after_question_01", logType: "dialogue", speaker: "主人公", text: "『会話に隠された、音楽を奏でよ』……" },
-            { logId: "room1_hana_after_question_02", logType: "dialogue", speaker: "ハナ", text: "会話……会話するもの……それから、音楽……演奏……？" },
-            { logId: "room1_hana_hint1_03", logType: "narration", speaker: "主人公", thought: true, text: "ハナさんも考えているようだ……" }
+            { logId: "room1_hana_after_question_02", logType: "dialogue", speaker: "ハナ", text: "『会話』と『音楽』、一度に考えると難しいよね" },
+            { logId: "room1_hana_hint1_03", logType: "dialogue", speaker: "ハナ", text: "まずは、それぞれが何を指しているか考えてみよっか" }
         ],
         [
-            { logId: "room1_hana_hint2_01", logType: "dialogue", speaker: "ハナ", text: "『会話に隠された音楽』かぁ……" },
-            { logId: "room1_hana_hint2_02", logType: "dialogue", speaker: "ハナ", text: "メールと、ポスターの演奏曲……何かつながってるのかな？" },
-            { logId: "room1_hana_hint2_03", logType: "dialogue", speaker: "ハナ", text: "ドーナツ……食べたいな" }
+            { logId: "room1_hana_hint2_01", logType: "dialogue", speaker: "ハナ", text: "見つけたものを、別々に見るだけじゃなくて、つなげて考えてみるのはどう？" },
+            { logId: "room1_hana_hint2_02", logType: "dialogue", speaker: "ハナ", text: "書かれていた言葉を、もう一度読んでみて" }
         ],
         [
-            { logId: "room1_hana_hint3_01", logType: "dialogue", speaker: "ハナ", text: "ピアノで演奏するのは、8音みたいだね" },
-            { logId: "room1_hana_hint3_02", logType: "dialogue", speaker: "ハナ", text: "メール1通で1音……なのかな？" },
-            { logId: "room1_hana_mail_hint_01", logType: "dialogue", speaker: "ハナ", text: "受信したメールだけじゃ、数が合わないみたいだけど……" }
+            { logId: "room1_hana_hint3_01", logType: "dialogue", speaker: "ハナ", text: "メールって、受信と送信に分かれているよね" },
+            { logId: "room1_hana_hint3_02", logType: "dialogue", speaker: "ハナ", text: "でも、『会話』って一方通行じゃないよね？" }
         ],
         [
-            { logId: "room1_hana_hint4_01", logType: "dialogue", speaker: "ハナ", text: "曲名を、もう一度よく見てみたら？" },
-            { logId: "room1_hana_hint4_02", logType: "dialogue", speaker: "ハナ", text: "ほら、“音”がそのまま名前になってるような曲が、一つあるよね" },
-            { logId: "room1_hana_hint4_03", logType: "dialogue", speaker: "主人公", text: "ドレミのうた？" },
-            { logId: "room1_hana_hint4_04", logType: "dialogue", speaker: "ハナ", text: "そう。メールの会話の中に、それっぽいものは出てこなかった？" }
+            { logId: "room1_hana_hint4_01", logType: "dialogue", speaker: "ハナ", text: "曲名を見て、音階を思い浮かべるものはなかった？" },
+            { logId: "room1_hana_hint4_02", logType: "dialogue", speaker: "ハナ", text: "その曲を頭の中で歌いながら、メールを読み返してみて" }
         ]
+    ],
+    // ヒント4を読み終えたプレイヤーだけが任意で確認できる音階の連想例。正解の8音の順番は示さない。
+    scaleReference: [
+        { note: "ド", example: "ドーナツ" },
+        { note: "レ", example: "レモン" },
+        { note: "ミ", example: "みんな" },
+        { note: "ファ", example: "ファイト" },
+        { note: "ソ", example: "青い空" },
+        { note: "ラ", example: "ラッパ（トランペットなど）" },
+        { note: "シ", example: "幸せ" }
     ],
     doorIntroduction: [
         { logId: "room1_door_first_01", logType: "investigation", speaker: "ト書き", text: "扉を調べた。" },
@@ -164,7 +171,6 @@ const firstRoomScenario = {
         { logId: "room1_poster_02", logType: "investigation", speaker: "主人公", thought: true, text: "8月13日、日曜日。18時30分開演……" },
         { logId: "room1_poster_03", logType: "investigation", speaker: "主人公", thought: true, text: "演奏曲は、青春アミーゴ、宙船、水戸黄門のテーマ、きよしのズンドコ節、アンパンマンのマーチ、世界に一つだけの花、ドレミのうた……など" },
         { logId: "room1_poster_04", logType: "narration", speaker: "主人公", thought: true, text: "なぜだか、懐かしい感じがする" },
-        { logId: "room1_poster_05", logType: "narration", speaker: "主人公", thought: true, text: "この中のどれかを演奏しないといけないのか……？" }
     ],
     phoneIntroduction: [
         { logId: "room1_phone_introduction_01", logType: "investigation", speaker: "ト書き", text: "机の上に携帯電話が置かれている。" },

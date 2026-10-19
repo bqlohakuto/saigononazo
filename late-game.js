@@ -1863,7 +1863,7 @@
     });
   }
   function r8PuzzleRoom(){
-    game.innerHTML='<main class="room late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">何もない部屋</p></header><section class="late-stage empty r8-final-stage"><div class="r8-puzzle-art"><button class="r8-paper-hit" id="r8PaperImage" aria-label="机の上の紙を調べる" title="机の上の紙を調べる"></button></div><div class="r8-last-desk" aria-label="最後に残った机"><div class="r8-last-desk-legs" aria-hidden="true"></div><div class="r8-last-desk-top"><button class="r8-paper" id="r8Paper">一枚の紙</button></div></div></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
+    game.innerHTML='<main class="room late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">静かな部屋</p></header><section class="late-stage empty r8-final-stage"><div class="r8-puzzle-art"><button class="r8-paper-hit" id="r8PaperImage" aria-label="机の上の紙を調べる" title="机の上の紙を調べる"></button></div><div class="r8-last-desk" aria-label="最後に残った机"><div class="r8-last-desk-legs" aria-hidden="true"></div><div class="r8-last-desk-top"><button class="r8-paper" id="r8Paper">一枚の紙</button></div></div></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
     document.getElementById("r8Paper").onclick=r8Paper;
     document.getElementById("r8PaperImage").onclick=r8Paper;
     const finalArt=game.querySelector(".r8-puzzle-art");
@@ -1881,7 +1881,7 @@
     o.innerHTML='<section class="late-panel r8-puzzle"><button class="device-close" aria-label="閉じる">×</button><h2>最後の謎</h2>'+
       '<div class="r8-paper-face"><p class="r8-question">私はだーれだ？</p><p>ヒント！<br>君のことが一番好きな人だよ</p></div>'+
       '<button class="late-sub-action" id="r8Back">紙の裏を見る</button>'+
-      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>ここまでの思い出を、もう一度振り返ってみて。</p><p>どの部屋にも、同じ二つが隠れているよ。</p><p>順番に迷ったら、一番最初の部屋を思い出してね。</p><p>ポスターで見つけたものを先に。<br>君の手で鳴らしたものを、その次に。</p><p>……わかったら、名前で呼んでね。</p></div>'+
+      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>ここまでの思い出を、もう一度振り返ってみて。</p><p>これまでの七つの部屋には、二つの共通点があるよ。</p><p>順番に迷ったら、一番最初の部屋を思い出してね。</p><p>……わかったら、名前で呼んでね。</p></div>'+
       '<label class="r8-answer">答え<input id="r8Answer" type="text" autocomplete="off" maxlength="12"></label><button class="late-main-action" id="r8Submit">答える</button><p id="r8Feedback"></p></section>';
     game.appendChild(o);activateDeviceModal(o,"r8Paper",o.querySelector("#r8Back"));
     o.querySelector("#r8Back").onclick=()=>{room8State.backSeen=true;saveGame();o.querySelector("#r8BackText").classList.add("show");r8ArmLogHint()};
@@ -1915,23 +1915,24 @@
       line("r8_solve_01","主人公","……花音"),
       line("r8_solve_02","ト書き","少しの沈黙。そして――"),
       line("r8_solve_03","花音","正解！",{logKind:"heroine"}),
-      line("r8_return_01","ト書き","顔を上げる。"),
-      line("r8_return_02","ト書き","さっきまで誰もいなかった机の向こうに、彼女が立っていた。"),
+      line("r8_return_01","ト書き","聞き慣れた声に、思わず顔を上げた。"),
+      line("r8_return_02","ト書き","机の向こうに、彼女が立っていた。"),
       line("r8_return_03","ト書き","いつものように、少し得意そうに笑っている。"),
       line("r8_solve_04","花音","ちゃんと解けたね？",{logKind:"heroine"}),
       line("r8_return_04","ト書き","机を回り込み、彼女のそばへ行く。"),
       line("r8_return_05","ト書き","確かめるように、もう一度その名前を呼んだ。"),
       line("r8_solve_05","主人公","花音……"),
-      line("r8_solve_06","主人公","花音……僕――"),
+      line("r8_solve_06","主人公","……花音、僕――"),
       line("r8_solve_07","花音","そんなに呼ばなくても、聞こえてるよ",{logKind:"heroine"}),
       line("r8_solve_08","主人公","……思い出した"),
       line("r8_solve_09","主人公","君とのことは、全部思い出したよ"),
       line("r8_solve_10","主人公","花音と出会ったことも、一緒に過ごしたことも"),
       line("r8_solve_11","主人公","喧嘩したことも、仲直りしたことも"),
       line("r8_solve_12","主人公","一緒に謎を解いたことも……全部"),
+      line("r8_solve_12_bridge","ト書き","言いたいことは、まだ山ほどあった。でも、いちばん先に伝えたいことは決まっていた。"),
       line("r8_solve_13","主人公","……ずっと、ありがとう"),
       line("r8_solve_14","主人公","僕、花音と一緒にいられてよかった"),
-      line("r8_solve_15","主人公","本当に……大好きだった"),
+      line("r8_solve_15","主人公","本当に……大好きだよ"),
       line("r8_solve_16","花音","……うん",{logKind:"heroine"}),
       line("r8_solve_17","花音","私もだよ",{logKind:"heroine"}),
       line("r8_solve_18","花音","君と一緒にいられて、すっごく楽しかった",{logKind:"heroine"}),
@@ -1942,12 +1943,13 @@
       line("r8_solve_23","花音","じゃあ！",{logKind:"heroine"}),
       line("r8_solve_24","花音","最後の謎も解けたし、出口に行かないとね！",{logKind:"heroine"}),
       line("r8_solve_25","花音","脱出成功、おめでとう！",{logKind:"heroine"}),
+      line("r8_solve_25_voice","ト書き","最後の一言だけ、少し声が震えていた。"),
       line("r8_solve_26","主人公","……行けない"),
       line("r8_solve_27","花音","え？",{logKind:"heroine"}),
       line("r8_solve_28","主人公","花音を置いて、僕一人でなんて行けない"),
       line("r8_solve_29","主人公","やっと思い出したのに"),
       line("r8_solve_30","主人公","やっと、また名前を呼べたのに……"),
-      line("r8_solve_31","ト書き","主人公は花音の手を強く握る。"),
+      line("r8_solve_31","ト書き","僕は花音の手を強く握った。"),
       line("r8_solve_32","花音","……一緒には行けないよ",{logKind:"heroine"}),
       line("r8_solve_33","主人公","……"),
       line("r8_solve_34","花音","でも、ずっと一緒にいるよ",{logKind:"heroine"}),
@@ -1955,14 +1957,14 @@
       line("r8_solve_36","花音","笑ってよ",{logKind:"heroine"}),
       line("r8_solve_37","主人公","……花音だって、泣いてるじゃん"),
       line("r8_solve_38","花音","……ほんとだ",{logKind:"heroine"}),
-      line("r8_solve_39","ト書き","二人の頬を、涙が静かに伝っていく。"),
+      line("r8_solve_39","ト書き","花音の頬を、涙が静かに伝っていた。"),
+      line("r8_solve_39_player","ト書き","僕の頬も、濡れていた。"),
       line("r8_solve_40","主人公","……僕、行くよ"),
       line("r8_solve_41","花音","……うん",{logKind:"heroine"}),
       line("r8_solve_42","主人公","でも、これで終わりにはしない"),
-      line("r8_solve_43","主人公","最後の謎が解けても、僕たちの謎解きはこれからも続けよう"),
+      line("r8_solve_43","主人公","最後の謎が解けても、僕たちの謎解きは終わらない"),
       line("r8_solve_44","主人公","花音が作った謎を、今度は僕がみんなに届ける"),
-      line("r8_solve_45","主人公","だから、これが最後じゃない"),
-      line("r8_solve_46","主人公","これからも一緒に、謎解きを続けよう"),
+      line("r8_solve_46","主人公","だから、これからも一緒に謎解きを続けよう"),
       line("r8_solve_47","花音","……うん",{logKind:"heroine"}),
       line("r8_solve_48","花音","楽しみだね",{logKind:"heroine"})
     ],()=>{room8State.finalTalkSeen=true;saveGame();r8AfterSolved()});
@@ -1971,8 +1973,9 @@
     game.innerHTML='<main class="room late-room r8-exit"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">出口</p></header><section class="late-stage empty"><button class="r8-final-door" id="r8FinalDoor">最後の扉を開く</button></section></main>';
     document.getElementById("r8FinalDoor").onclick=()=>{
       showRoomDialog([
-        line("r8_end_01","ト書き","主人公は最後の扉を開いた。"),
-        line("r8_end_02","ト書き","扉の向こうへ進み、振り返る。花音の姿は光に包まれていく。"),
+        line("r8_end_01","ト書き","僕は最後の扉を開いた。"),
+        line("r8_end_02","ト書き","扉の向こうへ一歩踏み出し、振り返った。"),
+        line("r8_end_02_light","ト書き","花音の姿が、光に包まれていく。"),
         line("r8_end_03","花音","じゃあね、"+(playerName||"主人公"),{logKind:"heroine"}),
         line("r8_end_name_01","ト書き","あのとき聞こえなかった名前が、今度ははっきり聞こえた。"),
         line("r8_end_name_02","主人公・心の声","……そうだ。僕の名前だ。",{thought:true}),
@@ -1992,14 +1995,16 @@
   function r8Epilogue(){
     Dialogue.stop();
     const lines=[
-      line("r8_epilogue_01","ト書き","白い天井。規則的な機械の音。"),
+      line("r8_epilogue_01","ト書き","規則的な機械の音が、耳に届く。"),
       line("r8_epilogue_02","ト書き","重いまぶたを、ゆっくりと開いた。"),
+      line("r8_epilogue_02_ceiling","ト書き","白い天井が見えた。"),
       line("r8_epilogue_03","主人公・心の声","……戻って、きたんだ。",{thought:true}),
       line("r8_epilogue_04","ト書き","まだ、身体は思うように動かない。それでも、覚えていた。あの部屋のことも、最後に聞いた声も。"),
       line("r8_epilogue_05","ト書き","――それから、しばらくして。"),
-      line("r8_epilogue_06","ト書き","二人で暮らした部屋。机の上には、彼女が書きためたノートがあった。"),
+      line("r8_epilogue_06","ト書き","退院した僕は、二人で暮らしていた部屋に戻った。"),
+      line("r8_epilogue_home_notebook","ト書き","机の上には、彼女が書きためたノートがあった。"),
       line("r8_epilogue_07","ト書き","作りかけの謎。何度も引き直した線。小さな書き込み。ページをめくるたびに、彼女の姿が浮かんだ。"),
-      line("r8_epilogue_08","ト書き","僕はパソコンを開き、ノートを隣に置いた。"),
+      line("r8_epilogue_08","ト書き","パソコンの前に座り、ノートを広げた。"),
       line("r8_epilogue_09","主人公・心の声","彼女が作った謎を、今度は僕が届けていく。",{thought:true})
     ];
     const found=lines.findIndex(entry=>entry.logId===room8State.epilogueLogId);
@@ -2025,7 +2030,7 @@
   }
   function r8EndScreen(){
     Dialogue.stop();
-    game.innerHTML='<div class="late-ending"><p>最後の謎が解けるまで</p><h1>END</h1><p>脱出成功</p><button id="r8Title">タイトルへ</button></div>';
+    game.innerHTML='<div class="late-ending"><p>最後の謎が解けても</p><h1>END</h1><p>脱出成功</p><button id="r8Title">タイトルへ</button></div>';
     document.getElementById("r8Title").onclick=()=>showTitle();
   }
 })();

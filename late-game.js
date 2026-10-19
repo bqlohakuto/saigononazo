@@ -1863,7 +1863,7 @@
     });
   }
   function r8PuzzleRoom(){
-    game.innerHTML='<main class="room late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">何もない部屋</p></header><section class="late-stage empty r8-final-stage"><div class="r8-puzzle-art"><button class="r8-paper-hit" id="r8PaperImage" aria-label="机の上の紙を調べる" title="机の上の紙を調べる"></button></div><div class="r8-last-desk" aria-label="最後に残った机"><div class="r8-last-desk-legs" aria-hidden="true"></div><div class="r8-last-desk-top"><button class="r8-paper" id="r8Paper">一枚の紙</button></div></div></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
+    game.innerHTML='<main class="room late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">静かな部屋</p></header><section class="late-stage empty r8-final-stage"><div class="r8-puzzle-art"><button class="r8-paper-hit" id="r8PaperImage" aria-label="机の上の紙を調べる" title="机の上の紙を調べる"></button></div><div class="r8-last-desk" aria-label="最後に残った机"><div class="r8-last-desk-legs" aria-hidden="true"></div><div class="r8-last-desk-top"><button class="r8-paper" id="r8Paper">一枚の紙</button></div></div></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
     document.getElementById("r8Paper").onclick=r8Paper;
     document.getElementById("r8PaperImage").onclick=r8Paper;
     const finalArt=game.querySelector(".r8-puzzle-art");

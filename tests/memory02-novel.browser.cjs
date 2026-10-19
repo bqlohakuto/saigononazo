@@ -36,7 +36,11 @@ const specs = [
       await page.goto(base, { waitUntil: 'load' });
       await page.locator('#testRoomButton').click();
       await page.locator('[data-room="room02"]').click();
-      await page.evaluate(() => completeRoom2());
+      await page.evaluate(() => {
+        // Finish the room introduction before starting its recollection.
+        for (let i = 0; i < 100 && document.querySelector('#roomNextButton'); i++) Dialogue.advance();
+        completeRoom2();
+      });
 
       async function advanceTo(id) {
         const result = await page.evaluate(id => {

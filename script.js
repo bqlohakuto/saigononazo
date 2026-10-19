@@ -623,9 +623,8 @@ function showPianoScreen(){
   saveGame();
   const melody=input.value.replace(/[\s、。・,]/g,"");
   const melodyMatches=melody===firstRoomScenario.melody.join("");
-  const mailComplete=hasCheckedAllMail("inbox")&&hasCheckedAllMail("sent");
-  if(!melodyMatches||!mailComplete||!firstRoomState.hanaIntroduced){
-   const guidance=!firstRoomState.hanaIntroduced?"先にハナに話しかけてみよう。":!mailComplete&&melodyMatches?"携帯電話の受信メールと送信メールを、すべて確認する必要がありそうだ。":firstRoomScenario.pianoIncorrect.map(line=>line.text).join("\n");
+  if(!melodyMatches){
+   const guidance=firstRoomScenario.pianoIncorrect.map(line=>line.text).join("\n");
    showLoggedText(result,guidance,"room1_piano_incorrect","investigation","#8f1c1c");
    return;
   }

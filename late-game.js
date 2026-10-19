@@ -1962,10 +1962,9 @@
       line("r8_solve_40","主人公","……僕、行くよ"),
       line("r8_solve_41","花音","……うん",{logKind:"heroine"}),
       line("r8_solve_42","主人公","でも、これで終わりにはしない"),
-      line("r8_solve_43","主人公","最後の謎が解けても、僕たちの謎解きはこれからも続けよう"),
+      line("r8_solve_43","主人公","最後の謎が解けても、僕たちの謎解きは終わらない"),
       line("r8_solve_44","主人公","花音が作った謎を、今度は僕がみんなに届ける"),
-      line("r8_solve_45","主人公","だから、これが最後じゃない"),
-      line("r8_solve_46","主人公","これからも一緒に、謎解きを続けよう"),
+      line("r8_solve_46","主人公","だから、これからも一緒に謎解きを続けよう"),
       line("r8_solve_47","花音","……うん",{logKind:"heroine"}),
       line("r8_solve_48","花音","楽しみだね",{logKind:"heroine"})
     ],()=>{room8State.finalTalkSeen=true;saveGame();r8AfterSolved()});

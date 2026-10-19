@@ -1663,8 +1663,46 @@
     // dialogue (or resume its saved source line) instead of leaving an inert room.
     r8Intro();
   };
+  // Four approved Room 8 background frames, all with an identical camera angle.
+  // The last frame has no residual particles and only the desk and paper remain.
+  const R8_DISSOLVE_IMAGES=[
+    "images/background/room08/room08_dissolve_01_full.png",
+    "images/background/room08/room08_dissolve_02_start.png",
+    "images/background/room08/room08_dissolve_03_mid.png",
+    "images/background/room08/room08_dissolve_04_final.png"
+  ];
+  function r8SetDissolveStage(step,immediate=false){
+    const stage=game.querySelector(".r8-dissolve-stage");
+    if(!stage)return;
+    const next=Math.max(0,Math.min(R8_DISSOLVE_IMAGES.length-1,step));
+    if(stage.dataset.dissolveStep===String(next))return;
+    stage.dataset.dissolveStep=String(next);
+    const img=document.createElement("img");
+    img.className="r8-dissolve-frame";
+    img.alt="";
+    img.decoding="async";
+    img.onload=()=>{
+      if(!stage.isConnected||stage.dataset.dissolveStep!==String(next))return;
+      const previous=[...stage.querySelectorAll(".r8-dissolve-frame")];
+      stage.appendChild(img);
+      stage.classList.add("has-r8-image");
+      if(immediate||previous.length===0)img.classList.add("visible");
+      else requestAnimationFrame(()=>requestAnimationFrame(()=>img.classList.add("visible")));
+      if(previous.length)setTimeout(()=>previous.forEach(old=>old.remove()),immediate?0:950);
+    };
+    img.onerror=()=>{ /* Keep the existing frame or CSS fallback if a file is missing. */ };
+    img.src=R8_DISSOLVE_IMAGES[next];
+  }
+  function r8DissolveStepForLog(index,lines){
+    const at=id=>lines.findIndex(entry=>entry.logId===id);
+    if(index>=at("r8_047"))return 3;
+    if(index>=at("r8_039"))return 2;
+    if(index>=at("r8_037"))return 1;
+    return 0;
+  }
   function r8Living(){
-    game.innerHTML='<main class="room late-room r8-living" data-hana-pose="seated"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">リビング</p></header><section class="late-stage living final-living"><div class="r8-table"><span>ダイニングテーブル</span><span>ハナが椅子に座っている</span></div></section></main>';
+    game.innerHTML='<main class="room late-room r8-living" data-hana-pose="seated"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">リビング</p></header><section class="late-stage living final-living r8-dissolve-stage"><div class="r8-table r8-dissolve-fallback"><span>ダイニングテーブル</span><span>ハナが椅子に座っている</span></div></section></main>';
+    r8SetDissolveStage(0,true);
   }
   function r8Intro(){
     const lines=[
@@ -1802,6 +1840,8 @@
     const start=found<0?0:found;
     const standIndex=lines.findIndex(entry=>entry.logId==='r8_stand_01');
     const goneIndex=lines.findIndex(entry=>entry.logId==='r8_049');
+    // Resume directly at the saved visual frame without briefly showing earlier furniture.
+    r8SetDissolveStage(r8DissolveStepForLog(start,lines),true);
     showRoomDialog(lines.slice(start),()=>{
       room8State.introSeen=true;room8State.introLogId=null;room8State.puzzleReady=true;
       saveGame();r8PuzzleRoom();
@@ -1815,14 +1855,24 @@
       if(living){
         const pose=index>=goneIndex?'gone':index>=standIndex?'standing':'seated';
         living.dataset.hanaPose=pose;
-        living.querySelector('.r8-table span:last-child').textContent=pose==='seated'?'ハナが椅子に座っている':pose==='standing'?'ハナが立っている':'一枚の紙';
+        r8SetDissolveStage(r8DissolveStepForLog(index,lines));
+        const poseLabel=living.querySelector('.r8-table span:last-child');
+        if(poseLabel)poseLabel.textContent=pose==='seated'?'ハナが椅子に座っている':pose==='standing'?'ハナが立っている':'一枚の紙';
       }
       saveGame();
     });
   }
   function r8PuzzleRoom(){
-    game.innerHTML='<main class="room late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">何もない部屋</p></header><section class="late-stage empty r8-final-stage"><div class="r8-last-desk" aria-label="最後に残った机"><div class="r8-last-desk-legs" aria-hidden="true"></div><div class="r8-last-desk-top"><button class="r8-paper" id="r8Paper">一枚の紙</button></div></div></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
+    game.innerHTML='<main class="room late-room r8-empty"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">何もない部屋</p></header><section class="late-stage empty r8-final-stage"><div class="r8-puzzle-art"><button class="r8-paper-hit" id="r8PaperImage" aria-label="机の上の紙を調べる" title="机の上の紙を調べる"></button></div><div class="r8-last-desk" aria-label="最後に残った机"><div class="r8-last-desk-legs" aria-hidden="true"></div><div class="r8-last-desk-top"><button class="r8-paper" id="r8Paper">一枚の紙</button></div></div></section><p class="explore-status" id="exploreStatus">机の上の紙を調べる。</p></main>';
     document.getElementById("r8Paper").onclick=r8Paper;
+    document.getElementById("r8PaperImage").onclick=r8Paper;
+    const finalArt=game.querySelector(".r8-puzzle-art");
+    const finalImage=document.createElement("img");
+    finalImage.className="r8-puzzle-image";
+    finalImage.alt="";
+    finalImage.onload=()=>{if(finalArt.isConnected){finalArt.prepend(finalImage);finalArt.parentElement.classList.add("has-r8-final-image");}};
+    finalImage.onerror=()=>{ /* Retain the interactive CSS desk as a fallback. */ };
+    finalImage.src=R8_DISSOLVE_IMAGES[3];
     setHud("room08","最後の謎",()=>"彼女の名前を思い出す",()=>{},r8IsFinalClue);
     if(room8State.backSeen)queueMicrotask(r8ArmLogHint);
   }

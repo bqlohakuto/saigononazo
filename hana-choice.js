@@ -21,6 +21,13 @@
       .hana-choice-button:focus-visible{outline:3px solid #367da0;outline-offset:2px}
       .hana-choice-button.is-cancel{color:#2f414a;background:#fff}
       .hana-choice-menu .device-close{top:10px;right:12px;color:#4a4541}
+      .hana-scale-reference-overlay{place-items:center;padding:12px;background:rgba(20,39,49,.55)}
+      .hana-scale-reference-menu{width:min(480px,100%);max-height:85vh;max-height:85dvh;overflow-y:auto;position:relative}
+      .hana-scale-reference-table{width:100%;border-collapse:collapse;margin:8px 0 12px;color:#2f414a;font-size:15px}
+      .hana-scale-reference-table th,.hana-scale-reference-table td{border-bottom:1px solid #c8d8df;padding:6px 10px;text-align:left}
+      .hana-scale-reference-table thead th{background:#ebf4f6}
+      .hana-scale-reference-table tbody th{width:68px;color:#8a4058}
+      .hana-scale-reference-note{font-size:12px;line-height:1.6;color:#69635f}
       @media(max-width:768px){
         .hana-choice-overlay{padding:10px 10px 66px}
         .hana-choice-menu{padding:18px 14px 16px;border-radius:16px}
@@ -42,10 +49,30 @@
 
   function hasViewedChoice(choice) {
     if (choice.cancel) return false;
+    if (choice.reference) return GameLog.has("room1_hana_scale_reference_viewed");
     const lines = choice.id === "about-hana"
       ? [...firstRoomScenario.hanaFirst, ...firstRoomScenario.hanaAbout]
       : choice.lines;
     return Array.isArray(lines) && expandScenario(lines).some(line => GameLog.has(line.logId));
+  }
+
+  function showScaleReference() {
+    if (!firstRoomState?.questionSeen || Number(firstRoomState.hintLevel || 0) < firstRoomScenario.hanaHints.length || firstRoomState.melodySolved || firstRoomState.doorUnlocked) return;
+    ensureHanaChoiceStyle();
+    const rows = firstRoomScenario.scaleReference.map(({note,example}) => `<tr><th scope="row">${note}</th><td>${example}</td></tr>`).join("");
+    const overlay = document.createElement("div");
+    overlay.className = "device-overlay hana-scale-reference-overlay";
+    overlay.innerHTML = `<section class="hana-choice-menu hana-scale-reference-menu" aria-label="音階の参考">
+      <button type="button" class="device-close" aria-label="閉じる">×</button>
+      <p class="hana-choice-speaker">参考資料</p>
+      <h2>音階の参考</h2>
+      <p class="hana-choice-lead">それぞれの音から連想できる言葉の例だよ。</p>
+      <table class="hana-scale-reference-table"><thead><tr><th scope="col">音</th><th scope="col">連想する言葉の例</th></tr></thead><tbody>${rows}</tbody></table>
+      <p class="hana-scale-reference-note">※音階順の参考表です。メールの順番や、答えとなる8音の並びは示していません。</p>
+    </section>`;
+    game.appendChild(overlay);
+    recordLog({logId:"room1_hana_scale_reference_viewed",logType:"investigation",speaker:"システム",text:"音階の参考表を確認した。"});
+    activateDeviceModal(overlay, "hanaButton", overlay.querySelector(".device-close"));
   }
 
   function getHanaChoices() {
@@ -95,6 +122,9 @@
           }
         });
       }
+      if (Number(firstRoomState.hintLevel || 0) >= firstRoomScenario.hanaHints.length) {
+        choices.push({id: "scale-reference", label: "音階の参考を確認する", reference: true});
+      }
     }
 
     choices.push({id: "cancel", label: "なんでもない", cancel: true});
@@ -142,6 +172,7 @@
         if (!choice) return;
         close();
         if (choice.cancel) return;
+        if (choice.reference) { showScaleReference(); return; }
 
         showRoomDialog(choice.lines, () => {
           firstRoomState.hanaVisits = Number(firstRoomState.hanaVisits || 0) + 1;

@@ -118,7 +118,7 @@ const firstRoomScenario = {
         { logId: "room1_hana_piano_03", logType: "dialogue", speaker: "主人公", text: "僕は、あまり弾けないんです" },
         { logId: "room1_hana_piano_04", logType: "dialogue", speaker: "ハナ", text: "そうなんだ。でも、音を鳴らすだけでも楽しいよね" }
     ],
-    // ヒント1: 扉を確認後。2: ポスターとメールを確認後。3〜4: プレイヤーが次のヒントを希望したとき。
+    // ヒント1〜4: 扉の謎を確認後、プレイヤーが各段階を読むたびに次のヒントを解放する。調査状況による制限なし。
     hanaHints: [
         [
             { logId: "room1_hana_after_question_01", logType: "dialogue", speaker: "主人公", text: "『会話に隠された、音楽を奏でよ』……" },

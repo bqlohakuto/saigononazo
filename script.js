@@ -695,7 +695,8 @@ function showPianoScreen(){
   if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked)showFirstRoomMemory();
  });
  let solved=false;
- const normalize=()=>input.value.replace(/[\s、。・,]/g,"");
+ const normalizeMelody=value=>value.normalize("NFKC").replace(/[ぁ-ゖ]/gu,char=>String.fromCharCode(char.charCodeAt(0)+0x60)).replace(/[\s、。・,.\/|_-]/gu,"");
+ const normalize=()=>normalizeMelody(input.value);
  const updateInput=value=>{
   input.value=value;
   result.textContent="";

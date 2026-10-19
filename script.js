@@ -683,22 +683,46 @@ function showPianoScreen(){
  if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked){showFirstRoomMemory();return}
  const overlay=document.createElement("div");
  overlay.className="device-overlay";
- overlay.innerHTML=`<section class="piano-screen" aria-label="ピアノ"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>ピアノ</h2><p>8音の音階を入力する。</p><label>音階<input id="melodyInput" type="text" inputmode="text" autocomplete="off" placeholder="例：ドレミ" aria-label="演奏する8音の音階"></label><p class="piano-result" aria-live="polite"></p><button type="button" id="playMelodyButton">演奏する</button></section>`;
+ const notes=["ド","レ","ミ","ファ","ソ","ラ","シ"];
+ const keys=notes.map(note=>`<button type="button" class="piano-note-key" data-note="${note}" aria-label="${note}の鍵盤"><span>${note}</span></button>`).join("");
+ overlay.innerHTML=`<section class="piano-screen room1-piano-panel" aria-label="ピアノ"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>ピアノ</h2><p>8音の音階を入力する。</p><div class="piano-keyboard" role="group" aria-label="音階の鍵盤">${keys}<span class="piano-sharp piano-sharp-1" aria-hidden="true"></span><span class="piano-sharp piano-sharp-2" aria-hidden="true"></span><span class="piano-sharp piano-sharp-3" aria-hidden="true"></span><span class="piano-sharp piano-sharp-4" aria-hidden="true"></span><span class="piano-sharp piano-sharp-5" aria-hidden="true"></span></div><div class="piano-keyboard-tools"><button type="button" class="piano-undo">1音戻す</button><button type="button" class="piano-clear">全消去</button></div><label>音階（文字入力もできます）<input id="melodyInput" type="text" inputmode="text" autocomplete="off" placeholder="例：ドレミ" aria-label="演奏する8音の音階"></label><p class="piano-result" aria-live="polite"></p><button type="button" id="playMelodyButton">演奏する</button></section>`;
  game.appendChild(overlay);
  recordLog({logId:"room1_piano_prompt",logType:"investigation",speaker:"システム",logColor:"#222222",text:"8音の音階を入力する。"});
  const input=overlay.querySelector("#melodyInput"),result=overlay.querySelector(".piano-result"),button=overlay.querySelector("#playMelodyButton");
- const close=activateDeviceModal(overlay,"pianoButton",input,()=>{
+ const noteButtons=[...overlay.querySelectorAll(".piano-note-key")];
+ const undo=overlay.querySelector(".piano-undo"),clear=overlay.querySelector(".piano-clear");
+ const close=activateDeviceModal(overlay,"pianoButton",noteButtons[0],()=>{
   if(firstRoomState.melodySolved&&!firstRoomState.doorUnlocked)showFirstRoomMemory();
  });
  let solved=false;
- const finish=()=>{
-  close();
+ const normalize=()=>input.value.replace(/[\s、。・,]/g,"");
+ const updateInput=value=>{
+  input.value=value;
+  result.textContent="";
+  input.dispatchEvent(new Event("input",{bubbles:true}));
  };
+ noteButtons.forEach(key=>key.addEventListener("click",()=>{
+  if(solved)return;
+  const melody=normalize();
+  if([...melody].length+1>8)return;
+  const note=key.dataset.note;
+  updateInput(melody+note);
+  GameAudio.playPianoNote?.(note);
+ }));
+ undo.addEventListener("click",()=>{
+  if(solved)return;
+  const melody=normalize();
+  const parts=melody.match(/ファ|[ドレミソラシ]|./gu)||[];
+  parts.pop();
+  updateInput(parts.join(""));
+ });
+ clear.addEventListener("click",()=>{if(!solved)updateInput("");});
+ const finish=()=>{close();};
  button.addEventListener("click",()=>{
   if(solved){finish();return}
   firstRoomState.pianoAttempted=true;
   saveGame();
-  const melody=input.value.replace(/[\s、。・,]/g,"");
+  const melody=normalize();
   const melodyMatches=melody===firstRoomScenario.melody.join("");
   if(!melodyMatches){
    const guidance=firstRoomScenario.pianoIncorrect.map(line=>line.text).join("\n");
@@ -711,6 +735,9 @@ function showPianoScreen(){
   GameAudio.play("memoryMelody");
   showLoggedText(result,`${firstRoomScenario.melody.join("・")}♪`,"room1_piano_correct","investigation","#8f1c1c");
   input.disabled=true;
+  noteButtons.forEach(key=>key.disabled=true);
+  undo.disabled=true;
+  clear.disabled=true;
   button.disabled=true;
   setTimeout(finish,600);
  });

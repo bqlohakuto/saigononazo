@@ -513,7 +513,7 @@ function activateDeviceModal(overlay,openerId,initialFocus,onClose){
  const panel=overlay.querySelector("section"),closeButton=overlay.querySelector(".device-close");
  panel.setAttribute("role","dialog");
  panel.setAttribute("aria-modal","true");
- const controls=()=>[...panel.querySelectorAll("button:not(:disabled),input:not(:disabled)")].filter(el=>!el.closest("[hidden]"));
+ const controls=()=>[...panel.querySelectorAll("button:not(:disabled),input:not(:disabled)")].filter(el=>!el.closest("[hidden], [inert]"));
  let closed=false;
  const observer=new MutationObserver(()=>{
   if(!overlay.isConnected)release(false);

@@ -340,6 +340,48 @@ function within(inner,outer,tolerance=3){
     guess:room2State.guess.length,best:room2State.challengeBest,storyClear:room2State.unlocked
    })),{active:false,attempts:0,history:0,guess:0,best:3,storyClear:true},'Confirmed quit clears challenge only, preserving story and best');
 
+   // No.119: "一時中断" closes the puzzle only; the next desk visit resumes the same run.
+   await page.evaluate(()=>showSecondRoom({
+    doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true,
+    challengeActive:true,challengeBest:3,challengeCleared:true,attempts:2,
+    history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'赤'})),hit:0,blow:0}],
+    guess:[{symbol:'〇',color:'赤'},{symbol:'△',color:'青'}],
+    answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}))
+   }));
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-pause').count(),1,'The pause control is shown in active challenge');
+   assert.equal(await page.locator('.room2-pause').textContent(),'一時中断','Pause is visible, not only a tooltip');
+   assert.equal(await page.locator('.room2-pause').getAttribute('aria-label'),'一時中断');
+   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),2);
+   assert.equal(await page.locator('.room2-history-row').count(),1);
+   assert.equal(await page.locator('.room2-attempt-left').textContent(),'残り6回');
+   const pauseBounds=await page.locator('.room2-pause').boundingBox();
+   const puzzleBounds=await page.locator('.room2-puzzle').boundingBox();
+   assert(pauseBounds&&puzzleBounds&&pauseBounds.x>=puzzleBounds.x&&pauseBounds.x+pauseBounds.width<=puzzleBounds.x+puzzleBounds.width+3,'Pause control stays inside puzzle right edge');
+   assert(pauseBounds.y>=puzzleBounds.y&&pauseBounds.y+puzzleBounds.height<=puzzleBounds.y+puzzleBounds.height+3,'Pause control stays inside puzzle top edge');
+   await page.screenshot({path:path.join(dir,'11-room02-challenge-pausing.png')});
+   await page.locator('.room2-pause').click();
+   assert.equal(await page.locator('.room2-puzzle').count(),0,'Pause returns to room without abandonment confirmation');
+   assert.equal(await page.locator('.room2-abandon-confirm').count(),0);
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0);
+   assert.deepEqual(await page.evaluate(()=>({
+    active:room2State.challengeActive,attempts:room2State.attempts,
+    best:room2State.challengeBest,history:room2State.history.length,guess:room2State.guess.length
+   })),{active:true,attempts:2,best:3,history:1,guess:2},'Pause retains progress and personal best');
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'Clicking the desk blocks resumes instead of offering a new challenge');
+   assert.equal(await page.locator('.room2-pause').count(),1);
+   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),2,'Resumed puzzle restores selected blocks');
+   assert.equal(await page.locator('.room2-history-row').count(),1,'Resumed puzzle restores history');
+   assert.equal(await page.locator('.room2-attempt-left').textContent(),'残り6回','Resumed puzzle restores remaining attempts');
+   await page.locator('.room2-pause').click();
+
+   await page.evaluate(()=>showSecondRoom({doorInspected:true,deskInspected:true,unlocked:false,challengeActive:false}));
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-pause').count(),0,'Story mode still has its ordinary close button');
+   assert.equal(await page.locator('.room2-puzzle .device-close').getAttribute('aria-label'),'閉じる');
+   await page.locator('.room2-puzzle .device-close').click();
+
    // No.105: the optional challenge starts only after unlock and accepts a correct eighth answer.
    await page.evaluate(()=>showSecondRoom({doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true}));
    await page.evaluate(()=>{

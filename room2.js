@@ -279,7 +279,7 @@ function showSecondRoomHana(){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
  window.HanaChoiceUI?.ensureStyle?.();
  const topics=[
-  {id:"room",label:"この部屋について",lines:[{logId:"room2_hana_room_01",logType:"dialogue",speaker:"ハナ",text:"机のブロックを使って、扉の鍵を開けるみたいだね"},{logId:"room2_hana_room_02",logType:"dialogue",speaker:"主人公",text:"扉の言葉と机の記録を見て、順番を考えればよさそうですね"}]},
+  {id:"room",label:"この部屋について",lines:[{logId:"room2_hana_room_01",logType:"dialogue",speaker:"ハナ",text:"この部屋、何か仕掛けがありそうだね"},{logId:"room2_hana_room_02",logType:"dialogue",speaker:"主人公",text:"気になるところから調べてみます"}]},
   {id:"rules",label:"HITとBLOWについて",lines:[{logId:"room2_hana_rules_01",logType:"dialogue",speaker:"ハナ",text:"HITは記号・色・位置が全部合っているもの。BLOWは記号と色が合っていて、位置だけ違うものだよ"},{logId:"room2_hana_rules_02",logType:"dialogue",speaker:"主人公",text:"判定を比べながら、合っている組み合わせを絞っていくんですね"}]}
  ];
  if(!room2State.unlocked)topics.push({id:"hint",label:"考え方のヒント",lines:[{logId:`room2_hana_hint_${room2State.attempts}_${room2State.hanaHints}`,logType:"dialogue",speaker:"ハナ",text:"一度にたくさん変えると、どれが合っていたかわからなくなっちゃうよ。まずは一つずつ変えて、前の判定と比べてみよう"}]});

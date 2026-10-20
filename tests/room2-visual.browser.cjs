@@ -648,11 +648,21 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No redundant door-is-open narration');
    assert.deepEqual(await page.locator('.room2-choice-overlay [data-choice]').allTextContents(),
     ['次の部屋へ向かう','もう少し部屋をしらべてみる'],'Both existing destination choices remain unchanged');
+   const statusBeforeStay=await page.locator('#exploreStatus').textContent();
+   const storyBeforeStay=await page.evaluate(()=>({
+    unlocked:room2State.unlocked,doorInspected:room2State.doorInspected,deskInspected:room2State.deskInspected,
+    attempts:room2State.attempts,challengeBest:room2State.challengeBest
+   }));
    await page.waitForTimeout(360); // Design UI blocks the first 250 ms after a choice panel appears.
    await page.locator('.room2-choice-overlay [data-choice="1"]').click();
    assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Staying returns to exploration');
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Staying does not start a novel conversation');
-   assert.match(await page.locator('#exploreStatus').textContent(),/まだ何か調べられるかもしれない/,'Old continue-search feedback remains');
+   assert.equal(await page.locator('#exploreStatus').textContent(),statusBeforeStay,'No.125: staying adds no notification or exploration status');
+   assert.equal((await page.locator('#exploreStatus').textContent()).includes('まだ何か調べられるかもしれない'),false,'No.125: obsolete hint is never shown');
+   assert.deepEqual(await page.evaluate(()=>({
+    unlocked:room2State.unlocked,doorInspected:room2State.doorInspected,deskInspected:room2State.deskInspected,
+    attempts:room2State.attempts,challengeBest:room2State.challengeBest
+   })),storyBeforeStay,'Staying leaves story and optional challenge progress unchanged');
    await page.locator('#r2Door').click();
    assert.equal(await page.locator('.room2-choice-overlay').count(),1,'The door can be examined again with no narration');
    await page.waitForTimeout(360);

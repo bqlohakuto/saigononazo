@@ -362,3 +362,12 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .room2-puzzle .room2-pause:focus-visible{outline:3px solid #3476a4;outline-offset:2px}
 .room2-puzzle .room2-pause+h2{margin-right:0;min-height:36px}
 @media(max-height:500px){.room2-puzzle .room2-pause{padding:6px 8px;font-size:12px;margin-bottom:3px}.room2-puzzle .room2-pause+h2{min-height:28px}}
+
+/* No.127: cleared Room 2 door choices resemble a compact two-option retro game menu. */
+#game .room2-choice-overlay .room2-choice-panel{display:block;width:min(420px,calc(100% - 16px));max-height:min(88dvh,450px);padding:43px clamp(12px,2.5cqw,22px) 17px!important;border:3px solid #74634d!important;border-radius:0!important;background:#f4efe3!important;color:#302b27;box-shadow:5px 5px 0 #29231b80,0 12px 32px #0006;overflow-y:auto}
+#game .room2-choice-panel .room2-choice-options{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}
+#game .room2-choice-panel .room2-choice-options>[data-choice]{display:block;width:100%;min-height:46px;margin:0;padding:9px 13px;border:2px solid #877564;border-radius:0;background:#fffaf0;color:#332c25;text-align:left;font:inherit;font-size:clamp(14px,2cqw,18px);line-height:1.45;white-space:normal;overflow-wrap:anywhere;cursor:pointer}
+#game .room2-choice-panel .room2-choice-options>[data-choice]:hover{background:#e9e0d1}
+#game .room2-choice-panel .room2-choice-options>[data-choice]:focus-visible{outline:3px solid #3476a4;outline-offset:2px}
+#game .room2-choice-panel>.device-close{top:7px;right:9px;min-height:30px;min-width:44px;padding:3px 8px}
+@media(max-height:500px){#game .room2-choice-overlay .room2-choice-panel{max-height:94dvh;padding:35px 12px 10px!important}#game .room2-choice-panel .room2-choice-options{gap:6px}#game .room2-choice-panel .room2-choice-options>[data-choice]{min-height:37px;padding:6px 10px;font-size:14px}}

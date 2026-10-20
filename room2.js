@@ -170,6 +170,51 @@ function room2ShouldRevealLeftmostHint(history,attempts){
   entry.hit>=0&&entry.blow>=0&&entry.hit<5&&entry.hit+entry.blow===5
  );
 }
+function showRoom2AbandonConfirm(overlay,closePuzzle,clearReactionTimer){
+ const puzzle=overlay.querySelector(".room2-puzzle");
+ if(!puzzle||puzzle.querySelector(".room2-abandon-confirm"))return;
+ const prompt=document.createElement("div");prompt.className="room2-abandon-confirm";
+ prompt.setAttribute("role","alertdialog");
+ prompt.setAttribute("aria-modal","true");
+ prompt.setAttribute("aria-label","8回チャレンジを終了しますか");
+ prompt.innerHTML=`<div class="room2-abandon-panel">
+  <p class="room2-result-kicker">8回チャレンジ</p>
+  <h2>今回の挑戦を終了しますか？</h2>
+  <p>回答と判定履歴はリセットされます。<br>自己ベストは残ります。</p>
+  <div class="room2-result-actions">
+   <button type="button" class="room2-abandon-accept">終了する</button>
+   <button type="button" class="room2-abandon-continue">挑戦を続ける</button>
+  </div>
+ </div>`;
+ const suspended=[...puzzle.children].map(node=>({node,inert:node.inert,hidden:node.getAttribute("aria-hidden")}));
+ suspended.forEach(({node})=>{node.inert=true;node.setAttribute("aria-hidden","true")});
+ puzzle.appendChild(prompt);
+ const originalFocus=document.activeElement;
+ const cancel=()=>{
+  window.removeEventListener("keydown",onEscape,true);
+  prompt.remove();
+  suspended.forEach(({node,inert,hidden})=>{node.inert=inert;if(hidden===null)node.removeAttribute("aria-hidden");else node.setAttribute("aria-hidden",hidden)});
+  if(originalFocus?.isConnected&&!originalFocus.closest("[inert]"))originalFocus.focus({preventScroll:true});
+ };
+ function onEscape(event){
+  if(event.key!=="Escape")return;
+  event.preventDefault();event.stopImmediatePropagation();cancel();
+ }
+ window.addEventListener("keydown",onEscape,true);
+ prompt.querySelector(".room2-abandon-continue").addEventListener("click",cancel);
+ prompt.querySelector(".room2-abandon-accept").addEventListener("click",()=>{
+  cancel();
+  clearReactionTimer();
+  room2State.challengeActive=false;
+  room2State.guess=[];room2State.history=[];room2State.attempts=0;
+  room2State.leftmostHintRevealed=false;
+  saveGame();
+  recordLog({logId:`room2_challenge_abandoned_${room2State.run}`,logType:"investigation",speaker:"ト書き",text:"今回のチャレンジを終了した。自己ベストは残る。"});
+  closePuzzle();
+ });
+ prompt.querySelector(".room2-abandon-continue").focus({preventScroll:true});
+}
+
 function showSecondRoomPuzzle(){
  if(room2State.challengeActive&&room2State.attempts>=8){finishRoom2Challenge(()=>{},false);return}
  const isChallenge=room2State.challengeActive===true;
@@ -181,22 +226,7 @@ function showSecondRoomPuzzle(){
  let reactionTimer=null;
  const clearReactionTimer=()=>{if(reactionTimer!==null){window.clearTimeout(reactionTimer);reactionTimer=null}};
  const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".device-close"),clearReactionTimer);
- if(isChallenge)overlay.querySelector(".room2-abandon").addEventListener("click",()=>{
-  close();
-  showRoomDialog([{
-   logId:`room2_challenge_quit_confirm_${room2State.run}`,logType:"investigation",speaker:"ト書き",
-   text:"今回のチャレンジを終了しますか？　現在の解答と判定履歴は消えます。自己ベストは残ります。"
-  }],()=>showRoomChoices([
-   {label:"挑戦をやめる",onSelect:()=>{
-    room2State.challengeActive=false;
-    room2State.guess=[];room2State.history=[];room2State.attempts=0;
-    room2State.leftmostHintRevealed=false;
-    saveGame();
-    showRoomNotice("今回のチャレンジを終了した。机から新たに挑戦できる。","room2_challenge_abandoned");
-   }},
-   {label:"挑戦を続ける",onSelect:showSecondRoomPuzzle}
-  ]));
- });
+ if(isChallenge)overlay.querySelector(".room2-abandon").addEventListener("click",()=>showRoom2AbandonConfirm(overlay,close,clearReactionTimer));
  overlay.querySelector(".room2-clear").onclick=()=>{room2State.guess=[];selectedSlot=null;feedback.style.whiteSpace="pre-line";feedback.textContent="配置をクリアしました。\n5つの枠に駒を並べてください。";saveGame();render()};
  let reactionDone=null;
  const endReaction=()=>{

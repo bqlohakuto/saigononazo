@@ -3,7 +3,6 @@
 // Any missing design data is shown in-game as 【未確定】 instead of being silently invented.
 (() => {
   const line=(logId,speaker,text,extra={})=>({logId,logType:speaker==="ト書き"?"narration":speaker==="システム"?"narration":"dialogue",speaker,text,...extra});
-  const pending=text=>line("pending_"+Math.random().toString(36).slice(2),"システム","【未確定】"+text);
   const setHud=(sceneId,title,objective,onCompanion,highlightLogEntry)=>{
     if(!window.GameplayUI)return;
     GameplayUI.installRoom({
@@ -344,13 +343,13 @@
       line("r5_board_complete_01","ト書き","――カチッ。"),
       line("r5_board_complete_02","ト書き","八つの完成した絵が、一斉に淡く光る。"),
       line("r5_board_complete_03","主人公","……？"),
-      line("r5_board_complete_04","ト書き","それぞれの絵に仕込まれていた細い線が浮かび上がる。線は中央へ伸びていき――"),
-      line("r5_board_complete_05","システム","8194"),
+      line("r5_board_complete_04","ト書き","八つの絵を縁取る光が、中央の一か所に集まっていく。"),
+      line("r5_board_complete_05","ト書き","光の中に、四つの数字が浮かび上がった。"),
+      line("r5_board_complete_digits","システム","8194"),
       line("r5_board_complete_06","主人公","……8194。"),
       line("r5_board_complete_07","ト書き","正面の扉へ細い光の筋が走る。何もなかった扉の表面がゆっくりと変化し、四桁のテンキーが浮かび上がる。"),
       line("r5_board_complete_08","主人公","入力しろ、ということですね。"),
-      line("r5_board_complete_09","ハナ","そうみたい。"),
-      pending("8194を作る線・模様の正確なビジュアル配置は未確定。現在は数字を直接表示しています。")
+      line("r5_board_complete_09","ハナ","そうみたい。")
     ],renderR5);
   }
 
@@ -803,10 +802,12 @@
     r6TravelGeneration++;r6Moving=false;game.classList.remove('r6-map-revealing');
     Dialogue.stop();currentScene="room06";room6State=normalizeR6(savedState);renderR6();saveGame();
     if(!room6State.introSeen){room6State.introSeen=true;saveGame();showRoomDialog([
-      pending("第6の部屋導入の具体的なト書き。A8開始・白床・壁文は確定。"),
-      line("r6_intro_01","ト書き","白い床の小部屋。いくつもの扉が、隣の部屋へ続いている。"),
+      line("r6_intro_entry_01","ト書き","白い光が薄れ、足元に床の輪郭が戻ってきた。"),
+      line("r6_intro_entry_02","ト書き","小さな部屋だった。床も壁も明るい色で、四方には隣の部屋へ続く扉がある。"),
+      line("r6_intro_01","ト書き","足元の床は白い。どの扉の先にも、同じような空間が続いているようだ。"),
+      line("r6_intro_entry_03","ト書き","壁の一角に、短い言葉が刻まれていた。"),
       line("r6_intro_02","問題文","最後の影が消える時、閉ざされた道は開かれる。"),
-      line("r6_intro_03","ト書き","開始地点はA8。今いる床は白い。")]);}
+      line("r6_intro_03","主人公","……まずは、この部屋から調べてみよう。",{thought:true})]);}
     else if(!room6State.memorySeen&&room6State.moves.length===9&&room6State.board.every(c=>c==='W'))r6Complete();
     else if(room6State.othelloKnown&&!room6State.mapComplete)r6RevealMap();
   };

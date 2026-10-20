@@ -345,3 +345,13 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .room2-start-panel .room2-result-attempts{font-size:clamp(16px,2.3vw,20px)}
 .room2-start-panel .room2-start-confirm{border-color:#574739;background:#574739;color:#fffaf0}
 .room2-start-panel>.design-op-button{display:none}
+
+/* No.118: non-blocking abandon confirmation inside the existing Room 2 challenge board. */
+.room2-puzzle .room2-abandon-confirm{position:absolute;inset:0;z-index:20;display:grid;place-items:center;min-height:100%;padding:12px;background:rgba(26,22,21,.71)}
+.room2-abandon-panel{display:grid;gap:13px;width:min(440px,100%);padding:22px 24px;border:3px solid #594a40;border-radius:12px;background:#f7f2e7;color:#342d29;text-align:center;box-shadow:0 12px 32px #0006}
+.room2-puzzle .room2-abandon-panel h2{margin:0;font-size:22px;line-height:1.4}
+.room2-abandon-panel>p:not(.room2-result-kicker){margin:0;font-size:16px;line-height:1.7}
+.room2-abandon-panel .room2-result-actions{margin:3px 0 0}
+.room2-abandon-panel .room2-abandon-accept{border-color:#574739;background:#574739;color:#fffaf0}
+.room2-abandon-panel button:focus-visible{outline:3px solid #3476a4;outline-offset:3px}
+@media(max-height:500px){.room2-puzzle .room2-abandon-confirm{padding:6px}.room2-abandon-panel{width:min(450px,100%);padding:12px 16px;gap:7px}.room2-puzzle .room2-abandon-panel h2{font-size:19px}.room2-abandon-panel>p:not(.room2-result-kicker){font-size:13px;line-height:1.5}.room2-abandon-panel .room2-result-actions button{min-height:38px;padding:6px;font-size:14px}}

@@ -121,6 +121,17 @@ function room2ChallengeCounterInfo(attempts){
  const used=Number.isInteger(attempts)?Math.min(8,Math.max(0,attempts)):0;
  return {used,remaining:8-used};
 }
+// The one-time leftmost clue is earned only when one of the first five
+// judgements already establishes all five symbol/color combinations.
+function room2ShouldRevealLeftmostHint(history,attempts){
+ if(!Array.isArray(history)||!Number.isInteger(attempts)||attempts<5||history.length<5)return false;
+ const firstFive=history.slice(0,5);
+ if(firstFive.some(entry=>entry?.hit===5&&entry?.blow===0))return false;
+ return firstFive.some(entry=>
+  Number.isInteger(entry?.hit)&&Number.isInteger(entry?.blow)&&
+  entry.hit>=0&&entry.blow>=0&&entry.hit<5&&entry.hit+entry.blow===5
+ );
+}
 function showSecondRoomPuzzle(){
  if(room2State.challengeActive&&room2State.attempts>=8){finishRoom2Challenge(()=>{},false);return}
  const isChallenge=room2State.challengeActive===true;
@@ -194,13 +205,13 @@ function showSecondRoomPuzzle(){
    overlay.querySelectorAll(".room2-attempt-step").forEach((step,index)=>step.classList.toggle("is-used",index<count.used));
   }
   overlay.querySelector(".room2-submit").disabled=room2State.guess.length!==5||(isChallenge&&room2State.attempts>=8);
-  hintRequest.hidden=isChallenge||room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked;
+  hintRequest.hidden=isChallenge||!room2ShouldRevealLeftmostHint(room2State.history,room2State.attempts)||room2State.leftmostHintRevealed||room2State.unlocked;
   hint.hidden=!room2State.leftmostHintRevealed;
   hint.textContent=room2State.leftmostHintRevealed?`開示された左端の記号：「${room2State.answer[0].symbol}」`:"";
    lastPlacedSlot=null;
  };
  hintRequest.addEventListener("click",()=>{
-  if(isChallenge||room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked)return;
+  if(isChallenge||!room2ShouldRevealLeftmostHint(room2State.history,room2State.attempts)||room2State.leftmostHintRevealed||room2State.unlocked)return;
   room2State.leftmostHintRevealed=true;
   saveGame();
   render();

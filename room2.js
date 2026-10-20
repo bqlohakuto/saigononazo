@@ -109,7 +109,7 @@ function finishRoom2Challenge(close,success){
   room2State.challengeBest=room2State.challengeBest===null?attempts:Math.min(room2State.challengeBest,attempts);
  }
  saveGame();close();
- const message=success?`8回チャレンジ達成！　${attempts}回で正解した。自己ベスト：${room2State.challengeBest}回。`:"8回以内には正解できなかった。でも、物語の進行には影響しない。";
+ const message=success?`8回チャレンジ達成！　${attempts}回で正解した。自己ベスト：${room2State.challengeBest}回。`:"8回の挑戦が終わった。\n今回は正解に届かなかった。\nブロックを並べ直せば、もう一度挑戦できる。";
  showRoomDialog([{logId:`room2_challenge_result_${room2State.run}`,logType:"investigation",speaker:"ト書き",text:message}],()=>showRoomChoices([
   {label:"もう一度挑戦する",onSelect:beginRoom2Challenge},
   {label:"部屋に戻る",onSelect:()=>showRoomNotice("机からいつでも再挑戦できる。","room2_challenge_return")}

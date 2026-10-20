@@ -44,11 +44,13 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   click('[data-dest="A7"]');click('[data-dest="B8"]');
   assert.ok(q('.r6-travel-shade'));
   assert.equal(save().rooms.room06.current,'A8','background switches only under darkness');
-  await wait(210);assert.equal(save().rooms.room06.current,'A7');
+  assert.equal(q('.r6-space').dataset.travel,'north');
+  assert.equal(q('.r6-travel-label').textContent,'正面の部屋へ');
+  await wait(270);assert.equal(save().rooms.room06.current,'A7');
   click('[data-dest="B7"]');assert.equal(save().rooms.room06.current,'A7','input remains locked during fade-in');
-  await wait(290);assert.equal(q('.r6-travel-shade'),null);finish();
+  await wait(360);assert.equal(q('.r6-travel-shade'),null);finish();
   assert.equal(save().rooms.room06.visited.length,2,'one click sequence creates one visit');
-  click('[data-dest="B7"]');run('showSixthRoom({introSeen:true})');await wait(500);
+  click('[data-dest="B7"]');run('showSixthRoom({introSeen:true})');await wait(650);
   assert.equal(save().rooms.room06.current,'A8','loading a room cancels stale travel timers');
   assert.equal(q('.room-dialog-overlay'),null,'stale travel cannot open a dialogue');
   w.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});

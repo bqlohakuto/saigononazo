@@ -1,13 +1,18 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
-const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononazo/';
+const root=path.resolve(__dirname,'..'),base=process.env.PUBLIC_BASE_URL||'https://room6.local/';
+const mobileEngine=process.env.R6_MOBILE_ENGINE==='chromium'?chromium:webkit;
 (async()=>{
- for(const spec of [{name:'pc',engine:chromium,viewport:{width:1366,height:768}},{name:'landscape',engine:webkit,viewport:{width:852,height:393},mobile:true}]){
+ for(const spec of [{name:'pc',engine:chromium,viewport:{width:1366,height:768}},{name:'landscape',engine:mobileEngine,viewport:{width:852,height:393},mobile:true}]){
   const browser=await spec.engine.launch({headless:true});
   try{
    const ctx=await browser.newContext({viewport:spec.viewport,isMobile:!!spec.mobile,hasTouch:!!spec.mobile,reducedMotion:'reduce'});
    await ctx.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
    const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+   if(!process.env.PUBLIC_BASE_URL)await page.route('https://room6.local/**',route=>{
+    const file=path.resolve(root,decodeURIComponent(new URL(route.request().url()).pathname).replace(/^\//,'')||'index.html');
+    return route.fulfill(file.startsWith(root+path.sep)&&fs.existsSync(file)?{path:file}:{status:404,body:''});
+   });
    await page.goto(base+'?r6review='+Date.now(),{waitUntil:'load'});
    const assets=['white','black','green','clean-room-v2','walls','inner','lever-neutral','lever-white','lever-black','map-paper-v2'];
    await page.evaluate(async names=>{for(const n of names){const im=new Image();im.src='images/background/room06/'+n+'.webp';await im.decode();if(im.naturalWidth<100)throw new Error('bad asset '+n)}},assets);
@@ -34,6 +39,10 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    await page.mouse.click(scene.x+scene.width*.5,scene.y+scene.height*.38);
    await page.waitForSelector('.r6-travel-shade');
    assert(await page.locator('.r6-full').evaluate(el=>el.inert),'room input locked while travelling');
+   assert.equal(await page.locator('.r6-space').getAttribute('data-travel'),'north');
+   assert.equal(await page.locator('.r6-travel-label').innerText(),'正面の部屋へ');
+   await page.waitForTimeout(100);
+   assert.notEqual(await page.locator('.r6-space').evaluate(el=>getComputedStyle(el).transform),'none');
    await page.screenshot({path:path.join(dir,'travel-fade.png')});
    await page.waitForSelector('.r6-travel-shade',{state:'detached'});await finish();
    assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),'A7');
@@ -63,7 +72,31 @@ const base=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononaz
    const grid=await page.locator('.r6-map').boundingBox();
    assert(grid.x>=paper.x&&grid.x+grid.width<=paper.x+paper.width,'map cells remain on paper');
    const hana=await page.locator('#r6Hana').boundingBox();assert(hana.x>scene.x+scene.width*.6,'Hana retains right-side placement');
+   assert(paper.x+paper.width<hana.x,'compact map never covers Hana');
+   const wall=await page.locator('#r6WallText').boundingBox();assert(paper.y+paper.height<wall.y,'map keeps wall writing readable');
+   assert(hana.y+hana.height<scene.y+scene.height*.82,'feet remain grounded in the middle of the room');
+   assert(hana.height>scene.height*.55,'Hana has adult scale beside the doors');
+   assert.equal(await page.locator('.r6-map-location').innerText(),'現在地 D1');
    await page.screenshot({path:path.join(dir,'full-map.png')});
+   // Same-color rooms and every exit remain distinguishable without a dialogue.
+   await page.emulateMedia({reducedMotion:'no-preference'});
+   await page.evaluate(ids=>showSixthRoom({introSeen:true,current:'D4',visited:ids,mapEvent:true,mapComplete:true,othelloKnown:true,interview4:true}),all);
+   for(const [direction,destination] of [['north','D3'],['east','E3'],['south','E4'],['west','D4']]){
+    const b=await page.locator('.r6-scene').boundingBox();const points={north:[.5,.38],east:[.92,.45],west:[.07,.45],south:[.5,.96]};const [x,y]=points[direction];
+    const prior=await page.locator('.r6-scene').getAttribute('data-current');
+    await page.mouse.click(b.x+b.width*x,b.y+b.height*y);
+    assert.equal(await page.locator('.r6-space').getAttribute('data-travel'),direction);
+    await page.waitForSelector('.r6-travel-shade',{state:'detached'});
+    assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),destination);
+    assert.equal(await page.locator('.r6-arrival').innerText(),prior+' → '+destination);
+    assert.equal(await page.locator('.r6-cell.current.just-arrived').getAttribute('data-cell'),destination);
+   }
+   await page.locator('[data-cell="H4"]').click();await page.waitForSelector('.r6-travel-shade',{state:'detached'});
+   assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),'H4');
+   assert.equal(await page.locator('.r6-arrival').innerText(),'D4 → H4');
+   await page.screenshot({path:path.join(dir,'map-arrival.png')});
+   await page.emulateMedia({reducedMotion:'reduce'});
+   await page.evaluate(ids=>showSixthRoom({introSeen:true,current:'D1',visited:ids,mapEvent:true,mapComplete:true,othelloKnown:true,interview4:true}),all);
    await page.locator('#r6Hana').click();
    assert.equal(await page.locator('[data-r6-hint="mechanism"]').count(),0);
    await page.screenshot({path:path.join(dir,'hint-menu.png')});

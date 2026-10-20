@@ -1,6 +1,7 @@
 /* Fixed-view room cells; approved pixel assets remain separate from live state. */
 #game .r6-full{position:absolute;inset:0;padding:0;overflow:hidden;background:#dad9df}
 .r6-scene{position:absolute;inset:0;isolation:isolate;--r6-floor-tint:#fff}
+.r6-space{position:absolute;inset:0;transition:transform 280ms ease-out;transform-origin:50% 50%}
 .r6-scene[data-color=black]{--r6-floor-tint:#282831}
 .r6-scene[data-color=green]{--r6-floor-tint:#37815b}
 .r6-floor,.r6-walls{position:absolute;inset:0;pointer-events:none;background:url('images/background/room06/clean-room-v2.webp') center/100% 100%;image-rendering:pixelated}
@@ -14,8 +15,6 @@
 .r6-door-south::after{content:'▼';color:#57505c}
 #game .r6-door:hover,#game .r6-door:focus-visible{filter:brightness(1.14)}
 #game .r6-wall-text{position:absolute;left:21%;top:24%;width:20%;padding:0;border:0;background:none;color:#44424e;font-family:monospace;font-size:clamp(9px,1.35vw,19px);font-weight:700;line-height:1.7;text-align:left;cursor:pointer;box-shadow:none}
-#game .r6-hana{position:absolute;left:63%;top:29%;width:14%;height:57%;padding:0;border:0;background:transparent;pointer-events:auto;cursor:pointer}
-#game .r6-hana::before{position:absolute;inset:0;content:'';background:url('images/characters/hana-hires/idle/01.webp') center bottom/contain no-repeat;image-rendering:pixelated;animation:hanaExplorationIdle 2.4s steps(1,end) infinite;pointer-events:none}
 .r6-lever{position:absolute;left:39%;top:65%;width:22%;height:25%}
 .r6-lever img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;pointer-events:none}
 #game .r6-lever button{position:absolute;top:0;bottom:0;width:50%;border:0;background:transparent;padding:0;cursor:pointer;box-shadow:none}
@@ -50,37 +49,52 @@
  .r6-map-paper.expanded .r6-map-scroll{max-height:calc(65dvh - 35px)}
  #game .r6-history{bottom:2%;gap:3px;padding:3px}#game .r6-history button{min-height:28px;padding:4px}
 }
-@media(prefers-reduced-motion:reduce){#game .r6-hana::before{animation:none}}
 /* Override legacy late-room map sizing and companion placement explicitly. */
 #game .r6-full .r6-map{--step:24px;grid-template-columns:repeat(var(--cols),var(--step));grid-template-rows:repeat(var(--rows),var(--step));width:calc(var(--cols)*var(--step));height:calc(var(--rows)*var(--step));aspect-ratio:auto;gap:0}
 #game .r6-full .r6-map-paper.expanded .r6-map{--step:42px}
-#game .r6-full .r6-map-paper{left:64%;top:12%;padding-top:34px;max-width:28%}
+#game .r6-full .r6-map-paper{left:20%;top:8%;padding-top:34px;max-width:21.5%;min-width:160px}
 #game .r6-full .r6-map-paper.expanded{left:auto;right:2%;top:12%;max-width:54%}
-#game .r6-full .r6-hana{left:63%;right:auto;top:29%;bottom:auto;width:14%;height:57%;background-size:contain;background-repeat:no-repeat;background-position:center bottom;pointer-events:auto;z-index:2}
-#game .r6-full .r6-hana::before{display:none}
 @media(max-height:500px){
  #game .r6-full .r6-map{--step:16px}
  #game .r6-full .r6-map .r6-cell{width:13px;height:13px;font-size:9px}
- #game .r6-full .r6-map-paper{top:15%;max-width:28%;max-height:62%;padding-top:31px}
+ #game .r6-full .r6-map-paper{top:8%;max-width:21.5%;min-width:140px;max-height:62%;padding-top:31px}
  #game .r6-full .r6-map-paper.expanded{top:15%;max-width:54%;max-height:78%}
  #game .r6-full .r6-map-paper.expanded .r6-map{--step:38px}
  #game .r6-full .r6-map-paper.expanded .r6-cell{width:32px;height:32px;font-size:18px}
  .r6-map-scroll{max-height:calc(48dvh - 35px)}
 }
-#game .r6-full #r6Hana{left:63%;right:auto;top:29%;bottom:auto;width:14%;height:57%;background-size:contain;background-repeat:no-repeat;background-position:center bottom;pointer-events:auto;z-index:2}
-#game .r6-full #r6Hana::before{display:none}
-/* Leave the compact map above Hana, with both available during exploration. */
-#game .r6-full #r6Hana{top:44%;height:43%;width:13%;left:65%}
 @media(max-height:500px){
  #game .r6-full .r6-map-paper:not(.expanded){top:8%}
  #game .r6-full .r6-map-paper:not(.expanded) .r6-map{--step:12px}
  #game .r6-full .r6-map-paper:not(.expanded) .r6-cell{width:10px;height:10px;font-size:7px}
 }
 
-/* A short, input-locked fade distinguishes rooms even when floor colors match. */
-#game .r6-travel-shade{position:absolute;inset:0;z-index:100;background:#080b12;opacity:0;pointer-events:auto;transition:opacity 150ms ease-in}
+/* Walk through the chosen doorway; keep the map and HUD still. */
+#game .r6-space[data-travel=north]{transform-origin:50% 38%}
+#game .r6-space[data-travel=east]{transform-origin:93% 45%}
+#game .r6-space[data-travel=west]{transform-origin:7% 45%}
+#game .r6-space[data-travel=south]{transform-origin:50% 96%}
+#game .r6-space.departing{transform:scale(1.22)}
+#game .r6-space.arriving{transform:scale(1.08)}
+#game .r6-space[data-travel=east].arriving{transform:translateX(4%) scale(1.08)}
+#game .r6-space[data-travel=west].arriving{transform:translateX(-4%) scale(1.08)}
+#game .r6-space[data-travel=map]{transform:none}
+#game .r6-door.is-travel-target{filter:brightness(1.35)}
+#game .r6-travel-shade{position:absolute;inset:0;z-index:100;display:grid;place-items:center;background:#080b12;opacity:0;pointer-events:auto;transition:opacity 200ms ease-in}
 #game .r6-travel-shade.covered{opacity:1}
-@media(prefers-reduced-motion:reduce){#game .r6-travel-shade{transition:none}}
+#game .r6-travel-label{color:#eee6ce;font-size:clamp(14px,1.8cqw,23px);letter-spacing:.12em;text-shadow:1px 2px #000}
+#game .r6-arrival{position:absolute;left:50%;bottom:10%;transform:translateX(-50%);z-index:7;padding:5px 14px;background:#18222de8;color:#f5e9ca;border:1px solid #b49a62;font-size:clamp(11px,1.25cqw,16px);pointer-events:none;animation:r6Arrival 1500ms both}
+#game:has(.room-dialog-overlay) .r6-arrival{display:none}
+@keyframes r6Arrival{0%{opacity:0}12%,70%{opacity:1}100%{opacity:0}}
+#game .r6-full .r6-map .r6-cell.current{border-color:#a86e18;outline:2px solid #efca6b;outline-offset:1px;z-index:2}
+#game .r6-full .r6-map .r6-cell.is-travel-target{outline:3px solid #efca6b;z-index:3}
+#game .r6-cell.just-arrived{animation:r6Location 700ms ease-out}
+@keyframes r6Location{0%,45%{box-shadow:0 0 0 6px #efca6baa}100%{box-shadow:0 0 0 0 #efca6b00}}
+@media(prefers-reduced-motion:reduce){
+ #game .r6-space,#game .r6-travel-shade{transition:none}
+ #game .r6-arrival,#game .r6-cell.just-arrived{animation:none}
+ #game .r6-cell.just-arrived{box-shadow:0 0 0 3px #efca6b}
+}
 
 #game.r6-map-revealing .r6-map-paper{visibility:visible;pointer-events:none}
 #game.r6-map-revealing .r6-map{animation:r6MapDraw 650ms steps(8,end) both}
@@ -95,3 +109,11 @@
 #game .r6-guide-scroll table{width:100%;border-collapse:collapse;margin-bottom:12px;text-align:center}
 #game .r6-guide-scroll th,#game .r6-guide-scroll td{border:1px solid #d4c29b;padding:5px}
 @media(max-height:500px){#game .r6-test-guide{padding:12px;max-height:92%}#game .r6-test-guide h2{font-size:16px}#game .r6-guide-scroll{font-size:12px}#game .r6-test-guide-button{padding:5px 8px;font-size:12px}}
+
+/* Match an adult at this floor depth to the room's doors, independently of the map. */
+#game .r6-full #r6Hana{position:absolute;left:61.5%;right:auto;top:16%;bottom:auto;width:19%;height:61%;padding:0;border:0;background:url('images/characters/hana-hires/idle/01.webp') center bottom/contain no-repeat;pointer-events:auto;cursor:pointer;z-index:2;opacity:1}
+#game .r6-full #r6Hana::before{display:none}
+#game .r6-map-location{position:absolute;top:9px;left:14px;font-size:12px;line-height:20px;color:#55472f;white-space:nowrap}
+#game .r6-scene:has(.r6-map-paper:not(.expanded)) .r6-wall-text{top:45%}
+#game .r6-map-toggle{top:10%;left:21%;right:auto}
+@media(max-height:500px){#game .r6-map-location{left:10px;top:9px;font-size:10px}}

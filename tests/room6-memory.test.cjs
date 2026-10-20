@@ -7,7 +7,7 @@ test('Room 6 recollection and connection reproduce the complete recorded script'
  const context=vm.createContext({line:(logId,speaker,text,extra={})=>({logId,speaker,text,...extra})});
  vm.runInContext(source.slice(start,end)+';globalThis.entries=R6_MEMORY_AND_AFTER',context);
  const entries=Array.from(context.entries),actual=entries.filter(e=>e.logId!=='r6_final_signal').map(e=>({speaker:e.speaker,text:e.text}));
- assert.deepEqual(actual,expected);assert.equal(expected.length,105);
+ assert.deepEqual(actual,expected);assert.equal(expected.length,106);
  assert.equal(new Set(entries.map(e=>e.logId)).size,entries.length);
  assert(entries.filter(e=>e.speaker==='主人公・心の声').every(e=>e.thought));
  const signal=entries.findIndex(e=>e.logId==='r6_final_signal');assert(entries[signal-1].text.startsWith('夜道。'));

@@ -42,6 +42,27 @@ function within(inner,outer,tolerance=3){
    await readyPage(page);
    const dir=path.join(output,spec.name);fs.mkdirSync(dir,{recursive:true});
    await page.evaluate(()=>{settings.instantText=true;showSecondRoom({doorInspected:true,deskInspected:true});});
+   // No.123: saved progress and an active challenge both reopen silently.
+   await page.evaluate(()=>showSecondRoom({
+    doorInspected:true,deskInspected:true,unlocked:false,attempts:4,
+    guess:[{symbol:'〇',color:'赤'}],
+    history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'})),hit:1,blow:1}]
+   }));
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No.123: reopening story progress creates no dialogue window');
+   assert.equal(await page.locator('#exploreStatus').textContent(),'気になる場所をクリックしてください。','No.123: no resume notice replaces the exploration message');
+   assert.deepEqual(await page.evaluate(()=>({attempts:room2State.attempts,guess:room2State.guess.length,history:room2State.history.length})),
+    {attempts:4,guess:1,history:1},'No.123: answer and judgement history survive silent resume');
+   await page.evaluate(()=>showSecondRoom({
+    doorInspected:true,deskInspected:true,unlocked:true,challengeActive:true,
+    challengeBest:3,attempts:2,history:[{hit:0,blow:1}],
+    guess:[{symbol:'△',color:'青'}]
+   }));
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No.123: saved challenge also opens without dialogue');
+   assert.equal(await page.locator('#exploreStatus').textContent(),'気になる場所をクリックしてください。','No.123: no resume notification during challenge');
+   assert.equal(await page.locator('#r2Blocks span').textContent(),'チャレンジ再開','Challenge resume target is still shown');
+   assert.deepEqual(await page.evaluate(()=>({active:room2State.challengeActive,best:room2State.challengeBest,attempts:room2State.attempts})),
+    {active:true,best:3,attempts:2},'No.123: saved bonus progress and best survive');
+   await page.evaluate(()=>showSecondRoom({doorInspected:true,deskInspected:true}));
    const image=await page.locator('.room2-background-art').evaluate(async img=>{
     await img.decode();
     return {url:img.currentSrc,width:img.naturalWidth,height:img.naturalHeight,complete:img.complete};

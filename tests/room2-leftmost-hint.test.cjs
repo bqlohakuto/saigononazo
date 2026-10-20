@@ -34,3 +34,17 @@ test("invalid or incomplete history cannot trigger the clue", () => {
   assert.equal(shouldReveal(history([[1, 4], [0, 2], [2, 1], [3, 1]]), 5), false);
   assert.equal(shouldReveal(history([[1, 4], [0, 2], [2, 1], [3, 1], [2, 1]]), 4), false);
 });
+
+test("a fifth-turn 0H5B qualifies, but five turns alone never do", () => {
+  assert.equal(shouldReveal(history([[0, 0], [0, 1], [1, 0], [0, 2], [0, 5]]), 5), true);
+  assert.equal(shouldReveal(history([[1, 0], [0, 1], [1, 1], [2, 0], [0, 2]]), 5), false);
+});
+
+test("a solved result in the first five takes precedence over offering a clue", () => {
+  assert.equal(shouldReveal(history([[0, 5], [1, 0], [2, 1], [0, 1], [5, 0]]), 5), false);
+});
+
+test("malformed results cannot qualify the clue", () => {
+  assert.equal(shouldReveal(history([[1, 1], [2, 2], [2, 1], [0, 0], ["2", 3]]), 5), false);
+  assert.equal(shouldReveal(history([[0, 0], [0, 0], [0, 0], [0, 0], [4, 2]]), 5), false);
+});

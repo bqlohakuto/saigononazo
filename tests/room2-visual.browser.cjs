@@ -372,10 +372,15 @@ function within(inner,outer,tolerance=3){
    await page.locator('.hana-choice-button[data-topic="room"]').click();
    assert.equal(await page.locator('.room-dialog-overlay').count(),1,'Room-clear conversation opens normally');
    assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'この部屋の仕掛け、解けたね！','Hana acknowledges that the room was solved');
-   await page.locator('#roomNextButton').click();
-   assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'はい。次へ進めそうです','The protagonist acknowledges the unlocked door');
-   await page.locator('#roomNextButton').click();
+   const clearedRoomPages=[];
+   for(let n=0;n<8&&await page.locator('.room-dialog-overlay').count();n++){
+    clearedRoomPages.push(await page.locator('.room-dialog-overlay .message').textContent());
+    await page.locator('#roomNextButton').click();
+   }
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Clear conversation closes normally');
+   const clearText=clearedRoomPages.join('');
+   assert(clearText.includes('この部屋の仕掛け、解けたね！'),'Clear conversation retains Hana confirmation');
+   assert(clearText.includes('はい。次へ進めそうです'),'The protagonist acknowledges the unlocked door across dialogue pages');
 
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));

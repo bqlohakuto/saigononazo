@@ -1,0 +1,57 @@
+name: Eight-room critical-path regression
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'script.js'
+      - 'inspection.js'
+      - 'scenario.js'
+      - 'room2.js'
+      - 'room3.js'
+      - 'room4.js'
+      - 'room4-scenario.js'
+      - 'room5.js'
+      - 'late-game.js'
+      - 'design-ui.js'
+      - 'design-ui.css'
+      - 'style.css'
+      - 'room5.css'
+      - 'room6.css'
+      - 'viewport-scaler.js'
+      - 'images/background/**'
+      - 'images/exhibits/**'
+      - 'tests/critical-path.test.cjs'
+      - 'tests/room8-flow.test.cjs'
+      - '.github/workflows/eight-room-regression.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  eight-room:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install DOM regression test dependency
+        run: npm install --no-save --no-package-lock jsdom@26
+      - name: Check gameplay scripts and room entry/artwork completeness
+        run: |
+          for f in viewport-scaler.js script.js inspection.js room2.js room3.js room4.js late-game.js design-ui.js; do node --check "$f"; done
+          node --test tests/critical-path.test.cjs tests/cache-version.test.cjs tests/save-data.test.cjs tests/game-flow.test.cjs tests/room3-morse.test.cjs tests/room2-choice-keyboard-focus.test.cjs tests/room2-compact-choice-panel.test.cjs
+      - name: Test room five puzzle through its transition
+        run: node tests/room5-mirror.test.cjs
+      - name: Test room six navigation and its transition
+        run: node tests/room6-flow.test.cjs
+      - name: Test room seven book puzzle and transition
+        run: node tests/room7-flow.test.cjs
+      - name: Test room eight, saved state, true name, and ending
+        run: node tests/room8-flow.test.cjs
+      - name: Test the room six through ending critical path
+        run: node tests/late-game-flow.test.cjs

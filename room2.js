@@ -126,7 +126,7 @@ function showSecondRoomPuzzle(){
  const isChallenge=room2State.challengeActive===true;
  const counterMarkup=isChallenge?`<section class="room2-attempt-counter" role="status" aria-live="polite" aria-label="チャレンジの残り回数"><div class="room2-attempt-summary"><span class="room2-attempt-used">解答 0 / 8 回</span><strong class="room2-attempt-left">残り8回</strong></div><div class="room2-attempt-track" aria-hidden="true">${Array.from({length:8},()=>'<span class="room2-attempt-step"></span>').join("")}</div></section>`:"";
  const overlay=document.createElement("div");overlay.className="device-overlay room2-puzzle-overlay";
- overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>${isChallenge?"8回チャレンジ":"記号と色を並べる"}</h2><details class="room2-board-help"><summary title="操作方法・ルール" aria-label="操作方法・ルールを確認">？</summary><div class="room2-rule"><p>【駒の操作】</p><p>〇、△、□、×、＋の5種類の記号を5つの枠に一つずつ配置する。記号の色は赤・青から選べる。同じ記号・同じ色を選び直すと外れ、同じ記号の色違いを選ぶと色が変わる。配置済みの枠を2つ選ぶと位置を入れ替えられる。</p><p>【判定】</p><p>答えと記号・色・位置がすべて一致するとHIT。記号と色が一致し、位置だけが異なるとBLOW。</p><p>【挑戦条件】</p><p>${isChallenge?"8回以内に5枠すべてを一致させれば達成。8回目までに正解できなければ今回の挑戦は終了する。何度でも再挑戦できる。":"判定結果を手がかりに正しい組み合わせを導き出せ。回数制限はない。"}</p></div></details>${counterMarkup}<div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">配置をクリア</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-leftmost-request" hidden>左端のヒントを見る</button>${isChallenge?`<button type="button" class="room2-abandon">挑戦をやめる</button>`:""}</div><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-live="polite" aria-label="判定後の会話"><div class="room2-reaction-top"><p class="room2-reaction-speaker"></p><button type="button" class="room2-reaction-skip" aria-label="この会話をスキップ">スキップ »</button></div><p class="room2-reaction-text"></p><div class="room2-reaction-auto" aria-hidden="true"><span></span></div></section><div class="room2-history" aria-label="これまでの判定"></div></section>`;
+ overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>${isChallenge?"8回チャレンジ":"記号と色を並べる"}</h2><details class="room2-board-help"><summary title="操作方法・ルール" aria-label="操作方法・ルールを確認">？</summary><div class="room2-rule"><p>【駒の操作】</p><p>〇、△、□、×、＋の5種類の記号を5つの枠に一つずつ配置する。記号の色は赤・青から選べる。同じ記号・同じ色を選び直すと外れ、同じ記号の色違いを選ぶと色が変わる。配置済みの枠を2つ選ぶと位置を入れ替えられる。</p><p>【判定】</p><p>答えと記号・色・位置がすべて一致するとHIT。記号と色が一致し、位置だけが異なるとBLOW。</p><p>【挑戦条件】</p><p>${isChallenge?"8回以内に5枠すべてを一致させれば達成。8回目までに正解できなければ今回の挑戦は終了する。何度でも再挑戦できる。":"判定結果を手がかりに正しい組み合わせを導き出せ。回数制限はない。"}</p></div></details>${counterMarkup}<div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">配置をクリア</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-leftmost-request" hidden>左端のヒントを見る</button>${isChallenge?`<button type="button" class="room2-abandon">挑戦をやめる</button>`:""}</div><aside class="room2-sidebar" aria-label="判定履歴と会話"><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-label="判定後の会話"><div class="room2-reaction-top"><strong class="room2-reaction-title">会話</strong><button type="button" class="room2-reaction-skip" aria-label="会話の表示を閉じる">×</button></div><div class="room2-reaction-lines" role="log" aria-live="polite"></div></section><div class="room2-history" aria-label="これまでの判定"></div></aside></section>`;
  game.appendChild(overlay);
  const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),hint=overlay.querySelector(".room2-leftmost-hint"),hintRequest=overlay.querySelector(".room2-leftmost-request"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null,lastPlacedSlot=null;
  let reactionTimer=null;
@@ -149,37 +149,31 @@ function showSecondRoomPuzzle(){
   ]));
  });
  overlay.querySelector(".room2-clear").onclick=()=>{room2State.guess=[];selectedSlot=null;feedback.style.whiteSpace="pre-line";feedback.textContent="配置をクリアしました。\n5つの枠に駒を並べてください。";saveGame();render()};
- let reactionLines=[],reactionIndex=0,reactionDone=null;
- const setGuessEnabled=enabled=>overlay.querySelectorAll(".room2-answer-slot,.room2-palette-token,.room2-submit,.room2-leftmost-request,.room2-clear,.room2-abandon").forEach(button=>button.disabled=!enabled||(button.classList.contains("room2-submit")&&room2State.guess.length!==5));
+ let reactionDone=null;
  const endReaction=()=>{
-  clearReactionTimer();reactionPanel.hidden=true;setGuessEnabled(true);
-  const done=reactionDone;reactionDone=null;reactionLines=[];done?.();
- };
- const showReactionLine=()=>{
-  if(!overlay.isConnected){clearReactionTimer();return}
-  const line=reactionLines[reactionIndex];
-  reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;
-  reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;
-  const auto= reactionPanel.querySelector(".room2-reaction-auto span");
-  const delay=Math.min(3200,Math.max(1600,1000+line.text.length*50));
-  auto.style.animation="none";void auto.offsetWidth;
-  auto.style.animation=`room2DialogueProgress ${delay}ms linear forwards`;
-  recordLog(line);
-  clearReactionTimer();reactionTimer=window.setTimeout(()=>{
-   reactionTimer=null;if(!overlay.isConnected)return;
-   if(reactionIndex+1<reactionLines.length){reactionIndex++;showReactionLine()}else endReaction();
-  },delay);
+  clearReactionTimer();reactionPanel.hidden=true;
+  const done=reactionDone;reactionDone=null;done?.();
  };
  const showReaction=(lines,onDone)=>{
-  clearReactionTimer();reactionLines=lines||[];reactionDone=onDone;reactionIndex=0;
+  clearReactionTimer();reactionDone=onDone;
+  const reactionLines=lines||[];
   if(!reactionLines.length){endReaction();return}
-  setGuessEnabled(false);reactionPanel.hidden=false;showReactionLine();
-  reactionPanel.scrollIntoView?.({block:"nearest",behavior:"smooth"});
+  const list=reactionPanel.querySelector(".room2-reaction-lines");
+  list.replaceChildren();
+  for(const line of reactionLines){
+   const item=document.createElement("div");item.className="room2-reaction-line";
+   const name=document.createElement("strong");name.className="room2-reaction-name";name.textContent=line.speaker;
+   const message=document.createElement("p");message.className="room2-reaction-speech";message.textContent=line.text;
+   item.append(name,message);list.append(item);
+   recordLog(line);
+  }
+  reactionPanel.hidden=false;
+  const totalChars=reactionLines.reduce((sum,line)=>sum+line.text.length,0);
+  const duration=Math.min(14000,Math.max(6500,900+totalChars*55));
+  reactionTimer=window.setTimeout(()=>{reactionTimer=null;if(overlay.isConnected)endReaction()},duration);
  };
  reactionPanel.querySelector(".room2-reaction-skip").addEventListener("click",()=>{
-  if(reactionPanel.hidden)return;
-  for(let i=reactionIndex+1;i<reactionLines.length;i++)recordLog(reactionLines[i]);
-  endReaction();
+  if(!reactionPanel.hidden)endReaction();
  });
  let renderedHistoryCount=-1;
  const render=()=>{
@@ -199,7 +193,7 @@ function showSecondRoomPuzzle(){
    overlay.querySelector(".room2-attempt-left").textContent=`残り${count.remaining}回`;
    overlay.querySelectorAll(".room2-attempt-step").forEach((step,index)=>step.classList.toggle("is-used",index<count.used));
   }
-  overlay.querySelector(".room2-submit").disabled=room2State.guess.length!==5;
+  overlay.querySelector(".room2-submit").disabled=room2State.guess.length!==5||(isChallenge&&room2State.attempts>=8);
   hintRequest.hidden=isChallenge||room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked;
   hint.hidden=!room2State.leftmostHintRevealed;
   hint.textContent=room2State.leftmostHintRevealed?`開示された左端の記号：「${room2State.answer[0].symbol}」`:"";
@@ -213,6 +207,7 @@ function showSecondRoomPuzzle(){
   showReaction(room2LeftmostHintLines(room2State.run,room2State.answer[0].symbol));
  });
  overlay.querySelector(".room2-submit").addEventListener("click",()=>{
+  if(isChallenge&&room2State.attempts>=8)return;
   if(room2State.guess.length!==5){feedback.textContent="5つの枠をすべて埋めてください。";return}
   const result=room2Evaluate(room2State.guess,room2State.answer);room2State.attempts++;
   room2State.history.push({guess:room2State.guess.map(piece=>({...piece})),...result});room2State.guess=[];

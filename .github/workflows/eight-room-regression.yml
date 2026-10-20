@@ -25,6 +25,7 @@ on:
       - 'images/exhibits/**'
       - 'tests/critical-path.test.cjs'
       - 'tests/room8-flow.test.cjs'
+      - 'tests/late-game-flow.test.cjs'
       - '.github/workflows/eight-room-regression.yml'
 
 permissions:

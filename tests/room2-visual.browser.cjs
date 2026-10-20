@@ -187,6 +187,34 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-submit').click();
    assert.equal(await page.evaluate(()=>room2State.attempts),2,'A repeat of any submitted configuration is free');
    await page.locator('.room2-puzzle .device-close').click();
+
+   // No.104: five answers alone do not grant the leftmost clue.
+   await page.evaluate(()=>{
+    const base=room2State.history[0];
+    room2State.attempts=5;
+    room2State.history=Array.from({length:5},()=>({...base,hit:0,blow:1}));
+    room2State.leftmostHintRevealed=false;
+    saveGame();
+   });
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-leftmost-request').isVisible(),false,'Five results without a complete color match do not unlock the clue');
+   await page.locator('.room2-puzzle .device-close').click();
+
+   // A single HIT+BLOW=5 within the first five unlocks the optional clue.
+   await page.evaluate(()=>{
+    room2State.history[1]={...room2State.history[1],hit:1,blow:4};
+    saveGame();
+   });
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-leftmost-request').isVisible(),true,'Any color-complete result within first five enables the clue');
+   await page.locator('.room2-leftmost-request').click();
+   assert.equal(await page.evaluate(()=>room2State.leftmostHintRevealed),true,'A requested clue is recorded in save state');
+   assert.match(await page.locator('.room2-leftmost-hint').textContent(),/開示された左端の記号/);
+   await page.locator('.room2-puzzle .device-close').click();
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-leftmost-hint').isVisible(),true,'Reopening restores the revealed clue');
+   assert.equal(await page.locator('.room2-leftmost-request').isVisible(),false,'The revealed clue cannot be requested twice');
+   await page.locator('.room2-puzzle .device-close').click();
    await page.evaluate(()=>{room2State.unlocked=true;beginRoom2Challenge()});
    await page.locator('.room2-puzzle').waitFor();
    assert.equal(await page.locator('.room2-hint-paper').count(),0,'Challenge also has no duplicate rules button');

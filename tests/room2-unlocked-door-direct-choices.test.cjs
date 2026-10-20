@@ -80,6 +80,8 @@ test("No.124: manuscript, combined manuscript and runtime agree on the adopted b
   assert.match(text,/確認文を挟まず、そのまま/);
   assert.match(text,/次の部屋へ向かう/);
   assert.match(text,/もう少し調べる/);
+  assert.match(text,/【校閲No\.131・案1 採用】/);
+  assert.match(text,/探索画面への新たな「次へ」ボタンや探索メニュー内の移動項目は追加しない/);
  }
  assert.doesNotMatch(code,/room2_transition_stay/);
  assert.doesNotMatch(code,/まだ何か調べられるかもしれない。/);

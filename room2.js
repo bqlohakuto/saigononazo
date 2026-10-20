@@ -100,6 +100,33 @@ function beginRoom2Challenge(){
  room2State.leftmostHintRevealed=false;room2State.run=(room2State.run||1)+1;
  saveGame();showSecondRoomPuzzle();
 }
+function room2ChallengeResultInfo(success,attempts,best,newRecord){
+ const title=success?"チャレンジ達成！":"今回は達成できなかった";
+ const detail=success?`${attempts}回で正解した。`:`8回の挑戦が終わった。`;
+ const bestText=best===null?"自己ベスト：未達成":newRecord?`自己ベスト更新！　${best}回！`:`自己ベスト：${best}回。`;
+ const note=success?"次はもっと少ない回数でも挑戦できる。":"何度でも再挑戦できる。";
+ const logText=success?`8回チャレンジ達成！\\n${detail}\\n${bestText}`:`${detail}\\n今回は正解に届かなかった。\\n${bestText}`;
+ return {success,title,detail,bestText,note,logText};
+}
+function showRoom2ChallengeResult(info){
+ const overlay=document.createElement("div");overlay.className="device-overlay room2-result-overlay";
+ overlay.innerHTML=`<section class="room2-result-panel" role="dialog" aria-modal="true" aria-label="8回チャレンジの結果">
+  <button type="button" class="device-close" aria-label="部屋に戻る">×</button>
+  <p class="room2-result-kicker">8回チャレンジ</p>
+  <h2 class="room2-result-title">${info.title}</h2>
+  <p class="room2-result-attempts">${info.detail}</p>
+  <p class="room2-result-best">${info.bestText}</p>
+  <p class="room2-result-note">${info.note}</p>
+  <div class="room2-result-actions">
+   <button type="button" class="room2-result-retry">もう一度挑戦する</button>
+   <button type="button" class="room2-result-return">部屋に戻る</button>
+  </div>
+ </section>`;
+ game.appendChild(overlay);
+ const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".room2-result-retry"));
+ overlay.querySelector(".room2-result-retry").addEventListener("click",()=>{close();beginRoom2Challenge()});
+ overlay.querySelector(".room2-result-return").addEventListener("click",close);
+}
 function finishRoom2Challenge(close,success){
  const attempts=room2State.attempts;
  const previousBest=room2State.challengeBest;
@@ -110,11 +137,9 @@ function finishRoom2Challenge(close,success){
   room2State.challengeBest=room2State.challengeBest===null?attempts:Math.min(room2State.challengeBest,attempts);
  }
  saveGame();close();
- const message=success?`8回チャレンジ達成！\n${attempts}回で正解した。\n${newRecord?`自己ベスト更新！　${attempts}回！`:`自己ベスト：${room2State.challengeBest}回。`}`:"8回の挑戦が終わった。\n今回は正解に届かなかった。\nブロックを並べ直せば、もう一度挑戦できる。";
- showRoomDialog([{logId:`room2_challenge_result_${room2State.run}`,logType:"investigation",speaker:"ト書き",text:message}],()=>showRoomChoices([
-  {label:"もう一度挑戦する",onSelect:beginRoom2Challenge},
-  {label:"部屋に戻る",onSelect:()=>showRoomNotice("机からいつでも再挑戦できる。","room2_challenge_return")}
- ]));
+ const info=room2ChallengeResultInfo(success,attempts,room2State.challengeBest,newRecord);
+ recordLog({logId:`room2_challenge_result_${room2State.run}`,logType:"investigation",speaker:"ト書き",text:info.logText});
+ showRoom2ChallengeResult(info);
 }
 function room2ChallengeCounterInfo(attempts){
  const used=Number.isInteger(attempts)?Math.min(8,Math.max(0,attempts)):0;

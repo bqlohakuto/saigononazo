@@ -151,7 +151,7 @@ function showSecondRoomPuzzle(){
    {label:"挑戦を続ける",onSelect:showSecondRoomPuzzle}
   ]));
  });
- overlay.querySelector(".room2-clear").onclick=()=>{room2State.guess=[];selectedSlot=null;saveGame();render()};
+ overlay.querySelector(".room2-clear").onclick=()=>{room2State.guess=[];selectedSlot=null;feedback.style.whiteSpace="pre-line";feedback.textContent="配置をクリアしました。\n5つの枠に駒を並べてください。";saveGame();render()};
  let reactionLines=[],reactionIndex=0,reactionDone=null;
  const setGuessEnabled=enabled=>overlay.querySelectorAll(".room2-answer-slot,.room2-palette-token,.room2-submit,.room2-hint-paper,.room2-leftmost-request,.room2-clear,.room2-abandon").forEach(button=>button.disabled=!enabled||(button.classList.contains("room2-submit")&&room2State.guess.length!==5));
  const nextReaction=()=>{if(reactionIndex+1<reactionLines.length){reactionIndex++;const line=reactionLines[reactionIndex];reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionIndex===reactionLines.length-1?(isChallenge&&room2State.attempts>=8?"結果を見る":"推理を続ける"):"次へ";recordLog(line);return}reactionPanel.hidden=true;setGuessEnabled(true);reactionDone?.();reactionDone=null};

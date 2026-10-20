@@ -96,6 +96,7 @@
    finished=true;
    observer.disconnect();
    closeButton.removeEventListener("click",close);
+   overlay.removeEventListener("click",onBackdropClick);
    artButton.removeEventListener("click",proceed);
    document.removeEventListener("keydown",onKeyDown,true);
    document.removeEventListener("focusin",onFocusIn,true);
@@ -121,6 +122,9 @@
   function close(event){
    event?.stopPropagation();
    finish("close");
+  }
+  function onBackdropClick(event){
+   if(event.target===overlay)close(event);
   }
   function proceed(event){
    event.stopPropagation();
@@ -156,6 +160,7 @@
   }
 
   closeButton.addEventListener("click",close);
+  overlay.addEventListener("click",onBackdropClick);
   artButton.addEventListener("click",proceed);
   container.append(overlay);
   document.addEventListener("keydown",onKeyDown,true);

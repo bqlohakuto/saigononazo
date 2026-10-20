@@ -89,7 +89,7 @@ function inspectSecondRoomDesk(){
   {logId:"room2_desk_01",logType:"investigation",speaker:"ト書き",text:"机の上には、〇、△、□、×、＋の記号が書かれたブロックが置かれている。それぞれ、赤と青の2色がある。"},
   {logId:"room2_desk_02",logType:"investigation",speaker:"ト書き",text:"その奥には、ブロックをはめ込めそうな5つの枠が並んでいた。枠の横には『HIT』『BLOW』と書かれた表示がある。"},
   {logId:"room2_desk_03",logType:"narration",speaker:"主人公",thought:true,text:"このブロックを、枠にはめればいいのか……？"}
- ]);
+ ],()=>{if(currentScene==="room02")showSecondRoomPuzzle()});
 }
 function syncRoom2BlocksLabel(){
  const button=document.getElementById?.("r2Blocks");

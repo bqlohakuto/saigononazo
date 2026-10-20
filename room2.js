@@ -105,7 +105,7 @@ function room2ChallengeResultInfo(success,attempts,best,newRecord){
  const detail=success?`${attempts}回で正解した。`:`8回の挑戦が終わった。`;
  const bestText=best===null?"自己ベスト：未達成":newRecord?`自己ベスト更新！　${best}回！`:`自己ベスト：${best}回。`;
  const note=success?"次はもっと少ない回数でも挑戦できる。":"何度でも再挑戦できる。";
- const logText=success?`8回チャレンジ達成！\\n${detail}\\n${bestText}`:`${detail}\\n今回は正解に届かなかった。\\n${bestText}`;
+ const logText=success?`8回チャレンジ達成！\n${detail}\n${bestText}`:`${detail}\n今回は正解に届かなかった。\n${bestText}`;
  return {success,title,detail,bestText,note,logText};
 }
 function showRoom2ChallengeResult(info){

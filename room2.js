@@ -186,10 +186,10 @@ function showRoom2AbandonConfirm(overlay,closePuzzle,clearReactionTimer){
    <button type="button" class="room2-abandon-continue">挑戦を続ける</button>
   </div>
  </div>`;
+ const originalFocus=document.activeElement;
  const suspended=[...puzzle.children].map(node=>({node,inert:node.inert,hidden:node.getAttribute("aria-hidden")}));
  suspended.forEach(({node})=>{node.inert=true;node.setAttribute("aria-hidden","true")});
  puzzle.appendChild(prompt);
- const originalFocus=document.activeElement;
  const cancel=()=>{
   window.removeEventListener("keydown",onEscape,true);
   prompt.remove();

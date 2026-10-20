@@ -29,7 +29,7 @@ function showSecondRoom(savedState){
    <img class="room2-background-art" src="images/background/room02/room02_bg_nodesk.png?v=20261013-room02-clean-alpha-01" alt="" aria-hidden="true" draggable="false" decoding="async">
    <button class="object room2-object room2-door" id="r2Door"><span>正面の扉</span></button>
    <button class="object room2-object room2-table" id="r2Desk"><span>机</span></button>
-   <button class="object room2-object room2-blocks" id="r2Blocks" ${room2State.deskInspected?"":"disabled"}><span>ブロックと記録枠</span></button>
+   <button class="object room2-object room2-blocks" id="r2Blocks" ${room2State.deskInspected?"":"disabled"}><span>${room2State.challengeActive?"チャレンジ再開":"ブロックと記録枠"}</span></button>
    <button class="object room2-object room2-hana" id="r2Hana"><span>ハナ</span></button>
    <img class="room2-desk-foreground-art" src="images/background/room02/room02_desk_foreground.png?v=20261013-room02-clean-alpha-01" alt="" aria-hidden="true" draggable="false" decoding="async">
   </section></div>
@@ -86,6 +86,11 @@ function inspectSecondRoomDesk(){
   {logId:"room2_desk_03",logType:"narration",speaker:"主人公",thought:true,text:"このブロックを、枠にはめればいいのか……？"}
  ]);
 }
+function syncRoom2BlocksLabel(){
+ const button=document.getElementById?.("r2Blocks");
+ const label=button?.querySelector?.("span");
+ if(label)label.textContent=room2State.challengeActive?"チャレンジ再開":"ブロックと記録枠";
+}
 function showRoom2ChallengeMenu(){
  if(!room2State.unlocked||room2State.challengeActive)return;
  const best=room2State.challengeBest===null?"自己ベスト：未達成":`自己ベスト：${room2State.challengeBest}回。`;
@@ -112,7 +117,7 @@ function beginRoom2Challenge(){
  room2State.challengeActive=true;room2State.answer=room2RandomAnswer();
  room2State.guess=[];room2State.history=[];room2State.attempts=0;
  room2State.leftmostHintRevealed=false;room2State.run=(room2State.run||1)+1;
- saveGame();showSecondRoomPuzzle();
+ syncRoom2BlocksLabel();saveGame();showSecondRoomPuzzle();
 }
 function room2ChallengeResultInfo(success,attempts,best,newRecord){
  const title=success?"チャレンジ達成！":"今回は達成できなかった";
@@ -146,6 +151,7 @@ function finishRoom2Challenge(close,success){
  const previousBest=room2State.challengeBest;
  const newRecord=success&&(previousBest===null||attempts<previousBest);
  room2State.challengeActive=false;
+ syncRoom2BlocksLabel();
  if(success){
   room2State.challengeCleared=true;
   room2State.challengeBest=room2State.challengeBest===null?attempts:Math.min(room2State.challengeBest,attempts);
@@ -206,6 +212,7 @@ function showRoom2AbandonConfirm(overlay,closePuzzle,clearReactionTimer){
   cancel();
   clearReactionTimer();
   room2State.challengeActive=false;
+  syncRoom2BlocksLabel();
   room2State.guess=[];room2State.history=[];room2State.attempts=0;
   room2State.leftmostHintRevealed=false;
   saveGame();

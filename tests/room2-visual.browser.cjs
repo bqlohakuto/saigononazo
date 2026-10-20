@@ -357,9 +357,9 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-attempt-left').textContent(),'残り6回');
    const pauseBounds=await page.locator('.room2-pause').boundingBox();
    const puzzleBounds=await page.locator('.room2-puzzle').boundingBox();
-   assert(pauseBounds&&puzzleBounds&&pauseBounds.x>=puzzleBounds.x&&pauseBounds.x+pauseBounds.width<=puzzleBounds.x+puzzleBounds.width+3,'Pause control stays inside puzzle right edge');
-   assert(pauseBounds.y>=puzzleBounds.y&&pauseBounds.y+puzzleBounds.height<=puzzleBounds.y+puzzleBounds.height+3,'Pause control stays inside puzzle top edge');
    await page.screenshot({path:path.join(dir,'11-room02-challenge-pausing.png')});
+   assert(pauseBounds&&puzzleBounds&&pauseBounds.x>=puzzleBounds.x&&pauseBounds.x+pauseBounds.width<=puzzleBounds.x+puzzleBounds.width+3,'Pause control stays inside puzzle right edge: '+JSON.stringify({pauseBounds,puzzleBounds}));
+   assert(pauseBounds.y>=puzzleBounds.y&&pauseBounds.y+pauseBounds.height<=puzzleBounds.y+puzzleBounds.height+3,'Pause control stays inside puzzle top edge: '+JSON.stringify({pauseBounds,puzzleBounds,scrollTop:await page.locator('.room2-puzzle').evaluate(el=>el.scrollTop)}));
    await page.locator('.room2-pause').click();
    assert.equal(await page.locator('.room2-puzzle').count(),0,'Pause returns to room without abandonment confirmation');
    assert.equal(await page.locator('.room2-abandon-confirm').count(),0);

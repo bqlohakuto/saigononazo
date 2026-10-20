@@ -336,6 +336,34 @@ function within(inner,outer,tolerance=3){
    assert(combinedRules.includes('BLOWは記号と色が合っていて、位置だけ違うものだよ'),'BLOW rule is preserved in the paginated dialogue');
    assert(combinedRules.includes('判定を比べながら、合っている組み合わせを絞っていくんですね'),'Protagonist response still follows the rules');
 
+   // No.113: only an unsuccessful judgement makes strategy advice meaningful.
+   await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:true,unlocked:false,attempts:0,history:[]}));
+   await page.locator('#r2Hana').click();
+   assert.equal(await page.locator('.hana-choice-button[data-topic="hint"]').count(),0,'Strategy hint is hidden before the first answer');
+   assert.equal(await page.locator('.hana-choice-button[data-topic="rules"]').count(),1,'Rules remain available after desk inspection');
+   await page.locator('.hana-choice-overlay .device-close').click();
+
+   await page.evaluate(()=>showSecondRoom({
+    doorInspected:false,deskInspected:true,unlocked:false,attempts:1,
+    history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'})),hit:0,blow:1}]
+   }));
+   await page.locator('#r2Hana').click();
+   assert.equal(await page.locator('.hana-choice-button[data-topic="hint"]').count(),1,'First incorrect judgement enables strategy advice');
+   await page.waitForTimeout(360);
+   await page.locator('.hana-choice-button[data-topic="hint"]').click();
+   const advicePages=[];
+   for(let n=0;n<12&&await page.locator('.room-dialog-overlay').count();n++){
+    advicePages.push(await page.locator('.room-dialog-overlay .message').textContent());
+    await page.locator('#roomNextButton').click();
+   }
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Advice can be read and dismissed');
+   assert(advicePages.join('').includes('まずは一つずつ変えて、前の判定と比べてみよう'),'Existing Hana advice is unchanged');
+
+   await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:true,unlocked:true,history:[{hit:0,blow:1}]}));
+   await page.locator('#r2Hana').click();
+   assert.equal(await page.locator('.hana-choice-button[data-topic="hint"]').count(),0,'The story-cleared state cannot offer the old hint');
+   await page.locator('.hana-choice-overlay .device-close').click();
+
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();

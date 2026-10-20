@@ -641,6 +641,24 @@ function within(inner,outer,tolerance=3){
     await page.locator('.room2-puzzle .device-close').click();
    }
 
+   // No.124: the solved door opens options directly, while walking ahead still plays the original transition.
+   await page.evaluate(()=>showSecondRoom({unlocked:true,doorInspected:true,deskInspected:true,flashbackSeen:true}));
+   await page.locator('#r2Door').click();
+   assert.equal(await page.locator('.room2-choice-overlay').count(),1,'Solved door immediately displays destination choices');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No redundant door-is-open narration');
+   assert.deepEqual(await page.locator('.room2-choice-overlay [data-choice]').allTextContents(),
+    ['次の部屋へ向かう','もう少し部屋をしらべてみる'],'Both existing destination choices remain unchanged');
+   await page.locator('.room2-choice-overlay [data-choice="1"]').click();
+   assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Staying returns to exploration');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Staying does not start a novel conversation');
+   assert.match(await page.locator('#exploreStatus').textContent(),/まだ何か調べられるかもしれない/,'Old continue-search feedback remains');
+   await page.locator('#r2Door').click();
+   assert.equal(await page.locator('.room2-choice-overlay').count(),1,'The door can be examined again with no narration');
+   await page.locator('.room2-choice-overlay [data-choice="0"]').click();
+   assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Moving on closes destination choices');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),1,'The original next-room transition conversation plays');
+   assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'僕はドアノブに手を伸ばした。','The established door-opening scene is preserved');
+
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();

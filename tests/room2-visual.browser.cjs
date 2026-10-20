@@ -114,8 +114,31 @@ function within(inner,outer,tolerance=3){
    for(const color of ['赤','青'])assert.equal(await page.locator('.room2-palette-token[data-color="'+color+'"]').count(),5);
    for(const color of ['赤','青'])assert.deepEqual(await page.locator('.room2-palette-token[data-color="'+color+'"] i').allTextContents(),['〇','△','□','×','＋'],'Palette matches the adopted desk artwork from left to right');
    await page.screenshot({path:path.join(dir,'02-room02-puzzle.png')});
+   const boardVisual=await page.locator('.room2-puzzle').evaluate(panel=>{
+    const tile=panel.querySelector('.room2-palette-token i');
+    return {boardBackground:getComputedStyle(panel).backgroundImage,tileShadow:getComputedStyle(tile).boxShadow};
+   });
+   assert(boardVisual.boardBackground.includes('gradient'),'Puzzle has physical wooden board styling');
+   assert.notEqual(boardVisual.tileShadow,'none','Blocks have raised tactile shadow');
+   assert.equal(await page.locator('.room2-board-help summary').count(),1,'Rules are available without covering the board');
    await page.locator('.room2-palette-token').first().click();
    assert.equal(await page.locator('.room2-answer-slot i').count(),1,'Selecting token fills a single answer slot');
+   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),1,'Selected block is inserted into a slot');
+   await page.screenshot({path:path.join(dir,'03-room02-block-fitted.png')});
+
+   // Make the first guess certainly wrong to observe automatic judge dialogue.
+   await page.evaluate(()=>{room2State.answer=ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}));});
+   for(let i=1;i<5;i++)await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5);
+   await page.locator('.room2-submit').click();
+   await page.locator('.room2-reaction:not([hidden])').waitFor({state:'visible'});
+   assert.equal(await page.locator('.room2-reaction-next').count(),0,'No manual next button');
+   assert.equal(await page.locator('.room2-reaction-skip').count(),1,'Optional skip remains available');
+   await page.screenshot({path:path.join(dir,'04-room02-auto-dialogue.png')});
+   await page.locator('.room2-reaction').waitFor({state:'hidden',timeout:10000});
+   assert.equal(await page.locator('.room2-answer-slot i').count(),0,'Next attempt is ready after autoplay');
+   assert.equal(await page.locator('.room2-history-row').count(),1,'The result remains in the ledger');
+   assert.equal(await page.locator('.room2-submit').isDisabled(),true,'Submit awaits all five blocks');
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();

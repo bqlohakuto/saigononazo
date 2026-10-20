@@ -9,6 +9,9 @@ on:
       - '.github/workflows/room2-visual-review.yml'
       - 'room2.js'
       - 'tests/room2-correct-dialogue.test.cjs'
+      - 'tests/room2-judge-dialogue-sync.test.cjs'
+      - 'scenario/02_room2_hit_blow.md'
+      - 'scenario/02_room2.md'
       - 'style.css'
       - 'index.html'
       - 'images/background/room02/**'
@@ -31,7 +34,7 @@ jobs:
           npx playwright install --with-deps webkit
           google-chrome --version
       - name: Verify Room 2 puzzle rules and correct dialogue
-        run: node --test tests/room2-no-repeat.test.cjs tests/room2-leftmost-hint.test.cjs tests/room2-correct-dialogue.test.cjs
+        run: node --test tests/room2-no-repeat.test.cjs tests/room2-leftmost-hint.test.cjs tests/room2-correct-dialogue.test.cjs tests/room2-judge-dialogue-sync.test.cjs
       - name: Wait for deployed revision, capture and test Room 2
         env:
           UI_SCREENSHOT_DIR: artifacts/room02

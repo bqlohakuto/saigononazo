@@ -65,7 +65,7 @@ function inspectSecondRoomDoor(){
    {logId:"room2_room3_transition_01",logType:"narration",speaker:"主人公",text:"僕はドアノブに手を伸ばした。"},
    {logId:"room2_room3_transition_02",logType:"narration",speaker:"ト書き",text:"開けようとすると、また扉はひとりでに開いた。扉の向こうへ、身体が吸い込まれていくような感覚に襲われる。視界が、まばゆい光に包まれていく。"}
   ],showThirdRoomBoundary)},
-  {label:"もう少し部屋をしらべてみる",onSelect:()=>{}}
+  {label:"もう少し調べる",onSelect:()=>{}}
  ]);return}
  if(room2State.doorInspected){showRoomNotice("扉には『正しい組み合わせを導け』と刻まれている。","room2_door_again");return}
  room2State.doorInspected=true;saveGame();

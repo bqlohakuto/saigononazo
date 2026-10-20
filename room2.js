@@ -62,13 +62,13 @@ const room2IntroLines=[
  {logId:"room2_intro_04",logType:"dialogue",speaker:"ハナ",text:"今度は、どんな部屋なんだろうね"}
 ];
 function inspectSecondRoomDoor(){
- if(room2State.unlocked){showRoomDialog([{logId:"room2_next_door_01",logType:"investigation",speaker:"ト書き",text:"扉は開いている。このまま先へ進めそうだ。"}],()=>showRoomChoices([
+ if(room2State.unlocked){showRoomChoices([
   {label:"次の部屋へ向かう",onSelect:()=>showRoomDialog([
    {logId:"room2_room3_transition_01",logType:"narration",speaker:"主人公",text:"僕はドアノブに手を伸ばした。"},
    {logId:"room2_room3_transition_02",logType:"narration",speaker:"ト書き",text:"開けようとすると、また扉はひとりでに開いた。扉の向こうへ、身体が吸い込まれていくような感覚に襲われる。視界が、まばゆい光に包まれていく。"}
   ],showThirdRoomBoundary)},
   {label:"もう少し部屋をしらべてみる",onSelect:()=>showRoomNotice("まだ何か調べられるかもしれない。","room2_transition_stay")}
- ]));return}
+ ]);return}
  if(room2State.doorInspected){showRoomNotice("扉には『正しい組み合わせを導け』と刻まれている。","room2_door_again");return}
  room2State.doorInspected=true;saveGame();
  showRoomDialog([

@@ -736,3 +736,155 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .room-dialog-overlay[data-memory-stage] .message-speaker,
 #game .room-dialog-overlay[data-memory-stage] .next-button{color:#796b5d}
 #game .room-dialog-overlay[data-memory-stage] .design-controls button[aria-pressed=true]{background:#d4c8b4;color:#514a43}
+
+
+/* room02 tactile puzzle board + automatic story dialogue (2026-10-20) */
+#game .room2-puzzle{
+ --r2-wood:#624730;--r2-rim:#c29a60;--r2-ink:#33271f;
+ width:min(860px,100%)!important;max-height:94%!important;
+ padding:clamp(12px,1.8cqw,24px)!important;
+ background:repeating-linear-gradient(0deg,#0000000b 0 2px,#ffffff05 2px 4px),
+ linear-gradient(105deg,#695039 0%,#886547 42%,#6c513a 100%)!important;
+ border:8px solid #34261c!important;border-radius:3px!important;
+ outline:2px solid #c49e61;outline-offset:-12px;
+ box-shadow:inset 0 0 0 3px #b68e55,inset 0 0 0 7px #493422,0 14px 40px #140d0acc!important;
+ color:#f7e9cf!important;font-family:'DotGothic16',Meiryo,sans-serif;
+}
+#game .room2-puzzle h2{
+ margin:0 34px 8px 0!important;padding:0 0 7px;border-bottom:2px solid #c6a26b;
+ color:#ffe6ad;font-family:'DotGothic16',Meiryo,sans-serif;font-size:clamp(17px,2.2cqw,25px);
+ letter-spacing:.08em;text-shadow:2px 2px 0 #322317;
+}
+#game .room2-puzzle .device-close{
+ position:absolute;right:10px;top:9px;min-width:36px;min-height:32px;
+ color:#ffebc0!important;background:#543c29!important;border:2px solid #c09a62!important;
+ border-radius:2px!important;font-family:'DotGothic16',sans-serif!important;
+ box-shadow:inset 2px 2px 0 #826344,2px 2px 0 #2a1b12;
+}
+#game .room2-board-help{margin:0 0 9px;color:#f1ddbc;font-size:clamp(11px,1.2cqw,14px);}
+#game .room2-board-help summary{cursor:pointer;display:list-item;margin-left:18px;width:max-content;max-width:calc(100% - 18px);padding:4px 8px;text-decoration:underline;text-underline-offset:3px;}
+#game .room2-board-help .room2-rule{margin:4px 0 7px;padding:9px 11px;border:2px solid #b49361;border-radius:1px;background:#edd9b3;color:#382a1c;line-height:1.65;}
+#game .room2-wells-label,#game .room2-tray-label{margin:7px 0 5px;color:#f0d5a4;font-size:clamp(11px,1.2cqw,14px);letter-spacing:.08em;}
+#game .room2-puzzle .room2-answer-slots{
+ padding:clamp(7px,1.05cqw,13px);gap:clamp(4px,.8cqw,10px);
+ background:linear-gradient(#3b2b21,#634935);border:4px solid #c49e64;border-radius:3px;
+ box-shadow:inset 0 3px 8px #150c07b8,0 3px 0 #3e2a1a;
+}
+#game .room2-puzzle .room2-answer-slot{
+ position:relative;min-width:0;min-height:clamp(49px,7cqw,78px);padding:4px;
+ border:3px solid #231910!important;border-top-color:#170f0a!important;border-left-color:#170f0a!important;
+ border-right-color:#947149!important;border-bottom-color:#947149!important;
+ border-radius:3px!important;background:linear-gradient(#2b211a,#4e3a2a)!important;
+ box-shadow:inset 3px 3px 5px #120b09bb,inset -2px -2px 0 #ae885c70!important;
+ transform:none!important;
+}
+#game .room2-puzzle .room2-answer-slot:not(.is-filled)::after{
+ content:"";position:absolute;inset:12%;border:1px dashed #c5a57a55;pointer-events:none;
+}
+#game .room2-puzzle .room2-answer-slot>span{color:#bba077;font-size:clamp(10px,1.1cqw,13px);position:relative;z-index:1;}
+#game .room2-puzzle .room2-answer-slot.is-selected{border-color:#f0d18a!important;box-shadow:inset 2px 2px 6px #1a0e08,0 0 0 2px #ffe09c!important;}
+#game .room2-puzzle .room2-answer-slot.is-filled{background:#372a20!important;}
+#game .room2-puzzle :is(.room2-answer-slot,.room2-palette-token) i{
+ width:100%;height:100%;min-width:0;min-height:clamp(36px,5.5cqw,60px);
+ border:3px solid #fff4db4d;border-right-color:#190d0b77;border-bottom-color:#190d0b99;
+ border-radius:2px;font:normal 800 clamp(21px,3.3cqw,34px)/1 'DotGothic16',sans-serif;
+ text-shadow:2px 2px 0 #1610109e;
+ box-shadow:inset 3px 3px 0 #ffffff2e,inset -3px -3px 0 #170d0b40,2px 4px 0 #1c110f70;
+}
+#game .room2-puzzle :is(.room2-answer-slot,.room2-palette-token) i.red{background:linear-gradient(145deg,#c46f63,#ac4b45 58%,#7a312e)!important;}
+#game .room2-puzzle :is(.room2-answer-slot,.room2-palette-token) i.blue{background:linear-gradient(145deg,#698eae,#446688 58%,#263d59)!important;}
+#game .room2-puzzle .room2-answer-slot.is-snapping i{animation:room2BlockSnap 260ms cubic-bezier(.12,.73,.23,1.25) both;}
+@keyframes room2BlockSnap{0%{transform:translateY(-14px) scale(1.06);filter:brightness(1.28)}58%{transform:translateY(2px) scale(.97)}100%{transform:translateY(0) scale(1);filter:brightness(1)}}
+#game .room2-puzzle .room2-palette{
+ padding:clamp(7px,1.05cqw,13px);gap:2px 6px;border:4px solid #b5915f;
+ border-radius:3px;background:linear-gradient(#4b3829,#39291f);
+ box-shadow:inset 0 3px 7px #170d0aab,0 3px 0 #342418;
+}
+#game .room2-puzzle .room2-palette-token{
+ min-width:0;padding:3px!important;background:transparent!important;
+ border:2px solid transparent!important;border-radius:2px!important;
+ box-shadow:none!important;transition:transform .1s ease;
+}
+#game .room2-puzzle .room2-palette-token:active{transform:translateY(3px);}
+#game .room2-puzzle .room2-palette-token.is-active{border-color:#f0c678!important;background:#a381504d!important;}
+#game .room2-puzzle .room2-palette-token small{color:#edd4a9;font-size:clamp(10px,1cqw,12px);margin-top:5px;}
+#game .room2-puzzle .room2-puzzle-actions{gap:5px 8px;margin:11px 0;}
+#game .room2-puzzle .room2-puzzle-actions button{
+ min-height:36px;padding:6px 13px;border:2px solid #c6a171!important;border-radius:2px!important;
+ color:#f5e4c5!important;background:#3d2d22!important;
+ box-shadow:inset 2px 2px 0 #795b3a,2px 3px 0 #291b13;font-family:'DotGothic16',sans-serif;
+ font-size:clamp(11px,1.2cqw,14px);
+}
+#game .room2-puzzle .room2-puzzle-actions button.room2-submit{
+ color:#2f2418!important;background:#e2be7c!important;border-color:#f8e1a6!important;
+ box-shadow:inset 2px 2px 0 #fff0c9,2px 3px 0 #382514;font-weight:800;
+}
+#game .room2-puzzle .room2-puzzle-actions button:active{transform:translateY(2px);box-shadow:inset 2px 2px 0 #795b3a,0 1px 0 #291b13;}
+#game .room2-puzzle .room2-puzzle-actions button:disabled{opacity:.42;cursor:default;}
+#game .room2-puzzle .room2-feedback{
+ min-height:27px;margin:8px 0;padding:5px 8px;border:2px solid #c7ab7b;border-radius:2px;
+ background:#ead8b7;color:#423126;font-weight:600;font-size:clamp(11px,1.2cqw,15px);
+ white-space:pre-line;
+}
+#game .room2-puzzle .room2-attempt-counter{
+ margin:4px 0 9px;padding:6px 11px;background:#e4d1a7;border:3px solid #4c3826;
+ border-radius:2px;color:#362719;box-shadow:inset 2px 2px 0 #fff0c9;
+}
+#game .room2-puzzle .room2-attempt-track{margin-top:4px;}
+#game .room2-puzzle .room2-attempt-step{background:#ad987a;border:1px solid #776448;border-radius:1px;}
+#game .room2-puzzle .room2-attempt-step.is-used{background:#865047;}
+#game .room2-puzzle .room2-history{
+ max-height:min(21vh,115px);margin-top:9px;padding:4px;border:3px solid #644b2f;border-radius:2px;
+ background:#ddcba8;color:#36271d;box-shadow:inset 2px 2px 4px #75542e66;
+}
+#game .room2-puzzle .room2-history-row{border-bottom:1px solid #ac9772;padding:4px 6px;}
+#game .room2-puzzle .room2-history-row.is-latest{border-left:4px solid #78512d;padding-left:3px;background:#f7e6bc;}
+#game .room2-puzzle .room2-history-turn{color:#654b31;}
+#game .room2-puzzle .room2-history-row i{width:clamp(22px,3.5cqw,30px);height:clamp(23px,3.5cqw,30px);}
+#game .room2-puzzle .room2-reaction{
+ display:block;position:sticky;bottom:4px;z-index:8;margin:10px 0 0;padding:11px 15px 12px;
+ border:4px solid #d6b879;border-radius:2px;background:#282f37;color:#fbf1de;
+ box-shadow:inset 0 0 0 2px #6f7d82,0 7px 0 #2e2119,0 12px 18px #1a110ca8;
+ font-family:'DotGothic16',sans-serif;
+}
+#game .room2-puzzle .room2-reaction[hidden]{display:none!important;}
+#game .room2-puzzle .room2-reaction-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px;}
+#game .room2-puzzle .room2-reaction-speaker{
+ margin:0;padding:3px 12px;border:1px solid #cda972;background:#e6c88b;color:#37281d;
+ font-size:clamp(12px,1.3cqw,16px);font-weight:bold;
+}
+#game .room2-puzzle .room2-reaction-text{
+ margin:3px 0 10px;min-height:2em;color:#f9edd6;
+ font-size:clamp(13px,1.7cqw,18px);line-height:1.65;white-space:pre-wrap;
+}
+#game .room2-puzzle .room2-reaction-skip{
+ flex-shrink:0;min-height:31px;padding:3px 9px;border:1px solid #c6ab83!important;
+ background:#444e56!important;color:#f8eddc!important;border-radius:2px!important;
+ font:inherit;font-size:clamp(10px,1.1cqw,12px);
+}
+#game .room2-puzzle .room2-reaction-auto{height:3px;background:#78838a55;overflow:hidden;}
+#game .room2-puzzle .room2-reaction-auto span{display:block;width:0;height:100%;background:#ecd094;}
+@keyframes room2DialogueProgress{from{width:0}to{width:100%}}
+#game .room2-puzzle .room2-leftmost-hint{border-radius:2px;background:#efddb4;color:#51391c;}
+@media (max-width:650px),(max-height:460px){
+ #game .room2-puzzle{padding:9px 12px!important;border-width:6px!important;outline-offset:-9px;}
+ #game .room2-puzzle h2{font-size:16px;margin-bottom:4px!important;padding-bottom:4px;}
+ #game .room2-board-help{margin-bottom:4px;font-size:11px;}
+ #game .room2-wells-label,#game .room2-tray-label{margin:3px 0;font-size:10px;}
+ #game .room2-puzzle .room2-answer-slots,#game .room2-puzzle .room2-palette{padding:5px;border-width:3px;gap:3px;}
+ #game .room2-puzzle .room2-answer-slot{min-height:45px;padding:2px;}
+ #game .room2-puzzle :is(.room2-answer-slot,.room2-palette-token) i{min-height:34px;font-size:22px;}
+ #game .room2-puzzle .room2-palette-token small{margin-top:2px;font-size:9px;}
+ #game .room2-puzzle .room2-puzzle-actions{margin:6px 0;}
+ #game .room2-puzzle .room2-puzzle-actions button{min-height:31px;padding:3px 7px;font-size:11px;}
+ #game .room2-puzzle .room2-feedback{font-size:11px;margin:5px 0;}
+ #game .room2-puzzle .room2-history{max-height:65px;}
+ #game .room2-puzzle .room2-reaction{padding:7px 9px;}
+ #game .room2-puzzle .room2-reaction-text{font-size:12px;line-height:1.45;margin-bottom:5px;}
+}
+@media(prefers-reduced-motion:reduce){
+ #game .room2-puzzle .room2-answer-slot.is-snapping i{animation:none;}
+ #game .room2-puzzle .room2-palette-token{transition:none;}
+ #game .room2-puzzle .room2-reaction-auto span{animation:none!important;width:100%!important;}
+}
+

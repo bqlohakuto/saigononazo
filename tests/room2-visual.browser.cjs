@@ -472,6 +472,39 @@ function within(inner,outer,tolerance=3){
    assert.deepEqual(await page.evaluate(()=>({
     door:room2State.doorInspected,desk:room2State.deskInspected
    })),{door:true,desk:false},'The original door-first route also remains available');
+   // No.121: only the first desk inspection narrates the discovery.
+   await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:false}));
+   await page.locator('#r2Desk').click();
+   assert.equal(await page.locator('.room-dialog-overlay').count(),1,'First discovery keeps its novel narration');
+   for(let i=0;i<20&&await page.locator('.room-dialog-overlay').count();i++){
+    await page.locator('#roomNextButton').click();
+   }
+   await page.locator('#r2Desk').click();
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Reinspecting the desk skips narration');
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'Reinspecting desk opens the story puzzle directly');
+   assert.equal(await page.evaluate(()=>room2State.doorInspected),false,'Desk remains independent of the door');
+   await page.locator('.room2-puzzle .device-close').click();
+
+   await page.evaluate(()=>showSecondRoom({doorInspected:true,deskInspected:true,unlocked:true,challengeActive:false,challengeBest:4}));
+   await page.locator('#r2Desk').click();
+   assert.equal(await page.locator('.room2-start-panel').count(),1,'Reinspecting after story clear opens challenge start panel directly');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Cleared desk has no redundant discovery');
+   await page.locator('.room2-start-return').click();
+
+   await page.evaluate(()=>showSecondRoom({
+    doorInspected:true,deskInspected:true,unlocked:true,challengeActive:true,
+    attempts:3,history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'赤'})),hit:0,blow:0}],
+    guess:[{symbol:'〇',color:'赤'}],challengeBest:4,answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}))
+   }));
+   await page.locator('#r2Desk').click();
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'Reinspecting desk resumes paused challenge directly');
+   assert.equal(await page.locator('.room2-start-panel').count(),0,'Resuming does not show fresh-start confirmation');
+   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),1,'Saved answer is restored');
+   assert.equal(await page.locator('.room2-history-row').count(),1,'Saved judgement history is restored');
+   assert.equal(await page.locator('.room2-attempt-left').textContent(),'残り5回','Remaining attempts are restored');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Resuming does not repeat initial description');
+   await page.locator('.room2-pause').click();
+
    // No.111: the room conversation does not presuppose inspecting either object.
    for(const explored of [false,true]){
     await page.evaluate(flag=>showSecondRoom({doorInspected:flag,deskInspected:flag}),explored);

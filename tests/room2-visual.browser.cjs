@@ -460,8 +460,8 @@ function within(inner,outer,tolerance=3){
     await page.locator('#roomNextButton').click();
    }
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Desk description can finish without a door prerequisite');
-   await page.locator('#r2Blocks').click();
-   assert.equal(await page.locator('.room2-puzzle').count(),1,'Puzzle opens while door remains uninspected');
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'No.122: the first desk discovery directly opens the puzzle without another tap');
+   assert.equal(await page.locator('.room2-start-panel').count(),0,'First discovery opens the main puzzle, not a challenge offer');
    assert.equal(await page.evaluate(()=>room2State.doorInspected),false,'Opening the puzzle never secretly inspects the door');
    await page.locator('.room2-puzzle .device-close').click();
    await page.locator('#r2Door').click();
@@ -479,6 +479,9 @@ function within(inner,outer,tolerance=3){
    for(let i=0;i<20&&await page.locator('.room-dialog-overlay').count();i++){
     await page.locator('#roomNextButton').click();
    }
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'No.122: first discovery automatically opens the puzzle');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No.122: discovery dialogue closes before the board opens');
+   await page.locator('.room2-puzzle .device-close').click();
    await page.locator('#r2Desk').click();
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Reinspecting the desk skips narration');
    assert.equal(await page.locator('.room2-puzzle').count(),1,'Reinspecting desk opens the story puzzle directly');

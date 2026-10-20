@@ -102,7 +102,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(save().rooms.room08.finalTalkSeen,true);
   click('#r8FinalDoor');finish();
   assert.equal(save().rooms.room08.ended,true);
-  assert.equal(q('.late-ending h1').textContent,'END');
+  await wait(700);
+  assert.ok(q('#roomNextButton'),'epilogue follows the final door');
+  finish();
+  assert.equal(save().rooms.room08.epilogueSeen,true);
+  assert.equal(q('.late-ending h1')?.textContent,'END');
 
   console.log('PASS: Room 6 live-map/legal-Othello -> Room 7 zodiac -> Room 8 final puzzle -> END.');
   await wait(30);dom.window.close();

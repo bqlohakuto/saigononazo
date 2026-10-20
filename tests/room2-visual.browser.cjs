@@ -298,6 +298,19 @@ function within(inner,outer,tolerance=3){
    assert.deepEqual(await page.evaluate(()=>({
     door:room2State.doorInspected,desk:room2State.deskInspected
    })),{door:true,desk:false},'The original door-first route also remains available');
+   // No.111: the room conversation does not presuppose inspecting either object.
+   for(const explored of [false,true]){
+    await page.evaluate(flag=>showSecondRoom({doorInspected:flag,deskInspected:flag}),explored);
+    await page.locator('#r2Hana').click();
+    assert.equal(await page.locator('.hana-choice-button[data-topic="room"]').count(),1,'Room topic is always available');
+    await page.locator('.hana-choice-button[data-topic="room"]').click();
+    assert.equal(await page.locator('.room-dialog-overlay').count(),1,'Room topic launches a conversation');
+    assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'この部屋、何か仕掛けがありそうだね','Hana does not reveal uninspected clues');
+    await page.locator('#roomNextButton').click();
+    assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'気になるところから調べてみます','Protagonist chooses what to inspect');
+    await page.locator('#roomNextButton').click();
+    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Room topic ends normally');
+   }
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();

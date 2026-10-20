@@ -47,7 +47,7 @@ function showSecondRoom(savedState){
 function showRoomChoices(choices){
  const room=game.querySelector(".room");if(room)room.inert=true;
  const overlay=document.createElement("div");overlay.className="device-overlay room2-choice-overlay";
- overlay.innerHTML=`<section class="menu-panel room-exit-menu" role="dialog" aria-modal="true" aria-label="選択肢"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>どうする？</h2>${choices.map((choice,index)=>`<button type="button" data-choice="${index}">${choice.label}</button>`).join("")}</section>`;
+ overlay.innerHTML=`<section class="menu-panel room-exit-menu room2-choice-panel" role="dialog" aria-modal="true" aria-label="扉の行き先を選ぶ"><button type="button" class="device-close" aria-label="閉じる">×</button><div class="room2-choice-options">${choices.map((choice,index)=>`<button type="button" data-choice="${index}">${choice.label}</button>`).join("")}</div></section>`;
  game.appendChild(overlay);let closed=false;
  const close=()=>{if(closed)return;closed=true;overlay.remove();if(room)room.inert=false};
  overlay.querySelector(".device-close").addEventListener("click",close);

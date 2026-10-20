@@ -121,6 +121,7 @@ function within(inner,outer,tolerance=3){
    assert(boardVisual.boardBackground.includes('gradient'),'Puzzle has physical wooden board styling');
    assert.notEqual(boardVisual.tileShadow,'none','Blocks have raised tactile shadow');
    assert.equal(await page.locator('.room2-board-help summary').count(),1,'Rules are available without covering the board');
+   assert.equal(await page.locator('.room2-hint-paper').count(),0,'Duplicated rules button is removed');
    assert.equal(await page.locator('.room2-board-help summary').textContent(),'？','Inline instructions are reduced to a help icon');
    assert.equal(await page.locator('.room2-wells-label,.room2-tray-label').count(),0,'No explanatory labels over the slots or tray');
    assert.equal(await page.locator('.room2-palette-token small').count(),0,'Colors are conveyed by blocks rather than repeated labels');
@@ -129,6 +130,11 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-board-help').evaluate(node=>node.open),false,'Help starts closed');
    await page.locator('.room2-board-help summary').click();
    assert.equal(await page.locator('.room2-board-help').evaluate(node=>node.open),true,'Instructions can be revealed if requested');
+   const initialHelp=await page.locator('.room2-board-help .room2-rule').textContent();
+   assert(initialHelp.includes('【駒の操作】')&&initialHelp.includes('【判定】'),'Help has operation and HIT/BLOW explanation');
+   assert(initialHelp.includes('回数制限はない。'),'First play stays unlimited');
+   assert(initialHelp.includes('記号と色が一致し、位置だけが異なるとBLOW'),'BLOW rule is stated');
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'Opening help does not leave puzzle');
    await page.locator('.room2-board-help summary').click();
    assert.equal(await page.locator('.room2-board-help').evaluate(node=>node.open),false,'Help can be tucked away again');
    await page.locator('.room2-palette-token').first().click();
@@ -149,6 +155,16 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-answer-slot i').count(),0,'Next attempt is ready after autoplay');
    assert.equal(await page.locator('.room2-history-row').count(),1,'The result remains in the ledger');
    assert.equal(await page.locator('.room2-submit').isDisabled(),true,'Submit awaits all five blocks');
+   await page.locator('.room2-puzzle .device-close').click();
+   await page.evaluate(()=>{room2State.unlocked=true;beginRoom2Challenge()});
+   await page.locator('.room2-puzzle').waitFor();
+   assert.equal(await page.locator('.room2-hint-paper').count(),0,'Challenge also has no duplicate rules button');
+   await page.locator('.room2-board-help summary').click();
+   const challengeHelp=await page.locator('.room2-board-help .room2-rule').textContent();
+   assert(challengeHelp.includes('8回以内に5枠すべてを一致させれば達成'),'Challenge condition is retained');
+   assert(challengeHelp.includes('何度でも再挑戦できる'),'Retry rule is retained');
+   assert.equal(await page.locator('.room2-answer-slot').count(),5,'Help keeps the challenge board accessible');
+   await page.screenshot({path:path.join(dir,'05-room02-help-challenge.png')});
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();

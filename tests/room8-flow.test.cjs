@@ -45,7 +45,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
    q('#r8Answer').value=answer;click('#r8Submit');finish();
    assert.equal(saved().rooms.room08.finalTalkSeen,true);assert.ok(q('#r8FinalDoor'));
  }
- click('#r8FinalDoor');finish();assert.equal(saved().rooms.room08.ended,true);assert.equal(q('.late-ending h1').textContent,'END');
+ click('#r8FinalDoor');finish();assert.equal(saved().rooms.room08.ended,true);
+ await new Promise(r=>setTimeout(r,700));
+ assert.ok(q('#roomNextButton'),'epilogue should play before END');
+ finish();assert.equal(saved().rooms.room08.epilogueSeen,true);
+ assert.equal(q('.late-ending h1')?.textContent,'END');
  // Completed old room-seven saves should not require another door click.
  run('roomStates.room08={};showSeventhRoom({introSeen:true,booksSolved:true,completed:true,doorIndex:6})');
  assert.equal(run('currentScene'),'room08');assert.ok(q('#roomNextButton'));assert.equal(q('#r7Next'),null);finish();

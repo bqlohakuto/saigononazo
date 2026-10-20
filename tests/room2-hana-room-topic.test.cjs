@@ -9,9 +9,13 @@ const root=path.resolve(__dirname,"..");
 const source=fs.readFileSync(path.join(root,"room2.js"),"utf8");
 const chapter=fs.readFileSync(path.join(root,"scenario","02_room2.md"),"utf8");
 const full=fs.readFileSync(path.join(root,"scenario","FULL_SCENARIO.md"),"utf8");
-const expected=[
+const beforeClear=[
   ["ハナ","この部屋、何か仕掛けがありそうだね"],
   ["主人公","気になるところから調べてみます"]
+];
+const afterClear=[
+  ["ハナ","この部屋の仕掛け、解けたね！"],
+  ["主人公","はい。次へ進めそうです"]
 ];
 
 function runRoomTopic(state){
@@ -47,26 +51,31 @@ function runRoomTopic(state){
  return {dialog:dialogs[0],state:sandbox.room2State,saved:saved.length,labels:buttons.map(b=>b.textContent)};
 }
 
-test("No.111: room topic is independent of door, desk, puzzle and clear progress",()=>{
+test("No.111 and 114: room topic remains available and changes after unlocking",()=>{
  for(const state of [
   {doorInspected:false,deskInspected:false},
   {doorInspected:true,deskInspected:false},
   {doorInspected:false,deskInspected:true},
   {doorInspected:true,deskInspected:true},
-  {doorInspected:true,deskInspected:true,unlocked:true}
+  {doorInspected:true,deskInspected:true,unlocked:true},
+  {doorInspected:false,deskInspected:true,unlocked:true},
+  {doorInspected:false,deskInspected:false,unlocked:true}
  ]){
   const actual=runRoomTopic(state);
-  assert.deepEqual(actual.dialog,expected);
+  assert.deepEqual(actual.dialog,state.unlocked?afterClear:beforeClear);
   assert.equal(actual.state.doorInspected,state.doorInspected);
   assert.equal(actual.state.deskInspected,state.deskInspected);
   assert.equal(actual.saved,1);
  }
 });
 
-test("No.111: manuscript and runtime use the same non-leading exchange",()=>{
+test("No.111 and 114: manuscript and runtime agree on both dialogues",()=>{
  for(const text of [chapter,full]){
   assert.match(text,/【校閲No\.111・案1 採用】/);
-  for(const [,line] of expected)assert.ok(text.includes("「"+line+"」"),"Adopted dialogue missing");
+  assert.match(text,/【校閲No\.114・案1 採用】/);
+  for(const [,line] of [...beforeClear,...afterClear]){
+   assert.ok(text.includes("「"+line+"」"),"Dialogue is in the manuscript");
+  }
  }
  assert.ok(!source.includes("机のブロックを使って、扉の鍵を開けるみたいだね"));
  assert.ok(!source.includes("扉の言葉と机の記録を見て、順番を考えればよさそうですね"));

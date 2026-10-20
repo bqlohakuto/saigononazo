@@ -54,7 +54,7 @@ function within(inner,outer,tolerance=3){
     {attempts:4,guess:1,history:1},'No.123: answer and judgement history survive silent resume');
    await page.evaluate(()=>showSecondRoom({
     doorInspected:true,deskInspected:true,unlocked:true,challengeActive:true,
-    challengeBest:3,attempts:2,history:[{hit:0,blow:1}],
+    challengeBest:3,attempts:2,history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'赤'})),hit:0,blow:1}],
     guess:[{symbol:'△',color:'青'}]
    }));
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No.123: saved challenge also opens without dialogue');

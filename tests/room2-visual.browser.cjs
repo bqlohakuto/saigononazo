@@ -313,6 +313,23 @@ function within(inner,outer,tolerance=3){
     await page.locator('#roomNextButton').click();
     assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Room topic ends normally');
    }
+   // No.112: do not offer an unknown judgement term before the desk is inspected.
+   await page.evaluate(()=>showSecondRoom({doorInspected:true,deskInspected:false}));
+   await page.locator('#r2Hana').click();
+   assert.equal(await page.locator('.hana-choice-button[data-topic="rules"]').count(),0,'Rules question hidden before desk inspection, even after visiting the door');
+   assert.equal(await page.locator('.hana-choice-button[data-topic="room"]').count(),1,'General room conversation is still available');
+   await page.locator('.hana-choice-overlay .device-close').click();
+   await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:true}));
+   await page.locator('#r2Hana').click();
+   assert.equal(await page.locator('.hana-choice-button[data-topic="rules"]').count(),1,'Desk inspection alone reveals the HIT/BLOW question');
+   await page.waitForTimeout(360);
+   await page.locator('.hana-choice-button[data-topic="rules"]').click();
+   assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'HITは記号・色・位置が全部合っているもの。BLOWは記号と色が合っていて、位置だけ違うものだよ','Adopted Hana rules explanation is retained');
+   await page.locator('#roomNextButton').click();
+   assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'判定を比べながら、合っている組み合わせを絞っていくんですね','Protagonist response still follows');
+   await page.locator('#roomNextButton').click();
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Rules exchange completes without a door visit');
+
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();

@@ -29,7 +29,7 @@ test("No.124: inspecting the unlocked door immediately opens exactly two options
   const {calls,inspect}=harness({doorInspected});
   inspect();
   assert.equal(calls.choices.length,1,"Choices appear without waiting for dialogue");
-  assert.deepEqual(calls.choices[0].map(opt=>opt.label),["次の部屋へ向かう","もう少し部屋をしらべてみる"]);
+  assert.deepEqual(calls.choices[0].map(opt=>opt.label),["次の部屋へ向かう","もう少し調べる"]);
   assert.equal(calls.dialogues.length,0,"The old door-is-open line must not appear");
   assert.equal(calls.saves,0,"Simply examining the already-open door changes nothing");
  }
@@ -79,7 +79,7 @@ test("No.124: manuscript, combined manuscript and runtime agree on the adopted b
   assert.match(text,/通知は表示しない/);
   assert.match(text,/確認文を挟まず、そのまま/);
   assert.match(text,/次の部屋へ向かう/);
-  assert.match(text,/もう少し部屋をしらべてみる/);
+  assert.match(text,/もう少し調べる/);
  }
  assert.doesNotMatch(code,/room2_transition_stay/);
  assert.doesNotMatch(code,/まだ何か調べられるかもしれない。/);

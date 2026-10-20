@@ -121,6 +121,16 @@ function within(inner,outer,tolerance=3){
    assert(boardVisual.boardBackground.includes('gradient'),'Puzzle has physical wooden board styling');
    assert.notEqual(boardVisual.tileShadow,'none','Blocks have raised tactile shadow');
    assert.equal(await page.locator('.room2-board-help summary').count(),1,'Rules are available without covering the board');
+   assert.equal(await page.locator('.room2-board-help summary').textContent(),'？','Inline instructions are reduced to a help icon');
+   assert.equal(await page.locator('.room2-wells-label,.room2-tray-label').count(),0,'No explanatory labels over the slots or tray');
+   assert.equal(await page.locator('.room2-palette-token small').count(),0,'Colors are conveyed by blocks rather than repeated labels');
+   assert.equal(await page.locator('.room2-answer-slot span').count(),0,'Empty slots look like physical wells');
+   assert.equal(await page.locator('.room2-feedback').evaluate(node=>getComputedStyle(node).display),'none','Blank notification panel must be hidden');
+   assert.equal(await page.locator('.room2-board-help').evaluate(node=>node.open),false,'Help starts closed');
+   await page.locator('.room2-board-help summary').click();
+   assert.equal(await page.locator('.room2-board-help').evaluate(node=>node.open),true,'Instructions can be revealed if requested');
+   await page.locator('.room2-board-help summary').click();
+   assert.equal(await page.locator('.room2-board-help').evaluate(node=>node.open),false,'Help can be tucked away again');
    await page.locator('.room2-palette-token').first().click();
    assert.equal(await page.locator('.room2-answer-slot i').count(),1,'Selecting token fills a single answer slot');
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),1,'Selected block is inserted into a slot');

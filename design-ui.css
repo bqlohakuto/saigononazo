@@ -950,3 +950,62 @@ body{background:#0b1322!important;display:grid;place-items:center}
 }
 #game .room2-board-help .room2-rule p:first-child{margin-top:0;}
 
+
+/* Room 02: simultaneous nonblocking two-character judge dialogue */
+#game .room2-puzzle .room2-sidebar{
+ grid-column:2;grid-row:2/5;min-width:0;min-height:0;
+ display:flex;flex-direction:column;gap:6px;overflow:hidden;
+}
+#game .room2-puzzle .room2-sidebar .room2-feedback,
+#game .room2-puzzle .room2-sidebar .room2-leftmost-hint{
+ grid-column:auto;grid-row:auto;align-self:stretch;
+}
+#game .room2-puzzle .room2-sidebar .room2-history{
+ grid-column:auto;grid-row:auto;flex:1 1 auto;min-height:34px;max-height:none;
+ overflow-y:auto;overflow-x:hidden;
+}
+#game .room2-puzzle .room2-sidebar .room2-reaction{
+ position:relative;left:auto;right:auto;top:auto;bottom:auto;
+ display:flex;flex-direction:column;flex:0 1 auto;
+ width:100%;min-width:0;min-height:0;max-height:65%;
+ margin:0;padding:9px 11px;border-width:3px;
+ overflow:hidden;box-sizing:border-box;
+}
+#game .room2-puzzle .room2-reaction[hidden]{display:none!important}
+#game .room2-puzzle .room2-reaction-top{flex:0 0 auto;margin:0 0 6px;gap:6px}
+#game .room2-puzzle .room2-reaction-title{
+ color:#f8d99d;font:700 clamp(11px,1.2cqw,14px)/1.3 'DotGothic16',sans-serif;
+}
+#game .room2-puzzle .room2-reaction-skip{
+ padding:1px 7px;min-width:28px;min-height:25px;
+ font-size:17px;line-height:1;cursor:pointer;
+}
+#game .room2-puzzle .room2-reaction-lines{
+ display:flex;flex-direction:column;gap:7px;min-height:0;
+ max-height:100%;overflow-y:auto;overscroll-behavior:contain;
+}
+#game .room2-puzzle .room2-reaction-line{
+ display:grid;grid-template-columns:minmax(36px,auto) minmax(0,1fr);
+ align-items:start;gap:6px;min-width:0;
+}
+#game .room2-puzzle .room2-reaction-name{
+ padding:2px 5px;background:#dcc185;color:#382a20;
+ font-size:clamp(10px,1.1cqw,13px);line-height:1.45;
+ border:1px solid #aa8954;white-space:nowrap;
+}
+#game .room2-puzzle .room2-reaction-speech{
+ margin:0;color:#f9edd6;line-height:1.5;
+ font-size:clamp(11px,1.4cqw,15px);
+ white-space:pre-wrap;overflow-wrap:anywhere;
+}
+@media(max-width:650px),(max-height:460px){
+ #game .room2-puzzle .room2-sidebar{gap:3px}
+ #game .room2-puzzle .room2-sidebar .room2-reaction{padding:5px 7px;max-height:70%;border-width:2px}
+ #game .room2-puzzle .room2-reaction-top{margin-bottom:3px}
+ #game .room2-puzzle .room2-reaction-lines{gap:4px}
+ #game .room2-puzzle .room2-reaction-line{grid-template-columns:minmax(31px,auto) minmax(0,1fr);gap:4px}
+ #game .room2-puzzle .room2-reaction-name{font-size:10px;padding:1px 3px}
+ #game .room2-puzzle .room2-reaction-speech{font-size:11px;line-height:1.35}
+ #game .room2-puzzle .room2-sidebar .room2-history{min-height:27px;max-height:none}
+}
+

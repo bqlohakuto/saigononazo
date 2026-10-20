@@ -14,7 +14,7 @@
 #game .r6-door-south{inset:auto auto 0 36%;width:28%;height:7%;min-height:36px;clip-path:none;background:rgba(247,245,238,.86);border:2px solid #858089;border-bottom:0}
 .r6-door-south::after{content:'▼';color:#57505c}
 #game .r6-door:hover,#game .r6-door:focus-visible{filter:brightness(1.14)}
-#game .r6-wall-text{position:absolute;left:21%;top:24%;width:20%;padding:0;border:0;background:none;color:#44424e;font-family:monospace;font-size:clamp(9px,1.35vw,19px);font-weight:700;line-height:1.7;text-align:left;cursor:pointer;box-shadow:none}
+#game .r6-wall-text{position:absolute;left:21%;top:24%;width:20%;padding:0;border:0;background:none;color:#44424e;font-family:monospace;font-size:clamp(9px,12.96px,19px);font-weight:700;line-height:1.7;text-align:left;cursor:pointer;box-shadow:none}
 .r6-lever{position:absolute;left:39%;top:65%;width:22%;height:25%}
 .r6-lever img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;pointer-events:none}
 #game .r6-lever button{position:absolute;top:0;bottom:0;width:50%;border:0;background:transparent;padding:0;cursor:pointer;box-shadow:none}
@@ -23,7 +23,7 @@
 #game .r6-map-paper{position:absolute;z-index:5;left:65%;top:8%;width:max-content;max-width:32%;max-height:58%;padding:22px 16px 14px;box-sizing:border-box;background:url('images/background/room06/map-paper-v2.webp') center/100% 100%;color:#444}
 .r6-map-tools{display:flex;justify-content:flex-end;gap:3px;position:absolute;right:9px;top:6px}
 #game .r6-map-tools button{width:26px;height:26px;min-height:0;padding:0;border:1px solid #aaa;background:#fff;color:#444;cursor:pointer}
-.r6-map-scroll{overflow:auto;max-height:calc(50dvh - 45px);overscroll-behavior:contain}
+.r6-map-scroll{overflow:auto;max-height:calc(270px - 45px);overscroll-behavior:contain}
 #game .r6-map{position:relative;display:grid;grid-template-columns:repeat(var(--cols),24px);grid-template-rows:repeat(var(--rows),24px);gap:0;padding:0}
 .r6-map-lines{position:absolute;width:100%;height:100%;inset:0;stroke:#777;stroke-width:.08;pointer-events:none;z-index:0}
 #game .r6-map .r6-cell{position:relative;z-index:1;align-self:center;justify-self:center;width:19px;height:19px;min-height:0;aspect-ratio:1;padding:0;border:2px solid #777;border-radius:0;box-shadow:none;cursor:pointer;background:#fff;font-size:12px;opacity:1}
@@ -33,20 +33,20 @@
 #game .r6-map-paper.expanded{left:auto;right:2%;max-width:54%;max-height:78%;top:10%}
 #game .r6-map-paper.expanded .r6-map{grid-template-columns:repeat(var(--cols),42px);grid-template-rows:repeat(var(--rows),42px)}
 #game .r6-map-paper.expanded .r6-cell{width:35px;height:35px;font-size:20px}
-.r6-map-paper.expanded .r6-map-scroll{max-height:calc(67dvh - 50px)}
+.r6-map-paper.expanded .r6-map-scroll{max-height:calc(361.8px - 50px)}
 #game .r6-map-toggle{position:absolute;top:10%;right:20%;padding:7px 14px;background:#fff;border:2px solid #aaa;cursor:pointer}
-#game .r6-history{position:absolute;left:2%;bottom:4%;display:flex;align-items:center;gap:6px;font-size:clamp(10px,1vw,15px);padding:6px;background:#f9f8eee8;color:#444}
+#game .r6-history{position:absolute;left:2%;bottom:4%;display:flex;align-items:center;gap:6px;font-size:clamp(10px,9.6px,15px);padding:6px;background:#f9f8eee8;color:#444}
 #game .r6-history button{padding:6px;min-height:34px;cursor:pointer;background:#fff;border:1px solid #aaa;color:#444}
 #game:has(.room-dialog-overlay) .r6-map-paper,#game:has(.room-dialog-overlay) .r6-history{visibility:hidden}
-@media(max-height:500px){
+@container game-viewport (max-height:500px){
  #game .r6-map-paper{top:9%;max-height:56%;padding:23px 10px 9px;max-width:34%}
  #game .r6-map{grid-template-columns:repeat(var(--cols),20px);grid-template-rows:repeat(var(--rows),20px)}
  #game .r6-map .r6-cell{width:16px;height:16px;font-size:10px}
- .r6-map-scroll{max-height:calc(43dvh - 30px)}
+ .r6-map-scroll{max-height:calc(232.2px - 30px)}
  #game .r6-map-paper.expanded{max-width:52%;max-height:80%}
  #game .r6-map-paper.expanded .r6-map{grid-template-columns:repeat(var(--cols),38px);grid-template-rows:repeat(var(--rows),38px)}
  #game .r6-map-paper.expanded .r6-cell{width:32px;height:32px;font-size:18px}
- .r6-map-paper.expanded .r6-map-scroll{max-height:calc(65dvh - 35px)}
+ .r6-map-paper.expanded .r6-map-scroll{max-height:calc(351px - 35px)}
  #game .r6-history{bottom:2%;gap:3px;padding:3px}#game .r6-history button{min-height:28px;padding:4px}
 }
 /* Override legacy late-room map sizing and companion placement explicitly. */
@@ -54,16 +54,16 @@
 #game .r6-full .r6-map-paper.expanded .r6-map{--step:42px}
 #game .r6-full .r6-map-paper{left:20%;top:8%;padding-top:34px;max-width:21.5%;min-width:160px}
 #game .r6-full .r6-map-paper.expanded{left:auto;right:2%;top:12%;max-width:54%}
-@media(max-height:500px){
+@container game-viewport (max-height:500px){
  #game .r6-full .r6-map{--step:16px}
  #game .r6-full .r6-map .r6-cell{width:13px;height:13px;font-size:9px}
  #game .r6-full .r6-map-paper{top:8%;max-width:21.5%;min-width:140px;max-height:62%;padding-top:31px}
  #game .r6-full .r6-map-paper.expanded{top:15%;max-width:54%;max-height:78%}
  #game .r6-full .r6-map-paper.expanded .r6-map{--step:38px}
  #game .r6-full .r6-map-paper.expanded .r6-cell{width:32px;height:32px;font-size:18px}
- .r6-map-scroll{max-height:calc(48dvh - 35px)}
+ .r6-map-scroll{max-height:calc(259.2px - 35px)}
 }
-@media(max-height:500px){
+@container game-viewport (max-height:500px){
  #game .r6-full .r6-map-paper:not(.expanded){top:8%}
  #game .r6-full .r6-map-paper:not(.expanded) .r6-map{--step:12px}
  #game .r6-full .r6-map-paper:not(.expanded) .r6-cell{width:10px;height:10px;font-size:7px}
@@ -108,7 +108,7 @@
 #game .r6-guide-scroll p{margin:0 0 12px}
 #game .r6-guide-scroll table{width:100%;border-collapse:collapse;margin-bottom:12px;text-align:center}
 #game .r6-guide-scroll th,#game .r6-guide-scroll td{border:1px solid #d4c29b;padding:5px}
-@media(max-height:500px){#game .r6-test-guide{padding:12px;max-height:92%}#game .r6-test-guide h2{font-size:16px}#game .r6-guide-scroll{font-size:12px}#game .r6-test-guide-button{padding:5px 8px;font-size:12px}}
+@container game-viewport (max-height:500px){#game .r6-test-guide{padding:12px;max-height:92%}#game .r6-test-guide h2{font-size:16px}#game .r6-guide-scroll{font-size:12px}#game .r6-test-guide-button{padding:5px 8px;font-size:12px}}
 
 /* Match an adult at this floor depth to the room's doors, independently of the map. */
 #game .r6-full #r6Hana{position:absolute;left:61.5%;right:auto;top:16%;bottom:auto;width:19%;height:61%;padding:0;border:0;background:url('images/characters/hana-hires/idle/01.webp') center bottom/contain no-repeat;pointer-events:auto;cursor:pointer;z-index:2;opacity:1}
@@ -116,4 +116,4 @@
 #game .r6-map-location{position:absolute;top:9px;left:14px;font-size:12px;line-height:20px;color:#55472f;white-space:nowrap}
 #game .r6-scene:has(.r6-map-paper:not(.expanded)) .r6-wall-text{top:45%}
 #game .r6-map-toggle{top:10%;left:21%;right:auto}
-@media(max-height:500px){#game .r6-map-location{left:10px;top:9px;font-size:10px}}
+@container game-viewport (max-height:500px){#game .r6-map-location{left:10px;top:9px;font-size:10px}}

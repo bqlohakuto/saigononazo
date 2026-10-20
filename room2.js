@@ -131,10 +131,12 @@ function showSecondRoomPuzzle(){
  const isChallenge=room2State.challengeActive===true;
  const counterMarkup=isChallenge?`<section class="room2-attempt-counter" role="status" aria-live="polite" aria-label="チャレンジの残り回数"><div class="room2-attempt-summary"><span class="room2-attempt-used">解答 0 / 8 回</span><strong class="room2-attempt-left">残り8回</strong></div><div class="room2-attempt-track" aria-hidden="true">${Array.from({length:8},()=>'<span class="room2-attempt-step"></span>').join("")}</div></section>`:"";
  const overlay=document.createElement("div");overlay.className="device-overlay room2-puzzle-overlay";
- overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>${isChallenge?"8回チャレンジ":"記号と色を並べる"}</h2><p class="room2-rule">駒を選んで5つの枠に並べます。同じ記号・同じ色の駒をもう一度選ぶと外せます。同じ記号の別の色を選ぶと、色を変更できます。配置した枠を2つ選ぶと、位置を入れ替えられます。${isChallenge?"8回以内に5つの枠をすべて正しく並べれば達成。8回目でも正解できなければ、今回の挑戦は終了する。":"正解まで何回でも挑戦できます。"}</p>${counterMarkup}<div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">配置をクリア</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-hint-paper">ルールの紙</button><button type="button" class="room2-leftmost-request" hidden>左端のヒントを見る</button>${isChallenge?`<button type="button" class="room2-abandon">挑戦をやめる</button>`:""}</div><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-live="polite"><p class="room2-reaction-speaker"></p><p class="room2-reaction-text"></p><button type="button" class="room2-reaction-next">次へ</button></section><div class="room2-history" aria-label="これまでの判定"></div></section>`;
+ overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>${isChallenge?"8回チャレンジ":"記号と色を並べる"}</h2><details class="room2-board-help"><summary>操作方法・ルールを確認</summary><p class="room2-rule">駒を選んで5つの枠に並べます。同じ記号・同じ色の駒をもう一度選ぶと外せます。同じ記号の別の色を選ぶと、色を変更できます。配置した枠を2つ選ぶと、位置を入れ替えられます。${isChallenge?"8回以内に5つの枠をすべて正しく並べれば達成。8回目でも正解できなければ、今回の挑戦は終了する。":"正解まで何回でも挑戦できます。"}</p></details>${counterMarkup}<p class="room2-wells-label" aria-hidden="true">5つのくぼみに駒をはめよう</p><div class="room2-answer-slots" role="group" aria-label="回答"></div><p class="room2-tray-label">駒置き場　赤 / 青</p><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">配置をクリア</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-hint-paper">ルールの紙</button><button type="button" class="room2-leftmost-request" hidden>左端のヒントを見る</button>${isChallenge?`<button type="button" class="room2-abandon">挑戦をやめる</button>`:""}</div><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-live="polite" aria-label="判定後の会話"><div class="room2-reaction-top"><p class="room2-reaction-speaker"></p><button type="button" class="room2-reaction-skip" aria-label="この会話をスキップ">スキップ »</button></div><p class="room2-reaction-text"></p><div class="room2-reaction-auto" aria-hidden="true"><span></span></div></section><div class="room2-history" aria-label="これまでの判定"></div></section>`;
  game.appendChild(overlay);
- const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),hint=overlay.querySelector(".room2-leftmost-hint"),hintRequest=overlay.querySelector(".room2-leftmost-request"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null;
- const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".device-close"));
+ const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),hint=overlay.querySelector(".room2-leftmost-hint"),hintRequest=overlay.querySelector(".room2-leftmost-request"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null,lastPlacedSlot=null;
+ let reactionTimer=null;
+ const clearReactionTimer=()=>{if(reactionTimer!==null){window.clearTimeout(reactionTimer);reactionTimer=null}};
+ const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".device-close"),clearReactionTimer);
  if(isChallenge)overlay.querySelector(".room2-abandon").addEventListener("click",()=>{
   close();
   showRoomDialog([{
@@ -154,15 +156,42 @@ function showSecondRoomPuzzle(){
  overlay.querySelector(".room2-clear").onclick=()=>{room2State.guess=[];selectedSlot=null;feedback.style.whiteSpace="pre-line";feedback.textContent="配置をクリアしました。\n5つの枠に駒を並べてください。";saveGame();render()};
  let reactionLines=[],reactionIndex=0,reactionDone=null;
  const setGuessEnabled=enabled=>overlay.querySelectorAll(".room2-answer-slot,.room2-palette-token,.room2-submit,.room2-hint-paper,.room2-leftmost-request,.room2-clear,.room2-abandon").forEach(button=>button.disabled=!enabled||(button.classList.contains("room2-submit")&&room2State.guess.length!==5));
- const nextReaction=()=>{if(reactionIndex+1<reactionLines.length){reactionIndex++;const line=reactionLines[reactionIndex];reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionIndex===reactionLines.length-1?(isChallenge&&room2State.attempts>=8?"結果を見る":"推理を続ける"):"次へ";recordLog(line);return}reactionPanel.hidden=true;setGuessEnabled(true);reactionDone?.();reactionDone=null};
- reactionPanel.querySelector(".room2-reaction-next").addEventListener("click",nextReaction);
- const showReaction=(lines,onDone)=>{reactionLines=lines||[];reactionDone=onDone;reactionIndex=0;if(!reactionLines.length){reactionPanel.hidden=true;reactionDone?.();reactionDone=null;return}setGuessEnabled(false);const line=reactionLines[0];reactionPanel.hidden=false;reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;reactionPanel.querySelector(".room2-reaction-next").textContent=reactionLines.length===1?(isChallenge&&room2State.attempts>=8?"結果を見る":"推理を続ける"):"次へ";recordLog(line)};
+ const endReaction=()=>{
+  clearReactionTimer();reactionPanel.hidden=true;setGuessEnabled(true);
+  const done=reactionDone;reactionDone=null;reactionLines=[];done?.();
+ };
+ const showReactionLine=()=>{
+  if(!overlay.isConnected){clearReactionTimer();return}
+  const line=reactionLines[reactionIndex];
+  reactionPanel.querySelector(".room2-reaction-speaker").textContent=line.speaker;
+  reactionPanel.querySelector(".room2-reaction-text").textContent=line.text;
+  const auto= reactionPanel.querySelector(".room2-reaction-auto span");
+  const delay=Math.min(3200,Math.max(1600,1000+line.text.length*50));
+  auto.style.animation="none";void auto.offsetWidth;
+  auto.style.animation=`room2DialogueProgress ${delay}ms linear forwards`;
+  recordLog(line);
+  clearReactionTimer();reactionTimer=window.setTimeout(()=>{
+   reactionTimer=null;if(!overlay.isConnected)return;
+   if(reactionIndex+1<reactionLines.length){reactionIndex++;showReactionLine()}else endReaction();
+  },delay);
+ };
+ const showReaction=(lines,onDone)=>{
+  clearReactionTimer();reactionLines=lines||[];reactionDone=onDone;reactionIndex=0;
+  if(!reactionLines.length){endReaction();return}
+  setGuessEnabled(false);reactionPanel.hidden=false;showReactionLine();
+  reactionPanel.scrollIntoView?.({block:"nearest",behavior:"smooth"});
+ };
+ reactionPanel.querySelector(".room2-reaction-skip").addEventListener("click",()=>{
+  if(reactionPanel.hidden)return;
+  for(let i=reactionIndex+1;i<reactionLines.length;i++)recordLog(reactionLines[i]);
+  endReaction();
+ });
  let renderedHistoryCount=-1;
  const render=()=>{
-  slots.innerHTML=ROOM2_SYMBOLS.map((_,index)=>{const piece=room2State.guess[index];return `<button type="button" class="room2-answer-slot${selectedSlot===index?" is-selected":""}" data-slot="${index}" aria-label="枠${index+1}${piece?` ${piece.color}${piece.symbol}`:" 空"}" aria-pressed="${selectedSlot===index}">${piece?`<i class="${piece.color==="赤"?"red":"blue"}">${piece.symbol}</i>`:`<span>枠${index+1}</span>`}</button>`}).join("");
-  slots.querySelectorAll("[data-slot]").forEach(button=>button.addEventListener("click",()=>{const index=Number(button.dataset.slot);if(!room2State.guess[index])return;if(selectedSlot===null){selectedSlot=index}else if(selectedSlot===index){selectedSlot=null}else{[room2State.guess[selectedSlot],room2State.guess[index]]=[room2State.guess[index],room2State.guess[selectedSlot]];selectedSlot=null;saveGame()}render()}));
+  slots.innerHTML=ROOM2_SYMBOLS.map((_,index)=>{const piece=room2State.guess[index];return `<button type="button" class="room2-answer-slot${piece?" is-filled":""}${selectedSlot===index?" is-selected":""}${lastPlacedSlot===index?" is-snapping":""}" data-slot="${index}" aria-label="枠${index+1}${piece?` ${piece.color}${piece.symbol}`:" 空"}" aria-pressed="${selectedSlot===index}">${piece?`<i class="${piece.color==="赤"?"red":"blue"}">${piece.symbol}</i>`:`<span>枠${index+1}</span>`}</button>`}).join("");
+  slots.querySelectorAll("[data-slot]").forEach(button=>button.addEventListener("click",()=>{const index=Number(button.dataset.slot);if(!room2State.guess[index])return;if(selectedSlot===null){selectedSlot=index}else if(selectedSlot===index){selectedSlot=null}else{[room2State.guess[selectedSlot],room2State.guess[index]]=[room2State.guess[index],room2State.guess[selectedSlot]];lastPlacedSlot=index;selectedSlot=null;saveGame()}render()}));
   palette.innerHTML=ROOM2_COLORS.flatMap(color=>ROOM2_SYMBOLS.map(symbol=>{const active=room2State.guess.some(piece=>piece.symbol===symbol&&piece.color===color);return `<button type="button" class="room2-palette-token${active?" is-active":""}" data-symbol="${symbol}" data-color="${color}" aria-pressed="${active}" aria-label="${color}${symbol}"><i class="${color==="赤"?"red":"blue"}">${symbol}</i><small>${color}</small></button>`})).join("");
-  palette.querySelectorAll("[data-symbol]").forEach(button=>button.addEventListener("click",()=>{const token={symbol:button.dataset.symbol,color:button.dataset.color};const index=room2State.guess.findIndex(piece=>piece.symbol===token.symbol);if(index>=0){if(room2State.guess[index].color===token.color)room2State.guess.splice(index,1);else room2State.guess[index]=token}else if(room2State.guess.length<5)room2State.guess.push(token);selectedSlot=null;feedback.textContent=room2State.guess.length===5?"":"5つの枠をすべて埋めてください。";saveGame();render()}));
+  palette.querySelectorAll("[data-symbol]").forEach(button=>button.addEventListener("click",()=>{const token={symbol:button.dataset.symbol,color:button.dataset.color};const index=room2State.guess.findIndex(piece=>piece.symbol===token.symbol);if(index>=0){if(room2State.guess[index].color===token.color){room2State.guess.splice(index,1);lastPlacedSlot=null}else{room2State.guess[index]=token;lastPlacedSlot=index}}else if(room2State.guess.length<5){room2State.guess.push(token);lastPlacedSlot=room2State.guess.length-1}selectedSlot=null;feedback.textContent=room2State.guess.length===5?"":"5つの枠をすべて埋めてください。";saveGame();render()}));
   const previousHistoryScroll=history.scrollTop;
   const historyCountChanged=room2State.history.length!==renderedHistoryCount;
   history.innerHTML=room2State.history.map((entry,index)=>`<div class="room2-history-row${index===room2State.history.length-1?" is-latest":""}">${isChallenge?`<small class="room2-history-turn">${index+1}回目</small>`:""}<span>${entry.guess.map(piece=>`<i class="${piece.color=== "赤"?"red":"blue"}">${piece.symbol}</i>`).join("")}</span><b>${entry.hit}H ${entry.blow}B</b></div>`).join("");
@@ -179,6 +208,7 @@ function showSecondRoomPuzzle(){
   hintRequest.hidden=isChallenge||room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked;
   hint.hidden=!room2State.leftmostHintRevealed;
   hint.textContent=room2State.leftmostHintRevealed?`開示された左端の記号：「${room2State.answer[0].symbol}」`:"";
+   lastPlacedSlot=null;
  };
  hintRequest.addEventListener("click",()=>{
   if(isChallenge||room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked)return;

@@ -37,6 +37,29 @@ test("approved puzzle and scene artwork is present before player reaches it", ()
   for (const asset of assets) assert.ok(present(asset), "Missing playable artwork: " + asset);
 });
 
+test("all literal active scene image references resolve", () => {
+  // Catch typos and deleted artwork before they reach the player's screen.
+  // Dynamically composed paths are covered by the explicit puzzle inventory above.
+  const sources = [
+    "index.html", "script.js", "room2.js", "room3.js",
+    "room4.js", "room4-zodiac.js", "room4-flowers.js", "room5.js",
+    "late-game.js", "memory-visuals.js", "opening-sequence.js",
+    "room2-flashback.js", "style.css", "design-ui.css", "room5.css",
+    "room6.css", "late-game.css"
+  ];
+  const referenced = new Set();
+  for (const source of sources) {
+    const code = read(source);
+    for (const match of code.matchAll(/images\\/[a-zA-Z0-9_./-]+\\.(?:png|webp|svg|jpg|jpeg)/g)) {
+      referenced.add(match[0]);
+    }
+  }
+  assert.ok(referenced.size >= 50, "Asset audit unexpectedly lost coverage");
+  for (const filename of referenced) {
+    assert.ok(present(filename), "Missing live scene image: " + filename);
+  }
+});
+
 test("all eight room implementations and final ending are present", () => {
   const src = ["script.js", "room2.js", "room3.js", "room4.js", "late-game.js"].map(read).join("\n");
   const entries = ["showFirstRoom", "showSecondRoom", "showThirdRoom", "showFourthRoom", "showFifthRoom", "showSixthRoom", "showSeventhRoom", "showEighthRoom"];

@@ -940,3 +940,13 @@ body{background:#0b1322!important;display:grid;place-items:center}
  #game .room2-puzzle .room2-reaction{left:2%;right:2%;bottom:3px}
 }
 
+
+/* Room 02 proof100: readable sections inside compact question-mark help */
+#game .room2-board-help .room2-rule p{margin:0 0 6px;line-height:1.55;}
+#game .room2-board-help .room2-rule p:last-child{margin-bottom:0;}
+#game .room2-board-help .room2-rule p:nth-child(odd){
+ margin:8px 0 3px;padding-bottom:2px;border-bottom:1px solid #b79b6b;
+ font-weight:800;color:#503b26;
+}
+#game .room2-board-help .room2-rule p:first-child{margin-top:0;}
+

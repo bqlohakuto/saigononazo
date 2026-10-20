@@ -1,6 +1,5 @@
 // Playable late-game implementation for rooms 5-8.
 // Confirmed scenario/mechanics are implemented directly.
-// Any missing design data is shown in-game as 【未確定】 instead of being silently invented.
 (() => {
   const line=(logId,speaker,text,extra={})=>({logId,logType:speaker==="ト書き"?"narration":speaker==="システム"?"narration":"dialogue",speaker,text,...extra});
   const setHud=(sceneId,title,objective,onCompanion,highlightLogEntry)=>{

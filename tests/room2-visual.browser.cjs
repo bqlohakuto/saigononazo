@@ -149,11 +149,25 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-submit').click();
    await page.locator('.room2-reaction:not([hidden])').waitFor({state:'visible'});
    assert.equal(await page.locator('.room2-reaction-next').count(),0,'No manual next button');
-   assert.equal(await page.locator('.room2-reaction-skip').count(),1,'Optional skip remains available');
+   assert.equal(await page.locator('.room2-reaction-skip').count(),1,'Optional dismiss remains available');
+   assert.equal(await page.locator('.room2-reaction-line').count(),2,'Both judgement lines appear simultaneously');
+   assert.deepEqual(await page.locator('.room2-reaction-name').allTextContents(),['ハナ','主人公'],'Hana and protagonist share the same dialogue window');
+   const paneBounds=await page.evaluate(()=>{
+    const rect=s=>document.querySelector(s).getBoundingClientRect();
+    const tray=rect('.room2-palette'),dialog=rect('.room2-reaction');
+    return {trayRight:tray.right,dialogLeft:dialog.left};
+   });
+   assert(paneBounds.dialogLeft>=paneBounds.trayRight-3,'Dialogue pane must not overlap the block tray');
+   assert.equal(await page.locator('.room2-palette-token').first().isDisabled(),false,'Board remains operable during dialogue');
+   await page.locator('.room2-palette-token').first().click();
+   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),1,'Board accepts input while both lines are visible');
+   assert.equal(await page.locator('.room2-reaction-line').count(),2,'Dialogue does not advance when player moves a block');
+   await page.locator('.room2-palette-token').first().click();
+   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),0,'Player can remove a block during conversation');
    assert.equal(await page.locator('.room2-feedback').evaluate(node=>getComputedStyle(node).display),'none','Judgement is shown in history, not duplicate feedback');
    assert.match(await page.locator('.room2-history-row.is-latest').textContent(),/0H\s*0B/,'HIT/BLOW remain recorded in the latest history row');
    await page.screenshot({path:path.join(dir,'04-room02-auto-dialogue.png')});
-   await page.locator('.room2-reaction').waitFor({state:'hidden',timeout:10000});
+   await page.locator('.room2-reaction').waitFor({state:'hidden',timeout:18000});
    assert.equal(await page.locator('.room2-answer-slot i').count(),0,'Next attempt is ready after autoplay');
    assert.equal(await page.locator('.room2-history-row').count(),1,'The result remains in the ledger');
    assert.equal(await page.locator('.room2-submit').isDisabled(),true,'Submit awaits all five blocks');

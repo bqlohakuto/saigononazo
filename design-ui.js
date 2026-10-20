@@ -104,6 +104,7 @@
     const head=document.createElement('header'),h=document.createElement('h2');h.textContent=title;
     const closeButton=button('閉じる',()=>close());head.append(h,closeButton);p.append(head);
     const content=document.createElement('div');content.className='design-content';p.append(content);o.append(p);game.append(o);
+    o.addEventListener('click',e=>{if(e.target===o)close()});
     const siblings=[...game.children].filter(el=>el!==o).map(el=>[el,el.inert]);siblings.forEach(([el])=>el.inert=true);
     Dialogue.suspend();
     function close(){if(!o.isConnected)return;o.remove();siblings.forEach(([el,inert])=>el.inert=inert);document.removeEventListener('keydown',keys,true);modal=null;Dialogue.resume();if(opener?.isConnected&&!opener.closest('[inert]'))opener.focus({preventScroll:true})}
@@ -123,8 +124,8 @@
   }
   function paginateDialogue(lines,isRead){
     const area=game.querySelector('.room-dialog .dialog-message-area');if(!area)return lines;
-    const width=Math.max(100,area.getBoundingClientRect().width);
-    const w=game.getBoundingClientRect().width,large=document.documentElement.dataset.gameTextSize==='large';
+    const width=Math.max(100,area.clientWidth);
+    const w=game.clientWidth,large=document.documentElement.dataset.gameTextSize==='large';
     const size=large?Math.max(16,Math.min(32,w*.022)):Math.max(11,Math.min(26,w*.018));
     return lines.flatMap((line,index)=>splitText(line.text,width,`${size}px "DotGothic16", "Yu Gothic", Meiryo, sans-serif`,Math.max(1,Math.min(3,Math.floor((area.clientHeight-(line.speaker==='ハナ'||line.speaker==='花音'?size:0))/(size*1.55))))).map((text,uiPage)=>({...line,text,logSource:line,uiPage,sourceIndex:index,uiWasRead:!!isRead?.(line)})));
   }
@@ -134,7 +135,7 @@
     let page=0,pages=[];const count=document.createElement('span');
     const prev=button('前のページ',()=>{page--;draw()}),next=button('次のページ',()=>{page++;draw()});pager.append(prev,count,next);
     function draw(){area.textContent=pages[page]||'';prev.disabled=page===0;next.disabled=page>=pages.length-1;count.textContent=`${page+1} / ${Math.max(1,pages.length)}`}
-    function measure(){const css=getComputedStyle(area),rect=area.getBoundingClientRect();pages=splitText(text,Math.max(100,rect.width),`${css.fontSize} ${css.fontFamily}`,Math.max(1,Math.floor(rect.height/parseFloat(css.lineHeight))));page=Math.min(page,pages.length-1);draw()}
+    function measure(){const css=getComputedStyle(area);pages=splitText(text,Math.max(100,area.clientWidth),`${css.fontSize} ${css.fontFamily}`,Math.max(1,Math.floor(area.clientHeight/parseFloat(css.lineHeight))));page=Math.min(page,pages.length-1);draw()}
     requestAnimationFrame(measure);return area;
   }
   function records(){

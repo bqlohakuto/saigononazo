@@ -273,6 +273,50 @@ function within(inner,outer,tolerance=3){
    }));
    assert.deepEqual(challengeResult,{attempts:8,active:false,cleared:true,best:8,unlocked:true,flashbackSeen:true},'An eighth-turn challenge success records a best without affecting story progress');
 
+   // No.116: result, best and actions share a screen without text advance.
+   await page.locator('.room2-result-panel').waitFor();
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Challenge result skips novel dialogue');
+   assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Challenge result skips separate choice menu');
+   assert.match(await page.locator('.room2-result-title').textContent(),/チャレンジ達成！/);
+   assert.match(await page.locator('.room2-result-attempts').textContent(),/8回で正解した/);
+   assert.match(await page.locator('.room2-result-best').textContent(),/自己ベスト更新！.*8回/);
+   assert.equal(await page.locator('.room2-result-actions button').count(),2,'Retry and return appear together');
+   const resultBounds=await page.locator('.room2-result-panel').boundingBox();
+   assert(resultBounds&&resultBounds.y>=0&&resultBounds.y+resultBounds.height<=spec.viewport.height+3,'Result panel fits screen');
+   await page.screenshot({path:path.join(dir,'07-room02-challenge-success-result.png')});
+
+   await page.locator('.room2-result-retry').click();
+   assert.equal(await page.locator('.room2-result-panel').count(),0,'Retry dismisses result directly');
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'Retry immediately begins a fresh challenge');
+   assert.deepEqual(await page.evaluate(()=>({
+    active:room2State.challengeActive,attempts:room2State.attempts,best:room2State.challengeBest,history:room2State.history.length
+   })),{active:true,attempts:0,best:8,history:0},'Retry keeps the record and resets answer history');
+   await page.locator('.room2-puzzle .device-close').click();
+
+   // A final failed answer still displays its two-line reaction before showing the one-panel result.
+   await page.evaluate(()=>showSecondRoom({
+    doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true,
+    challengeActive:true,challengeBest:8,challengeCleared:true,attempts:7,history:[],guess:[],
+    answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}))
+   }));
+   await page.locator('#r2Blocks').click();
+   for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+   await page.locator('.room2-submit').click();
+   assert.equal(await page.evaluate(()=>room2State.attempts),8);
+   assert.equal(await page.locator('.room2-reaction-line').count(),2,'Last incorrect judgement remains two lines');
+   await page.locator('.room2-reaction-skip').click();
+   await page.locator('.room2-result-panel').waitFor();
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Failure result needs no novel window');
+   assert.match(await page.locator('.room2-result-title').textContent(),/今回は達成できなかった/);
+   assert.match(await page.locator('.room2-result-attempts').textContent(),/8回の挑戦が終わった/);
+   assert.match(await page.locator('.room2-result-best').textContent(),/自己ベスト：8回/);
+   assert.equal(await page.locator('.room2-result-actions button').count(),2);
+   await page.screenshot({path:path.join(dir,'08-room02-challenge-failure-result.png')});
+   await page.locator('.room2-result-return').click();
+   assert.equal(await page.locator('.room2-result-panel').count(),0,'Return closes the result without extra narration');
+   assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Return needs no extra selection');
+   assert.equal(await page.locator('#r2Blocks').count(),1,'The solved room is available again');
+
    // No.110: a player may inspect the desk before the front door.
    await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:false}));
    assert.equal(await page.evaluate(()=>room2State.doorInspected),false,'Door starts unexplored');

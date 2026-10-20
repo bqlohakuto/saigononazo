@@ -50,7 +50,7 @@ test("all literal active scene image references resolve", () => {
   const referenced = new Set();
   for (const source of sources) {
     const code = read(source);
-    for (const match of code.matchAll(/images\\/[a-zA-Z0-9_./-]+\\.(?:png|webp|svg|jpg|jpeg)/g)) {
+    for (const match of code.matchAll(new RegExp("images/[a-zA-Z0-9_./-]+[.](?:png|webp|svg|jpg|jpeg)", "g"))) {
       referenced.add(match[0]);
     }
   }

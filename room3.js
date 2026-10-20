@@ -249,7 +249,42 @@ function inspectThirdRoomTrumpet(){
 }
 function showThirdRoomHana(){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
- showRoomNotice("ハナの追加会話・ヒントは、正式シナリオに合わせて追加します。","room3_hana_pending","system");
+ // Keep her hints restrained. This is an in-world conversation, never a
+ // production placeholder, regardless of how far the player has explored.
+ const line=(id,speaker,text)=>({logId:id,logType:"dialogue",speaker,text});
+ let lines;
+ if(room3State.unlocked){
+  lines=[
+   line("room3_hana_clear_01","ハナ","ちゃんと思い出せたみたいだね。"),
+   line("room3_hana_clear_02","主人公","はい。……大切な記憶でした。"),
+   line("room3_hana_clear_03","ハナ","うん。大事にしてね。")
+  ];
+ }else if(!room3State.doorInspected){
+  lines=[
+   line("room3_hana_before_door_01","ハナ","この部屋、なんだか落ち着くね。"),
+   line("room3_hana_before_door_02","主人公","僕には、見覚えがあるような……。"),
+   line("room3_hana_before_door_03","ハナ","そうなんだ。まずは、いつも通り調べてみよっか。")
+  ];
+ }else if(!room3State.deskInspected){
+  lines=[
+   line("room3_hana_desk_01","ハナ","扉の言葉、気になるね。"),
+   line("room3_hana_desk_02","主人公","顔に隠された合図、ですか……。"),
+   line("room3_hana_desk_03","ハナ","うん。部屋の中にも何かありそう。")
+  ];
+ }else if(!room3State.chatRead){
+  lines=[
+   line("room3_hana_phone_01","ハナ","机の上には、何か手がかりがあった？"),
+   line("room3_hana_phone_02","主人公","まだ、ちゃんと確認できていません。"),
+   line("room3_hana_phone_03","ハナ","そっか。慌てなくていいよ。")
+  ];
+ }else{
+  lines=[
+   line("room3_hana_thinking_01","ハナ","あのやりとり、変わってるね。"),
+   line("room3_hana_thinking_02","主人公","何か意味があるはずなんですが……。"),
+   line("room3_hana_thinking_03","ハナ","うん。君ならきっと見つけられるよ。")
+  ];
+ }
+ showRoomDialog(lines);
 }function showThirdRoomBoundary(){
  room2State.nextRoomTransitionSeen=true;saveGame();Dialogue.stop();game.innerHTML=`<div class="room-transition room3-transition" aria-label="第三の部屋へ移動"><img src="images/background/room01/room01_door_halfopen.png" alt="扉を通って次の部屋へ"></div>`;
  setTimeout(()=>{if(game.querySelector(".room3-transition"))showThirdRoom(roomStates.room03)},1100);

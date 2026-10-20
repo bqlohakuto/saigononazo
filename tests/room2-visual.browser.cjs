@@ -658,6 +658,25 @@ function within(inner,outer,tolerance=3){
    assert(choiceBox.x>=-2&&choiceBox.y>=-2&&choiceBox.x+choiceBox.width<=spec.viewport.width+3&&choiceBox.y+choiceBox.height<=spec.viewport.height+3,'Menu is entirely visible within the viewport');
    assert.equal(await page.locator('.room2-choice-panel').evaluate(el=>getComputedStyle(el).borderTopLeftRadius),'0px','Choice menu keeps the square-corner retro look');
    await page.screenshot({path:path.join(dir,'12-room02-compact-door-choice.png')});
+   // No.128: Esc cancels and Tab/Shift+Tab cycle only among menu controls.
+   assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-choice')),'0','First destination choice receives the initial keyboard focus');
+   await page.keyboard.press('Tab');
+   assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-choice')),'1','Tab focuses the next option');
+   await page.keyboard.press('Tab');
+   assert.equal(await page.evaluate(()=>document.activeElement?.classList.contains('device-close')),true,'Tab wraps to the close button');
+   await page.keyboard.press('Shift+Tab');
+   assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-choice')),'1','Shift+Tab cycles backward within the choice panel');
+   await page.keyboard.press('Escape');
+   assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Escape closes the choice window without selecting a destination');
+   assert.equal(await page.evaluate(()=>document.activeElement?.id),'r2Door','Escape returns keyboard focus to the door');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Escape does not start the next-room narration');
+   await page.locator('#r2Door').click();
+   assert.equal(await page.locator('.room2-choice-overlay').count(),1,'The door can open choices after an Escape cancellation');
+   await page.locator('.room2-choice-panel .device-close').click();
+   assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Close button cancels choices');
+   assert.equal(await page.evaluate(()=>document.activeElement?.id),'r2Door','Close button restores focus to the door');
+   await page.locator('#r2Door').click();
+   assert.equal(await page.locator('.room2-choice-overlay').count(),1,'The door remains operable after closing');
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No redundant door-is-open narration');
    assert.deepEqual(await page.locator('.room2-choice-overlay [data-choice]').allTextContents(),
     ['次の部屋へ向かう','もう少し部屋をしらべてみる'],'Both existing destination choices remain unchanged');
@@ -668,6 +687,7 @@ function within(inner,outer,tolerance=3){
    }));
    await page.waitForTimeout(360); // Design UI blocks the first 250 ms after a choice panel appears.
    await page.locator('.room2-choice-overlay [data-choice="1"]').click();
+   assert.equal(await page.evaluate(()=>document.activeElement?.id),'r2Door','No.128: selecting to stay restores door focus');
    assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Staying returns to exploration');
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Staying does not start a novel conversation');
    assert.equal(await page.locator('#exploreStatus').textContent(),statusBeforeStay,'No.125: staying adds no notification or exploration status');

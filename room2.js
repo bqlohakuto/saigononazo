@@ -39,7 +39,7 @@ function showSecondRoom(savedState){
  document.getElementById("r2Desk").addEventListener("click",()=>inspectSecondRoomDesk());
  document.getElementById("r2Blocks").addEventListener("click",()=>room2State.unlocked&&!room2State.challengeActive?showRoom2ChallengeMenu():showSecondRoomPuzzle());
  document.getElementById("r2Hana").addEventListener("click",()=>showSecondRoomHana());
- if(!savedState){showRoomDialog(room2IntroLines)} else if(savedState.nextRoomTransitionSeen){showThirdRoomBoundary()}else {showRoomNotice("続きから再開しました。","room2_resumed")}
+ if(!savedState){showRoomDialog(room2IntroLines)} else if(savedState.nextRoomTransitionSeen){showThirdRoomBoundary()}
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room02",title:"第二の部屋",objective:()=>room2State.unlocked?"扉を調べて次へ進む":"部屋を調べる",onCompanion:showSecondRoomHana,getHighlights:()=>!!room2State.highlightEnabled,setHighlights:enabled=>{room2State.highlightEnabled=!!enabled;saveGame()}});
  saveGame();
 }

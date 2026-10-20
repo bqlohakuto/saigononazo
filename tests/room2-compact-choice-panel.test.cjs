@@ -62,7 +62,7 @@ function harness(){
  vm.runInNewContext(code.slice(start,end)+"\nthis.__show=showRoomChoices;",sandbox);
  const open=()=>sandbox.__show([
   {label:"次の部屋へ向かう",onSelect(){calls.selected.push("next")}},
-  {label:"もう少し部屋をしらべてみる",onSelect(){calls.selected.push("stay")}}
+  {label:"もう少し調べる",onSelect(){calls.selected.push("stay")}}
  ]);
  return {calls,room,overlay,closeButton,choiceButtons,open};
 }
@@ -77,7 +77,7 @@ test("No.127: compact cleared-door choice panel contains only the two options an
  assert.doesNotMatch(html,/<h2|どうする？/);
  assert.match(html,/class="room2-choice-options"/);
  assert.equal((html.match(/data-choice=/g)||[]).length,2);
- assert.ok(html.indexOf("次の部屋へ向かう")<html.indexOf("もう少し部屋をしらべてみる"));
+ assert.ok(html.indexOf("次の部屋へ向かう")<html.indexOf("もう少し調べる"));
  assert.match(html,/aria-label="閉じる"/);
  assert.equal(h.calls.focused,1,"The first actual choice gets keyboard focus");
  assert.equal(h.calls.sharedModal,1,"The common modal handler is used instead of manual focus wiring");

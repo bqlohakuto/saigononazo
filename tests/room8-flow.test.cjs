@@ -33,7 +33,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  assert.ok(!logs.some(e=>e.text.includes('【未確定】')));
  assert.ok(!logs.some(e=>e.speaker==='花音'||e.text.includes('花音')),'name remains hidden before answer');
  click('#r8Paper');click('#r8Back');await tick();
- assert.match(q('#r8BackText').textContent,/ポスター/);assert.doesNotMatch(q('#r8BackText').textContent,/未確定|花音/);
+ assert.match(q('#r8BackText').textContent,/最初の部屋/);assert.doesNotMatch(q('#r8BackText').textContent,/未確定|花音/);
  const progress=saved().rooms.room08;
  click('#r8Submit');assert.match(q('#r8Feedback').textContent,/名前を、思い出そう/);
  q('#r8Answer').value='ハナ';click('#r8Submit');assert.match(q('#r8Feedback').textContent,/この名前じゃない/);

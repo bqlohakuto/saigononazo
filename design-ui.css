@@ -132,7 +132,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 #game .design-sound-caption[hidden]{display:none}
 #game .is-keyboard-open{max-height:100%;overflow:auto}
 #game .is-keyboard-open input:focus{scroll-margin:20px}
-@media(orientation:portrait) and (pointer:coarse){#game .design-orientation{display:grid}#game-container{width:var(--display-width)!important;height:var(--display-height)!important;aspect-ratio:auto}}
+@media(orientation:portrait) and (pointer:coarse){#game .design-orientation{display:grid}}
 @container game-viewport (max-height:550px){#game .room-dialog{height:34%;padding-bottom:32px!important}#game .hana-portrait{bottom:25%;height:67%}#game .design-panel{gap:5px;padding:1.5%}#game .design-content{gap:4px}#game .design-panel>header{padding-bottom:4px}#game .design-panel button{min-height:30px}#game .design-settings{gap:5px 15px}#game .room2-rule{font-size:10px}#game .room2-answer-slot,#game .room2-palette-token{min-height:34px}#game .room2-puzzle{gap:5px 3%}#game .save-slot-card{min-height:54px;padding:7px}#game .save-slot-guide{margin:0;font-size:11px}}
 @media(prefers-reduced-motion:no-preference){#game :is(.device-overlay,.inspection-overlay,.design-overlay){animation:designFade var(--ui-duration) ease-out}@keyframes designFade{from{opacity:0}to{opacity:1}}}
 @media(prefers-reduced-motion:reduce){#game *{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
@@ -1011,3 +1011,13 @@ body{background:#0b1322!important;display:grid;place-items:center}
  #game .room2-puzzle .room2-sidebar .room2-history{min-height:27px;max-height:none}
 }
 
+
+/* The logical game never switches to a portrait aspect ratio. Show a separate
+   readable device-rotation notice above the 16:9 letterboxed game instead. */
+#portrait-cover{display:none}
+@media (orientation:portrait) and (pointer:coarse){
+ #portrait-cover{position:fixed;inset:0;display:grid;place-items:center;z-index:9999;background:#171b19;color:#faf7ee;padding:24px;text-align:center}
+ #portrait-cover>div{max-width:420px;padding:28px 22px;border:1px solid #ae9157;border-radius:8px;background:#242925}
+ #portrait-cover h2{margin-bottom:12px;font-size:24px;font-weight:normal}
+ #portrait-cover p{font-size:16px;line-height:1.7}
+}

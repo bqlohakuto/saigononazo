@@ -54,6 +54,7 @@ for(let i=0;i<placements.length;i++){
   click('[data-tile="'+id+'"]');
   click('[data-counter="'+counter+'"]');
   finish();
+  assert.equal(qa('#r5Scene .r5-board-wall-grid .r5-wall-tile.is-placed img').length,i+1,'fitted artwork also appears on the wall');
 }
 assert.equal(save().rooms.room05.codeRevealed,true);
 assert.equal(Object.keys(save().rooms.room05.placed).length,7);

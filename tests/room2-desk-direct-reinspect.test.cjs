@@ -12,12 +12,12 @@ const full=fs.readFileSync(path.join(root,"scenario","FULL_SCENARIO.md"),"utf8")
 
 function harness(initial={}){
  const blocks={disabled:!initial.deskInspected};
- const calls={dialogs:[],saves:0,puzzles:0,startPanels:0};
+ const calls={dialogs:[],callbacks:[],saves:0,puzzles:0,startPanels:0};
  const sandbox={
   room2State:{doorInspected:false,deskInspected:false,unlocked:false,challengeActive:false,...initial},
   document:{getElementById(id){assert.equal(id,"r2Blocks");return blocks}},
   saveGame(){calls.saves++},
-  showRoomDialog(lines){calls.dialogs.push(Array.from(lines,x=>x.logId))},
+  showRoomDialog(lines,onComplete){calls.dialogs.push(Array.from(lines,x=>x.logId));calls.callbacks.push(onComplete)},
   showSecondRoomPuzzle(){calls.puzzles++},
   showRoom2ChallengeMenu(){calls.startPanels++}
  };
@@ -26,7 +26,7 @@ function harness(initial={}){
  // not DOM construction; source function declarations otherwise override the fakes.
  sandbox.showSecondRoomPuzzle=()=>{calls.puzzles++};
  sandbox.showRoom2ChallengeMenu=()=>{calls.startPanels++};
- return {state:sandbox.room2State,blocks,calls,inspect:()=>sandbox.__inspect()};
+ return {state:sandbox.room2State,blocks,calls,inspect:()=>sandbox.__inspect(),complete:()=>{const cb=calls.callbacks.shift();if(cb)cb()}};
 }
 
 test("No.121: first desk inspection retains its exact three discovery messages",()=>{
@@ -38,15 +38,18 @@ test("No.121: first desk inspection retains its exact three discovery messages",
  assert.deepEqual(h.calls.dialogs[0],["room2_desk_01","room2_desk_02","room2_desk_03"]);
  assert.equal(h.calls.puzzles,0);
  assert.equal(h.calls.startPanels,0);
+ h.complete();
+ assert.equal(h.calls.puzzles,1,"Finishing the third discovery line automatically opens the puzzle");
 });
 
 test("No.121: subsequent desk inspection launches the story puzzle with no more narration",()=>{
  const h=harness();
  h.inspect();
+ h.complete();
  h.inspect();
  h.inspect();
  assert.equal(h.calls.dialogs.length,1,"Discovery narration is not repeated");
- assert.equal(h.calls.puzzles,2,"Every later inspection opens the actual puzzle");
+ assert.equal(h.calls.puzzles,3,"Auto-open and every later inspection open the same puzzle");
  assert.equal(h.calls.startPanels,0);
  assert.equal(h.calls.saves,1,"Reinspection doesn't modify saved progress");
  assert.equal(h.state.doorInspected,false,"Door is still optional");

@@ -382,6 +382,34 @@ function within(inner,outer,tolerance=3){
    assert(clearText.includes('この部屋の仕掛け、解けたね！'),'Clear conversation retains Hana confirmation');
    assert(clearText.includes('はい。次へ進めそうです'),'The protagonist acknowledges the unlocked door across dialogue pages');
 
+   // No.115: challenge milestone reactions replace, never append to, normal HIT/BLOW dialogue.
+   const milestoneText=new Map([
+    [4,['あと4回だね。焦らずいこう！','はい。今までの判定を整理してみます']],
+    [6,['あと2回……！　結果を見直してみよう','……そうですね。慎重に考えます']],
+    [7,['あと1回……！　落ち着いていこう','はい。今までの結果を見直します']]
+   ]);
+   for(const [turn,dialogue] of milestoneText){
+    await page.evaluate(attempt=>showSecondRoom({
+     doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true,
+     challengeActive:true,attempts:attempt-1,history:[],guess:[],
+     answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}))
+    }),turn);
+    await page.locator('#r2Blocks').click();
+    assert.equal(await page.locator('.room2-attempt-counter').count(),1,'Challenge counter appears');
+    for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+    await page.locator('.room2-submit').click();
+    assert.equal(await page.evaluate(()=>room2State.attempts),turn,'Challenge increment is recorded');
+    assert.equal(await page.locator('.room2-history-row').count(),1,'HIT/BLOW history still records the result');
+    assert.match(await page.locator('.room2-history-row').textContent(),/0H\s*0B/);
+    assert.equal(await page.locator('.room2-reaction-line').count(),2,'Only the milestone pair is shown');
+    assert.deepEqual(await page.locator('.room2-reaction-name').allTextContents(),['ハナ','主人公']);
+    assert.deepEqual(await page.locator('.room2-reaction-speech').allTextContents(),dialogue,'Milestone text replaces the standard judge lines');
+    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5,'All fitted tokens remain available');
+    assert.equal(await page.locator('.room2-palette-token').first().isDisabled(),false,'The player can still manipulate blocks');
+    if(turn===7)await page.screenshot({path:path.join(dir,'06-room02-challenge-milestone.png')});
+    await page.locator('.room2-puzzle .device-close').click();
+   }
+
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();

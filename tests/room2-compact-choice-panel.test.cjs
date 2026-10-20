@@ -108,8 +108,8 @@ test("No.127: compact panel styles target only the Room 2 choices and landscape 
  assert.match(css,/#game \.room2-choice-overlay \.room2-choice-panel/);
  assert.match(css,/#game \.room2-choice-panel \.room2-choice-options/);
  assert.match(css,/grid-template-columns:minmax\(0,1fr\)/);
- assert.match(css,/max-height:min\(88dvh,450px\)/);
- assert.match(css,/@media\(max-height:500px\)/);
+ assert.match(css,/max-height:min\(475\.2px,450px\)/);
+ assert.match(css,/@container game-viewport \(max-height:500px\)/);
  assert.match(css,/overflow-wrap:anywhere/);
 });
 

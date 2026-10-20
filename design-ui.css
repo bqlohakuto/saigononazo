@@ -449,6 +449,8 @@ body{background:#0b1322!important;display:grid;place-items:center}
 .r3-header-spacer{width:36px}
 .r3-chat-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:clamp(7px,.9cqw,12px);display:flex;flex-direction:column;gap:clamp(7px,.7cqw,10px);scrollbar-width:thin;scrollbar-color:#6c8793 #c6d6dc;font:clamp(12px,1.35cqw,18px)/1.65 "DotGothic16",sans-serif}
 .r3-chat-scroll:focus-visible{outline:2px solid #587a8a;outline-offset:-2px}
+/* Chat messages keep their natural height; only the phone LCD scrolls. */
+#game .r3-chat-scroll > *{flex-shrink:0}
 #game .r3-chat-scroll :is(.room3-chat-message,.r3-text-message){display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:auto;max-width:88%;align-self:flex-start;text-align:left}
 #game .r3-chat-scroll :is(.room3-chat-message,.r3-text-message).player{align-self:flex-end;align-items:flex-end}
 .r3-chat-scroll small{font-size:.73em;line-height:1.2;color:#40535e;padding:0 2px}

@@ -67,7 +67,7 @@ function inspectSecondRoomDoor(){
   ],showThirdRoomBoundary)},
   {label:"もう少し調べる",onSelect:()=>{}}
  ]);return}
- if(room2State.doorInspected){showRoomNotice("扉には『正しい組み合わせを導け』と刻まれている。","room2_door_again");return}
+ if(room2State.doorInspected){showRoomNotice("『正しい組み合わせを導け』","room2_door_again");return}
  room2State.doorInspected=true;saveGame();
  showRoomDialog([
   {logId:"room2_door_01",logType:"investigation",speaker:"ト書き",text:"木製の扉だ。ドアノブを回してみた。"},

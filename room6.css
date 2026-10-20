@@ -117,3 +117,9 @@
 #game .r6-scene:has(.r6-map-paper:not(.expanded)) .r6-wall-text{top:45%}
 #game .r6-map-toggle{top:10%;left:21%;right:auto}
 @container game-viewport (max-height:500px){#game .r6-map-location{left:10px;top:9px;font-size:10px}}
+
+/* Fixed 960x540 canvas: the collapsed eight-column map must fit on the
+   paper at every browser size, independent of physical viewport breakpoints.
+   Expanded maps intentionally retain their larger scrollable cells. */
+#game .r6-full .r6-map-paper:not(.expanded) .r6-map{--step:16px;}
+#game .r6-full .r6-map-paper:not(.expanded){min-width:160px;}

@@ -234,6 +234,44 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-attempt-left').textContent(),'残り7回');
    assert.equal(await page.locator('.room2-history-row').count(),1,'Duplicate cannot grow challenge history');
    await page.screenshot({path:path.join(dir,'05-room02-help-challenge.png')});
+
+   // No.105: unlimited first play must accept a wrong tenth attempt and a subsequent correct answer.
+   await page.evaluate(()=>showSecondRoom({
+    doorInspected:true,deskInspected:true,sheetFound:true,
+    answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'})),
+    attempts:9,history:[],guess:[],unlocked:false,challengeActive:false
+   }));
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-attempt-counter').count(),0,'Main story has no eight-turn counter');
+   assert.equal(await page.locator('.room2-abandon').count(),0,'Main story never displays optional-challenge controls');
+   const unlimitedHelp=await page.locator('.room2-board-help .room2-rule').textContent();
+   assert(unlimitedHelp.includes('回数制限はない。'),'Main story rules are explicitly unlimited');
+   for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+   await page.locator('.room2-submit').click();
+   assert.equal(await page.evaluate(()=>room2State.attempts),10,'A tenth incorrect main-story attempt is permitted');
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'A tenth failure never blocks the story puzzle');
+   for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="青"]').nth(i).click();
+   await page.locator('.room2-submit').click();
+   assert.equal(await page.evaluate(()=>room2State.attempts),11,'A correct eleventh attempt is accepted');
+   assert.equal(await page.locator('.room2-puzzle').count(),0,'Correct main-story answer starts the flashback dialogue flow');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),1,'Success proceeds to in-story conversation');
+
+   // No.105: the optional challenge starts only after unlock and accepts a correct eighth answer.
+   await page.evaluate(()=>showSecondRoom({doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true}));
+   await page.evaluate(()=>{
+    beginRoom2Challenge();
+    room2State.answer=ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}));
+    room2State.attempts=7;
+   });
+   await page.locator('.room2-puzzle').waitFor();
+   for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="青"]').nth(i).click();
+   await page.locator('.room2-submit').click();
+   const challengeResult=await page.evaluate(()=>({
+    attempts:room2State.attempts,active:room2State.challengeActive,
+    cleared:room2State.challengeCleared,best:room2State.challengeBest,
+    unlocked:room2State.unlocked,flashbackSeen:room2State.flashbackSeen
+   }));
+   assert.deepEqual(challengeResult,{attempts:8,active:false,cleared:true,best:8,unlocked:true,flashbackSeen:true},'An eighth-turn challenge success records a best without affecting story progress');
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();

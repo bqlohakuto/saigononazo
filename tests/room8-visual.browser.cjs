@@ -29,13 +29,18 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
    await p.reload({waitUntil:'load'});await click('#continueButton');await p.locator('.save-slot-action:not([disabled])').last().click();await click('.save-slot-action.is-confirm');
    assert.equal((await saved()).introLogId,'r8_reunion_13');assert.match(await p.locator('#roomMessage').textContent(),/わたしのことも/);
    await finish();assert.equal((await saved()).puzzleReady,true);
-   await click('#r8Paper');await click('#r8Back');
-   assert.match(await p.locator('#r8BackText').textContent(),/ポスターで見つけたもの/);
+   await p.locator('#r8PaperImage:visible,#r8Paper:visible').first().click();await click('#r8Back');
+   assert.match(await p.locator('#r8BackText').textContent(),/最初の部屋/);
    assert.doesNotMatch(await p.locator('#r8BackText').textContent(),/未確定|花音/);
    await p.screenshot({path:path.join(out,'room08-'+spec.name+'-paper.png')});
    await p.locator('#r8Answer').fill('ハナ');await click('#r8Submit');assert.match(await p.locator('#r8Feedback').textContent(),/この名前じゃない/);
    await p.locator('#r8Answer').fill('花音');await click('#r8Submit');await finish();
-   await click('#r8FinalDoor');await finish();assert.equal(await p.locator('.late-ending h1').textContent(),'END');
+   await click('#r8FinalDoor');await finish();
+   assert.equal((await saved()).ended,true);
+   await p.locator('#roomNextButton').waitFor({state:'visible'});
+   await finish();
+   assert.equal((await saved()).epilogueSeen,true);
+   assert.equal(await p.locator('.late-ending h1').textContent(),'END');
    assert.deepEqual(errors,[],spec.name+' has no runtime errors');
    console.log('PASS room8 '+spec.name+': seated dialogue, reload, paper scrolling, wrong/right answer and END');
   }finally{await browser.close()}

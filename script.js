@@ -525,6 +525,7 @@ function activateDeviceModal(overlay,openerId,initialFocus,onClose){
   document.removeEventListener("keydown",onKeyDown,true);
   document.removeEventListener("focusin",onFocusIn,true);
   closeButton.removeEventListener("click",close);
+  overlay.removeEventListener("click",onBackdropClick);
   overlay.remove();
   if(room)room.inert=wasInert;
   if(restoreFocus&&opener?.isConnected&&!opener.disabled&&!opener.closest("[hidden], [inert]"))opener.focus({preventScroll:true});
@@ -533,6 +534,9 @@ function activateDeviceModal(overlay,openerId,initialFocus,onClose){
  function close(event){
   event?.stopPropagation();
   release(true);
+ }
+ function onBackdropClick(event){
+  if(event.target===overlay)close(event);
  }
  function onKeyDown(event){
   if(game.querySelector(".design-overlay,.save-slot-overlay"))return;
@@ -550,6 +554,7 @@ function activateDeviceModal(overlay,openerId,initialFocus,onClose){
   if(!closed&&!panel.contains(event.target))controls()[0]?.focus({preventScroll:true});
  }
  closeButton.addEventListener("click",close);
+ overlay.addEventListener("click",onBackdropClick);
  document.addEventListener("keydown",onKeyDown,true);
  document.addEventListener("focusin",onFocusIn,true);
  observer.observe(document.documentElement,{childList:true,subtree:true});

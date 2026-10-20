@@ -888,3 +888,55 @@ body{background:#0b1322!important;display:grid;place-items:center}
  #game .room2-puzzle .room2-reaction-auto span{animation:none!important;width:100%!important;}
 }
 
+
+/* Room 02: minimal visible copy; compact help + uncluttered physical board */
+#game .room2-puzzle{
+ grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+ grid-template-rows:auto auto auto minmax(0,1fr) auto;
+}
+#game .room2-puzzle .room2-answer-slots{grid-column:1;grid-row:3}
+#game .room2-puzzle .room2-palette{grid-column:1;grid-row:4}
+#game .room2-puzzle .room2-attempt-counter{grid-column:1;grid-row:2;margin:0 0 6px}
+#game .room2-puzzle .room2-history{grid-column:2;grid-row:3/5;min-height:0}
+#game .room2-puzzle .room2-history:empty{border-color:transparent;background:transparent;box-shadow:none}
+#game .room2-puzzle .room2-feedback{
+ grid-column:2;grid-row:2;align-self:start;min-height:0;margin:0 0 5px;
+ padding:5px 8px;white-space:pre-line;
+}
+#game .room2-puzzle .room2-feedback:empty{display:none!important}
+#game .room2-puzzle .room2-leftmost-hint{grid-column:2;grid-row:1;align-self:center}
+#game .room2-puzzle .room2-puzzle-actions{grid-column:1/-1;grid-row:5}
+#game .room2-board-help{
+ position:absolute;right:57px;top:9px;z-index:12;
+ margin:0!important;padding:0;line-height:1;
+}
+#game .room2-board-help summary{
+ display:grid;place-items:center;list-style:none;
+ min-width:34px;min-height:34px;width:34px;height:34px;
+ margin:0!important;padding:0!important;
+ background:#493423;color:#ffedbe;border:2px solid #c09a62;
+ border-radius:2px;font-size:21px;font-weight:700;
+ text-decoration:none;box-shadow:inset 2px 2px 0 #816243,2px 2px 0 #291b13;
+ cursor:pointer;
+}
+#game .room2-board-help summary::-webkit-details-marker{display:none}
+#game .room2-board-help summary:focus-visible{outline:3px solid #ffe5a0;outline-offset:2px}
+#game .room2-board-help .room2-rule{
+ position:absolute;right:0;top:calc(100% + 8px);z-index:13;
+ width:min(350px,70vw);max-height:min(230px,60vh);overflow:auto;
+ margin:0!important;padding:10px 12px!important;
+ background:#edd9b3!important;color:#382a1c!important;
+ line-height:1.65;font-size:12px;white-space:normal;
+ box-shadow:0 8px 0 #3e291a,0 14px 22px #150d0b77;
+}
+#game .room2-puzzle .room2-reaction{
+ position:absolute;left:3%;right:3%;bottom:7px;margin:0;max-height:54%;overflow:auto;
+}
+@media(max-width:650px),(max-height:460px){
+ #game .room2-board-help{right:51px;top:5px}
+ #game .room2-board-help summary{min-width:31px;min-height:31px;width:31px;height:31px;font-size:18px}
+ #game .room2-board-help .room2-rule{width:min(330px,78vw);max-height:54vh;font-size:11px}
+ #game .room2-puzzle .room2-feedback{font-size:11px;padding:3px 5px}
+ #game .room2-puzzle .room2-reaction{left:2%;right:2%;bottom:3px}
+}
+

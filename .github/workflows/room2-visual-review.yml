@@ -27,6 +27,7 @@ on:
       - 'tests/room2-unlocked-door-direct-choices.test.cjs'
       - 'tests/room2-choice-operation-help.test.cjs'
       - 'tests/room2-compact-choice-panel.test.cjs'
+      - 'tests/room2-choice-keyboard-focus.test.cjs'
       - 'design-ui.js'
       - 'script.js'
       - 'scenario/02_room2_hit_blow.md'
@@ -53,7 +54,7 @@ jobs:
           npx playwright install --with-deps webkit
           google-chrome --version
       - name: Verify Room 2 puzzle rules and correct dialogue
-        run: node --test tests/room2-no-repeat.test.cjs tests/room2-leftmost-hint.test.cjs tests/room2-correct-dialogue.test.cjs tests/room2-judge-dialogue-sync.test.cjs tests/room2-no-paper-help.test.cjs tests/room2-intro-dialogue-sync.test.cjs tests/room2-free-exploration.test.cjs tests/room2-hana-room-topic.test.cjs tests/room2-hana-rules-gate.test.cjs tests/room2-hana-strategy-gate.test.cjs tests/room2-challenge-milestone.test.cjs tests/room2-challenge-result.test.cjs tests/room2-challenge-start.test.cjs tests/room2-challenge-abandon.test.cjs tests/room2-challenge-pause.test.cjs tests/room2-challenge-resume-label.test.cjs tests/room2-desk-direct-reinspect.test.cjs tests/room2-resume-without-notice.test.cjs tests/room2-unlocked-door-direct-choices.test.cjs tests/room2-choice-operation-help.test.cjs tests/room2-compact-choice-panel.test.cjs
+        run: node --test tests/room2-no-repeat.test.cjs tests/room2-leftmost-hint.test.cjs tests/room2-correct-dialogue.test.cjs tests/room2-judge-dialogue-sync.test.cjs tests/room2-no-paper-help.test.cjs tests/room2-intro-dialogue-sync.test.cjs tests/room2-free-exploration.test.cjs tests/room2-hana-room-topic.test.cjs tests/room2-hana-rules-gate.test.cjs tests/room2-hana-strategy-gate.test.cjs tests/room2-challenge-milestone.test.cjs tests/room2-challenge-result.test.cjs tests/room2-challenge-start.test.cjs tests/room2-challenge-abandon.test.cjs tests/room2-challenge-pause.test.cjs tests/room2-challenge-resume-label.test.cjs tests/room2-desk-direct-reinspect.test.cjs tests/room2-resume-without-notice.test.cjs tests/room2-unlocked-door-direct-choices.test.cjs tests/room2-choice-operation-help.test.cjs tests/room2-compact-choice-panel.test.cjs tests/room2-choice-keyboard-focus.test.cjs
       - name: Wait for deployed revision, capture and test Room 2
         env:
           UI_SCREENSHOT_DIR: artifacts/room02

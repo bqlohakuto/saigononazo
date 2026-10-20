@@ -648,6 +648,16 @@ function within(inner,outer,tolerance=3){
    await page.locator('#r2Door').click();
    assert.equal(await page.locator('.room2-choice-overlay').count(),1,'Solved door immediately displays destination choices');
    assert.equal(await page.locator('.room2-choice-overlay .design-op-button').count(),0,'No.126: the simple door choice menu has no operation help');
+   // No.127: the two options fill a compact pixel-style window without a redundant heading.
+   assert.equal(await page.locator('.room2-choice-panel').count(),1,'The cleared door uses the compact menu');
+   assert.equal(await page.locator('.room2-choice-panel h2').count(),0,'No heading is displayed');
+   assert.equal(await page.locator('.room2-choice-options [data-choice]').count(),2,'Both options remain visible');
+   assert.equal(await page.locator('.room2-choice-panel .device-close').count(),1,'Close remains available');
+   const choiceBox=await page.locator('.room2-choice-panel').boundingBox();
+   assert(choiceBox&&choiceBox.width<=spec.viewport.width+2&&choiceBox.height<=Math.min(310,spec.viewport.height+2),'Compact menu fits the horizontal mobile viewport');
+   assert(choiceBox.x>=-2&&choiceBox.y>=-2&&choiceBox.x+choiceBox.width<=spec.viewport.width+3&&choiceBox.y+choiceBox.height<=spec.viewport.height+3,'Menu is entirely visible within the viewport');
+   assert.equal(await page.locator('.room2-choice-panel').evaluate(el=>getComputedStyle(el).borderTopLeftRadius),'0px','Choice menu keeps the square-corner retro look');
+   await page.screenshot({path:path.join(dir,'12-room02-compact-door-choice.png')});
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No redundant door-is-open narration');
    assert.deepEqual(await page.locator('.room2-choice-overlay [data-choice]').allTextContents(),
     ['次の部屋へ向かう','もう少し部屋をしらべてみる'],'Both existing destination choices remain unchanged');

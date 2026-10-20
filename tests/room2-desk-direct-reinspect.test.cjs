@@ -22,6 +22,10 @@ function harness(initial={}){
   showRoom2ChallengeMenu(){calls.startPanels++}
  };
  vm.runInNewContext(source+"\nthis.__inspect=inspectSecondRoomDesk;",sandbox);
+ // Replace the full-screen renderers after source evaluation. The test verifies routing,
+ // not DOM construction; source function declarations otherwise override the fakes.
+ sandbox.showSecondRoomPuzzle=()=>{calls.puzzles++};
+ sandbox.showRoom2ChallengeMenu=()=>{calls.startPanels++};
  return {state:sandbox.room2State,blocks,calls,inspect:()=>sandbox.__inspect()};
 }
 

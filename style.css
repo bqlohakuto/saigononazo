@@ -355,3 +355,10 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 .room2-abandon-panel .room2-abandon-accept{border-color:#574739;background:#574739;color:#fffaf0}
 .room2-abandon-panel button:focus-visible{outline:3px solid #3476a4;outline-offset:3px}
 @media(max-height:500px){.room2-puzzle .room2-abandon-confirm{padding:6px}.room2-abandon-panel{width:min(450px,100%);padding:12px 16px;gap:7px}.room2-puzzle .room2-abandon-panel h2{font-size:19px}.room2-abandon-panel>p:not(.room2-result-kicker){font-size:13px;line-height:1.5}.room2-abandon-panel .room2-result-actions button{min-height:38px;padding:6px;font-size:14px}}
+
+/* No.119: a paused eight-turn challenge retains its board and history. */
+.room2-puzzle .room2-pause{float:right;position:relative;z-index:2;margin:0 0 7px 9px;padding:9px 12px;border:1px solid #7b776c;border-radius:7px;background:#e7e1d5;color:#39342c;font-size:14px;font-weight:700;line-height:1.15;white-space:nowrap}
+.room2-puzzle .room2-pause:hover{background:#ded4c2}
+.room2-puzzle .room2-pause:focus-visible{outline:3px solid #3476a4;outline-offset:2px}
+.room2-puzzle .room2-pause+h2{margin-right:0;min-height:36px}
+@media(max-height:500px){.room2-puzzle .room2-pause{padding:6px 8px;font-size:12px;margin-bottom:3px}.room2-puzzle .room2-pause+h2{min-height:28px}}

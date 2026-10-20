@@ -12,7 +12,8 @@ const chapter=fs.readFileSync(path.join(root,"scenario","02_room2.md"),"utf8");
 const full=fs.readFileSync(path.join(root,"scenario","FULL_SCENARIO.md"),"utf8");
 
 function harness(){
- const calls={closed:0,selected:[],overlay:null,focused:0};
+ const calls={closed:0,selected:[],overlay:null,focused:0,doorFocused:0,sharedModal:0};
+ const opener={isConnected:true,disabled:false,closest(){return null},focus(){calls.doorFocused++}};
  const room={inert:false};
  const closeButton={addEventListener(_event,callback){this.click=callback}};
  const choiceButtons=[0,1].map(index=>({
@@ -33,7 +34,28 @@ function harness(){
   querySelector(selector){assert.equal(selector,".room");return room},
   appendChild(el){assert.equal(el,overlay);calls.overlay=el}
  };
- const sandbox={document:{createElement(tag){assert.equal(tag,"div");return overlay}},game};
+ const sandbox={
+  document:{createElement(tag){assert.equal(tag,"div");return overlay}},
+  game,
+  activateDeviceModal(target,openerId,firstChoice){
+   assert.equal(target,overlay);
+   assert.equal(openerId,"r2Door","The shared modal must restore focus to the examined door");
+   assert.equal(firstChoice,choiceButtons[0],"The first option is the initial focus target");
+   calls.sharedModal++;
+   room.inert=true;
+   firstChoice.focus();
+   let closed=false;
+   const close=()=>{
+    if(closed)return;
+    closed=true;
+    overlay.remove();
+    room.inert=false;
+    opener.focus();
+   };
+   closeButton.addEventListener("click",close);
+   return close;
+  }
+ };
  const start=code.indexOf("function showRoomChoices(choices){");
  const end=code.indexOf("const room2IntroLines=",start);
  assert.ok(start>=0&&end>start);
@@ -58,6 +80,7 @@ test("No.127: compact cleared-door choice panel contains only the two options an
  assert.ok(html.indexOf("次の部屋へ向かう")<html.indexOf("もう少し部屋をしらべてみる"));
  assert.match(html,/aria-label="閉じる"/);
  assert.equal(h.calls.focused,1,"The first actual choice gets keyboard focus");
+ assert.equal(h.calls.sharedModal,1,"The common modal handler is used instead of manual focus wiring");
 });
 
 test("No.127: stay and next actions close the panel and preserve the original choice order",()=>{
@@ -68,6 +91,7 @@ test("No.127: stay and next actions close the panel and preserve the original ch
   assert.equal(h.calls.closed,1);
   assert.equal(h.room.inert,false);
   assert.equal(h.calls.overlay,null);
+  assert.equal(h.calls.doorFocused,1,"Selection returns focus to the original door before executing action");
  }
 });
 
@@ -77,6 +101,7 @@ test("No.127: closing the choice panel cancels without performing either action"
  assert.equal(h.calls.closed,1);
  assert.deepEqual(h.calls.selected,[]);
  assert.equal(h.room.inert,false);
+ assert.equal(h.calls.doorFocused,1,"Closing restores focus to the door");
 });
 
 test("No.127: compact panel styles target only the Room 2 choices and landscape layout",()=>{

@@ -89,7 +89,7 @@ function inspectSecondRoomDesk(){
 }
 function showRoom2ChallengeMenu(){
  if(!room2State.unlocked)return;
- const message=room2State.challengeBest!==null?`8回チャレンジ達成済み。\n自己ベスト：${room2State.challengeBest}回。\n何度でも再挑戦できる。`:"この謎を8回以内で解くチャレンジに挑戦できる。成功しても失敗しても、本編の進行には影響しない。";
+ const message=room2State.challengeBest!==null?`8回チャレンジ達成済み。\n自己ベスト：${room2State.challengeBest}回。\n何度でも再挑戦できる。`:"机のブロックを使い、8回以内に正しい組み合わせを導き出す挑戦ができる。\n何度でも挑戦できる。";
  showRoomDialog([{logId:"room2_challenge_offer",logType:"investigation",speaker:"ト書き",text:message}],()=>showRoomChoices([
   {label:"8回チャレンジに挑戦する",onSelect:beginRoom2Challenge},
   {label:"今はやめる",onSelect:()=>showRoomNotice("先へ進むこともできる。","room2_challenge_skip")}

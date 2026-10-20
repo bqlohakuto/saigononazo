@@ -256,6 +256,45 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-puzzle').count(),0,'Correct main-story answer starts the flashback dialogue flow');
    assert.equal(await page.locator('.room-dialog-overlay').count(),1,'Success proceeds to in-story conversation');
 
+   // No.117: returning and starting from the room use the same compact panel as the result.
+   await page.evaluate(()=>showSecondRoom({
+    doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true,
+    challengeActive:false,challengeBest:3,challengeCleared:true,attempts:4,
+    history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'赤'})),hit:0,blow:0}]
+   }));
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-start-panel').count(),1,'Unlocked blocks open the new start panel');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Start does not open novel dialogue');
+   assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Start does not open a second choices panel');
+   assert.match(await page.locator('.room2-start-panel .room2-result-attempts').textContent(),/8回以内に正しい組み合わせを導こう/);
+   assert.match(await page.locator('.room2-start-panel .room2-result-best').textContent(),/自己ベスト：3回/);
+   assert.match(await page.locator('.room2-start-panel .room2-result-note').textContent(),/何度でも挑戦できる/);
+   assert.equal(await page.locator('.room2-start-panel .room2-result-actions button').count(),2,'Start and back appear together');
+   const startBounds=await page.locator('.room2-start-panel').boundingBox();
+   assert(startBounds&&startBounds.y>=0&&startBounds.y+startBounds.height<=spec.viewport.height+3,'Start panel fits the screen');
+   await page.screenshot({path:path.join(dir,'09-room02-challenge-start.png')});
+   assert.deepEqual(await page.evaluate(()=>({
+    active:room2State.challengeActive,attempts:room2State.attempts,
+    history:room2State.history.length,best:room2State.challengeBest
+   })),{active:false,attempts:4,history:1,best:3},'The prompt does not reset progress by itself');
+   await page.locator('.room2-start-return').click();
+   assert.equal(await page.locator('.room2-start-panel').count(),0,'Return leaves without a second action');
+   assert.deepEqual(await page.evaluate(()=>({
+    active:room2State.challengeActive,attempts:room2State.attempts,
+    history:room2State.history.length,best:room2State.challengeBest
+   })),{active:false,attempts:4,history:1,best:3},'Cancelling keeps previous progress and best');
+
+   await page.locator('#r2Blocks').click();
+   await page.locator('.room2-start-confirm').click();
+   assert.equal(await page.locator('.room2-start-panel').count(),0,'Start panel closes after confirmation');
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'Confirmation opens the challenge board immediately');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No novel text advance is required');
+   assert.deepEqual(await page.evaluate(()=>({
+    active:room2State.challengeActive,attempts:room2State.attempts,
+    history:room2State.history.length,best:room2State.challengeBest
+   })),{active:true,attempts:0,history:0,best:3},'Only confirmed start resets attempts and retains personal best');
+   await page.locator('.room2-puzzle .device-close').click();
+
    // No.105: the optional challenge starts only after unlock and accepts a correct eighth answer.
    await page.evaluate(()=>showSecondRoom({doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true}));
    await page.evaluate(()=>{

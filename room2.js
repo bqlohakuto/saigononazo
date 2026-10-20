@@ -218,7 +218,7 @@ function showSecondRoomPuzzle(){
   room2State.history.push({guess:room2State.guess.map(piece=>({...piece})),...result});room2State.guess=[];
   saveGame();render();
   if(result.hit===5){if(isChallenge)finishRoom2Challenge(close,true);else handleRoom2Correct(close);return}
-  feedback.textContent=`${result.hit} HIT　${result.blow} BLOW${isChallenge?`　（${room2State.attempts}/8回）`:""}`;
+  feedback.textContent="";
   const pair=ROOM2_DIALOGUES[`${result.hit}H`]?.[result.blow];
   const reaction=pair?.map((text,index)=>({logId:`room2_judge_${room2State.attempts}_${result.hit}_${result.blow}_${index}`,logType:"dialogue",speaker:index===0?"ハナ":"主人公",text}))||[];
   const milestone=isChallenge&&[4,6,7].includes(room2State.attempts)?room2MilestoneLines(room2State.attempts):[];

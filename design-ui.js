@@ -167,7 +167,7 @@
   function hints(){
     const m=panel('ヒント');const stages=currentScene==='room01'?firstRoomScenario.hanaHints:[];
     const opened=state().hints[currentScene]||0;
-    if(!stages.length){m.content.append(paragraph('この部屋の段階ヒントは未確定です。現状の会話と調査内容を使って進められます。'),button('ハナに話しかける',()=>{m.close();if(!game.querySelector('.room-dialog-overlay,.device-overlay'))config?.onCompanion?.()}));return}
+    if(!stages.length){m.content.append(paragraph('これまでに見つけたものを振り返ってみよう。行き詰まったら、ハナに話しかけてみよう。'),button('ハナに話しかける',()=>{m.close();if(!game.querySelector('.room-dialog-overlay,.device-overlay'))config?.onCompanion?.()}));return}
     if(currentScene==='room01'&&!firstRoomState?.questionSeen){m.content.append(paragraph('扉の問題文を調べてから、ヒントを確認できます。'));return}
     for(let i=0;i<opened;i++)m.content.append(button(`ヒント ${i+1} を読み返す`,()=>show(i)));
     if(opened<stages.length){const next=button(`次のヒント（${opened+1}）を開く`,()=>{next.textContent='このヒントを開きますか？ もう一度押して確認';next.onclick=()=>{state().hints[currentScene]=opened+1;saveGame();show(opened)}});m.content.append(next)}

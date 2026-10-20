@@ -364,6 +364,19 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.hana-choice-button[data-topic="hint"]').count(),0,'The story-cleared state cannot offer the old hint');
    await page.locator('.hana-choice-overlay .device-close').click();
 
+   // No.114: Hana recalls clearing the room after the door is unlocked.
+   await page.evaluate(()=>showSecondRoom({doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true}));
+   await page.locator('#r2Hana').click();
+   assert.equal(await page.locator('.hana-choice-button[data-topic="room"]').count(),1,'The room topic remains available after the clear');
+   await page.waitForTimeout(360); // Avoid the design layer's deliberate accidental-tap guard.
+   await page.locator('.hana-choice-button[data-topic="room"]').click();
+   assert.equal(await page.locator('.room-dialog-overlay').count(),1,'Room-clear conversation opens normally');
+   assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'この部屋の仕掛け、解けたね！','Hana acknowledges that the room was solved');
+   await page.locator('#roomNextButton').click();
+   assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'はい。次へ進めそうです','The protagonist acknowledges the unlocked door');
+   await page.locator('#roomNextButton').click();
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Clear conversation closes normally');
+
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();

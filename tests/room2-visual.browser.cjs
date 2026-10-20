@@ -359,7 +359,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Advice can be read and dismissed');
    assert(advicePages.join('').includes('まずは一つずつ変えて、前の判定と比べてみよう'),'Existing Hana advice is unchanged');
 
-   await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:true,unlocked:true,history:[{hit:0,blow:1}]}));
+   await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:true,unlocked:true,history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'})),hit:0,blow:1}]}));
    await page.locator('#r2Hana').click();
    assert.equal(await page.locator('.hana-choice-button[data-topic="hint"]').count(),0,'The story-cleared state cannot offer the old hint');
    await page.locator('.hana-choice-overlay .device-close').click();

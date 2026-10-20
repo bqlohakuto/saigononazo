@@ -272,6 +272,32 @@ function within(inner,outer,tolerance=3){
     unlocked:room2State.unlocked,flashbackSeen:room2State.flashbackSeen
    }));
    assert.deepEqual(challengeResult,{attempts:8,active:false,cleared:true,best:8,unlocked:true,flashbackSeen:true},'An eighth-turn challenge success records a best without affecting story progress');
+
+   // No.110: a player may inspect the desk before the front door.
+   await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:false}));
+   assert.equal(await page.evaluate(()=>room2State.doorInspected),false,'Door starts unexplored');
+   assert.equal(await page.locator('#r2Blocks').isDisabled(),true,'Puzzle is initially gated by desk inspection only');
+   await page.locator('#r2Desk').click();
+   assert.deepEqual(await page.evaluate(()=>({
+    door:room2State.doorInspected,desk:room2State.deskInspected,
+    puzzleEnabled:!document.getElementById('r2Blocks').disabled
+   })),{door:false,desk:true,puzzleEnabled:true},'Desk-first inspection unlocks the physical puzzle without touching the door');
+   for(let i=0;i<20&&await page.locator('.room-dialog-overlay').count();i++){
+    await page.locator('#roomNextButton').click();
+   }
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Desk description can finish without a door prerequisite');
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'Puzzle opens while door remains uninspected');
+   assert.equal(await page.evaluate(()=>room2State.doorInspected),false,'Opening the puzzle never secretly inspects the door');
+   await page.locator('.room2-puzzle .device-close').click();
+   await page.locator('#r2Door').click();
+   assert.equal(await page.evaluate(()=>room2State.doorInspected),true,'Front door can still be inspected after the desk');
+
+   await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:false}));
+   await page.locator('#r2Door').click();
+   assert.deepEqual(await page.evaluate(()=>({
+    door:room2State.doorInspected,desk:room2State.deskInspected
+   })),{door:true,desk:false},'The original door-first route also remains available');
    assert.deepEqual(errors,[],'No JavaScript runtime errors');
    console.log(JSON.stringify({case:spec.name,status:'PASS',image,layering,stage:bounds.stage,hotspots:{door:bounds.door,desk:bounds.desk,blocks:bounds.blocks,hana:bounds.hana},hanaPlacement,palette:10,slots:5,errors}));
    await context.close();

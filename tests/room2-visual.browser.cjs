@@ -150,6 +150,8 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-reaction:not([hidden])').waitFor({state:'visible'});
    assert.equal(await page.locator('.room2-reaction-next').count(),0,'No manual next button');
    assert.equal(await page.locator('.room2-reaction-skip').count(),1,'Optional skip remains available');
+   assert.equal(await page.locator('.room2-feedback').evaluate(node=>getComputedStyle(node).display),'none','Judgement is shown in history, not duplicate feedback');
+   assert.match(await page.locator('.room2-history-row.is-latest').textContent(),/0H\s*0B/,'HIT/BLOW remain recorded in the latest history row');
    await page.screenshot({path:path.join(dir,'04-room02-auto-dialogue.png')});
    await page.locator('.room2-reaction').waitFor({state:'hidden',timeout:10000});
    assert.equal(await page.locator('.room2-answer-slot i').count(),0,'Next attempt is ready after autoplay');

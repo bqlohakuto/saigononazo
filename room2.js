@@ -122,11 +122,16 @@ function room2ChallengeResumeMessage(attempts){
   ? `挑戦の続きから再開。\n${attempts}回解答済み、残り${8-attempts}回。`
   : null;
 }
+function room2ChallengeCounterInfo(attempts){
+ const used=Number.isInteger(attempts)?Math.min(8,Math.max(0,attempts)):0;
+ return {used,remaining:8-used};
+}
 function showSecondRoomPuzzle(){
  if(room2State.challengeActive&&room2State.attempts>=8){finishRoom2Challenge(()=>{},false);return}
  const isChallenge=room2State.challengeActive===true;
+ const counterMarkup=isChallenge?`<section class="room2-attempt-counter" role="status" aria-live="polite" aria-label="チャレンジの残り回数"><div class="room2-attempt-summary"><span class="room2-attempt-used">解答 0 / 8 回</span><strong class="room2-attempt-left">残り8回</strong></div><div class="room2-attempt-track" aria-hidden="true">${Array.from({length:8},()=>'<span class="room2-attempt-step"></span>').join("")}</div></section>`:"";
  const overlay=document.createElement("div");overlay.className="device-overlay room2-puzzle-overlay";
- overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>${isChallenge?"8回チャレンジ":"記号と色を並べる"}</h2><p class="room2-rule">駒を選んで5枠を埋めます。同じ駒を選ぶと外れ、色違いを選ぶと色が変わります。枠を2つタップすると順番を入れ替えられます。${isChallenge?"8回以内に正解すれば達成。9回目はありません。":"正解まで何回でも挑戦できます。"}</p><div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">全消去</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-hint-paper">ルールの紙</button><button type="button" class="room2-leftmost-request" hidden>左端のヒントを見る</button>${isChallenge?`<button type="button" class="room2-abandon">挑戦をやめる</button>`:""}</div><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-live="polite"><p class="room2-reaction-speaker"></p><p class="room2-reaction-text"></p><button type="button" class="room2-reaction-next">次へ</button></section><div class="room2-history" aria-label="これまでの判定"></div></section>`;
+ overlay.innerHTML=`<section class="room2-puzzle" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎"><button class="device-close" aria-label="閉じる">×</button><h2>${isChallenge?"8回チャレンジ":"記号と色を並べる"}</h2><p class="room2-rule">駒を選んで5枠を埋めます。同じ駒を選ぶと外れ、色違いを選ぶと色が変わります。枠を2つタップすると順番を入れ替えられます。${isChallenge?"8回以内に正解すれば達成。9回目はありません。":"正解まで何回でも挑戦できます。"}</p>${counterMarkup}<div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">全消去</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-hint-paper">ルールの紙</button><button type="button" class="room2-leftmost-request" hidden>左端のヒントを見る</button>${isChallenge?`<button type="button" class="room2-abandon">挑戦をやめる</button>`:""}</div><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-live="polite"><p class="room2-reaction-speaker"></p><p class="room2-reaction-text"></p><button type="button" class="room2-reaction-next">次へ</button></section><div class="room2-history" aria-label="これまでの判定"></div></section>`;
  game.appendChild(overlay);
  const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),hint=overlay.querySelector(".room2-leftmost-hint"),hintRequest=overlay.querySelector(".room2-leftmost-request"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null;
  const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".device-close"));
@@ -158,6 +163,12 @@ function showSecondRoomPuzzle(){
   palette.innerHTML=ROOM2_COLORS.flatMap(color=>ROOM2_SYMBOLS.map(symbol=>{const active=room2State.guess.some(piece=>piece.symbol===symbol&&piece.color===color);return `<button type="button" class="room2-palette-token${active?" is-active":""}" data-symbol="${symbol}" data-color="${color}" aria-pressed="${active}" aria-label="${color}${symbol}"><i class="${color==="赤"?"red":"blue"}">${symbol}</i><small>${color}</small></button>`})).join("");
   palette.querySelectorAll("[data-symbol]").forEach(button=>button.addEventListener("click",()=>{const token={symbol:button.dataset.symbol,color:button.dataset.color};const index=room2State.guess.findIndex(piece=>piece.symbol===token.symbol);if(index>=0){if(room2State.guess[index].color===token.color)room2State.guess.splice(index,1);else room2State.guess[index]=token}else if(room2State.guess.length<5)room2State.guess.push(token);selectedSlot=null;feedback.textContent=room2State.guess.length===5?"":"5つの枠をすべて埋めてください。";saveGame();render()}));
   history.innerHTML=room2State.history.map(entry=>`<div class="room2-history-row"><span>${entry.guess.map(piece=>`<i class="${piece.color=== "赤"?"red":"blue"}">${piece.symbol}</i>`).join("")}</span><b>${entry.hit}H ${entry.blow}B</b></div>`).join("");
+  if(isChallenge){
+   const count=room2ChallengeCounterInfo(room2State.attempts);
+   overlay.querySelector(".room2-attempt-used").textContent=`解答 ${count.used} / 8 回`;
+   overlay.querySelector(".room2-attempt-left").textContent=`残り${count.remaining}回`;
+   overlay.querySelectorAll(".room2-attempt-step").forEach((step,index)=>step.classList.toggle("is-used",index<count.used));
+  }
   overlay.querySelector(".room2-submit").disabled=room2State.guess.length!==5;
   hintRequest.hidden=isChallenge||room2State.attempts<5||room2State.leftmostHintRevealed||room2State.unlocked;
   hint.hidden=!room2State.leftmostHintRevealed;

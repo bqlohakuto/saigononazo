@@ -87,12 +87,26 @@ function inspectSecondRoomDesk(){
  ]);
 }
 function showRoom2ChallengeMenu(){
- if(!room2State.unlocked)return;
- const message=room2State.challengeBest!==null?`8回チャレンジ達成済み。\n自己ベスト：${room2State.challengeBest}回。\n何度でも再挑戦できる。`:"机のブロックを使い、8回以内に正しい組み合わせを導き出す挑戦ができる。\n何度でも挑戦できる。";
- showRoomDialog([{logId:"room2_challenge_offer",logType:"investigation",speaker:"ト書き",text:message}],()=>showRoomChoices([
-  {label:"8回チャレンジに挑戦する",onSelect:beginRoom2Challenge},
-  {label:"今はやめる",onSelect:()=>showRoomNotice("先へ進むこともできる。","room2_challenge_skip")}
- ]));
+ if(!room2State.unlocked||room2State.challengeActive)return;
+ const best=room2State.challengeBest===null?"自己ベスト：未達成":`自己ベスト：${room2State.challengeBest}回。`;
+ const overlay=document.createElement("div");overlay.className="device-overlay room2-start-overlay";
+ overlay.innerHTML=`<section class="room2-result-panel room2-start-panel" role="dialog" aria-modal="true" aria-label="8回チャレンジの開始">
+  <button type="button" class="device-close" aria-label="部屋に戻る">×</button>
+  <p class="room2-result-kicker">8回チャレンジ</p>
+  <h2 class="room2-result-title">挑戦してみる？</h2>
+  <p class="room2-result-attempts">8回以内に正しい組み合わせを導こう。</p>
+  <p class="room2-result-best">${best}</p>
+  <p class="room2-result-note">何度でも挑戦できる。</p>
+  <div class="room2-result-actions">
+   <button type="button" class="room2-start-confirm">挑戦する</button>
+   <button type="button" class="room2-start-return">部屋に戻る</button>
+  </div>
+ </section>`;
+ game.appendChild(overlay);
+ recordLog({logId:"room2_challenge_offer",logType:"investigation",speaker:"ト書き",text:`8回チャレンジ。8回以内に正解を目指す。何度でも再挑戦できる。${best}`});
+ const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".room2-start-confirm"));
+ overlay.querySelector(".room2-start-confirm").addEventListener("click",()=>{close();beginRoom2Challenge()});
+ overlay.querySelector(".room2-start-return").addEventListener("click",close);
 }
 function beginRoom2Challenge(){
  room2State.challengeActive=true;room2State.answer=room2RandomAnswer();

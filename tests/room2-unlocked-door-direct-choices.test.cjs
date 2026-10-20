@@ -69,7 +69,7 @@ test("No.124: uncleared door interactions remain unchanged",()=>{
  const examined=harness({unlocked:false,doorInspected:true});
  examined.inspect();
  assert.equal(examined.calls.choices.length,0);
- assert.deepEqual(examined.calls.notices,[{text:"扉には『正しい組み合わせを導け』と刻まれている。",id:"room2_door_again"}]);
+ assert.deepEqual(examined.calls.notices,[{text:"『正しい組み合わせを導け』",id:"room2_door_again"}]);
 });
 
 test("No.124: manuscript, combined manuscript and runtime agree on the adopted behavior",()=>{
@@ -81,6 +81,7 @@ test("No.124: manuscript, combined manuscript and runtime agree on the adopted b
   assert.match(text,/次の部屋へ向かう/);
   assert.match(text,/もう少し調べる/);
   assert.match(text,/【校閲No\.131・案1 採用】/);
+  assert.match(text,/【校閲No\.132・案1 採用】/);
   assert.match(text,/探索画面への新たな「次へ」ボタンや探索メニュー内の移動項目は追加しない/);
  }
  assert.doesNotMatch(code,/room2_transition_stay/);

@@ -348,6 +348,7 @@ function within(inner,outer,tolerance=3){
     guess:[{symbol:'〇',color:'赤'},{symbol:'△',color:'青'}],
     answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}))
    }));
+   assert.equal(await page.locator('#r2Blocks span').textContent(),'チャレンジ再開','No.120: saved active challenge shows resume label on room entry');
    await page.locator('#r2Blocks').click();
    assert.equal(await page.locator('.room2-pause').count(),1,'The pause control is shown in active challenge');
    assert.equal(await page.locator('.room2-pause').textContent(),'一時中断','Pause is visible, not only a tooltip');
@@ -361,6 +362,7 @@ function within(inner,outer,tolerance=3){
    assert(pauseBounds&&puzzleBounds&&pauseBounds.x>=puzzleBounds.x&&pauseBounds.x+pauseBounds.width<=puzzleBounds.x+puzzleBounds.width+3,'Pause control stays inside puzzle right edge: '+JSON.stringify({pauseBounds,puzzleBounds}));
    assert(pauseBounds.y>=puzzleBounds.y&&pauseBounds.y+pauseBounds.height<=puzzleBounds.y+puzzleBounds.height+3,'Pause control stays inside puzzle top edge: '+JSON.stringify({pauseBounds,puzzleBounds,scrollTop:await page.locator('.room2-puzzle').evaluate(el=>el.scrollTop)}));
    await page.locator('.room2-pause').click();
+   assert.equal(await page.locator('#r2Blocks span').textContent(),'チャレンジ再開','No.120: paused desk offers resume instead of starting over');
    assert.equal(await page.locator('.room2-puzzle').count(),0,'Pause returns to room without abandonment confirmation');
    assert.equal(await page.locator('.room2-abandon-confirm').count(),0);
    assert.equal(await page.locator('.room-dialog-overlay').count(),0);
@@ -370,6 +372,7 @@ function within(inner,outer,tolerance=3){
    })),{active:true,attempts:2,best:3,history:1,guess:2},'Pause retains progress and personal best');
    await page.locator('#r2Blocks').click();
    assert.equal(await page.locator('.room2-puzzle').count(),1,'Clicking the desk blocks resumes instead of offering a new challenge');
+   assert.equal(await page.locator('.room2-start-panel').count(),0,'No.120: resumed puzzle skips start confirmation');
    assert.equal(await page.locator('.room2-pause').count(),1);
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),2,'Resumed puzzle restores selected blocks');
    assert.equal(await page.locator('.room2-history-row').count(),1,'Resumed puzzle restores history');
@@ -377,6 +380,7 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-pause').click();
 
    await page.evaluate(()=>showSecondRoom({doorInspected:true,deskInspected:true,unlocked:false,challengeActive:false}));
+   assert.equal(await page.locator('#r2Blocks span').textContent(),'ブロックと記録枠','No.120: story mode keeps the original desk name');
    await page.locator('#r2Blocks').click();
    assert.equal(await page.locator('.room2-pause').count(),0,'Story mode still has its ordinary close button');
    assert.equal(await page.locator('.room2-puzzle .device-close').getAttribute('aria-label'),'閉じる');

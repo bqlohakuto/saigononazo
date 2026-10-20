@@ -626,6 +626,8 @@ function within(inner,outer,tolerance=3){
      answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}))
     }),turn);
     await page.locator('#r2Blocks').click();
+    await page.locator('.room2-puzzle .design-op-button').waitFor();
+    assert.equal(await page.locator('.room2-puzzle .design-op-button').count(),1,'No.126: interactive block puzzle still provides operation help');
     assert.equal(await page.locator('.room2-attempt-counter').count(),1,'Challenge counter appears');
     for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
     await page.locator('.room2-submit').click();
@@ -645,6 +647,7 @@ function within(inner,outer,tolerance=3){
    await page.evaluate(()=>showSecondRoom({unlocked:true,doorInspected:true,deskInspected:true,flashbackSeen:true}));
    await page.locator('#r2Door').click();
    assert.equal(await page.locator('.room2-choice-overlay').count(),1,'Solved door immediately displays destination choices');
+   assert.equal(await page.locator('.room2-choice-overlay .design-op-button').count(),0,'No.126: the simple door choice menu has no operation help');
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No redundant door-is-open narration');
    assert.deepEqual(await page.locator('.room2-choice-overlay [data-choice]').allTextContents(),
     ['次の部屋へ向かう','もう少し部屋をしらべてみる'],'Both existing destination choices remain unchanged');
@@ -665,6 +668,7 @@ function within(inner,outer,tolerance=3){
    })),storyBeforeStay,'Staying leaves story and optional challenge progress unchanged');
    await page.locator('#r2Door').click();
    assert.equal(await page.locator('.room2-choice-overlay').count(),1,'The door can be examined again with no narration');
+   assert.equal(await page.locator('.room2-choice-overlay .design-op-button').count(),0,'No.126: operation help remains absent on repeated choice panels');
    await page.waitForTimeout(360);
    await page.locator('.room2-choice-overlay [data-choice="0"]').click();
    assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Moving on closes destination choices');

@@ -653,6 +653,9 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-choice-panel h2').count(),0,'No heading is displayed');
    assert.equal(await page.locator('.room2-choice-options [data-choice]').count(),2,'Both options remain visible');
    assert.equal(await page.locator('.room2-choice-panel .device-close').count(),1,'Close remains available');
+   const closeBox=await page.locator('.room2-choice-panel .device-close').boundingBox();
+   assert(closeBox&&closeBox.width>=44&&closeBox.height>=44,'No.130: close X retains a 44-by-44 touch target');
+   assert.equal(await page.locator('.room2-choice-panel .device-close').getAttribute('aria-label'),'閉じる','No.130: close X remains accessible');
    const choiceBox=await page.locator('.room2-choice-panel').boundingBox();
    assert(choiceBox&&choiceBox.width<=spec.viewport.width+2&&choiceBox.height<=Math.min(310,spec.viewport.height+2),'Compact menu fits the horizontal mobile viewport');
    assert(choiceBox.x>=-2&&choiceBox.y>=-2&&choiceBox.x+choiceBox.width<=spec.viewport.width+3&&choiceBox.y+choiceBox.height<=spec.viewport.height+3,'Menu is entirely visible within the viewport');

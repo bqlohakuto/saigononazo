@@ -79,7 +79,6 @@ function inspectSecondRoomDoor(){
  ]);
 }
 function inspectSecondRoomDesk(){
- if(!room2State.doorInspected){showRoomNotice("まずは正面の扉を調べよう。","room2_desk_locked");return}
  if(!room2State.deskInspected){room2State.deskInspected=true;saveGame();document.getElementById("r2Blocks").disabled=false}
  showRoomDialog([
   {logId:"room2_desk_01",logType:"investigation",speaker:"ト書き",text:"机の上には、〇、△、□、×、＋の記号が書かれたブロックが置かれている。それぞれ、赤と青の2色がある。"},

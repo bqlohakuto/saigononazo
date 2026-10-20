@@ -40,7 +40,7 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
    const saved=await state();await p.reload({waitUntil:'load'});await p.locator('#continueButton').click();await p.locator('.save-slot-action:not([disabled])').last().click();await p.locator('.save-slot-action.is-confirm').click();await p.locator('.r7-scene').waitFor();assert.deepEqual(await state(),saved,spec.name+' actual saved-game resume');
    await turn('front');
    for(const target of ['寅','卯','未','申','亥','酉']){await click('#r7Dial');for(let i=0;i<12&&(await state()).selectedZodiac!==target;i++)await click('#r7RotateLeft');await click('#r7DialDone');await finish()}
-   assert.equal((await state()).completed,true);assert.equal(await p.locator('#r7Next').count(),0,'accident returns directly to room8');await p.locator('.r8-paper,#roomNextButton').first().waitFor();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1')).currentScene),'room08');
+   assert.equal((await state()).completed,true);assert.equal(await p.locator('#r7Next').count(),0,'accident returns directly to room8');await p.locator('.r8-paper-hit:visible,#r8Paper:visible,#roomNextButton:visible').first().waitFor();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1')).currentScene),'room08');
    assert.deepEqual(errors,[],spec.name+' no runtime errors');assert.deepEqual(missing,[],spec.name+' no missing assets');
    console.log('PASS '+spec.name+': pointer/touch-sized controls, all searches, inventory, shelf, reader, dial, reload and room8');
   }finally{await browser.close()}

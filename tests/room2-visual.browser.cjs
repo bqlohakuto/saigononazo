@@ -648,12 +648,14 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No redundant door-is-open narration');
    assert.deepEqual(await page.locator('.room2-choice-overlay [data-choice]').allTextContents(),
     ['次の部屋へ向かう','もう少し部屋をしらべてみる'],'Both existing destination choices remain unchanged');
+   await page.waitForTimeout(360); // Design UI blocks the first 250 ms after a choice panel appears.
    await page.locator('.room2-choice-overlay [data-choice="1"]').click();
    assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Staying returns to exploration');
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Staying does not start a novel conversation');
    assert.match(await page.locator('#exploreStatus').textContent(),/まだ何か調べられるかもしれない/,'Old continue-search feedback remains');
    await page.locator('#r2Door').click();
    assert.equal(await page.locator('.room2-choice-overlay').count(),1,'The door can be examined again with no narration');
+   await page.waitForTimeout(360);
    await page.locator('.room2-choice-overlay [data-choice="0"]').click();
    assert.equal(await page.locator('.room2-choice-overlay').count(),0,'Moving on closes destination choices');
    assert.equal(await page.locator('.room-dialog-overlay').count(),1,'The original next-room transition conversation plays');

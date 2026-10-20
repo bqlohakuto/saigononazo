@@ -14,6 +14,7 @@ function harness(initial={}){
  const blocks={disabled:!initial.deskInspected};
  const calls={dialogs:[],callbacks:[],saves:0,puzzles:0,startPanels:0};
  const sandbox={
+  currentScene:"room02",
   room2State:{doorInspected:false,deskInspected:false,unlocked:false,challengeActive:false,...initial},
   document:{getElementById(id){assert.equal(id,"r2Blocks");return blocks}},
   saveGame(){calls.saves++},
@@ -26,7 +27,7 @@ function harness(initial={}){
  // not DOM construction; source function declarations otherwise override the fakes.
  sandbox.showSecondRoomPuzzle=()=>{calls.puzzles++};
  sandbox.showRoom2ChallengeMenu=()=>{calls.startPanels++};
- return {state:sandbox.room2State,blocks,calls,inspect:()=>sandbox.__inspect(),complete:()=>{const cb=calls.callbacks.shift();if(cb)cb()}};
+ return {state:sandbox.room2State,blocks,calls,inspect:()=>sandbox.__inspect(),complete:()=>{const cb=calls.callbacks.shift();if(cb)cb()},setScene:scene=>{sandbox.currentScene=scene}};
 }
 
 test("No.121: first desk inspection retains its exact three discovery messages",()=>{
@@ -78,6 +79,24 @@ test("No.121: desk resumes an active eight-turn challenge without resetting its 
  assert.equal(h.state.attempts,4);
  assert.equal(h.state.challengeBest,2);
  assert.equal(h.calls.saves,0);
+});
+
+test("No.122: the discovery callback opens only after completion in the same room",()=>{
+ const h=harness();
+ h.inspect();
+ assert.equal(h.calls.puzzles,0,"No puzzle until the discovery dialogue has finished");
+ assert.equal(h.calls.dialogs.length,1,"Original three-line discovery remains");
+ h.complete();
+ assert.equal(h.calls.puzzles,1,"Completion directly launches the puzzle");
+ assert.equal(h.calls.saves,1,"Automatic opening does not repeat the first discovery save");
+});
+
+test("No.122: moving away before completing the discovery must not open an old-room puzzle",()=>{
+ const h=harness();
+ h.inspect();
+ h.setScene("room03");
+ h.complete();
+ assert.equal(h.calls.puzzles,0,"Completion from the old room cannot cover the next scene");
 });
 
 test("No.121: manuscripts preserve first-time discovery and direct return routing",()=>{

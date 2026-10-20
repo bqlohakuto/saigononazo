@@ -41,7 +41,7 @@ function within(inner,outer,tolerance=3){
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await readyPage(page);
    const dir=path.join(output,spec.name);fs.mkdirSync(dir,{recursive:true});
-   await page.evaluate(()=>{settings.instantText=true;showSecondRoom({doorInspected:true,deskInspected:true,sheetFound:true});});
+   await page.evaluate(()=>{settings.instantText=true;showSecondRoom({doorInspected:true,deskInspected:true});});
    const image=await page.locator('.room2-background-art').evaluate(async img=>{
     await img.decode();
     return {url:img.currentSrc,width:img.naturalWidth,height:img.naturalHeight,complete:img.complete};
@@ -237,7 +237,7 @@ function within(inner,outer,tolerance=3){
 
    // No.105: unlimited first play must accept a wrong tenth attempt and a subsequent correct answer.
    await page.evaluate(()=>showSecondRoom({
-    doorInspected:true,deskInspected:true,sheetFound:true,
+    doorInspected:true,deskInspected:true,
     answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'})),
     attempts:9,history:[],guess:[],unlocked:false,challengeActive:false
    }));

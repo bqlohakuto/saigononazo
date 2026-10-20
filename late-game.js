@@ -85,6 +85,14 @@
     const fridgeState=room5State.fridgeUpperOpen&&room5State.fridgeLowerOpen?"both-open":room5State.fridgeUpperOpen?"upper-open":room5State.fridgeLowerOpen?"lower-open":"closed";
     const got=id=>room5State.collected.includes(id);
     const hotspot=(id,name)=>'<button type="button" class="r5-scene-target r5-target-'+id+(got(id)?' is-gone':'')+'" data-item="'+id+'" aria-label="'+name+'" '+(got(id)?'disabled':'')+'><span class="r5-visually-hidden">'+name+'</span></button>';
+    // The wall board is a miniature of the actual puzzle: collected and fitted
+    // approved panel art must appear here too, not leave seven empty frames.
+    const wallTiles=R5_COUNTERS.map(([slot,counter])=>{
+      if(slot==="feather")return '<span class="r5-wall-tile fixed">'+r5Drawing('rabbit','うさぎ')+'</span>';
+      const placed=R5_ITEMS.find(([id])=>room5State.placed[id]===counter);
+      if(!placed)return '<span class="r5-wall-tile"></span>';
+      return '<span class="r5-wall-tile is-placed"><img src="images/background/room05/panels/'+placed[0]+'.webp" alt=""></span>';
+    }).join('');
     game.innerHTML='<main class="room late-room r5-full" aria-label="第五の部屋">'+
       '<div class="r5-room-wrap"><section class="r5-living-scene" id="r5Scene" data-view="'+view+'" data-fridge="'+fridgeState+'" aria-label="リビング">'+
       '<div class="r5-living-wall r5-wall-front" aria-hidden="true"></div>'+
@@ -103,7 +111,7 @@
       '<div class="r5-decor r5-decor-cannon'+(got('cannon')?' is-gone':'')+'" aria-hidden="true"></div>'+
       '<button type="button" class="r5-scene-target r5-target-door" id="r5Door" aria-label="扉"></button>'+
       '<button type="button" class="r5-scene-target r5-target-hana hana-v2-world" id="r5Hana" aria-label="ハナ"></button>'+
-      '<button type="button" class="r5-scene-target r5-target-board" id="r5Board" aria-label="壁の謎解きパネル"><span aria-hidden="true" class="r5-board-wall-grid"><span>'+r5Drawing('rabbit','')+'</span>'+Array(7).fill('<span></span>').join('')+'</span></button>'+
+      '<button type="button" class="r5-scene-target r5-target-board" id="r5Board" aria-label="壁の謎解きパネル"><span aria-hidden="true" class="r5-board-wall-grid'+(room5State.codeRevealed?' is-complete':'')+'">'+wallTiles+'</span></button>'+
       hotspot('mirror','鏡')+hotspot('chair','椅子')+hotspot('butterfly','青い蝶')+hotspot('flower','花')+
       '<button type="button" class="r5-scene-target r5-target-fridge-upper" id="r5FridgeUpper" aria-label="冷蔵庫の上段を開閉"></button>'+
       '<button type="button" class="r5-scene-target r5-target-fridge-lower" id="r5FridgeLower" aria-label="冷蔵庫の下段を開閉"></button>'+

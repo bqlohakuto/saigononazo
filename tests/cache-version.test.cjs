@@ -6,6 +6,7 @@ const path = require("node:path");
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 const expectedAssets = [
   "style.css",
+  "viewport-scaler.js",
   "design-ui.css",
   "room5.css",
   "room6.css",
@@ -56,6 +57,7 @@ test("all local CSS and JS references share one cache version", () => {
 test("script load order remains intentional", () => {
   const scripts = [...html.matchAll(/<script src="([^"?]+)(?:\?[^\"]*)?"><\/script>/g)].map(match => match[1]);
   assert.deepEqual(scripts, [
+    "viewport-scaler.js",
     "scenario.js",
     "game-audio.js",
     "game-log.js",

@@ -295,6 +295,51 @@ function within(inner,outer,tolerance=3){
    })),{active:true,attempts:0,history:0,best:3},'Only confirmed start resets attempts and retains personal best');
    await page.locator('.room2-puzzle .device-close').click();
 
+   // No.118: challenge abandonment asks in place, never destroys the board until confirmed.
+   await page.evaluate(()=>showSecondRoom({
+    doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true,
+    challengeActive:true,challengeBest:3,challengeCleared:true,attempts:4,
+    history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'赤'})),hit:0,blow:0}],
+    guess:[{symbol:'〇',color:'赤'}],answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}))
+   }));
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),1,'Challenge progress is visible before quit confirmation');
+   assert.equal(await page.locator('.room2-history-row').count(),1,'Earlier judge history is retained');
+   await page.locator('.room2-abandon').click();
+   assert.equal(await page.locator('.room2-abandon-confirm').count(),1,'Confirmation stays inside the puzzle');
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'The puzzle remains on screen');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No extra novel dialog is opened');
+   assert.equal(await page.locator('.room2-choice-overlay').count(),0,'No second choice menu is opened');
+   assert.match(await page.locator('.room2-abandon-panel').textContent(),/自己ベストは残ります/);
+   assert.equal(await page.locator('.room2-abandon-panel button').count(),2,'Both choices are on one confirmation panel');
+   const quitBounds=await page.locator('.room2-abandon-panel').boundingBox();
+   assert(quitBounds&&quitBounds.y>=0&&quitBounds.y+quitBounds.height<=spec.viewport.height+3,'Quit confirmation is fully on screen');
+   await page.screenshot({path:path.join(dir,'10-room02-challenge-abandon-confirm.png')});
+   await page.keyboard.press('Tab');
+   assert.equal(await page.evaluate(()=>Boolean(document.activeElement.closest('.room2-abandon-confirm'))),true,'Keyboard focus stays inside the confirmation');
+   await page.locator('.room2-abandon-continue').click();
+   assert.equal(await page.locator('.room2-abandon-confirm').count(),0,'Continue removes only the confirmation');
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'Same puzzle remains available');
+   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),1,'Placement survives the cancellation');
+   assert.equal(await page.locator('.room2-history-row').count(),1,'Judgement history survives the cancellation');
+   assert.deepEqual(await page.evaluate(()=>({
+    active:room2State.challengeActive,attempts:room2State.attempts,history:room2State.history.length,
+    guess:room2State.guess.length,best:room2State.challengeBest
+   })),{active:true,attempts:4,history:1,guess:1,best:3},'Cancelling the exit never alters progress or record');
+   await page.locator('.room2-abandon').click();
+   await page.keyboard.press('Escape');
+   assert.equal(await page.locator('.room2-abandon-confirm').count(),0,'Esc cancels only the quit prompt');
+   assert.equal(await page.locator('.room2-puzzle').count(),1,'Esc keeps the puzzle on screen');
+   await page.locator('.room2-abandon').click();
+   await page.locator('.room2-abandon-accept').click();
+   assert.equal(await page.locator('.room2-puzzle').count(),0,'Only confirmed quit closes the puzzle');
+   assert.equal(await page.locator('.room2-choice-overlay').count(),0);
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0);
+   assert.deepEqual(await page.evaluate(()=>({
+    active:room2State.challengeActive,attempts:room2State.attempts,history:room2State.history.length,
+    guess:room2State.guess.length,best:room2State.challengeBest,storyClear:room2State.unlocked
+   })),{active:false,attempts:0,history:0,guess:0,best:3,storyClear:true},'Confirmed quit clears challenge only, preserving story and best');
+
    // No.105: the optional challenge starts only after unlock and accepts a correct eighth answer.
    await page.evaluate(()=>showSecondRoom({doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true}));
    await page.evaluate(()=>{

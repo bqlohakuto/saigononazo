@@ -20,8 +20,8 @@ test("all rooms have authored entry narration, with no work-in-progress note vis
     const source = read(filename);
     for (const pattern of checks) assert.match(source, pattern, filename + ": missing entry narration " + pattern);
   }
-  for (const filename of ["script.js", "room2.js", "room3.js", "room4.js", "late-game.js"]) {
-    assert.doesNotMatch(read(filename), /【未確定】|pending\s*\(/, filename + ": production note leaked into gameplay");
+  for (const filename of ["script.js", "room2.js", "room3.js", "room4.js", "late-game.js", "design-ui.js"]) {
+    assert.doesNotMatch(read(filename), /【未確定】|pending\s*\(|正式シナリオに合わせて追加|段階ヒントは未確定/, filename + ": production note leaked into gameplay");
   }
 });
 

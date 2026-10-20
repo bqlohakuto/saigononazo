@@ -191,7 +191,7 @@ function showSecondRoomPuzzle(){
   {logId:"room2_rules_01",logType:"investigation",speaker:"紙",text:"ルール"},
   {logId:"room2_rules_02",logType:"investigation",speaker:"紙",text:"〇、△、□、×、＋の5種類の記号を、5つの枠に一つずつ配置する。それぞれの記号には、赤か青のどちらかの色を選ぶ。"},
   {logId:"room2_rules_03",logType:"investigation",speaker:"紙",text:isChallenge?"答えと記号・色・位置がすべて一致するとHIT、記号と色が一致し位置が異なるとBLOW。8回以内に5枠すべてを一致させれば達成。8回目までに正解できなければ今回の挑戦は終了する。何度でも再挑戦できる。":"答えと記号・色・位置がすべて一致するとHIT、記号と色が一致し位置が異なるとBLOW。判定結果を手がかりに正しい組み合わせを導き出せ。回数制限はない。"},
-  {logId:"room2_rules_04",logType:"dialogue",speaker:"主人公",text:"なるほど……このブロックを組み合わせて、正解を探すってことか"}
+  {logId:"room2_rules_04",logType:"dialogue",speaker:"主人公",text:isChallenge?"ルールは同じですね。今回は8回以内に解く、と":"なるほど……このブロックを組み合わせて、正解を探すってことか"}
  ],()=>showSecondRoomPuzzle())});
  overlay.querySelector(".room2-submit").addEventListener("click",()=>{
   if(room2State.guess.length!==5){feedback.textContent="5つの枠をすべて埋めてください。";return}

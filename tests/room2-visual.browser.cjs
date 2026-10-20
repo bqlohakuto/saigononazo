@@ -679,7 +679,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-choice-overlay').count(),1,'The door remains operable after closing');
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'No redundant door-is-open narration');
    assert.deepEqual(await page.locator('.room2-choice-overlay [data-choice]').allTextContents(),
-    ['次の部屋へ向かう','もう少し部屋をしらべてみる'],'Both existing destination choices remain unchanged');
+    ['次の部屋へ向かう','もう少し調べる'],'Both existing destination choices remain unchanged');
    const statusBeforeStay=await page.locator('#exploreStatus').textContent();
    const storyBeforeStay=await page.evaluate(()=>({
     unlocked:room2State.unlocked,doorInspected:room2State.doorInspected,deskInspected:room2State.deskInspected,

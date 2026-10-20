@@ -303,9 +303,10 @@ function within(inner,outer,tolerance=3){
     await page.evaluate(flag=>showSecondRoom({doorInspected:flag,deskInspected:flag}),explored);
     await page.locator('#r2Hana').click();
     assert.equal(await page.locator('.hana-choice-button[data-topic="room"]').count(),1,'Room topic is always available');
+    // The in-game design layer deliberately rejects clicks during the first 250 ms after a choice appears.
+    await page.waitForTimeout(360);
     await page.locator('.hana-choice-button[data-topic="room"]').click();
-    const roomTopicInspect=await page.evaluate(()=>({dialogs:document.querySelectorAll('.room-dialog-overlay').length,menus:document.querySelectorAll('.hana-choice-overlay').length,room:document.querySelector('.room')?.outerHTML.slice(0,160),overlays:[...document.querySelectorAll('[class*="overlay"]')].map(el=>el.className)}));
-    assert.equal(roomTopicInspect.dialogs,1,'Room topic launches a conversation: '+JSON.stringify({inspect:roomTopicInspect,errors}));
+    assert.equal(await page.locator('.room-dialog-overlay').count(),1,'Room topic launches a conversation');
     assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'この部屋、何か仕掛けがありそうだね','Hana does not reveal uninspected clues');
     await page.locator('#roomNextButton').click();
     assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'気になるところから調べてみます','Protagonist chooses what to inspect');

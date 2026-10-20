@@ -117,11 +117,6 @@ function finishRoom2Challenge(close,success){
   {label:"部屋に戻る",onSelect:()=>showRoomNotice("机からいつでも再挑戦できる。","room2_challenge_return")}
  ]));
 }
-function room2ChallengeResumeMessage(attempts){
- return Number.isInteger(attempts)&&attempts>0&&attempts<8
-  ? `挑戦の続きから再開。\n${attempts}回解答済み、残り${8-attempts}回。`
-  : null;
-}
 function room2ChallengeCounterInfo(attempts){
  const used=Number.isInteger(attempts)?Math.min(8,Math.max(0,attempts)):0;
  return {used,remaining:8-used};
@@ -232,8 +227,6 @@ function showSecondRoomPuzzle(){
   else if(challengeFailed)finishRoom2Challenge(close,false);
  });
  render();
- const resumeMessage=isChallenge?room2ChallengeResumeMessage(room2State.attempts):null;
- if(resumeMessage){feedback.style.whiteSpace="pre-line";feedback.textContent=resumeMessage}
  overlay.querySelector(".device-close").focus();
 }
 function room2Evaluate(guess,answer){

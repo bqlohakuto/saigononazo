@@ -85,10 +85,10 @@ const room3FlashbackLines=[
  {logId:"room3_flashback_65",logType:"dialogue",speaker:"先輩",text:"……遅いよ"},
  {logId:"room3_flashback_66",logType:"dialogue",speaker:"主人公",text:"え？"},
  {logId:"room3_flashback_67",logType:"dialogue",speaker:"先輩",text:"ずっと待ってたんだから、その言葉"},
- {logId:"room3_flashback_68",logType:"narration",speaker:"ト書き",text:"先輩が、こちらに手を差し出す。"},
+ {logId:"room3_flashback_68",logType:"narration",speaker:"ト書き",text:"先輩が、こちらに左手を差し出す。"},
  {logId:"room3_flashback_69",logType:"dialogue",speaker:"先輩",text:"こちらこそ。私と付き合ってください"},
  {logId:"room3_flashback_70",logType:"dialogue",speaker:"主人公",text:"！……はい！ お願いします！"},
- {logId:"room3_flashback_71",logType:"narration",speaker:"ト書き",text:"差し出された手を握る。そのまま二人で、桜並木を歩き続けた。四月の夜は、肌寒かったはずなのに。繋いだ右手のぬくもりだけは、いつまでもはっきりと感じていた。"},
+ {logId:"room3_flashback_71",logType:"narration",speaker:"ト書き",text:"僕は右手で、差し出された先輩の左手を握る。そのまま二人で、桜並木を歩き続けた。四月の夜は、肌寒かったはずなのに。繋いだ右手のぬくもりだけは、いつまでもはっきりと感じていた。"},
  {logId:"room3_flashback_72",logType:"narration",speaker:"ト書き",text:"――回想終了。"}
 ];
 const room3AfterMemoryLines=[

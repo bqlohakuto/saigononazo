@@ -141,6 +141,51 @@ test("No.134: cleared Hana dialogue reflects room change while preclear lines st
  }
 });
 
+test("No.135: HIT and BLOW explanation remains available; player response follows clear state",()=>{
+ function askRules(unlocked){
+  let dialogue=null;
+  const buttons=[];
+  const list={appendChild(button){buttons.push(button)},querySelector(){return buttons[0]},querySelectorAll(){return buttons}};
+  const overlay={querySelector(selector){return selector===".hana-choice-list"?list:null}};
+  const state={unlocked,deskInspected:true,history:[],hanaHints:0};
+  let saves=0;
+  const sandbox={
+   room2State:state,
+   game:{querySelector(){return null},appendChild(){}},
+   window:{HanaChoiceUI:{ensureStyle(){}}},
+   document:{createElement(tag){
+    return tag==="div"?overlay:{type:"",className:"",dataset:{},textContent:"",addEventListener(event,fn){if(event==="click")this.press=fn}};
+   }},
+   activateDeviceModal(){return ()=>{}},
+   showRoomDialog(lines,done){
+    dialogue=Array.from(lines,line=>({logId:line.logId,speaker:line.speaker,text:line.text}));
+    if(done)done();
+   },
+   saveGame(){saves++}
+  };
+  vm.runInNewContext(code+";this.__showHana=showSecondRoomHana;",sandbox);
+  sandbox.__showHana();
+  const button=buttons.find(item=>item.textContent==="HITとBLOWについて");
+  assert.ok(button,"HIT/BLOW topic remains available after inspecting desk");
+  button.press();
+  assert.equal(saves,1);
+  return dialogue;
+ }
+ const pre=askRules(false),post=askRules(true);
+ assert.deepEqual(pre,[
+  {logId:"room2_hana_rules_01",speaker:"ハナ",text:"HITは記号・色・位置が全部合っているもの。BLOWは記号と色が合っていて、位置だけ違うものだよ"},
+  {logId:"room2_hana_rules_02",speaker:"主人公",text:"判定を比べながら、合っている組み合わせを絞っていくんですね"}
+ ]);
+ assert.deepEqual(post,[
+  {logId:"room2_hana_rules_01",speaker:"ハナ",text:"HITは記号・色・位置が全部合っているもの。BLOWは記号と色が合っていて、位置だけ違うものだよ"},
+  {logId:"room2_hana_rules_02",speaker:"主人公",text:"はい。判定を比べるのが大切でしたね"}
+ ]);
+ for(const manuscript of [chapter,full]){
+  assert.ok(manuscript.includes("【校閲No.135・案2 採用】"));
+  assert.match(manuscript,/### クリア後[\\s\\S]*?「はい。判定を比べるのが大切でしたね」/);
+ }
+});
+
 test("No.124: manuscript, combined manuscript and runtime agree on the adopted behavior",()=>{
  for(const text of [chapter,full]){
   assert.match(text,/【校閲No\.124・案1 採用】/);

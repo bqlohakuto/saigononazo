@@ -96,6 +96,51 @@ test("No.133: recollection completion displays the approved hint and retains cle
  assert.doesNotMatch(code,/机のブロックから『8回チャレンジ』にも挑戦できる/);
 });
 
+test("No.134: cleared Hana dialogue reflects room change while preclear lines stay untouched",()=>{
+ function askRoomTopic(unlocked){
+  const result={saves:0,lines:null};
+  const buttons=[];
+  const list={
+   appendChild(button){buttons.push(button)},
+   querySelector(){return buttons[0]},
+   querySelectorAll(){return buttons}
+  };
+  const overlay={querySelector(sel){return sel===".hana-choice-list"?list:null}};
+  const sandbox={
+   room2State:{unlocked,deskInspected:true,history:[],hanaHints:0},
+   game:{querySelector(){return null},appendChild(){}},
+   window:{HanaChoiceUI:{ensureStyle(){}}},
+   document:{createElement(tag){
+    if(tag==="div")return overlay;
+    return {type:"",className:"",dataset:{},textContent:"",addEventListener(event,fn){if(event==="click")this.press=fn}};
+   }},
+   activateDeviceModal(){return ()=>{}},
+   showRoomDialog(lines,done){result.lines=Array.from(lines,line=>({id:line.logId,speaker:line.speaker,text:line.text}));done?.()},
+   saveGame(){result.saves++}
+  };
+  vm.runInNewContext(code+";this.__hana=showSecondRoomHana;",sandbox);
+  sandbox.__hana();
+  const btn=buttons.find(x=>x.textContent==="この部屋について");
+  assert.ok(btn,"The room topic must remain selectable");
+  btn.press();
+  assert.equal(result.saves,1);
+  return result.lines;
+ }
+ assert.deepEqual(askRoomTopic(true),[
+  {id:"room2_hana_room_clear_01",speaker:"ハナ",text:"この部屋、少し雰囲気が変わったね"},
+  {id:"room2_hana_room_clear_02",speaker:"主人公",text:"……はい。さっきまでとは違って見えます"}
+ ]);
+ assert.deepEqual(askRoomTopic(false),[
+  {id:"room2_hana_room_01",speaker:"ハナ",text:"この部屋、何か仕掛けがありそうだね"},
+  {id:"room2_hana_room_02",speaker:"主人公",text:"気になるところから調べてみます"}
+ ]);
+ for(const manuscript of [chapter,full]){
+  assert.match(manuscript,/【校閲No\\.134・案2 採用】/);
+  assert.match(manuscript,/「この部屋、少し雰囲気が変わったね」/);
+  assert.match(manuscript,/「……はい。さっきまでとは違って見えます」/);
+ }
+});
+
 test("No.124: manuscript, combined manuscript and runtime agree on the adopted behavior",()=>{
  for(const text of [chapter,full]){
   assert.match(text,/【校閲No\.124・案1 採用】/);

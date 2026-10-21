@@ -72,6 +72,30 @@ test("No.124: uncleared door interactions remain unchanged",()=>{
  assert.deepEqual(examined.calls.notices,[{text:"『正しい組み合わせを導け』",id:"room2_door_again"}]);
 });
 
+test("No.133: recollection completion displays the approved hint and retains cleared state",()=>{
+ const calls={notices:[],saves:0,opened:false};
+ const sandbox={
+  room2State:{unlocked:false,flashbackSeen:false,challengeActive:false,challengeBest:3},
+  room2FlashbackContent:[],room2AfterFlashbackContent:[],
+  saveGame(){calls.saves++},
+  showRoomDialog(lines,done){if(done)done()},
+  showRoomNotice(text,id,type){calls.notices.push({text,id,type})},
+  document:{getElementById(id){return id==="r2Door"?{classList:{add(cls){calls.opened=cls==="is-unlocked"}}}:null}}
+ };
+ vm.runInNewContext(code+";this.__complete=completeRoom2;",sandbox);
+ sandbox.__complete();
+ assert.deepEqual(calls.notices,[{
+  text:"扉の鍵が開いた。机の仕掛けは、まだ動いているようだ。",
+  id:"room2_unlocked",type:"narration"
+ }]);
+ assert.equal(sandbox.room2State.unlocked,true);
+ assert.equal(sandbox.room2State.flashbackSeen,true);
+ assert.equal(sandbox.room2State.challengeBest,3);
+ assert.equal(calls.saves,1);
+ assert.equal(calls.opened,true);
+ assert.doesNotMatch(code,/机のブロックから『8回チャレンジ』にも挑戦できる/);
+});
+
 test("No.124: manuscript, combined manuscript and runtime agree on the adopted behavior",()=>{
  for(const text of [chapter,full]){
   assert.match(text,/【校閲No\.124・案1 採用】/);
@@ -82,6 +106,7 @@ test("No.124: manuscript, combined manuscript and runtime agree on the adopted b
   assert.match(text,/もう少し調べる/);
   assert.match(text,/【校閲No\.131・案1 採用】/);
   assert.match(text,/【校閲No\.132・案1 採用】/);
+  assert.match(text,/【校閲No\.133・案2 採用】/);
   assert.match(text,/探索画面への新たな「次へ」ボタンや探索メニュー内の移動項目は追加しない/);
  }
  assert.doesNotMatch(code,/room2_transition_stay/);

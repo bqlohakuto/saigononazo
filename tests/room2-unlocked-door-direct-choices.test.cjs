@@ -325,13 +325,13 @@ test("No.141: feedback clears only when two placed blocks are actually swapped",
   vm.runInNewContext("let selectedSlot=null,lastPlacedSlot=null;"+handler+";this.getSelection=()=>selectedSlot;",sandbox);
   buttons[0].click();
   assert.equal(sandbox.getSelection(),0);
-  assert.equal(feedback.textContent,"この配置は判定済みです.","First selection must not clear the notice");
+  assert.equal(feedback.textContent,"この配置は判定済みです。","First selection must not clear the notice");
   assert.equal(calls.saves,0);
   buttons[0].click();
   assert.equal(sandbox.getSelection(),null);
-  assert.equal(feedback.textContent,"この配置は判定済みです.","Deselecting must not clear the notice");
+  assert.equal(feedback.textContent,"この配置は判定済みです。","Deselecting must not clear the notice");
   buttons[4].click();
-  assert.equal(feedback.textContent,"この配置は判定済みです.","Empty slot does not change the layout");
+  assert.equal(feedback.textContent,"この配置は判定済みです。","Empty slot does not change the layout");
   buttons[0].click();
   buttons[1].click();
   assert.equal(state.guess[0],originalGuess[1]);
@@ -348,6 +348,38 @@ test("No.141: feedback clears only when two placed blocks are actually swapped",
  for(const manuscript of [chapter,full]){
   assert.ok(manuscript.includes("【校閲No.141・案2 採用】"));
   assert.ok(manuscript.includes("位置を実際に入れ替えた場合のみ"));
+ }
+});
+
+test("No.142: clear button disables when empty and ignores stale empty clicks",()=>{
+ const clearLine=code.split("\n").find(line=>line.includes('overlay.querySelector(".room2-clear").onclick=()=>{'));
+ const disabledLine=code.split("\n").find(line=>line.includes('overlay.querySelector(".room2-clear").disabled='));
+ assert.ok(clearLine&&disabledLine,"Clear handler and disabled update should exist");
+ assert.ok(disabledLine.includes("room2State.guess.length===0"));
+ const body=clearLine.slice(clearLine.indexOf("=>{")+3,clearLine.lastIndexOf("};"));
+ for(const isChallenge of [false,true]){
+  const state={guess:[],attempts:3,history:[{hit:1,blow:1}],challengeActive:isChallenge};
+  const feedback={textContent:"以前の判定"};
+  let saves=0,renders=0;
+  const fn=new Function("room2State","feedback","saveGame","render","selectedSlot",
+   body+";return selectedSlot;");
+  let selected=fn(state,feedback,()=>saves++,()=>renders++,null);
+  assert.equal(state.guess.length,0);
+  assert.equal(feedback.textContent,"以前の判定");
+  assert.equal(saves,0);
+  assert.equal(renders,0);
+  state.guess=[{symbol:"〇",color:"青"}];
+  selected=fn(state,feedback,()=>saves++,()=>renders++,0);
+  assert.equal(state.guess.length,0);
+  assert.equal(feedback.textContent,"");
+  assert.equal(selected,null);
+  assert.equal(saves,1);
+  assert.equal(renders,1);
+  assert.equal(state.history.length,1);
+  assert.equal(state.attempts,3);
+ }
+ for(const manuscript of [chapter,full]){
+  assert.ok(manuscript.includes("【校閲No.142・案2 採用】"));
  }
 });
 

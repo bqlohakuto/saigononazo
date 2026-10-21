@@ -158,14 +158,14 @@ function renderThirdRoomView(){
 }
 function turnThirdRoom(step){
  if(currentScene!=="room03"||game.querySelector(".room-dialog-overlay,.device-overlay,.design-overlay,.inspection-overlay"))return;
- const index=ROOM3_VIEWS.indexOf(room3State.view);
+ const index=ROOM3_VIEWS.includes(room3State.view)?ROOM3_VIEWS.indexOf(room3State.view):0;
  room3State.view=ROOM3_VIEWS[(index+step+4)%4];renderThirdRoomView();saveGame();
 }
 
 function inspectThirdRoomDoor(){
  if(room3State.unlocked){
   if(!room3State.memorySeen){playThirdRoomMemory();return}
-  showRoomDialog([{logId:"room3_door_open",logType:"investigation",speaker:"ト書き",text:"扉の鍵は開いている。先へ進めそうだ。"}],showThirdRoomExitChoice);return
+  showThirdRoomExitChoice();return
  }
  if(room3State.doorInspected){showRoomNotice("『顔に隠された合図を読み、隠された想いを言葉にせよ』","room3_door_repeat","investigation");return}
  room3State.doorInspected=true;saveGame();document.getElementById("r3Desk").disabled=false;document.getElementById("r3Shelf").disabled=false;
@@ -177,7 +177,7 @@ function inspectThirdRoomDesk(){
  showRoomDialog([{logId:"room3_desk_01",logType:"investigation",speaker:"ト書き",text:"黒い天板の机だ。一人で組み立てるのに2時間かかったことを思い出す。"},{logId:"room3_desk_02",logType:"narration",speaker:"主人公",thought:true,text:"どうして、そんなことを覚えているんだろう。"},{logId:"room3_desk_03",logType:"investigation",speaker:"ト書き",text:"机の上にはスマートフォンが置かれている。"}]);
 }
 function showThirdRoomChat(){
- if(!room3State.deskInspected||game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay"))return;
+ if(!room3State.deskInspected||game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
  const overlay=document.createElement("div");overlay.className="device-overlay room3-chat-overlay";
  overlay.innerHTML=`<section class="room3-chat-panel r3-handset" role="dialog" aria-modal="true" aria-label="先輩とのトーク"><div class="r3-phone-speaker" aria-hidden="true"></div><div class="r3-phone-lcd"><div class="r3-phone-status" aria-hidden="true"><span>▮▮▮</span><span>▰</span></div><header class="r3-app-header"><button type="button" class="device-close" aria-label="トークを閉じる">◀</button><h2>先輩</h2><span class="r3-header-spacer" aria-hidden="true"></span></header><div class="r3-chat-scroll" tabindex="0" role="region" aria-label="先輩との会話をスクロール"></div></div><div class="r3-phone-home" aria-hidden="true"></div></section>`;
  game.appendChild(overlay);
@@ -209,7 +209,7 @@ function inspectThirdRoomShelf(){
  showRoomDialog([{logId:"room3_shelf_01",logType:"investigation",speaker:"ト書き",text:"小さな棚には、漫画や講義のテキストが並んでいる。"},{logId:"room3_shelf_02",logType:"investigation",speaker:"ト書き",text:"その間に、点と線で書かれたモールス信号の対応表が挟まっている。"}],showThirdRoomMorseChart);
 }
 function showThirdRoomMorseChart(){
- if(!room3State.shelfInspected||game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay"))return;
+ if(!room3State.shelfInspected||game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
  const overlay=document.createElement("div");overlay.className="device-overlay r3-morse-overlay";
  overlay.innerHTML=`<section class="r3-morse-chart" role="dialog" aria-modal="true" aria-label="AからZのモールス信号対応表"><header><h2>モールス信号対応表</h2><button type="button" class="device-close" aria-label="対応表を閉じる">閉じる</button></header><div class="r3-morse-grid" role="list" aria-label="アルファベット26文字"></div><p class="r3-morse-legend">・ 短点　　－ 長点</p></section>`;
  game.appendChild(overlay);
@@ -238,7 +238,7 @@ function showThirdRoomPuzzle(){
  overlay.querySelector(".room3-answer-submit").addEventListener("click",()=>{const answer=overlay.querySelector(".room3-answer-input").value.normalize("NFKC").trim().toUpperCase().replace(/[\s　、。・]/gu,"");if(!answer){feedback.textContent="答えを入力してください。";return}room3State.puzzleAttempts++;if(answer==="ONAJIMOJINOAIDA"||answer==="同じ文字の間"||answer==="同じ文字のあいだ"||answer==="オナジモジノアイダ"||answer==="おなじもじのあいだ"){room3State.morseSolved=true;feedback.textContent="『同じ文字の間』……文字盤を調べよう。";saveGame();render();overlay.querySelector(".room3-final-input").focus()}else{feedback.textContent="顔文字とモールス対応表を、もう一度見比べてみよう。";saveGame()}});
  overlay.querySelector(".room3-final-input").addEventListener("input",()=>{feedback.textContent=""});
  overlay.querySelector(".room3-final-input").addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.isComposing&&!event.repeat){event.preventDefault();overlay.querySelector(".room3-final-submit").click()}});
- overlay.querySelector(".room3-final-submit").addEventListener("click",()=>{const answer=overlay.querySelector(".room3-final-input").value.normalize("NFKC").trim().replace(/[\s　、。・]/gu,"").replace(/[ぁ-ゖ]/gu,char=>String.fromCharCode(char.charCodeAt(0)+0x60));if(!answer){feedback.textContent="言葉を入力してください。";return}room3State.puzzleAttempts++;if(answer==="イツモトナリニ"||answer==="いつも隣に"){room3State.unlocked=true;saveGame();render();close();const room=game.querySelector(".room-three");room?.classList.add("is-restored");const status=room?.querySelector(".room-color-status");if(status)status.textContent="記憶を取り戻した部屋";playThirdRoomMemory()}else{feedback.textContent="文字盤から読み取った言葉を入力しよう。";saveGame()}});
+ overlay.querySelector(".room3-final-submit").addEventListener("click",()=>{const answer=overlay.querySelector(".room3-final-input").value.normalize("NFKC").trim().replace(/[\s　、。・]/gu,"").replace(/[ぁ-ゖ]/gu,char=>String.fromCharCode(char.charCodeAt(0)+0x60));if(!answer){feedback.textContent="言葉を入力してください。";return}room3State.puzzleAttempts++;if(answer==="イツモトナリニ"||answer==="イツモ隣ニ"){room3State.unlocked=true;saveGame();render();close();const room=game.querySelector(".room-three");room?.classList.add("is-restored");const status=room?.querySelector(".room-color-status");if(status)status.textContent="記憶を取り戻した部屋";playThirdRoomMemory()}else{feedback.textContent="文字盤から読み取った言葉を入力しよう。";saveGame()}});
  render();
 }
 function playThirdRoomMemory(){

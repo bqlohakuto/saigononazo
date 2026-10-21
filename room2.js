@@ -285,7 +285,7 @@ function showSecondRoomPuzzle(){
   overlay.querySelector(".room2-submit").disabled=room2State.guess.length!==5||(isChallenge&&room2State.attempts>=8);
   hintRequest.hidden=isChallenge||!room2ShouldRevealLeftmostHint(room2State.history,room2State.attempts)||room2State.leftmostHintRevealed||room2State.unlocked;
   hint.hidden=!room2State.leftmostHintRevealed;
-  hint.textContent=room2State.leftmostHintRevealed?`開示された左端の記号：「${room2State.answer[0].symbol}」`:"";
+  hint.textContent=room2State.leftmostHintRevealed?`左端の記号：${room2State.answer[0].symbol}`:"";
    lastPlacedSlot=null;
  };
  hintRequest.addEventListener("click",()=>{

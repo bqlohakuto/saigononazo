@@ -56,14 +56,20 @@ function panelHarness(){
 }
 
 test("No.182: invalid view turns from the front and saves exactly once",()=>{
- const state={view:"unknown"};let saves=0,renders=0;
+ const state={view:"unknown"};let saves=0;
+ const stage={dataset:{},querySelectorAll(){return []}};
+ const bg={src:""};
  const s=sandboxWith(["turnFourthRoom"],{
   room4State:state,currentScene:"room04",
-  game:{querySelector(){return null}},
-  renderFourthRoomView(){renders++},saveGame(){saves++}
+  game:{querySelector(selector){return selector===".room4-stage"?stage:null}},
+  document:{getElementById(id){return id==="r4Background"?bg:null}},
+  saveGame(){saves++}
  });
  s.__turnFourthRoom(1);
- assert.equal(state.view,"right");assert.equal(saves,1);assert.equal(renders,1);
+ assert.equal(state.view,"right");
+ assert.equal(stage.dataset.view,"right");
+ assert.equal(bg.src,"images/background/room04/room04_right.webp");
+ assert.equal(saves,1);
 });
 
 test("No.183: revisiting the uncompleted door uses a concise notice",()=>{

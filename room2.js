@@ -299,7 +299,7 @@ function showSecondRoomPuzzle(){
   if(isChallenge&&room2State.attempts>=8)return;
   if(room2State.guess.length!==5){feedback.textContent="5つの枠をすべて埋めてください。";return}
   if(room2HasSubmittedGuess(room2State.guess,room2State.history)){
-   feedback.textContent="この配置は判定済みです。ブロックを動かしてから解答してください。";
+   feedback.textContent="この配置は判定済みです。";
    return;
   }
   const result=room2Evaluate(room2State.guess,room2State.answer);room2State.attempts++;

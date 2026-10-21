@@ -17,11 +17,11 @@ function r5Drawing(kind, label) {
  return `<svg viewBox="0 0 100 100" role="img" aria-label="${label}" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${R5_DRAWINGS[kind]}</svg>`;
 }
 function r5NormalizeState(saved) {
- const state = saved && typeof saved === 'object' ? saved : {};
+ const state = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
  return {mirrorCollected:!!(state.mirrorCollected || state.mirrorPlaced),mirrorPlaced:!!state.mirrorPlaced,highlightEnabled:state.highlightEnabled !== false};
 }
 function r5PlaceMirror(frame) {
- if(!room5State.mirrorCollected || room5State.mirrorPlaced || frame !== 'face')return false;
+ if(currentScene!=='room05'||!room5State.mirrorCollected || room5State.mirrorPlaced || frame !== 'face')return false;
  room5State.mirrorPlaced=true;
  saveGame();
  return true;
@@ -48,24 +48,27 @@ function r5Refresh() {
  window.GameplayUI?.updateObjective();
 }
 function r5InspectMirror() {
- if(game.querySelector('.device-overlay,.room-dialog-overlay'))return;
+ if(game.querySelector('.device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay'))return;
  if(room5State.mirrorCollected){showRoomNotice('姿見のあった場所は、空になっている。','r5-mirror-empty');return;}
+ const inspectingState=room5State;
  showRoomDialog([{logId:'r5-mirror-reflection',logType:'investigation',speaker:'ト書き',text:'姿見には、部屋もハナも、自分の身体も映っている。けれど、自分の顔だけが白く滲んで見えない。'}],()=>{
+  if(currentScene!=='room05'||room5State!==inspectingState||room5State.mirrorCollected)return;
   const overlay=document.createElement('div');overlay.className='device-overlay r5-inspect-overlay';
   overlay.innerHTML=`<section class="r5-inspect"><button class="device-close" aria-label="閉じる">×</button><h2>姿見</h2><div class="r5-reflection" aria-hidden="true">${r5Drawing('mirror','')}<i></i></div><button class="r5-touch">鏡に触れる</button></section>`;
   game.appendChild(overlay);const close=activateDeviceModal(overlay,'r5Mirror',overlay.querySelector('.r5-touch'));
   overlay.querySelector('.r5-touch').onclick=()=>{
-   close();if(room5State.mirrorCollected)return;
+   if(currentScene!=='room05'||room5State!==inspectingState||room5State.mirrorCollected)return;
+   close();
    room5State.mirrorCollected=true;saveGame();
    const acquiredState=room5State;
    const art=document.getElementById('r5MirrorArt');art?.classList.add('is-transforming');
    GameAudio.stopAll();
-   setTimeout(()=>{if(currentScene!=='room05'||room5State!==acquiredState||!document.getElementById('r5MirrorArt'))return;r5Refresh();showRoomDialog([{logId:'r5-mirror-transform',logType:'investigation',speaker:'ト書き',text:'触れた鏡面に波紋が広がる。周囲の音が途切れ、姿見が縮み、一枚のパネルになった。'},{logId:'r5-mirror-acquired',logType:'narration',speaker:'システム',text:'【鏡のパネルを手に入れた】'}]);},650);
+   setTimeout(()=>{if(currentScene!=='room05'||room5State!==acquiredState||!document.getElementById('r5MirrorArt'))return;art?.classList.remove('is-transforming');r5Refresh();showRoomDialog([{logId:'r5-mirror-transform',logType:'investigation',speaker:'ト書き',text:'触れた鏡面に波紋が広がる。周囲の音が途切れ、姿見が縮み、一枚のパネルになった。'},{logId:'r5-mirror-acquired',logType:'narration',speaker:'システム',text:'【鏡のパネルを手に入れた】'}]);},650);
   };
  });
 }
 function r5OpenBoard() {
- if(game.querySelector('.device-overlay,.room-dialog-overlay'))return;
+ if(game.querySelector('.device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay'))return;
  const overlay=document.createElement('div');overlay.className='device-overlay r5-board-overlay';
  overlay.innerHTML=`<section class="r5-board-ui" aria-label="中央パネル"><button class="device-close" aria-label="閉じる">×</button><h2>中央パネル</h2><p>手元のパネルを選び、枠をタップしてください。ドラッグでも置けます。</p><div class="r5-frames"></div><div class="r5-tray"></div><p class="r5-feedback" role="status" aria-live="polite"></p></section>`;
  game.appendChild(overlay);activateDeviceModal(overlay,'r5Table',overlay.querySelector('.device-close'));
@@ -73,6 +76,7 @@ function r5OpenBoard() {
  let selected=false;
  const place=frame=>{
   if(!selected)return;
+  if(!R5_FRAMES.includes(frame)){selected=false;tray.querySelector('button')?.setAttribute('aria-pressed','false');feedback.textContent='';return}
   if(r5PlaceMirror(frame)){selected=false;draw();feedback.textContent='鏡のパネルが枠に吸い込まれ、絵がひとつになった。';r5Refresh();}
   else{selected=false;tray.querySelector('button')?.setAttribute('aria-pressed','false');feedback.textContent='パネルは枠にはまらず、手元に戻った。';}
  };
@@ -84,9 +88,9 @@ function r5OpenBoard() {
   tile.onclick=()=>{selected=!selected;tile.setAttribute('aria-pressed',String(selected));feedback.textContent=selected?'置きたい枠をタップしてください。':'';};
   let drag=null;
   tile.onpointerdown=event=>{if(event.button!==0)return;drag={x:event.clientX,y:event.clientY,id:event.pointerId,moved:false};tile.setPointerCapture(event.pointerId);};
-  tile.onpointermove=event=>{if(!drag)return;if(Math.hypot(event.clientX-drag.x,event.clientY-drag.y)>8){drag.moved=true;tile.classList.add('is-dragging');}};
-  tile.onpointerup=event=>{if(!drag)return;const moved=drag.moved;drag=null;tile.classList.remove('is-dragging');if(!moved)return;event.preventDefault();selected=true;const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('[data-frame]');place(target&&!target.disabled?target.dataset.frame:null);tile.onclick=null;setTimeout(()=>{if(tile.isConnected)tile.onclick=()=>{selected=!selected;tile.setAttribute('aria-pressed',String(selected));};},0);};
-  tile.onpointercancel=()=>{drag=null;tile.classList.remove('is-dragging');};
+  tile.onpointermove=event=>{if(!drag||event.pointerId!==drag.id)return;if(Math.hypot(event.clientX-drag.x,event.clientY-drag.y)>8){drag.moved=true;tile.classList.add('is-dragging');}};
+  tile.onpointerup=event=>{if(!drag||event.pointerId!==drag.id)return;const moved=drag.moved;drag=null;tile.classList.remove('is-dragging');if(!moved)return;event.preventDefault();selected=true;const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('[data-frame]');place(target&&!target.disabled?target.dataset.frame:null);tile.onclick=null;setTimeout(()=>{if(tile.isConnected)tile.onclick=()=>{selected=!selected;tile.setAttribute('aria-pressed',String(selected));};},0);};
+  tile.onpointercancel=event=>{if(!drag||event.pointerId!==drag.id)return;drag=null;tile.classList.remove('is-dragging');};
  }
  draw();
 }

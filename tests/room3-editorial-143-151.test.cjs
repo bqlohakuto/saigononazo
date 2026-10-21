@@ -97,11 +97,11 @@ test("No.146-148: Enter submits unless composing/repeated; focus advances after 
 
 test("No.149: chart close notification fires once across multiple opens",()=>{
  const state={shelfInspected:true,morseChartNoticeSeen:false};
- let noticeCount=0,saved=0,closeHook=null;
+ let noticeCount=0,saved=0,closeHook=null,logged=0;
  const sandbox={
   room3State:state,game:{appendChild(){},querySelector(){return null}},
   document:{createElement(){return element()}},
-  recordLog(){},
+  recordLog(){logged++},
   saveGame(){saved++},
   showRoomNotice(){noticeCount++},
   activateDeviceModal(overlay,opener,initial,onClose){closeHook=onClose}
@@ -117,8 +117,10 @@ test("No.149: chart close notification fires once across multiple opens",()=>{
  sandbox.__chart();closeHook();
  sandbox.__chart();closeHook();
  assert.equal(noticeCount,1);
- assert.equal(saved,1);
+ assert.equal(saved,2);
+ assert.equal(logged,1);
  assert.equal(state.morseChartNoticeSeen,true);
+ assert.equal(state.morseChartLogged,true);
 });
 
 test("No.150-151: repeat desk/door inspection is concise and does not save again",()=>{

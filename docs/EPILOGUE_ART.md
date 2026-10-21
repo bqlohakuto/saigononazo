@@ -24,3 +24,7 @@ room8-flow.test.cjs および late-game-flow.test.cjs 成功（保存復帰・�
 ## 追加修正：壁向き・ノート2冊
 机の奥辺を壁に接する構図にし、開いたノートと閉じたノートを1冊ずつ配置。epilogue-bedroom-v2.webpへ差し替え。パソコンと2冊のノートは会話欄より上に収めた。内蔵image_genで寝室版を編集し、目視確認済み。
 プロンプト: desk rear edge flush against wall, seated first-person facing wall; exactly one open puzzle notebook and one closed notebook, preserve laptop and pixel-art style, all props visible above dialogue overlay.
+
+## 追加修正：壁への密着・表紙・うさぎ
+机の奥辺と壁の接点を明確にし、閉じたノートに手書きの「謎解きネタ帳」、開いたノートの見開きに不器用な鉛筆描きのうさぎを追加。epilogue-bedroom-v3.webpへ差し替え。内蔵image_genでv2を編集。表記6文字と机・壁の接点を目視確認済み。
+プロンプト: preserve bedroom, laptop, notebook placement, daylight and pixel style; desk rear edge touching wall with thin contact shadow and no gap; closed notebook exact handwritten text「謎解きネタ帳」; open spread one clumsy pencil rabbit with uneven ears and awkward body; props remain above dialogue region.

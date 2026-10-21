@@ -232,6 +232,42 @@ test("No.136: revised thinking hint appears only after a non-correct judgment",(
  assert.doesNotMatch(code,/どれが合っていたかわからなくなっちゃうよ/);
 });
 
+test("No.139: clear removes only current blocks with no message and preserves history",()=>{
+ const match=code.match(/overlay\\.querySelector\\("\\.room2-clear"\\)\\.onclick=\\(\\)=>\\{([^\\n]+)\\};/);
+ assert.ok(match,"The in-game clear handler must remain available");
+ for(const challengeActive of [false,true]){
+  const originalHistory=[{guess:[{symbol:"〇",color:"赤"}],hit:1,blow:0}];
+  const previousAnswer=[{symbol:"〇",color:"赤"}];
+  const state={
+   guess:[{symbol:"△",color:"青"},{symbol:"□",color:"赤"}],
+   history:originalHistory,attempts:4,unlocked:challengeActive,
+   challengeActive,answer:previousAnswer,leftmostHintRevealed:!challengeActive,
+   challengeBest:3,run:2
+  };
+  const feedback={textContent:"この配置は判定済みです。"};
+  const calls={saves:0,renders:0};
+  const sandbox={
+   room2State:state,feedback,selectedSlot:1,
+   saveGame(){calls.saves++},render(){calls.renders++}
+  };
+  vm.runInNewContext("(()=>{"+match[1]+"})()",sandbox);
+  assert.equal(state.guess.length,0,"All placed blocks should be removed");
+  assert.equal(sandbox.selectedSlot,null);
+  assert.equal(feedback.textContent,"","No clear confirmation or stale feedback should remain");
+  assert.equal(state.history,originalHistory,"Existing judgment history must not be reset");
+  assert.equal(state.attempts,4,"Used attempts must not change");
+  assert.equal(state.answer,previousAnswer,"Answer remains unchanged");
+  assert.equal(state.leftmostHintRevealed,!challengeActive);
+  assert.equal(state.challengeBest,3,"Challenge records stay intact");
+  assert.deepEqual(calls,{saves:1,renders:1});
+ }
+ assert.doesNotMatch(code,/配置をクリアしました。/);
+ for(const text of [chapter,full]){
+  assert.ok(text.includes("【校閲No.139・案3 採用】"));
+  assert.ok(text.includes("説明文は表示しない"));
+ }
+});
+
 test("No.124: manuscript, combined manuscript and runtime agree on the adopted behavior",()=>{
  for(const text of [chapter,full]){
   assert.match(text,/【校閲No\.124・案1 採用】/);

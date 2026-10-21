@@ -9,14 +9,14 @@ const room5=fs.readFileSync(path.join(__dirname,"..","room5.js"),"utf8");
 const chapters=["04_room4.md","05_room5.md","FULL_SCENARIO.md"].map(name=>fs.readFileSync(path.join(__dirname,"..","scenario",name),"utf8"));
 
 function runtime(source,sandbox,functions) {
- vm.runInNewContext(source+";"+functions.map(name=>"this.__"+name+"="+name+";").join(""),sandbox);
+ vm.runInNewContext(source+";"+functions.map(name=>"this.__"+name+"="+name+";").join("")+"this.__setScene=value=>{currentScene=value;};",sandbox);
  return sandbox;
 }
 function mirrorHarness(){
  let created=0,saves=0,closes=0,stops=0,pending=null,timed=null;
  const dialogues=[],notices=[];
  const touch={onclick:null},classes=[];
- const art={classList:{add(name){classes.push("+"+name)},remove(name){classes.push("-"+name)}}};
+ const art={classList:{add(name){classes.push("+"+name)},remove(name){classes.push("-"+name)},toggle(){}}};
  const overlay={querySelector(selector){return selector===".r5-touch"?touch:{}}};
  const state={mirrorCollected:false,mirrorPlaced:false};
  const sandbox={
@@ -103,10 +103,10 @@ test("No.194-195: inspection and design overlays block the mirror and board",()=
 test("No.196: a stale inspection callback cannot open a mirror overlay",()=>{
  const h=mirrorHarness();
  h.inspect();
- h.sandbox.currentScene="room04";
+ h.sandbox.__setScene("room04");
  h.completeDialogue();
  assert.equal(h.metrics().created,0);
- h.sandbox.currentScene="room05";
+ h.sandbox.__setScene("room05");
  h.state.mirrorCollected=true;
  h.completeDialogue();
  assert.equal(h.metrics().created,0);
@@ -114,10 +114,10 @@ test("No.196: a stale inspection callback cannot open a mirror overlay",()=>{
 
 test("No.197: stale touches do not close or collect the mirror",()=>{
  const h=mirrorHarness();h.inspect();h.completeDialogue();
- h.sandbox.currentScene="room04";h.touch.onclick();
+ h.sandbox.__setScene("room04");h.touch.onclick();
  assert.equal(h.metrics().closes,0);
  assert.equal(h.metrics().saves,0);
- h.sandbox.currentScene="room05";h.touch.onclick();
+ h.sandbox.__setScene("room05");h.touch.onclick();
  assert.equal(h.state.mirrorCollected,true);
  assert.equal(h.metrics().closes,1);
  assert.equal(h.metrics().saves,1);
@@ -139,7 +139,7 @@ test("No.199: placing a collected mirror from another scene is ignored",()=>{
  runtime(room5,s,["r5PlaceMirror"]);
  assert.equal(s.__r5PlaceMirror("face"),false);
  assert.equal(saves,0);
- s.currentScene="room05";
+ s.__setScene("room05");
  assert.equal(s.__r5PlaceMirror("face"),true);
  assert.equal(state.mirrorPlaced,true);
  assert.equal(saves,1);

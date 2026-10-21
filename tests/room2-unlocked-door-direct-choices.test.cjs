@@ -303,6 +303,54 @@ test("No.140: repeated answer displays only a concise notice and consumes no att
  }
 });
 
+test("No.141: feedback clears only when two placed blocks are actually swapped",()=>{
+ const handler=code.split("\n").find(line=>line.trim().startsWith('slots.querySelectorAll("[data-slot]").forEach('));
+ assert.ok(handler,"Slots listener must exist");
+ for(const challengeActive of [false,true]){
+  const buttons=Array.from({length:5},(_,i)=>({
+   dataset:{slot:String(i)},
+   addEventListener(type,callback){if(type==="click")this.click=callback}
+  }));
+  const originalGuess=[{symbol:"〇",color:"赤"},{symbol:"△",color:"青"}];
+  const history=[{hit:1,blow:1,guess:originalGuess.map(x=>({...x}))}];
+  const state={guess:[...originalGuess],history,attempts:3,challengeActive,challengeBest:2,leftmostHintRevealed:true};
+  const feedback={textContent:"この配置は判定済みです。"};
+  const calls={saves:0,renders:0};
+  const sandbox={
+   slots:{querySelectorAll(){return buttons}},
+   room2State:state,feedback,
+   saveGame(){calls.saves++},
+   render(){calls.renders++}
+  };
+  vm.runInNewContext("let selectedSlot=null,lastPlacedSlot=null;"+handler+";this.getSelection=()=>selectedSlot;",sandbox);
+  buttons[0].click();
+  assert.equal(sandbox.getSelection(),0);
+  assert.equal(feedback.textContent,"この配置は判定済みです.","First selection must not clear the notice");
+  assert.equal(calls.saves,0);
+  buttons[0].click();
+  assert.equal(sandbox.getSelection(),null);
+  assert.equal(feedback.textContent,"この配置は判定済みです.","Deselecting must not clear the notice");
+  buttons[4].click();
+  assert.equal(feedback.textContent,"この配置は判定済みです.","Empty slot does not change the layout");
+  buttons[0].click();
+  buttons[1].click();
+  assert.equal(state.guess[0],originalGuess[1]);
+  assert.equal(state.guess[1],originalGuess[0]);
+  assert.equal(feedback.textContent,"","Swap must clear obsolete notice");
+  assert.equal(sandbox.getSelection(),null);
+  assert.equal(calls.saves,1,"Only the completed swap is saved");
+  assert.equal(state.history,history,"Judgment history remains");
+  assert.equal(state.attempts,3,"Attempt count remains");
+  assert.equal(state.challengeBest,2,"Challenge best remains");
+  assert.equal(state.leftmostHintRevealed,true,"Hint state remains");
+  assert.equal(calls.renders,4,"Selection/deselection/swap renders unchanged");
+ }
+ for(const manuscript of [chapter,full]){
+  assert.ok(manuscript.includes("【校閲No.141・案2 採用】"));
+  assert.ok(manuscript.includes("位置を実際に入れ替えた場合のみ"));
+ }
+});
+
 test("No.124: manuscript, combined manuscript and runtime agree on the adopted behavior",()=>{
  for(const text of [chapter,full]){
   assert.match(text,/【校閲No\.124・案1 採用】/);

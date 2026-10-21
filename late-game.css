@@ -122,3 +122,8 @@
 .r8-paper-hit:hover{outline:2px dashed #ffe8ac;outline-offset:-4px;background:#ffffff14}
 .r8-paper-hit:focus-visible{outline:4px solid #fff0b1;outline-offset:2px;background:#ffffff22}
 @container game-viewport (max-width:640px){.r8-dissolve-stage,.r8-final-stage{width:min(980px,940.8px);margin:10px auto}.r8-paper-hit{top:48%;height:23%;}}
+
+/* Epilogue: first-person ceiling, then the shared home and puzzle notebook. */
+.r8-epilogue-stage[data-place="hospital"]{background:#e3e9ec url("images/background/room08/epilogue-hospital.webp") center/cover no-repeat}
+.r8-epilogue-stage[data-place="home"]{background:#cfc2b4 url("images/background/room08/epilogue-home.webp") center/cover no-repeat}
+.r8-epilogue-place{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}

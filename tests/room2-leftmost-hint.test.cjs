@@ -80,7 +80,7 @@ test("No.137: revealed symbol stays visible and the one-time conditions are pres
 });
 
 test("No.138: persistent leftmost hint is concise for all symbols, including after save restoration", () => {
-  const displaySource=room2Source.match(/hint\\.textContent=room2State\\.leftmostHintRevealed\\?(`[^`]+`):"";/);
+  const displaySource=room2Source.match(/hint\.textContent=room2State\.leftmostHintRevealed\?(`[^`]+`):"";/);
   assert.ok(displaySource, "Hint text rendering expression is retained");
   for(const symbol of ["〇","△","□","×","＋"]){
     const state={leftmostHintRevealed:true,answer:[{symbol}]};

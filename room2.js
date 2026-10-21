@@ -359,7 +359,7 @@ function completeRoom2(){
   ...room2FlashbackContent.map(line=>({...line,logType:line.thought||line.speaker==="ト書き"?"narration":"dialogue"}))
  ],()=>showRoomDialog([
   ...room2AfterFlashbackContent.map(line=>({...line,logType:line.thought||line.speaker==="ト書き"?"narration":"dialogue"}))
- ],()=>{const door=document.getElementById("r2Door");door?.classList.add("is-unlocked");showRoomNotice("扉の鍵が開いた。机のブロックから『8回チャレンジ』にも挑戦できる。","room2_unlocked","narration")}));
+ ],()=>{const door=document.getElementById("r2Door");door?.classList.add("is-unlocked");showRoomNotice("扉の鍵が開いた。机の仕掛けは、まだ動いているようだ。","room2_unlocked","narration")}));
 }
 function showSecondRoomHana(){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;

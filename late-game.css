@@ -125,5 +125,5 @@
 
 /* Epilogue: first-person ceiling, then the shared home and puzzle notebook. */
 .r8-epilogue-stage[data-place="hospital"]{background:#e3e9ec url("images/background/room08/epilogue-hospital.webp") center/cover no-repeat}
-.r8-epilogue-stage[data-place="home"]{background:#cfc2b4 url("images/background/room08/epilogue-bedroom-v3.webp") center/cover no-repeat}
+.r8-epilogue-stage[data-place="home"]{background:#cfc2b4 url("images/background/room08/epilogue-bedroom-v4.webp") center/cover no-repeat}
 .r8-epilogue-place{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}

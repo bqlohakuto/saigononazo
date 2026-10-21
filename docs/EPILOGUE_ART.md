@@ -28,3 +28,7 @@ room8-flow.test.cjs および late-game-flow.test.cjs 成功（保存復帰・�
 ## 追加修正：壁への密着・表紙・うさぎ
 机の奥辺と壁の接点を明確にし、閉じたノートに手書きの「謎解きネタ帳」、開いたノートの見開きに不器用な鉛筆描きのうさぎを追加。epilogue-bedroom-v3.webpへ差し替え。内蔵image_genでv2を編集。表記6文字と机・壁の接点を目視確認済み。
 プロンプト: preserve bedroom, laptop, notebook placement, daylight and pixel style; desk rear edge touching wall with thin contact shadow and no gap; closed notebook exact handwritten text「謎解きネタ帳」; open spread one clumsy pencil rabbit with uneven ears and awkward body; props remain above dialogue region.
+
+## 追加修正：謎解きノート・文字と図形
+表紙の手書きタイトルを「謎解きノート」に変更。見開きにはうさぎを残し、「メモ」「順番？」「ここを変える」、丸・三角・四角、矢印、小さな格子、書き直し跡を追加。epilogue-bedroom-v4.webpへ差し替え。内蔵image_genでv3を編集。表紙の6文字・うさぎ・余白のメモを目視確認し、可逆WebP変換の画素一致を確認。
+プロンプト: edit only notebook markings; cover exact handwritten「謎解きノート」; keep clumsy rabbit and add small handwritten notes, circle/triangle/square, arrows, grid, question marks and crossed-out trials; preserve all room geometry, laptop, notebooks, light and pixel style.

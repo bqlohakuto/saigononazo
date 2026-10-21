@@ -68,7 +68,7 @@ test("No.137: the leftmost clue is exactly one natural Hana line", () => {
 
 test("No.137: revealed symbol stays visible and the one-time conditions are preserved", () => {
   assert.match(room2Source,/hint\.hidden=!room2State\.leftmostHintRevealed/);
-  assert.ok(room2Source.includes('開示された左端の記号：「${room2State.answer[0].symbol}」'));
+  assert.ok(room2Source.includes('左端の記号：${room2State.answer[0].symbol}'));
   assert.match(room2Source,/if\(isChallenge\|\|!room2ShouldRevealLeftmostHint/);
   assert.match(room2Source,/room2State\.leftmostHintRevealed=true/);
   assert.doesNotMatch(room2Source,/room2_leftmost_hint_\$\{run\}_02/);
@@ -76,5 +76,22 @@ test("No.137: revealed symbol stays visible and the one-time conditions are pres
     const manuscript=fs.readFileSync(path.join(__dirname,"..","scenario",chapter),"utf8");
     assert.ok(manuscript.includes("【校閲No.137・案2 採用】"));
     assert.ok(manuscript.includes("左端は「〇」だよ。色と残りは、君が考えてみてね"));
+  }
+});
+
+test("No.138: persistent leftmost hint is concise for all symbols, including after save restoration", () => {
+  const displaySource=room2Source.match(/hint\\.textContent=room2State\\.leftmostHintRevealed\\?(`[^`]+`):"";/);
+  assert.ok(displaySource, "Hint text rendering expression is retained");
+  for(const symbol of ["〇","△","□","×","＋"]){
+    const state={leftmostHintRevealed:true,answer:[{symbol}]};
+    const hint=vm.runInNewContext(displaySource[1],{room2State:state});
+    assert.equal(hint,`左端の記号：${symbol}`);
+  }
+  assert.match(room2Source,/hint\\.hidden=!room2State\\.leftmostHintRevealed/);
+  assert.ok(room2Source.includes("leftmostHintRevealed: false") || room2Source.includes("leftmostHintRevealed:false"));
+  for(const file of ["02_room2.md","FULL_SCENARIO.md"]){
+    const scenario=fs.readFileSync(path.join(__dirname,"..","scenario",file),"utf8");
+    assert.ok(scenario.includes("【校閲No.138・案2 採用】"));
+    assert.ok(scenario.includes("「左端の記号：〇」"));
   }
 });

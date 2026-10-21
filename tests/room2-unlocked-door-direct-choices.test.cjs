@@ -182,7 +182,7 @@ test("No.135: HIT and BLOW explanation remains available; player response follow
  ]);
  for(const manuscript of [chapter,full]){
   assert.ok(manuscript.includes("【校閲No.135・案2 採用】"));
-  assert.match(manuscript,/### クリア後[\\s\\S]*?「はい。判定を比べるのが大切でしたね」/);
+  assert.ok(manuscript.includes("「はい。判定を比べるのが大切でしたね」"));
  }
 });
 

@@ -329,8 +329,7 @@ function room2Evaluate(guess,answer){
 }
 function room2LeftmostHintLines(run,symbol){
  return [
-  {logId:`room2_leftmost_hint_${run}_01`,logType:"dialogue",speaker:"ハナ",text:"左端の記号だけ、教えるね。"},
-  {logId:`room2_leftmost_hint_${run}_02`,logType:"dialogue",speaker:"ハナ",text:`正解の左端にある記号は「${symbol}」だよ。色と残りの並びは、君が考えてみて。`}
+  {logId:`room2_leftmost_hint_${run}_01`,logType:"dialogue",speaker:"ハナ",text:`左端は「${symbol}」だよ。色と残りは、君が考えてみてね`}
  ];
 }
 function room2JudgeReactionLines(result,attempt,isChallenge){

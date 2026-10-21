@@ -430,6 +430,17 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .piano-keyboard-tools button{min-height:34px;padding:5px 12px;border:1px solid #a79b8b;border-radius:5px;background:#fffaf1;color:#392f2c;font:inherit;font-size:14px;cursor:pointer}
 #game .piano-keyboard-tools button:disabled{opacity:.55;cursor:default}
 #game .room1-piano-panel label{margin:10px 0 8px}
+/* Keep the confirmation action visible even when a short landscape viewport scrolls the piano. */
+#game .room1-piano-panel #playMelodyButton{
+  position:sticky;
+  bottom:0;
+  z-index:2;
+  display:block;
+  min-height:44px;
+  margin-top:6px;
+  box-shadow:0 -5px 16px rgba(25,23,20,.18);
+}
+
 @container game-viewport (max-height:520px){#game .piano-keyboard{height:84px;margin-top:6px}#game .room1-piano-panel{padding-top:40px!important}#game .room1-piano-panel label{margin:6px 0}}
 /* Room 3 companion uses the existing independent idle/expression sprite. */
 #game.hana-v2-full-ready .room3-hana::before{width:21.5cqw;height:33.6cqw;bottom:-5.25cqw}

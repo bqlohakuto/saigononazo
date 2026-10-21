@@ -3,7 +3,7 @@ name: Memory novel review
 on:
   workflow_dispatch:
   push:
-    branches: [main, 'codex/room01-memory-novel', 'codex/room02-memory-blazer']
+    branches: [main, 'codex/room01-memory-novel', 'codex/room02-memory-blazer', 'codex/memory-*']
     paths:
       - 'memory-visuals.js'
       - 'design-ui.js'
@@ -11,6 +11,8 @@ on:
       - 'index.html'
       - 'images/background/memories/**'
       - 'images/characters/memories/**'
+      - 'images/cg/memories/**'
+      - 'images/items/memories/**'
       - 'tests/memory*.cjs'
       - '.github/workflows/memory-novel-review.yml'
 
@@ -62,11 +64,22 @@ jobs:
           UI_SCREENSHOT_DIR: artifacts/memory-novel
           PUBLIC_BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://bqlohakuto.github.io/saigononazo/' || '' }}
         run: node tests/memory02-novel.browser.cjs
+      - name: Review recollections 2 through 7 and narration continuity
+        env:
+          UI_SCREENSHOT_DIR: artifacts/memory-novel/all-rooms
+          PUBLIC_BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://bqlohakuto.github.io/saigononazo/' || '' }}
+        run: node tests/memory-all-novel.browser.cjs
+      - name: Review Room 6 scale, travel and map in the integrated game
+        env:
+          PUBLIC_BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://bqlohakuto.github.io/saigononazo/' || '' }}
+        run: node tests/room6-visual.browser.cjs
       - name: Keep review screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: first-memory-desktop-and-landscape
-          path: artifacts/memory-novel/
+          path: |
+            artifacts/memory-novel/
+            artifacts/room06/
           if-no-files-found: warn
           retention-days: 14

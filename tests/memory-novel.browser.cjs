@@ -89,11 +89,11 @@ const specs=[
     await p.waitForFunction(()=>GameLog.list().some(e=>e.id.startsWith('room1_memory_bus_04_')),{},{timeout:20000});
     await p.locator('[data-design-auto]').click();
    }
-   await advanceTo('room1_memory_bus_08');await hasGirl(false);
+   await advanceTo('room1_memory_bus_08');await hasGirl(true);
    await advanceTo('room1_memory_bus_09');await hasGirl(true);
-   await advanceTo('room1_memory_bus_16');await hasGirl(false);
+   await advanceTo('room1_memory_bus_16');await hasGirl(true);
    await advanceTo('room1_memory_bus_19');await hasGirl(true);
-   await advanceTo('room1_memory_bus_21');await hasGirl(false);
+   await advanceTo('room1_memory_bus_21');await hasGirl(true);
    await advanceTo('room1_memory_bus_23');await hasGirl(true);
    await advanceTo('room1_memory_bus_25');await hasGirl(false);
    await advanceTo('room1_memory_bus_26');await hasGirl(false);
@@ -118,7 +118,7 @@ const specs=[
    await p.evaluate(()=>showSecondRoom({}));
    await p.waitForFunction(()=>!document.querySelector('.memory-scene')&&!document.getElementById('game').hasAttribute('data-memory-stage'));
    assert.deepEqual(errors,[],spec.name+' no runtime errors');assert.deepEqual(missing,[],spec.name+' no missing assets');
-   console.log('PASS '+spec.name+': piano, backgrounds, dialogue-only sprite, thoughts, LOG/hide, return, save reload, scene cleanup');
+   console.log('PASS '+spec.name+': piano, backgrounds, persistent sprite, thoughts, LOG/hide, return, save reload, scene cleanup');
   }finally{await browser.close()}
  }
 })().catch(e=>{console.error(e);process.exitCode=1});

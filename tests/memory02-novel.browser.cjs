@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, '..');
 const out = process.env.UI_SCREENSHOT_DIR || path.join(root, 'artifacts/memory-novel');
 const specs = [
   { name: 'desktop', engine: chromium, width: 1366, height: 768 },
-  { name: 'phone', engine: webkit, width: 852, height: 393, touch: true }
+  { name: 'phone', engine: process.env.MEMORY_MOBILE_ENGINE==='chromium'?chromium:webkit, width: 852, height: 393, touch: true }
 ];
 
 (async () => {
@@ -53,11 +53,12 @@ const specs = [
       async function inspect(id, girl, shot) {
         await advanceTo(id);
         const highSchool = id === 'room2_final_hanamaru' || Number(id.match(/memory_(\d+)/)?.[1]) >= 15;
-        assert.equal(await page.locator('.memory-background').getAttribute('src'), highSchool ? 'images/background/memories/room02/high-school-music-room.png' : 'images/background/memories/room01/music-room.png');
+        const paperwork=id==='room2_final_hanamaru'||Number(id.match(/memory_(\d+)/)?.[1])>=54;
+        assert.equal(await page.locator('.memory-background').getAttribute('src'), paperwork ? 'images/background/memories/room02/music-room-paperwork.png' : highSchool ? 'images/background/memories/room02/high-school-music-room.png' : 'images/background/memories/room01/music-room.png');
         await page.locator('.memory-background').evaluate(im => im.decode());
         assert.equal(await page.locator('.memory-girl:visible').count(), girl ? 1 : 0, id);
         if (girl) {
-          assert.equal(await page.locator('.memory-girl').getAttribute('src'), 'images/characters/memories/room02/girl-blazer.png');
+          assert.equal(await page.locator('.memory-girl').getAttribute('src'), paperwork?'images/characters/memories/room02/girl-blazer-seated.png':'images/characters/memories/room02/girl-blazer.png');
           await page.locator('.memory-girl').evaluate(im => im.decode());
         }
         assert.equal(await page.locator('.hana-portrait:visible').count(), 0);
@@ -65,7 +66,7 @@ const specs = [
       }
       await inspect('room2_memory_001', false, 'background');
       await inspect('room2_memory_004', true, 'blazer');
-      await inspect('room2_memory_012', false);
+      await inspect('room2_memory_012', true);
       await inspect('room2_memory_014', false);
       await inspect('room2_memory_015', false, 'high-school-background');
       await inspect('room2_memory_018', false);
@@ -75,8 +76,8 @@ const specs = [
       assert.equal(await page.locator('.memory-girl:visible').count(), 1);
       await page.screenshot({ path: path.join(out, `memory02-${spec.name}-without-dialogue.png`) });
       await page.locator('.dialogue-restore').click({ position: { x: 100, y: 100 } });
-      await inspect('room2_final_hanamaru', false, 'thought');
-      await inspect('room2_memory_096', false);
+      await inspect('room2_final_hanamaru', true, 'thought');
+      await inspect('room2_memory_096', true);
       await page.evaluate(() => {
         for (let i = 0; i < 500 && document.querySelector('#roomNextButton'); i++) Dialogue.advance();
       });
@@ -85,7 +86,7 @@ const specs = [
       assert.equal(await page.evaluate(() => room2State.unlocked), true);
       assert.deepEqual(errors, [], spec.name + ' runtime errors');
       assert.deepEqual(missing, [], spec.name + ' missing assets');
-      console.log('PASS ' + spec.name + ': Room 2 background, blazer, dialogue-only sprite, flower line, hide/restore and return');
+      console.log('PASS ' + spec.name + ': Room 2 background, blazer, persistent sprite, flower line, hide/restore and return');
     } finally {
       await browser.close();
     }

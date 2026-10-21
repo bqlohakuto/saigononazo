@@ -41,13 +41,15 @@ test('Text pagination preserves the source memory identifier', () => {
   }).reveal, 'expressive');
 });
 
-test('Room 1 changes background at the walk home and displays her only in their spoken conversation', () => {
+test('Room 1 changes background at the walk home and keeps her present through narration and thoughts', () => {
   const data = {};
   vm.runInNewContext(fs.readFileSync(path.resolve(__dirname, '../scenario.js'), 'utf8') + '\nthis.first = firstRoomScenario;', data);
   for (const line of data.first.memory) {
     const visual = visuals.get('room01', line);
     assert.ok(visual, line.logId);
-    if (line.logType !== 'dialogue' || line.thought) assert.equal(visual.sprite, undefined, line.logId);
+    const b=line.logId.match(/_(music_room|bus)_(\d+)/);
+    const present=b[1]==='bus'?Number(b[2])>=2&&Number(b[2])<=24:Number(b[2])>=16;
+    assert.equal(!!visual.sprite,present,line.logId);
     if (visual.sprite) assert.ok(fs.existsSync(path.resolve(__dirname, '..', visual.sprite)));
     assert.ok(fs.existsSync(path.resolve(__dirname, '..', visual.background)));
   }
@@ -67,32 +69,48 @@ test('Room 1 changes background at the walk home and displays her only in their 
   for (const line of data.first.afterMemory) assert.equal(visuals.get('room01', line), null, line.logId);
 });
 
-test('Paginated Room 1 dialogue retains its location and hides the sprite on thoughts', () => {
+test('Paginated Room 1 dialogue retains its location and keeps the sprite on thoughts', () => {
   const original = { logId: 'room1_memory_bus_02_01', logType: 'dialogue', speaker: '先輩' };
   assert.equal(visuals.get('room01', { ...original, logId: 'page', logSource: original }).location, 'walk-home');
   assert.ok(visuals.get('room01', original).sprite);
-  assert.equal(visuals.get('room01', { ...original, speaker: '主人公', thought: true }).sprite, undefined);
+  assert.equal(visuals.get('room01', { ...original, speaker: '主人公', thought: true }).sprite,visuals.get('room01',original).sprite);
 });
 
-test('Every Room 2 recollection line has its school-specific music room, with the blazer only during their dialogue', () => {
-  const data = {};
-  vm.runInNewContext(fs.readFileSync(path.resolve(__dirname, '../room2-flashback.js'), 'utf8') + '\nthis.lines = room2FlashbackContent;', data);
-  for (const source of data.lines) {
-    const line = { ...source, logType: source.thought || source.speaker === 'ト書き' ? 'narration' : 'dialogue' };
-    const visual = visuals.get('room02', line);
-    assert.ok(visual, source.logId);
-    const highSchool = source.logId === 'room2_final_hanamaru' || Number(source.logId.match(/memory_(\d+)/)?.[1]) >= 15;
-    assert.equal(visual.background, highSchool ? 'images/background/memories/room02/high-school-music-room.png' : 'images/background/memories/room01/music-room.png', source.logId);
-    assert.ok(fs.existsSync(path.resolve(__dirname, '..', visual.background))); 
-    const talking = !source.thought && ['先輩', '主人公'].includes(source.speaker);
-    assert.equal(!!visual.sprite, talking, source.logId);
-    if (talking) {
-      assert.equal(visual.sprite, 'images/characters/memories/room02/girl-blazer.png');
-      assert.ok(fs.existsSync(path.resolve(__dirname, '..', visual.sprite)));
-    }
+test('Room 2 retains the heroine through thoughts, and sits her at the paperwork desk', () => {
+  const expected=[['room2_memory_001',false,'music-room'],['room2_memory_004',true,'music-room'],['room2_memory_012',true,'music-room'],['room2_memory_014',false,'music-room'],['room2_memory_015',false,'high-school-music-room'],['room2_memory_018',false,'high-school-music-room'],['room2_memory_021',true,'high-school-music-room'],['room2_memory_053_flower_01',true,'high-school-music-room'],['room2_memory_070',true,'music-room-paperwork'],['room2_final_hanamaru',true,'music-room-paperwork']];
+  for(const [logId,present,bg] of expected){
+    const v=visuals.get('room02',{logId,logType:'narration',thought:true});
+    assert.equal(!!v.sprite,present,logId);
+    assert.ok(v.background.endsWith(bg+'.png'),logId);
   }
-  const flower = data.lines.find(l => l.logId === 'room2_final_hanamaru');
-  assert.ok(flower);
-  assert.equal(visuals.get('room02', { ...flower, logId: 'page', logSource: flower }).location, 'high-school-music-room');
-  assert.equal(visuals.get('room02', { ...flower, logId: flower.logId + '_01' }).sprite, undefined);
+});
+
+test('Every authored Room 2-7 recollection ID and its paginated continuation resolves to existing assets',()=>{
+  const scenes=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../docs/MEMORY_SCENES_IMPLEMENTATION.json')));
+  const ids=new Set();
+  for(const scene of scenes)for(const logId of scene.ids){
+    assert.ok(!ids.has(logId),logId);ids.add(logId);
+    const v=visuals.get(scene.room,{logId});
+    assert.ok(v,logId);
+    for(const file of [v.background,v.sprite].filter(Boolean))assert.ok(fs.existsSync(path.resolve(__dirname,'..',file)),file);
+    assert.equal(visuals.get(scene.room,{logId:logId+'_01_02'}).background,v.background,logId);
+    assert.equal(visuals.get(scene.room,{logId:'page',logSource:{logId}}).sprite,v.sprite,logId);
+  }
+  assert.equal(ids.size,627);
+});
+
+test('Presence follows actual scene boundaries rather than narration or speaker classification',()=>{
+  const cases=[['room03','room3_flashback_05',false],['room03','room3_flashback_35',false],['room03','room3_flashback_39',true],['room04','r4f49',true],['room04','r4f51',true],['room05','r5m001',false],['room05','r5m004',true],['room05','r5m014',true],['room05','r5m092',true],['room05','r5m225',true],['room06','r6_memory_full_003',false],['room06','r6_memory_full_007',true],['room06','r6_memory_full_030',true],['room06','r6_memory_full_058',true],['room06','r6_memory_06',true],['room07','r7_mem_01',false],['room07','r7_mem_14',true]];
+  for(const [room,logId,present] of cases){
+    const narration=visuals.get(room,{logId,logType:'narration',thought:true});
+    const dialogue=visuals.get(room,{logId,logType:'dialogue',speaker:'主人公'});
+    assert.equal(!!narration.sprite,present,logId);
+    assert.equal(narration.sprite,dialogue.sprite,logId);
+  }
+  assert.ok(visuals.get('room03',{logId:'room3_final_ringtone'}));
+  assert.ok(visuals.get('room05',{logId:'r5_final_humming'}));
+  assert.ok(visuals.get('room06',{logId:'r6_final_signal'}));
+  assert.equal(visuals.get('room07',{logId:'r7_mem_35'}).effect,'red');
+  assert.equal(visuals.get('room07',{logId:'r7_mem_37_01'}).effect,'red');
+  assert.equal(visuals.get('room06',{logId:'r6_after_001'}),null);
 });

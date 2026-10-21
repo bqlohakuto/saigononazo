@@ -1023,3 +1023,26 @@ body{background:#0b1322!important;display:grid;place-items:center}
  #portrait-cover h2{margin-bottom:12px;font-size:24px;font-weight:normal}
  #portrait-cover p{font-size:16px;line-height:1.7}
 }
+/* Authored recollections: seated poses stay behind their real furniture. */
+#game .memory-foreground{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;filter:saturate(.72) sepia(.12) contrast(.94);clip-path:inset(63% 0 0 0)}
+#game .memory-foreground[hidden],#game .memory-prop[hidden]{display:none!important}
+#game .memory-scene[data-layout=dining] .memory-girl,#game .memory-scene[data-layout=desk] .memory-girl{left:50%;transform:translateX(-50%);top:11%;bottom:auto;height:94%;clip-path:inset(0 0 37% 0)}
+#game .memory-scene[data-layout=desk] .memory-girl{top:7%;height:90%;clip-path:inset(0 0 24% 0)}
+#game .memory-scene[data-layout=desk] .memory-foreground{clip-path:inset(70.7% 0 0 0)}
+#game .memory-scene[data-layout=sofa] .memory-girl{left:76%;transform:translateX(-50%);top:21%;bottom:auto;height:77%;clip-path:none}
+#game .memory-scene[data-layout=sofa] .memory-foreground{clip-path:polygon(50.5% 65%,54% 63%,89% 76%,92% 80%,92% 100%,50.5% 100%)}
+#game .memory-scene[data-layout=cooking] .memory-girl{left:48%;transform:translateX(-50%);top:2%;bottom:auto;height:104%;clip-path:none}
+#game .memory-scene[data-layout=cooking] .memory-foreground{clip-path:polygon(47.6% 53.5%,100% 53.5%,100% 100%,47.6% 100%)}
+#game .memory-girl{z-index:1}
+#game .memory-prop{position:absolute;z-index:3;left:43%;top:70%;width:16%;height:15%;pointer-events:none}
+#game .memory-prop[data-kind=rabbit]{background:#f4eddf;transform:rotate(-5deg);box-shadow:1px 2px 4px #0003}
+#game .memory-prop-image{width:100%;height:100%;object-fit:contain}
+#game .memory-prop[data-kind=cards]{display:flex;left:34%;width:33%;gap:3px}
+#game .memory-prop[data-kind=cards] img{width:12%;height:100%;object-fit:contain;background:#e8dfcb}
+#game .memory-notebook{width:100%;height:100%;display:flex;background:#f5eddf;border:2px solid #7b6a50;transform:rotate(-5deg)}
+#game .memory-notebook i{width:50%;border-right:1px solid #b3a58c;background:repeating-linear-gradient(transparent 0 15%,#a79b8622 16% 17%)}
+#game .memory-appliance-box{position:absolute;left:170%;bottom:125%;width:75%;height:130%;background:#d9c6a1;border:1px solid #9b825a}
+#game .memory-appliance-box i{position:absolute;left:-40%;top:50%;width:70%;height:70%;background:#f5eddf;border:1px solid #b3a58c}
+#game .memory-effect{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0}
+#game .memory-scene[data-effect=white] .memory-effect{opacity:.6;background:#fff}
+#game .memory-scene[data-effect=red] .memory-effect{opacity:.96;background:#831e22}

@@ -16,7 +16,7 @@ function room2RandomAnswer(){
 }
 function showSecondRoom(savedState){
  Dialogue.stop();firstRoomState=undefined;currentScene="room02";
- room2State={doorInspected:false,deskInspected:false,hanaHints:0,answer:room2RandomAnswer(),guess:[],attempts:0,run:1,history:[],unlocked:false,flashbackSeen:false,challengeActive:false,challengeCleared:false,challengeBest:null,highlightEnabled:true,leftmostHintRevealed:false,...savedState};
+ room2State={doorInspected:false,deskInspected:false,hanaHints:0,answer:room2RandomAnswer(),guess:[],attempts:0,run:1,history:[],unlocked:false,flashbackSeen:false,challengeActive:false,challengeCleared:false,challengeBest:null,highlightEnabled:true,leftmostHintRevealed:false,secretHerbFound:false,...savedState};
  if(!Array.isArray(room2State.answer)||room2State.answer.length!==5||!Array.isArray(room2State.guess))room2State={...room2State,answer:room2RandomAnswer(),guess:[]};
  if(!Array.isArray(room2State.history))room2State.history=[];
  room2State.leftmostHintRevealed=room2State.leftmostHintRevealed===true;
@@ -27,6 +27,7 @@ function showSecondRoom(savedState){
   <header class="room-header"><p class="room-label">第二の部屋</p><p class="room-color-status">${room2State.unlocked?"色を取り戻した部屋":"淡い記憶の部屋"}</p></header>
   <div class="room-stage-wrap"><section class="room-stage room2-stage" aria-label="第二の部屋">
    <img class="room2-background-art" src="images/background/room02/room02_bg_nodesk.png?v=20261013-room02-clean-alpha-01" alt="" aria-hidden="true" draggable="false" decoding="async">
+   <button class="room2-secret-dresser" id="r2Dresser" type="button" aria-label="左のタンスを調べる"></button>
    <button class="object room2-object room2-door" id="r2Door"><span>正面の扉</span></button>
    <button class="object room2-object room2-table" id="r2Desk"><span>机</span></button>
    <button class="object room2-object room2-blocks" id="r2Blocks" ${room2State.deskInspected?"":"disabled"}><span>${room2State.challengeActive?"チャレンジ再開":"ブロックと記録枠"}</span></button>
@@ -35,6 +36,7 @@ function showSecondRoom(savedState){
   </section></div>
   <div class="room-navigation" aria-hidden="true"></div><p class="explore-status" id="exploreStatus">気になる場所をクリックしてください。</p>
  </main>`;
+ document.getElementById("r2Dresser").addEventListener("click",()=>inspectSecondRoomDresser());
  document.getElementById("r2Door").addEventListener("click",()=>inspectSecondRoomDoor());
  document.getElementById("r2Desk").addEventListener("click",()=>inspectSecondRoomDesk());
  document.getElementById("r2Blocks").addEventListener("click",()=>room2State.unlocked&&!room2State.challengeActive?showRoom2ChallengeMenu():showSecondRoomPuzzle());
@@ -74,6 +76,23 @@ function inspectSecondRoomDoor(){
   {logId:"room2_door_02",logType:"investigation",speaker:"主人公",text:"やっぱり開かないか"},
   {logId:"room2_door_03",logType:"investigation",speaker:"ト書き",text:"鍵がかかっているようだ。扉には文字が刻まれている。『正しい組み合わせを導け』"},
   {logId:"room2_door_04",logType:"dialogue",speaker:"主人公",text:"正しい組み合わせ……？　どういう意味だろう"}
+ ]);
+}
+// Hidden exploration point: it does not use the shared .object marker style.
+function inspectSecondRoomDresser(){
+ if(room2State.secretHerbFound){
+  showRoomDialog([
+   {logId:"room2_dresser_repeat_01",logType:"investigation",speaker:"ト書き",text:"タンスを調べた"},
+   {logId:"room2_dresser_repeat_02",logType:"investigation",speaker:"ト書き",text:"もう何も入っていない。"}
+  ]);
+  return;
+ }
+ room2State.secretHerbFound=true;
+ saveGame();
+ showRoomDialog([
+  {logId:"room2_dresser_01",logType:"investigation",speaker:"ト書き",text:"タンスを調べた"},
+  {logId:"room2_dresser_02",logType:"investigation",speaker:"ト書き",text:"やくそうを手に入れた"},
+  {logId:"room2_dresser_03",logType:"narration",speaker:"主人公",thought:true,text:"これは一体？？"}
  ]);
 }
 function inspectSecondRoomDesk(){

@@ -1057,3 +1057,18 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .memory-effect{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0}
 #game .memory-scene[data-effect=white] .memory-effect{opacity:.6;background:#fff}
 #game .memory-scene[data-effect=red] .memory-effect{opacity:.96;background:#831e22}
+
+/* Room 2 secret: a furniture hit area without the ordinary investigation ring.
+   It remains discoverable by tapping the left dresser, even when highlight is enabled. */
+#game .room-two .room2-secret-dresser{
+ position:absolute;
+ left:5.5%;top:35%;width:15%;height:35%;
+ z-index:7;
+ margin:0;padding:0!important;border:0!important;
+ background:transparent!important;box-shadow:none!important;
+ opacity:1;cursor:pointer;appearance:none;
+}
+#game .room-two .room2-secret-dresser:is(:hover,:active){background:transparent!important;box-shadow:none!important}
+#game .room-two .room2-secret-dresser::before,
+#game .room-two .room2-secret-dresser::after{content:none!important;display:none!important}
+#game .room-two .room2-secret-dresser:focus-visible{outline:2px solid #c8a65c;outline-offset:-2px}

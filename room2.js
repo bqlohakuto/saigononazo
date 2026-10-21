@@ -366,8 +366,8 @@ function showSecondRoomHana(){
  window.HanaChoiceUI?.ensureStyle?.();
  const topics=[
   {id:"room",label:"この部屋について",lines:room2State.unlocked?[
-   {logId:"room2_hana_room_clear_01",logType:"dialogue",speaker:"ハナ",text:"この部屋の仕掛け、解けたね！"},
-   {logId:"room2_hana_room_clear_02",logType:"dialogue",speaker:"主人公",text:"はい。次へ進めそうです"}
+   {logId:"room2_hana_room_clear_01",logType:"dialogue",speaker:"ハナ",text:"この部屋、少し雰囲気が変わったね"},
+   {logId:"room2_hana_room_clear_02",logType:"dialogue",speaker:"主人公",text:"……はい。さっきまでとは違って見えます"}
   ]:[
    {logId:"room2_hana_room_01",logType:"dialogue",speaker:"ハナ",text:"この部屋、何か仕掛けがありそうだね"},
    {logId:"room2_hana_room_02",logType:"dialogue",speaker:"主人公",text:"気になるところから調べてみます"}

@@ -20,3 +20,7 @@ room8-flow.test.cjs および late-game-flow.test.cjs 成功（保存復帰・�
 ## ユーザー修正：寝室の机
 退院後はリビングではなく寝室の机にフォーカスする指示に従い、epilogue-bedroom.webpへ差し替え。パソコンとノートを主役とし、ベッドは背景の端のみ。内蔵image_genで既存画像を編集。従来のリビング版は使用しない。
 プロンプト: Bedroom, close focus on personal writing desk, laptop and used puzzle notebook fully visible above dialogue area, peripheral bed edge, preserve pixel-art style, no living-room furniture or people.
+
+## 追加修正：壁向き・ノート2冊
+机の奥辺を壁に接する構図にし、開いたノートと閉じたノートを1冊ずつ配置。epilogue-bedroom-v2.webpへ差し替え。パソコンと2冊のノートは会話欄より上に収めた。内蔵image_genで寝室版を編集し、目視確認済み。
+プロンプト: desk rear edge flush against wall, seated first-person facing wall; exactly one open puzzle notebook and one closed notebook, preserve laptop and pixel-art style, all props visible above dialogue overlay.

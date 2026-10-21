@@ -16,3 +16,7 @@
 
 ## 検証
 room8-flow.test.cjs および late-game-flow.test.cjs 成功（保存復帰・最終謎・扉・エピローグ・END）。画像単体を目視確認。公開反映後のエピローグ画面確認は未完了。
+
+## ユーザー修正：寝室の机
+退院後はリビングではなく寝室の机にフォーカスする指示に従い、epilogue-bedroom.webpへ差し替え。パソコンとノートを主役とし、ベッドは背景の端のみ。内蔵image_genで既存画像を編集。従来のリビング版は使用しない。
+プロンプト: Bedroom, close focus on personal writing desk, laptop and used puzzle notebook fully visible above dialogue area, peripheral bed edge, preserve pixel-art style, no living-room furniture or people.

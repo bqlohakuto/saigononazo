@@ -237,7 +237,7 @@ function showSecondRoomPuzzle(){
  const clearReactionTimer=()=>{if(reactionTimer!==null){window.clearTimeout(reactionTimer);reactionTimer=null}};
  const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".device-close"),clearReactionTimer);
  if(isChallenge)overlay.querySelector(".room2-abandon").addEventListener("click",()=>showRoom2AbandonConfirm(overlay,close,clearReactionTimer));
- overlay.querySelector(".room2-clear").onclick=()=>{room2State.guess=[];selectedSlot=null;feedback.style.whiteSpace="pre-line";feedback.textContent="配置をクリアしました。\n5つの枠に駒を並べてください。";saveGame();render()};
+ overlay.querySelector(".room2-clear").onclick=()=>{room2State.guess=[];selectedSlot=null;feedback.textContent="";saveGame();render()};
  let reactionDone=null;
  const endReaction=()=>{
   clearReactionTimer();reactionPanel.hidden=true;

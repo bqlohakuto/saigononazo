@@ -186,6 +186,52 @@ test("No.135: HIT and BLOW explanation remains available; player response follow
  }
 });
 
+test("No.136: revised thinking hint appears only after a non-correct judgment",()=>{
+ function askHint({unlocked=false,history=[]}={}){
+  const buttons=[];
+  let dialogue=null;
+  const list={appendChild(button){buttons.push(button)},querySelector(){return buttons[0]},querySelectorAll(){return buttons}};
+  const overlay={querySelector(selector){return selector===".hana-choice-list"?list:null}};
+  const state={unlocked,deskInspected:true,history,attempts:history.length,hanaHints:2};
+  let saves=0;
+  const sandbox={
+   room2State:state,
+   game:{querySelector(){return null},appendChild(){}},
+   window:{HanaChoiceUI:{ensureStyle(){}}},
+   document:{createElement(tag){
+    if(tag==="div")return overlay;
+    return {type:"",className:"",dataset:{},textContent:"",addEventListener(event,fn){if(event==="click")this.press=fn}};
+   }},
+   activateDeviceModal(){return ()=>{}},
+   showRoomDialog(lines,done){
+    dialogue=Array.from(lines,line=>({logId:line.logId,speaker:line.speaker,text:line.text}));
+    if(done)done();
+   },
+   saveGame(){saves++}
+  };
+  vm.runInNewContext(code+";this.__hana=showSecondRoomHana;",sandbox);
+  sandbox.__hana();
+  const button=buttons.find(item=>item.textContent==="考え方のヒント");
+  if(button)button.press();
+  return {available:!!button,dialogue,saves,hints:state.hanaHints};
+ }
+ const notYet=askHint(),shown=askHint({history:[{hit:1,blow:2}]}),cleared=askHint({unlocked:true,history:[{hit:1,blow:2}]});
+ assert.equal(notYet.available,false,"Do not offer hint before any wrong answer");
+ assert.equal(cleared.available,false,"Do not offer thinking hint after clearing");
+ assert.equal(shown.available,true,"Offer after wrong answer");
+ assert.deepEqual(shown.dialogue,[{
+  logId:"room2_hana_hint_1_2",speaker:"ハナ",
+  text:"一度にたくさん変えると、変化がわかりにくいよ。少しずつ動かして、前の判定と比べてみよう"
+ }]);
+ assert.equal(shown.saves,1);
+ assert.equal(shown.hints,3);
+ for(const manuscript of [chapter,full]){
+  assert.ok(manuscript.includes("【校閲No.136・案2 採用】"));
+  assert.ok(manuscript.includes("「一度にたくさん変えると、変化がわかりにくいよ。少しずつ動かして、前の判定と比べてみよう」"));
+ }
+ assert.doesNotMatch(code,/どれが合っていたかわからなくなっちゃうよ/);
+});
+
 test("No.124: manuscript, combined manuscript and runtime agree on the adopted behavior",()=>{
  for(const text of [chapter,full]){
   assert.match(text,/【校閲No\.124・案1 採用】/);

@@ -44,7 +44,7 @@ function puzzle(){
   document:{createElement(){return overlay}},
   activateDeviceModal(){return ()=>closed++},
   saveGame(){saved++},
-  playThirdRoomMemory(){memories++},
+  showRoomDialog(lines,done){memories++;done?.()},
   showRoomNotice(){throw new Error("Puzzle should not gate with complete prerequisites")}
  };
  vm.runInNewContext(source+";this.__puzzle=showThirdRoomPuzzle;",sandbox);

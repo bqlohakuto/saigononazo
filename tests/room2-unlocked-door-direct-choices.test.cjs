@@ -135,7 +135,7 @@ test("No.134: cleared Hana dialogue reflects room change while preclear lines st
   {id:"room2_hana_room_02",speaker:"主人公",text:"気になるところから調べてみます"}
  ]);
  for(const manuscript of [chapter,full]){
-  assert.match(manuscript,/【校閲No\\.134・案2 採用】/);
+  assert.match(manuscript,/【校閲No\.134・案2 採用】/);
   assert.match(manuscript,/「この部屋、少し雰囲気が変わったね」/);
   assert.match(manuscript,/「……はい。さっきまでとは違って見えます」/);
  }

@@ -233,8 +233,9 @@ test("No.136: revised thinking hint appears only after a non-correct judgment",(
 });
 
 test("No.139: clear removes only current blocks with no message and preserves history",()=>{
- const match=code.match(/overlay\\.querySelector\\("\\.room2-clear"\\)\\.onclick=\\(\\)=>\\{([^\\n]+)\\};/);
- assert.ok(match,"The in-game clear handler must remain available");
+ const clearLine=code.split("\n").find(line=>line.includes('overlay.querySelector(".room2-clear").onclick=()=>{'));
+ assert.ok(clearLine,"The in-game clear handler must remain available");
+ const clearBody=clearLine.slice(clearLine.indexOf("=>{")+3,clearLine.lastIndexOf("};"));
  for(const challengeActive of [false,true]){
   const originalHistory=[{guess:[{symbol:"〇",color:"赤"}],hit:1,blow:0}];
   const previousAnswer=[{symbol:"〇",color:"赤"}];
@@ -250,7 +251,7 @@ test("No.139: clear removes only current blocks with no message and preserves hi
    room2State:state,feedback,selectedSlot:1,
    saveGame(){calls.saves++},render(){calls.renders++}
   };
-  vm.runInNewContext("(()=>{"+match[1]+"})()",sandbox);
+  vm.runInNewContext("(()=>{"+clearBody+"})()",sandbox);
   assert.equal(state.guess.length,0,"All placed blocks should be removed");
   assert.equal(sandbox.selectedSlot,null);
   assert.equal(feedback.textContent,"","No clear confirmation or stale feedback should remain");

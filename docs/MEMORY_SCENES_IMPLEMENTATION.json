@@ -253,7 +253,7 @@
   {
     "key": "r3hands",
     "room": "room03",
-    "background": "images/cg/memories/room03/right-hand-warmth.png",
+    "background": "images/cg/memories/room03/right-hand-warmth-v4.png",
     "sprite": null,
     "layout": "cg",
     "prop": null,

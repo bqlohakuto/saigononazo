@@ -237,7 +237,7 @@ function showSecondRoomPuzzle(){
  const clearReactionTimer=()=>{if(reactionTimer!==null){window.clearTimeout(reactionTimer);reactionTimer=null}};
  const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".device-close"),clearReactionTimer);
  if(isChallenge)overlay.querySelector(".room2-abandon").addEventListener("click",()=>showRoom2AbandonConfirm(overlay,close,clearReactionTimer));
- overlay.querySelector(".room2-clear").onclick=()=>{room2State.guess=[];selectedSlot=null;feedback.textContent="";saveGame();render()};
+ overlay.querySelector(".room2-clear").onclick=()=>{if(!room2State.guess.length)return;room2State.guess=[];selectedSlot=null;feedback.textContent="";saveGame();render()};
  let reactionDone=null;
  const endReaction=()=>{
   clearReactionTimer();reactionPanel.hidden=true;
@@ -282,7 +282,8 @@ function showSecondRoomPuzzle(){
    overlay.querySelector(".room2-attempt-left").textContent=`残り${count.remaining}回`;
    overlay.querySelectorAll(".room2-attempt-step").forEach((step,index)=>step.classList.toggle("is-used",index<count.used));
   }
-  overlay.querySelector(".room2-submit").disabled=room2State.guess.length!==5||(isChallenge&&room2State.attempts>=8);
+  overlay.querySelector(".room2-clear").disabled=room2State.guess.length===0;
+   overlay.querySelector(".room2-submit").disabled=room2State.guess.length!==5||(isChallenge&&room2State.attempts>=8);
   hintRequest.hidden=isChallenge||!room2ShouldRevealLeftmostHint(room2State.history,room2State.attempts)||room2State.leftmostHintRevealed||room2State.unlocked;
   hint.hidden=!room2State.leftmostHintRevealed;
   hint.textContent=room2State.leftmostHintRevealed?`左端の記号：${room2State.answer[0].symbol}`:"";

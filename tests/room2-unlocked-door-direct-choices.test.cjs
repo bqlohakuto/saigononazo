@@ -269,6 +269,40 @@ test("No.139: clear removes only current blocks with no message and preserves hi
  }
 });
 
+test("No.140: repeated answer displays only a concise notice and consumes no attempt",()=>{
+ const start=code.indexOf("if(room2HasSubmittedGuess(room2State.guess,room2State.history)){");
+ const end=code.indexOf("const result=room2Evaluate(",start);
+ assert.ok(start>=0&&end>start,"Repeated-answer guard is present before evaluation");
+ const guard=code.slice(start,end);
+ const guess=[
+  {symbol:"〇",color:"赤"},
+  {symbol:"△",color:"青"},
+  {symbol:"□",color:"赤"},
+  {symbol:"×",color:"青"},
+  {symbol:"＋",color:"赤"}
+ ];
+ const state={guess,history:[{guess:guess.map(x=>({...x})),hit:1,blow:2}],attempts:4,unlocked:false};
+ const feedback={textContent:"以前の案内"};
+ const sandbox={room2State:state,feedback};
+ vm.runInNewContext(code+";this.__guard=()=>{"+guard+"return 'fresh';};",sandbox);
+ const result=sandbox.__guard();
+ assert.equal(result,undefined,"Duplicate submission exits without evaluation");
+ assert.equal(feedback.textContent,"この配置は判定済みです。");
+ assert.equal(state.attempts,4,"Duplicate answer does not consume an attempt");
+ assert.equal(state.history.length,1,"Duplicate answer does not append history");
+ assert.equal(state.guess,guess,"Blocks do not move");
+ assert.ok(end>start,"Only fresh guesses reach room2Evaluate");
+ feedback.textContent="";
+ state.guess=guess.map((x,i)=>i===0?{...x,color:"青"}:x);
+ assert.equal(sandbox.__guard(),"fresh","Changed arrangement may be evaluated");
+ assert.equal(feedback.textContent,"","No duplicate warning for fresh guesses");
+ assert.doesNotMatch(code,/ブロックを動かしてから解答してください/);
+ for(const text of [chapter,full]){
+  assert.ok(text.includes("【校閲No.140・案2 採用】"));
+  assert.ok(text.includes("「この配置は判定済みです。」"));
+ }
+});
+
 test("No.124: manuscript, combined manuscript and runtime agree on the adopted behavior",()=>{
  for(const text of [chapter,full]){
   assert.match(text,/【校閲No\.124・案1 採用】/);

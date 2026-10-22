@@ -8,6 +8,7 @@ const expectedAssets = [
   "style.css",
   "viewport-scaler.js",
   "design-ui.css",
+  "puzzle-explanations.css",
   "room5.css",
   "room6.css",
   "late-game.css",
@@ -36,7 +37,8 @@ const expectedAssets = [
   "gameplay-ui.js",
   "hana-identity-ui.js",
   "memory-visuals.js",
-  "design-ui.js"
+  "design-ui.js",
+  "puzzle-explanations.js"
 ];
 
 function localAssetReferences() {
@@ -85,7 +87,8 @@ test("script load order remains intentional", () => {
     "gameplay-ui.js",
     "hana-identity-ui.js",
   "memory-visuals.js",
-  "design-ui.js"
+  "design-ui.js",
+  "puzzle-explanations.js"
   ]);
 });
 

@@ -55,3 +55,11 @@
   .pguide-top h1{font-size:18px}.pguide-top button{min-height:30px}
   .pguide-nav button{min-height:36px}.pguide-article{padding-top:8px}
 }
+
+/* Room 1 mail chronology, kept readable on small landscape screens. */
+.pguide-breakdown{width:100%;border-collapse:collapse;background:#fff9ed;font-size:13px;line-height:1.5}
+.pguide-breakdown th,.pguide-breakdown td{padding:6px 9px;border-bottom:1px solid #dbcab1;text-align:left}
+.pguide-breakdown th{background:#e8d8c1;font-weight:normal;color:#604b37}
+.pguide-breakdown td:first-child{white-space:nowrap;color:#876545}
+.pguide-breakdown td:last-child{width:3em;text-align:center;font-size:15px;color:#805033}
+@container game-viewport (max-width:780px){.pguide-breakdown{font-size:11px}.pguide-breakdown th,.pguide-breakdown td{padding:4px 5px}.pguide-breakdown td:last-child{font-size:12px}}

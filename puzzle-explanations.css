@@ -63,3 +63,8 @@
 .pguide-breakdown td:first-child{white-space:nowrap;color:#876545}
 .pguide-breakdown td:last-child{width:3em;text-align:center;font-size:15px;color:#805033}
 @container game-viewport (max-width:780px){.pguide-breakdown{font-size:11px}.pguide-breakdown th,.pguide-breakdown td{padding:4px 5px}.pguide-breakdown td:last-child{font-size:12px}}
+
+/* Author notes: a separate, readable notebook margin after the solution. */
+.pguide-author-comment{display:grid;gap:11px;padding:13px 15px;border-left:3px solid #ad8e79;background:#fff8ed}
+.pguide-section .pguide-author-comment p{margin:0;line-height:1.85}
+@container game-viewport (max-width:780px){.pguide-author-comment{gap:7px;padding:9px 11px}}

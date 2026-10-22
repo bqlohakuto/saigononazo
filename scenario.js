@@ -126,16 +126,16 @@ const firstRoomScenario = {
             { logId: "room1_hana_hint1_03", logType: "dialogue", speaker: "ハナ", text: "まずは、それぞれが何を指しているか考えてみよっか" }
         ],
         [
-            { logId: "room1_hana_hint2_01", logType: "dialogue", speaker: "ハナ", text: "見つけたものを、別々に見るだけじゃなくて、つなげて考えてみるのはどう？" },
-            { logId: "room1_hana_hint2_02", logType: "dialogue", speaker: "ハナ", text: "書かれていた言葉を、もう一度読んでみて" }
+            { logId: "room1_hana_hint2_01", logType: "dialogue", speaker: "ハナ", text: "ポスターの曲名と、スマートフォンのメールを見比べてみよう。" },
+            { logId: "room1_hana_hint2_02", logType: "dialogue", speaker: "ハナ", text: "メールの中に、ある曲から音を連想できる言葉がないかな？" }
         ],
         [
             { logId: "room1_hana_hint3_01", logType: "dialogue", speaker: "ハナ", text: "メールって、受信と送信に分かれているよね" },
-            { logId: "room1_hana_hint3_02", logType: "dialogue", speaker: "ハナ", text: "でも、『会話』って一方通行じゃないよね？" }
+            { logId: "room1_hana_hint3_02", logType: "dialogue", speaker: "ハナ", text: "両方のメールを、時刻の古い順につなげると、一つの会話になるよ。" }
         ],
         [
             { logId: "room1_hana_hint4_01", logType: "dialogue", speaker: "ハナ", text: "曲名を見て、音階を思い浮かべるものはなかった？" },
-            { logId: "room1_hana_hint4_02", logType: "dialogue", speaker: "ハナ", text: "その曲を頭の中で歌いながら、メールを読み返してみて" }
+            { logId: "room1_hana_hint4_02", logType: "dialogue", speaker: "ハナ", text: "『ドレミのうた』の連想を使って、一通につき一つの音を探してみて。会話の順に八つの音を並べて、ピアノで奏でよう。" }
         ]
     ],
     // ヒント4を読み終えたプレイヤーだけが任意で確認できる音階の連想例。正解の8音の順番は示さない。
@@ -296,3 +296,4 @@ const firstRoomScenario = {
         { logId: "room1_keep_exploring_01", logType: "narration", speaker: "主人公", thought: true, text: "まだ何か調べられるかもしれない" }
     ]
 };
+

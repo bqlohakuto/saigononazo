@@ -261,8 +261,16 @@ function inspectThirdRoomTrumpet(){
 }
 function showThirdRoomHana(){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;
- // Keep her hints restrained. This is an in-world conversation, never a
- // production placeholder, regardless of how far the player has explored.
+ if(!room3State.bedInspected){inspectThirdRoomBed();return;}
+ if(!room3State.unlocked){
+  const id=!room3State.chatRead||!room3State.shelfInspected?'r3_search':room3State.morseSolved?'r3_board':'r3_faces';
+  const hints={
+   r3_search:['扉の言葉と、机の上のスマートフォンを見比べてみよう。','顔文字を読む助けになるものが、棚にないかな？ スマートフォンと棚、両方を確かめてみて。'],
+   r3_faces:['顔文字の表情より、点と線の形に注目してみて。','一通の顔文字が、一つのアルファベットに対応しているよ。棚のモールス対応表と見比べよう。','最初の「(-_-)」は、横線が三本でOになるよ。同じように十五通を上から読み、つながった文字をローマ字として読んでみて。'],
+   r3_board:['読み取った言葉は、文字盤から文字を探すための指示みたい。','同じ文字で、一文字だけを挟んでいる場所を探そう。横だけでなく、縦や斜めも見てみて。','たとえば二行二列の「イ」は、斜めの「ラ」と「ラ」に挟まれているよ。見つかった七文字を、盤面の上から順に読んでみて。']
+  };
+  PuzzleHints.show(id,'r3Hana',hints[id]);return;
+ }
  const line=(id,speaker,text)=>({logId:id,logType:"dialogue",speaker,text});
  let lines;
  if(room3State.unlocked){
@@ -270,30 +278,6 @@ function showThirdRoomHana(){
    line("room3_hana_clear_01","ハナ","ちゃんと思い出せたみたいだね。"),
    line("room3_hana_clear_02","主人公","はい。……大切な記憶でした。"),
    line("room3_hana_clear_03","ハナ","うん。大事にしてね。")
-  ];
- }else if(!room3State.doorInspected){
-  lines=[
-   line("room3_hana_before_door_01","ハナ","この部屋、なんだか落ち着くね。"),
-   line("room3_hana_before_door_02","主人公","僕には、見覚えがあるような……。"),
-   line("room3_hana_before_door_03","ハナ","そうなんだ。まずは、いつも通り調べてみよっか。")
-  ];
- }else if(!room3State.deskInspected){
-  lines=[
-   line("room3_hana_desk_01","ハナ","扉の言葉、気になるね。"),
-   line("room3_hana_desk_02","主人公","顔に隠された合図、ですか……。"),
-   line("room3_hana_desk_03","ハナ","うん。部屋の中にも何かありそう。")
-  ];
- }else if(!room3State.chatRead){
-  lines=[
-   line("room3_hana_phone_01","ハナ","机の上には、何か手がかりがあった？"),
-   line("room3_hana_phone_02","主人公","まだ、ちゃんと確認できていません。"),
-   line("room3_hana_phone_03","ハナ","そっか。慌てなくていいよ。")
-  ];
- }else{
-  lines=[
-   line("room3_hana_thinking_01","ハナ","あのやりとり、変わってるね。"),
-   line("room3_hana_thinking_02","主人公","何か意味があるはずなんですが……。"),
-   line("room3_hana_thinking_03","ハナ","うん。君ならきっと見つけられるよ。")
   ];
  }
  showRoomDialog(lines);

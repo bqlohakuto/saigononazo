@@ -128,7 +128,14 @@ function r4Box(){if(room4State.box){showRoomNotice("質問箱の透明パネル�
 function r4Refresh(){const n=document.getElementById("r4Count");if(n)n.textContent=`ガラスパネル ${r4Count()} / 5`;const w=document.getElementById("r4Wall");if(w&&room4State.wall)w.disabled=true;showRoomDialog([{logId:"r4cnt"+r4Count(),logType:"investigation",speaker:"システム",text:r4All()?"5枚のガラスパネルが揃った。ライト前の台を調べよう。":`ガラスパネルを入手した。現在 ${r4Count()} / 5 枚。`}],()=>window.DesignUI?.pickup({id:"glass-"+r4Count(),name:"ガラスパネル",art:"◇",description:"模様のある透明なガラスパネル。"}))}
 function r4Hana(){
  if(!room4State.hanaSleepSeen){showRoomDialog([{logId:"r4h1",logType:"dialogue",speaker:"ハナ",text:"ふぁ……"},{logId:"r4h2",logType:"dialogue",speaker:"主人公",text:"眠いんですか？"},{logId:"r4h3",logType:"dialogue",speaker:"ハナ",text:"んー……ちょっと眠いかも"},{logId:"r4h4",logType:"dialogue",speaker:"ハナ",text:"大丈夫。謎、解こっか"}],()=>{room4State.hanaSleepSeen=true;saveGame()});return}
- const text=!room4State.door?"まずは扉を見てみたら？ 今回の謎が書いてあるかも":!r4All()?"透明なパネルは五枚必要みたい。展示だけじゃなくて、部屋そのものもよく見てみよう":"五枚は揃ったね。重ねる順番より、それぞれの向きを見た方がよさそうだよ";showRoomDialog([{logId:"r4hint"+r4Count(),logType:"dialogue",speaker:"ハナ",text}]);
+ if(room4State.completed){showRoomDialog([{logId:'r4_hint_done',logType:'dialogue',speaker:'ハナ',text:'星がつながったね。扉の先へ進もう。'}]);return;}
+ const topics=[];
+ if(!r4All())topics.push({id:'r4_panels',label:'パネルの探し方',steps:['透明なパネルは五枚必要みたい。展示の謎だけでなく、部屋そのものも見てみよう。','三つの小謎でもらえるもののほかに、正面の壁と質問箱を調べてみて。']});
+ if(!room4State.star)topics.push({id:'r4_star',label:'謎1：色と数字',steps:['色の名前と、その隣の数字を一緒に使えないかな？','色の名前を英語にして、数字の番目の文字を拾ってみよう。','銀はSILVER。その一文字目はSだよ。同じ方法で、表示された順に四文字を読もう。']});
+ if(!room4State.lightPuzzle)topics.push({id:'r4_light',label:'謎2：国旗と数字',steps:['国旗が表す国の名前を考えてみよう。','国名を英語にして、数字の番目の文字を拾ってみて。','ポーランドはPOLAND。その三文字目はLだよ。残りの国も同じように、表示された順に読もう。']});
+ if(!room4State.meteors)topics.push({id:'r4_rainbow',label:'謎3：七つの色',steps:['七つの色が一緒に現れる、空の景色を思い浮かべてみて。','虹の色の並びに合わせて、札を並べ直してみよう。','赤・橙・黄・緑・青・藍・紫の順だよ。色に付いた文字も一緒に動かしてね。']});
+ if(r4All())topics.push({id:'r4_projection',label:'五枚のパネルの使い方',steps:['左側のパネル台とライトを調べよう。重ねた星を、星座一覧と見比べてみて。','重ねる順番より、それぞれの向きが大事みたい。一枚ずつ回して、星の位置を見てみよう。','星座一覧のおとめ座を手がかりにしてみて。五枚の星が、その形を作る向きを探そう。']});
+ PuzzleHints.choose('r4Hana',topics);
 }
 function r4Complete(){
  if(room4State.completed)return;room4State.completed=true;room4State.lightOn=true;saveGame();r4Projection();game.querySelector(".room-four")?.classList.add("is-restored");const status=game.querySelector(".room-four .room-color-status");if(status)status.textContent="記憶を取り戻した部屋";

@@ -190,3 +190,40 @@
   window.HanaChoiceUI = { ensureStyle: ensureHanaChoiceStyle, getAvailableChoiceIds: () => getHanaChoices().filter(choice => !choice.cancel).map(choice => choice.id) };
   talkToHana = showHanaChoiceMenu;
 })();
+
+
+// Optional, graduated hints. Only finishing a requested hint unlocks the next one.
+window.PuzzleHints = (() => {
+  function menu(opener, title, choices) {
+    if (game.querySelector('.inspection-overlay,.room-dialog-overlay,.device-overlay')) return;
+    window.HanaChoiceUI.ensureStyle();
+    const overlay=document.createElement('div');
+    overlay.className='device-overlay hana-choice-overlay';
+    overlay.innerHTML='<section class="menu-panel hana-choice-menu" aria-label="ハナにヒントを聞く"><button type="button" class="device-close" aria-label="閉じる">×</button><p class="hana-choice-speaker">ハナ</p><h2></h2><div class="hana-choice-list"></div></section>';
+    overlay.querySelector('h2').textContent=title;
+    overlay.querySelector('section').style.cssText='max-height:75dvh;overflow-y:auto';
+    const list=overlay.querySelector('.hana-choice-list');
+    for (const choice of [...choices,{label:'なんでもない'}]) {
+      const button=document.createElement('button');
+      button.type='button';button.className='hana-choice-button';button.textContent=choice.label;
+      button.onclick=()=>{close();choice.action?.();};list.appendChild(button);
+    }
+    game.appendChild(overlay);
+    const close=activateDeviceModal(overlay,opener,list.querySelector('button'));
+  }
+  function show(id, opener, steps) {
+    const raw=roomStates.puzzleHints?.[id];
+    const level=Number.isInteger(raw)?Math.max(0,Math.min(steps.length,raw)):0;
+    menu(opener,'どこまで聞きたい？',steps.slice(0,Math.min(steps.length,level+1)).map((text,i)=>({
+      label:'ヒント'+(i+1)+(i<level?'（もう一度）':''),
+      action:()=>showRoomDialog([{logId:'hint_review_'+id+'_'+(i+1),logType:'dialogue',speaker:'ハナ',text}],()=>{
+        roomStates.puzzleHints ||= {};
+        roomStates.puzzleHints[id]=Math.max(roomStates.puzzleHints[id]||0,i+1);saveGame();
+      })
+    })));
+  }
+  function choose(opener,topics) {
+    menu(opener,'どの謎について聞く？',topics.map(topic=>({label:topic.label,action:()=>show(topic.id,opener,topic.steps)})));
+  }
+  return {show,choose};
+})();

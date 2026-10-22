@@ -141,7 +141,7 @@
     document.getElementById("r5TurnRight").onclick=()=>turn(1);
     game.querySelectorAll(".r5-living-scene [data-item]").forEach(button=>button.onclick=()=>r5Collect(button.dataset.item));
     document.getElementById("r5Board").onclick=r5Board;
-    document.getElementById("r5Hana").onclick=()=>r5Notice("ハナは、主人公が部屋を調べる様子を静かに見ている。","r5_hana_watch");
+    document.getElementById("r5Hana").onclick=r5Hana;
     document.getElementById("r5Door").onclick=()=>{
       if(room5State.completed){transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06));return;}
       if(room5State.codeRevealed&&!room5State.doorUnlocked){r5Keypad();return;}
@@ -154,9 +154,19 @@
     document.getElementById("r5Next")?.addEventListener("click",()=>transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06)));
     document.getElementById("r5Progress").textContent=room5State.completed?"記憶を取り戻した":room5State.codeRevealed?"暗証番号 8194":room5State.collected.length+"枚入手";
     window.RoomExploration?.mount('room05',game.querySelector('#r5Scene'),view,room5State,{image:'images/background/room05/'+backgrounds[view],imageAspect:16/9});
-    setHud("room05","第五の部屋",r5Objective,()=>r5Notice("ハナは、主人公が部屋を調べる様子を静かに見ている。","r5_hana_watch"));
+    setHud("room05","第五の部屋",r5Objective,r5Hana);
   }
 
+  function r5Hana(){
+    if(room5State.doorUnlocked){r5Notice(room5State.memorySeen?'扉の先へ進もう。':'扉が開いた。中央パネルの、羽の生えたウサギを調べてみよう。','r5_hint_done');return;}
+    const topic=room5State.codeRevealed?'r5_code':room5State.boardIntroSeen?'r5_counters':'r5_search';
+    const hints={
+      r5_search:['部屋にある絵のパネルを集めてみよう。向きを変えると、まだ見ていない場所もあるよ。','冷蔵庫は上と下を別々に調べられるよ。集めたパネルは、数え方が書かれた盤に置いてみよう。'],
+      r5_counters:['盤に書かれている漢字は、ものを数えるときの言葉みたい。','絵のものを「一つ」以外でどう数えるか考えてみて。ウサギの「羽」が見本になるよ。','鏡は面、魚は尾、花は輪、イカは杯、椅子は脚、大砲は門。そして蝶には「頭」という数え方もあるんだ。'],
+      r5_code:['そろった絵の光が集まった、盤の中央を見てみよう。','盤に現れた四桁の数字を、左から順に扉の入力欄へ入れてみよう。']
+    };
+    PuzzleHints.show(topic,'r5Hana',hints[topic]);
+  }
   function r5Collect(id){
     if((id==="fish"&&!room5State.fridgeUpperOpen)||(id==="squid"&&!room5State.fridgeLowerOpen)){
       showRoomNotice("冷蔵庫の扉を開けてから調べよう。","r5_fridge_closed_"+id);return;
@@ -795,7 +805,7 @@
       '途中で置けなくなったら、一手戻ってみよう。別の場所から挟めるかもしれないよ。'
     ];
     const choices=room6State.othelloKnown?hints.slice(0,Math.min(3,room6State.hintLevel+1)).map((text,i)=>({id:'hint-'+(i+1),label:'ヒント'+(i+1),text,level:i+1})):
-      [{id:'mechanism',label:'仕組みのヒント',text:'同じ色の部屋で、違う色の部屋を挟めないかな？'}];
+      [{id:'exploration',label:'探索について',text:'まだ通っていない扉を調べてみよう。端まで行けるところや、床の色が違う部屋も確かめてみて。'}];
     if(room6State.othelloKnown&&room6State.hintLevel>=3)choices.push({id:'next-move',label:'もっとヒント（次の一手）',specific:true});
     choices.push({id:'cancel',label:'なんでもない'});
     const overlay=document.createElement('div');overlay.className='device-overlay hana-choice-overlay';
@@ -1449,7 +1459,20 @@
   const r7Lines=(key,suffix="")=>R7_TEXT[key].map(([speaker,text],i)=>line("r7_"+key+suffix+"_"+(i+1),speaker,text));
   function r7Objective(){return room7State.completed?'第八の部屋へ':room7State.booksSolved?'物語が導く道を調べる':'部屋を調べる'}
   function r7Notice(text,id){showRoomDialog(text.split('\n').map((text,i)=>line((id||'r7_notice')+'_'+i,'ト書き',text)))}
-  function r7Hana(){showRoomDialog(r7Lines('hana'));}
+  function r7Hana(){
+    if(!GameLog.list().some(entry=>entry.id.startsWith('r7_hana_'))){showRoomDialog(r7Lines('hana'));return;}
+    if(room7State.completed){showRoomDialog(r7Lines('hana'));return;}
+    const id=room7State.booksSolved?'r7_animals':'r7_books';
+    PuzzleHints.show(id,'r7Hana',id==='r7_books'?[
+      '赤い栞が挟まれた本を探してみよう。本棚の動かない本も、並べ方の手がかりになるよ。',
+      '題名の読み方に注目してみて。動かない四冊も合わせて、五十音順に並べられないかな？',
+      '「一休さん」は「いっきゅうさん」だから、「赤ずきん」と「ウサギとカメ」の間だよ。残りの本も、題名の読みで場所を決めよう。'
+    ]:[
+      '並んだ六冊を開いて、栞のページを読んでみよう。そこに描かれている動物と、扉の文字を見比べてみて。',
+      '扉の文字は十二支だよ。題名にいる動物とは限らないから、開いたページに登場する動物を確かめよう。',
+      '本棚の左から、栞のある六冊の動物を順に十二支へ置き換えるんだ。「一休さん」のとらなら「寅」。その順に扉を選んで進もう。'
+    ]);
+  }
   window.showSeventhRoom=function(savedState){
     Dialogue.stop();currentScene='room07';room7State=normalizeR7(savedState);
     // Completed legacy saves also continue directly into the living room.
@@ -1922,7 +1945,7 @@
     o.innerHTML='<section class="late-panel r8-puzzle"><button class="device-close" aria-label="閉じる">×</button><h2>最後の謎</h2>'+
       '<div class="r8-paper-face"><p class="r8-question">私はだーれだ？</p><p>ヒント！<br>君のことが一番好きな人だよ</p></div>'+
       '<button class="late-sub-action" id="r8Back">紙の裏を見る</button>'+
-      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>ここまでの思い出を、もう一度振り返ってみて。</p><p>これまでの七つの部屋には、二つの共通点があるよ。</p><p>順番に迷ったら、一番最初の部屋を思い出してね。</p><p>……わかったら、名前で呼んでね。</p></div>'+
+      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>「記録」を開いて、ここまでの思い出をもう一度振り返ってみて。</p><p>七つの部屋と、そこで思い出した出来事に繰り返し登場するもの。二つの共通点を、それぞれ一文字で表してみて。</p><p>順番に迷ったら、一番最初の部屋を思い出してね。</p><p>……わかったら、名前で呼んでね。</p></div>'+
       '<label class="r8-answer">答え<input id="r8Answer" type="text" autocomplete="off" maxlength="12"></label><button class="late-main-action" id="r8Submit">答える</button><p id="r8Feedback"></p></section>';
     game.appendChild(o);activateDeviceModal(o,"r8Paper",o.querySelector("#r8Back"));
     o.querySelector("#r8Back").onclick=()=>{room8State.backSeen=true;saveGame();o.querySelector("#r8BackText").classList.add("show");r8ArmLogHint()};

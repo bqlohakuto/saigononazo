@@ -55,8 +55,8 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(q('.room-dialog-overlay'),null,'stale travel cannot open a dialogue');
   w.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});
   const initial=save().rooms.room06.board;
-  click('#gameplayHanaButton');assert.ok(q('[data-r6-hint="mechanism"]'));assert.equal(q('[data-r6-hint="hint-1"]'),null);
-  click('[data-r6-hint="mechanism"]');finish();
+  click('#gameplayHanaButton');assert.ok(q('[data-r6-hint="exploration"]'));assert.equal(q('[data-r6-hint="hint-1"]'),null);
+  click('[data-r6-hint="exploration"]');finish();
   assert.equal(initial.length,64);
   assert.deepEqual(['W','G','E'].map(c=>initial.filter(v=>v===c).length),[40,15,9]);
   for(const id of ['A7','A6','A5','A4','A3']){click('[data-dest="'+id+'"]');finish();}
@@ -79,7 +79,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   const ids=Array.from({length:64},(_,i)=>String.fromCharCode(65+i%8)+(Math.floor(i/8)+1));
   run('showSixthRoom('+JSON.stringify({introSeen:true,visited:ids,current:'D1',interview4:true,mapEvent:true,othelloKnown:true,mapComplete:true})+')');
   assert.equal(q('#r6TestGuide'),null,'normal play does not show the test solution');
-  click('#gameplayHanaButton');assert.equal(q('[data-r6-hint="mechanism"]'),null);assert.equal(q('[data-r6-hint="hint-2"]'),null);click('[data-r6-hint="hint-1"]');finish();
+  click('#gameplayHanaButton');assert.equal(q('[data-r6-hint="exploration"]'),null);assert.equal(q('[data-r6-hint="hint-2"]'),null);click('[data-r6-hint="hint-1"]');finish();
   for(const level of [2,3]){click('#gameplayHanaButton');click('[data-r6-hint="hint-'+level+'"]');finish();}
   assert.equal(save().rooms.room06.hintLevel,3);
   run('showSixthRoom('+JSON.stringify(save().rooms.room06)+')');
@@ -108,3 +108,4 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   console.log('PASS: Room 6 live map, doors, colors, lever, undo/reset, save/load, completion and next chapter.');
   dom.window.close();
 })().catch(e=>{console.error(e);process.exitCode=1});
+

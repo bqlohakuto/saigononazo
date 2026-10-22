@@ -397,12 +397,16 @@ function showSecondRoomHana(){
   ]}
  ];
  if(room2State.deskInspected)topics.push({id:"rules",label:"HITとBLOWについて",lines:[{logId:"room2_hana_rules_01",logType:"dialogue",speaker:"ハナ",text:"HITは記号・色・位置が全部合っているもの。BLOWは記号と色が合っていて、位置だけ違うものだよ"},{logId:"room2_hana_rules_02",logType:"dialogue",speaker:"主人公",text:room2State.unlocked?"はい。判定を比べるのが大切でしたね":"判定を比べながら、合っている組み合わせを絞っていくんですね"}]});
- if(!room2State.unlocked&&Array.isArray(room2State.history)&&room2State.history.some(entry=>Number.isInteger(entry?.hit)&&entry.hit>=0&&entry.hit<5))topics.push({id:"hint",label:"考え方のヒント",lines:[{logId:`room2_hana_hint_${room2State.attempts}_${room2State.hanaHints}`,logType:"dialogue",speaker:"ハナ",text:"一度にたくさん変えると、変化がわかりにくいよ。少しずつ動かして、前の判定と比べてみよう"}]});
+ if(!room2State.unlocked&&room2State.deskInspected)topics.push({id:"hint",label:"考え方のヒント",hint:true});
  const overlay=document.createElement("div");overlay.className="device-overlay hana-choice-overlay";
  overlay.innerHTML=`<section class="menu-panel hana-choice-menu" aria-label="ハナに聞くことを選ぶ"><button type="button" class="device-close" aria-label="閉じる">×</button><p class="hana-choice-speaker">ハナ</p><h2>どうしたの？</h2><p class="hana-choice-lead">聞きたいことを選んでください。</p><div class="hana-choice-list"></div></section>`;game.appendChild(overlay);
  const list=overlay.querySelector(".hana-choice-list");
  [...topics,{id:"cancel",label:"なんでもない",cancel:true}].forEach(topic=>{const button=document.createElement("button");button.type="button";button.className=`hana-choice-button${topic.cancel?" is-cancel":""}`;button.textContent=topic.label;button.dataset.topic=topic.id;list.appendChild(button)});
  const close=activateDeviceModal(overlay,"r2Hana",list.querySelector("button"));
- list.querySelectorAll("[data-topic]").forEach(button=>button.addEventListener("click",()=>{const topic=topics.find(item=>item.id===button.dataset.topic);close();if(!topic)return;showRoomDialog(topic.lines,()=>{room2State.hanaHints++;saveGame()})}));
+ list.querySelectorAll("[data-topic]").forEach(button=>button.addEventListener("click",()=>{const topic=topics.find(item=>item.id===button.dataset.topic);close();if(!topic)return;if(topic.hint){PuzzleHints.show('r2_strategy','r2Hana',[
+  '判定は、どの記号が合っているかまでは教えてくれないんだ。一度に全部変えず、前の結果と比べてみよう。',
+  'HITとBLOWを足すと、位置に関係なく、色が合っている記号の数になるよ。並びはそのまま、一つだけ赤と青を入れ替えて比べてみて。',
+  '合計が一つ増えたら、変えた記号は今の色が正解。減ったら元の色だよ。色がわかったら固定して、位置を交換しながらHITの変化を比べよう。'
+ ]);return;}showRoomDialog(topic.lines,()=>{room2State.hanaHints++;saveGame()})}));
 }
 

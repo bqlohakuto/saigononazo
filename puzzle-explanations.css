@@ -1,0 +1,57 @@
+/* Puzzle explanations — styled as a memory notebook, inside the existing 16:9 game viewport. */
+#game .title-home .title-menu #puzzleGuideButton{
+  height:42px;border:1px solid rgba(242,232,217,.68);border-radius:8px;
+  background:rgba(38,30,38,.78);color:#fff;font:14px "DotGothic16",sans-serif;
+  letter-spacing:.1em;text-shadow:0 1px 5px #000;mix-blend-mode:normal
+}
+#game .title-home .title-menu #puzzleGuideButton:hover{
+  background:rgba(93,75,84,.9);transform:translateX(4px)
+}
+.pguide{
+  display:flex;flex-direction:column;gap:8px;width:100%;height:100%;
+  padding:20px 30px;background:#241f27;color:#42382e;
+  font:15px/1.65 "DotGothic16",sans-serif;overflow:hidden;
+  background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0 2px,transparent 2px 4px);
+}
+.pguide button{font:inherit;cursor:pointer}
+.pguide button:focus-visible{outline:3px solid #d1a877;outline-offset:2px}
+.pguide button:disabled{opacity:.34;cursor:not-allowed}
+.pguide-top{display:flex;justify-content:space-between;align-items:center;gap:20px;flex:none}
+.pguide-top h1{font-size:24px;font-weight:normal;letter-spacing:.16em;color:#f6e6d6}
+.pguide-top button{min-width:140px;min-height:40px;padding:6px 12px;border:1px solid #b5a292;border-radius:4px;background:#423848;color:#fff5eb}
+.pguide-lead{flex:none;font-size:11px;color:#dfc5af;letter-spacing:.04em}
+.pguide-body{display:grid;grid-template-columns:minmax(174px,230px) minmax(0,1fr);gap:14px;flex:1;min-height:0}
+.pguide-nav{display:grid;align-content:start;gap:5px;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:7px 4px 7px 0}
+.pguide-nav button{display:flex;flex-direction:column;gap:0;min-height:53px;width:100%;padding:6px 12px;border:1px solid #74675c;border-radius:3px;background:#e0d4bf;color:#453a31;text-align:left;line-height:1.35}
+.pguide-nav button.is-active{background:#fff1d4;border-color:#e5bb79;box-shadow:inset 4px 0 0 #c18d4c}
+.pguide-nav button small{font-size:10px;color:#816b5c}
+.pguide-nav button span{font-size:14px}
+.pguide-article{min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;padding:19px 25px 24px;border:4px solid #c4a983;border-radius:3px;background:#f2e9d9;color:#493d32;box-shadow:inset 0 0 0 2px #e2cdb0,0 9px 22px #0006}
+.pguide-index{font-size:11px;letter-spacing:.18em;color:#806c58}
+.pguide-article h2{margin:2px 0 13px;padding-bottom:8px;border-bottom:2px dashed #c7ad8a;font-size:24px;font-weight:normal;letter-spacing:.05em}
+.pguide-section{margin:13px 0 17px}
+.pguide-section h3{margin:0 0 5px;color:#795a42;font-size:15px;font-weight:normal}
+.pguide-section p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.pguide-section ol{display:grid;gap:9px;margin:3px 0 0;padding:0;list-style:none}
+.pguide-section li{display:grid;grid-template-columns:30px 1fr;gap:6px;align-items:start;overflow-wrap:anywhere}
+.pguide-section li b{color:#b17c4b;font-weight:normal;font-size:13px}
+.pguide-answer{padding:12px 14px;border-left:4px solid #c28c62;background:#fff8ec;font-size:16px}
+.pguide-pager{display:flex;justify-content:space-between;gap:12px;margin-top:20px}
+.pguide-pager button{min-height:39px;padding:8px 14px;border:1px solid #bca083;border-radius:4px;background:#efe1ca;color:#4d4034}
+@container game-viewport (max-width:780px){
+  #game .title-home .title-menu #puzzleGuideButton{height:35px;font-size:12px}
+  .pguide{padding:9px 11px;gap:4px;font-size:12px}
+  .pguide-top h1{font-size:18px}.pguide-top button{min-width:110px;min-height:32px;font-size:12px}
+  .pguide-lead{font-size:9px}
+  .pguide-body{grid-template-columns:minmax(125px,28%) minmax(0,1fr);gap:7px}
+  .pguide-nav button{min-height:41px;padding:4px 7px}.pguide-nav button span{font-size:11px}.pguide-nav button small{font-size:8px}
+  .pguide-article{padding:9px 12px 15px;border-width:3px}
+  .pguide-article h2{font-size:18px;margin-bottom:8px}
+  .pguide-section{margin:8px 0 12px}.pguide-section h3{font-size:12px}
+  .pguide-answer{font-size:13px;padding:7px 9px}.pguide-pager button{font-size:11px;min-height:32px;padding:4px 7px}
+}
+@container game-viewport (max-height:450px){
+  .pguide{padding-top:7px;padding-bottom:7px;gap:3px}
+  .pguide-top h1{font-size:18px}.pguide-top button{min-height:30px}
+  .pguide-nav button{min-height:36px}.pguide-article{padding-top:8px}
+}

@@ -257,21 +257,35 @@
     }
     const o=document.createElement("div");o.className="device-overlay late-overlay r5-board-overlay";
     const available=R5_ITEMS.filter(([id])=>room5State.collected.includes(id)&&!room5State.placed[id]);
-    const r5Symbol={feather:"feather",face:"face",tail:"tail",head:"head",ring:"wreath",cup:"cup",leg:"leg",gate:"gate"};
     const r5ItemIcon={mirror:"mirror",fish:"tail",butterfly:"head",flower:"wreath",squid:"cup",chair:"leg",cannon:"gate"};
-    // Real pixel-art panels replace the SVG safety fallback once their approved images are published.
+    // The children's crayon combined pictures belong to the board, not the item inventory.
+    // These reliefs cover only *unplaced* sockets. As each correct piece is fitted,
+    // the corresponding combined drawing underneath becomes visible.
+    const relief={
+      face:'<path d="M15 14 Q32 9 49 14 L47 37 Q42 49 32 54 Q20 49 17 37 Z"/><path d="M20 28 Q26 24 30 28 M34 28 Q40 24 45 28 M28 41 Q32 44 36 41"/>',
+      tail:'<path d="M12 25 Q20 32 30 31 L54 13 Q46 32 54 51 L30 35 Q20 34 12 41 Z"/><path d="M30 31 L53 13 M30 35 L53 51"/>',
+      head:'<path d="M22 53 L22 44 Q13 37 16 27 Q18 12 35 12 Q45 13 46 24 L53 31 L45 34 L44 43 L51 53 Z"/><path d="M25 20 Q33 15 40 22 M44 28 L46 28 M37 35 Q42 38 45 35"/>',
+      ring:'<circle cx="32" cy="32" r="22"/><circle cx="32" cy="32" r="5"/><path d="M32 10 V27 M32 37 V54 M10 32 H27 M37 32 H54 M16 16 L28 28 M36 36 L48 48 M48 16 L36 28 M28 36 L16 48"/>',
+      cup:'<path d="M17 14 H47 V28 Q47 39 34 42 L34 50 H43 V55 H21 V50 H30 V42 Q17 39 17 28 Z"/><path d="M13 17 H51"/>',
+      leg:'<path d="M25 10 Q29 10 33 12 L39 28 L36 40 L46 49 Q51 52 48 55 L27 55 Q22 51 28 47 L30 36 L23 23 Z"/>',
+      gate:'<path d="M12 52 V16 L20 12 H51 V52"/><path d="M21 52 V17 H48 V52 M21 34 L48 20 M22 26 L47 45 M15 52 H52"/>'
+    };
+    const counterSketch=slot=>'<svg viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">'+(relief[slot]||'')+'</svg>';
+    // Preserve the already-approved seven collectible panels; this is a temporary
+    // combined-picture pass and does not change their save IDs or puzzle answers.
     const picture=id=>'<span class="r5-art-fallback">'+r5Drawing(r5ItemIcon[id],"")+'</span><img class="r5-item-picture" src="images/background/room05/panels/'+id+'.webp" alt="" loading="lazy">';
-    const slots=R5_COUNTERS.map(([slot,counter,item])=>{
-      const icon=r5Drawing(r5Symbol[slot],counter+"の絵");
-      if(slot==="feather")return '<button class="r5-counter-slot fixed" disabled aria-label="うさぎと羽の完成したパネル">'+icon+'<span class="r5-fixed-rabbit">'+r5Drawing("rabbit","うさぎ")+'</span></button>';
+    const xs=[14.5,37.5,60.5,83.5],ys=[29.5,76.2];
+    const slots=R5_COUNTERS.map(([slot,counter],index)=>{
+      const style=' style="--slot-x:'+xs[index%4]+'%;--slot-y:'+ys[Math.floor(index/4)]+'%"';
+      if(slot==="feather")return '<button class="r5-counter-slot fixed"'+style+' disabled aria-label="うさぎと羽の完成したパネル"></button>';
       const placedId=Object.keys(room5State.placed).find(id=>room5State.placed[id]===counter);
-      return '<button class="r5-counter-slot '+(placedId?"filled":"")+'" data-counter="'+counter+'" aria-label="'+counter+'の絵の枠'+(placedId?' 配置済み':'')+'" '+(placedId?"disabled":"")+'>'+icon+(placedId?'<span class="r5-picture-placed">'+picture(placedId)+'</span>':'')+'</button>';
+      return '<button class="r5-counter-slot '+(placedId?"filled":"available")+'"'+style+' data-counter="'+counter+'" aria-label="'+counter+'の絵の枠'+(placedId?' 配置済み':'')+'" '+(placedId?"disabled":"")+'>'+(placedId?'':counterSketch(slot))+'</button>';
     }).join("");
     const inventory=available.length?available.map(([id,name])=>'<button class="r5-inventory-tile" data-tile="'+id+'" aria-label="'+name+'のパネルを選ぶ">'+picture(id)+'<span class="r5-visually-hidden">'+name+'</span></button>').join(""):'<p class="r5-empty-inventory">配置できるパネルはありません。</p>';
     o.innerHTML='<section class="late-panel r5-board-panel"><button class="device-close" aria-label="閉じる">×</button><h2>壁のパネル</h2>'+
       '<p class="r5-problem">描かれたものを正しく数え、あるべき場所へ導け。</p>'+
       ''+
-      '<div class="r5-counter-grid">'+slots+'</div>'+
+      '<div class="r5-doodle-board" aria-label="助数詞の木製はめ込み盤"><div class="r5-counter-grid">'+slots+'</div></div>'+
       '<h3>手に入れたパネル</h3><div class="r5-inventory">'+inventory+'</div>'+
       '<p class="r5-board-feedback" id="r5BoardFeedback"></p>'+
       (room5State.codeRevealed?'<div class="r5-code-reveal"><small>完成した線が示した数字</small><strong>8194</strong></div>':'')+

@@ -23,7 +23,14 @@
         ["20:22","幸せ","シ"]
       ],
       answer:"ソ・ラ・ファ・ミ・ド・レ・ド・シ",
-      after:"メールに残った何気ないやりとりが、中学時代の音楽の記憶につながる。"
+      after:"メールに残った何気ないやりとりが、中学時代の音楽の記憶につながる。",
+      authorComment:[
+        "謎解きといえば、やっぱり暗号文！",
+        "そんなイメージから、最初の謎には言葉の連想を使った仕掛けを取り入れました。",
+        "ただ暗号が書かれた文章を読むだけではなく、先輩と主人公のメールのやり取りに隠すことで、謎を解きながら二人の関係性も感じてもらえたらと思っています。",
+        "第1の謎ということで、難しさよりも「解けた！」という楽しさを大切にしました。",
+        "この謎を通してゲームの遊び方に少しずつ慣れながら、物語の世界に入り込んでもらえていたら嬉しいです。"
+      ]
     },
     {
       title:"色と記号の推理", question:"正しい組み合わせを導け",
@@ -164,6 +171,7 @@
       (c.breakdown?pageSection(c.breakdownTitle||"メールと音階の対応",'<table class="pguide-breakdown"><thead><tr>'+(c.breakdownHeaders||["時刻","手がかり","音"]).map(head=>'<th>'+esc(head)+'</th>').join('')+'</tr></thead><tbody>'+c.breakdown.map(row=>'<tr>'+row.map(cell=>'<td>'+esc(cell)+'</td>').join('')+'</tr>').join('')+'</tbody></table>'):'')+
       pageSection("正解",'<p class="pguide-answer">'+esc(c.answer)+'</p>')+
       pageSection("記憶とのつながり",'<p>'+esc(c.after)+'</p>')+
+      (c.authorComment?pageSection("作者コメント",'<div class="pguide-author-comment">'+c.authorComment.map(line=>'<p>'+esc(line)+'</p>').join("")+'</div>'):"")+
       '<div class="pguide-pager"><button type="button" id="pguidePrev" '+(selected===0?"disabled":"")+'>← 前の謎</button><button type="button" id="pguideNext" '+(selected===CHAPTERS.length-1?"disabled":"")+'>次の謎 →</button></div></article></div></main>';
     game.querySelector("#pguideBack").addEventListener("click",()=>showTitle());
     game.querySelectorAll("[data-pguide-chapter]").forEach(b=>b.addEventListener("click",()=>openGuide(Number(b.dataset.pguideChapter))));

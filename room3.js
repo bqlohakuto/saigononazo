@@ -208,7 +208,7 @@ function inspectThirdRoomBed(){
 function inspectThirdRoomShelf(){
  if(room3State.shelfInspected){showThirdRoomMorseChart();return}
  room3State.shelfInspected=true;saveGame();
- showRoomDialog([{logId:"room3_shelf_01",logType:"investigation",speaker:"ト書き",text:"小さな棚には、漫画や講義のテキストが並んでいる。"},{logId:"room3_shelf_02",logType:"investigation",speaker:"ト書き",text:"その間に、点と線で書かれたモールス信号の対応表が挟まっている。"}],showThirdRoomMorseChart);
+ showRoomDialog([{logId:"room3_shelf_01",logType:"investigation",speaker:"ト書き",text:"小さな棚には、漫画や講義のテキストが並んでいる。"},{logId:"room3_shelf_02",logType:"investigation",speaker:"ト書き",text:"その間に、点と線で書かれたモールス信号の対応表が挟まっている。"},{logId:"room3_shelf_03_voice",logType:"dialogue",speaker:"主人公",text:"トン、トーン……。あれ、長い方は『ツー』って読むんだっけ。"}],showThirdRoomMorseChart);
 }
 function showThirdRoomMorseChart(){
  if(!room3State.shelfInspected||game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;

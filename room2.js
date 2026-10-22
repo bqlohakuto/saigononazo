@@ -41,6 +41,7 @@ function showSecondRoom(savedState){
  document.getElementById("r2Desk").addEventListener("click",()=>inspectSecondRoomDesk());
  document.getElementById("r2Blocks").addEventListener("click",()=>room2State.unlocked&&!room2State.challengeActive?showRoom2ChallengeMenu():showSecondRoomPuzzle());
  document.getElementById("r2Hana").addEventListener("click",()=>showSecondRoomHana());
+ window.RoomExploration?.mount('room02',game.querySelector('.room2-stage'),'front',room2State,{image:'images/background/room02/room02_bg_nodesk.png',imageAspect:16/9});
  if(!savedState){showRoomDialog(room2IntroLines)} else if(savedState.nextRoomTransitionSeen){showThirdRoomBoundary()}
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room02",title:"第二の部屋",objective:()=>room2State.unlocked?"扉を調べて次へ進む":"部屋を調べる",onCompanion:showSecondRoomHana,getHighlights:()=>!!room2State.highlightEnabled,setHighlights:enabled=>{room2State.highlightEnabled=!!enabled;saveGame()}});
  saveGame();
@@ -404,3 +405,4 @@ function showSecondRoomHana(){
  const close=activateDeviceModal(overlay,"r2Hana",list.querySelector("button"));
  list.querySelectorAll("[data-topic]").forEach(button=>button.addEventListener("click",()=>{const topic=topics.find(item=>item.id===button.dataset.topic);close();if(!topic)return;showRoomDialog(topic.lines,()=>{room2State.hanaHints++;saveGame()})}));
 }
+

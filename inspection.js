@@ -47,7 +47,7 @@
    image.draggable=false;
    artButton.append(image);
    if(frames[0].crop){
-    const frame=frames[0],[x,y,w,h]=frame.crop,ratio=w*1.5/h;
+    const frame=frames[0],[x,y,w,h]=frame.crop,ratio=w*(frame.imageAspect||1.5)/h;
     cropView=document.createElement("span");
     cropView.className="inspection-crop";
     cropView.style.aspectRatio=String(ratio);
@@ -171,3 +171,4 @@
   return {close,destroy:()=>finish("destroy")};
  };
 })();
+

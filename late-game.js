@@ -153,6 +153,7 @@
     document.getElementById("r5Rabbit")?.addEventListener("click",r5RabbitMemoryStart);
     document.getElementById("r5Next")?.addEventListener("click",()=>transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06)));
     document.getElementById("r5Progress").textContent=room5State.completed?"記憶を取り戻した":room5State.codeRevealed?"暗証番号 8194":room5State.collected.length+"枚入手";
+    window.RoomExploration?.mount('room05',game.querySelector('#r5Scene'),view,room5State,{image:'images/background/room05/'+backgrounds[view],imageAspect:16/9});
     setHud("room05","第五の部屋",r5Objective,()=>r5Notice("ハナは、主人公が部屋を調べる様子を静かに見ている。","r5_hana_watch"));
   }
 
@@ -876,6 +877,7 @@
     game.querySelector('#r6TestGuide')?.addEventListener('click',r6ShowTestGuide);
     game.querySelector('#r6WallText').onclick=()=>showRoomDialog([line('r6_wall','問題文','最後の影が消える時、閉ざされた道は開かれる。')]);
     game.querySelector('#r6Next')?.addEventListener('click',()=>transition('第七の部屋へ',()=>showSeventhRoom(roomStates.room07)));
+    window.RoomExploration?.mount('room06',game.querySelector('.r6-space'),'front',room6State,{image:'images/background/room06/'+color+'.webp',imageAspect:16/9});
     setHud('room06','第六の部屋',r6Objective,r6Hana);
   }
   function r6Neighbor(a,b){return r6Valid(a)&&r6Valid(b)&&Math.abs(a.charCodeAt(0)-b.charCodeAt(0))+Math.abs(Number(a[1])-Number(b[1]))===1}
@@ -1477,6 +1479,7 @@
     const notices={"r7Photo": ["写真立てが置かれている。\n風景ははっきり写っているのに、人物の部分だけが白く抜け落ちていた。\n誰が写っていたのか、わからない。", "photo"], "r7Letters": ["手紙が置かれている。\n宛名も差出人の名前も、文字がにじんで読めない。\n誰から誰へ送られたものなのだろう。", "letters"], "r7Cups": ["テーブルに、コップが二つ置かれている。\nけれど、椅子は一脚しかない。\nもう一脚は、どこへいったのだろう。", "cups"], "r7Clock": ["壁に時計が掛かっている。\n文字盤はあるのに、針がない。\nこれでは、止まっているのかさえわからない。", "clock"], "r7Lamp": ["ランプのスイッチを入れてみたが、明かりはつかない。\n覗き込むと、電球がついていなかった。", "lamp"], "r7Frame": ["壁に、四角い跡が残っている。\n何かが掛かっていたらしく、そこだけ壁の色が少し違う。\n絵だろうか。それとも、写真だろうか。", "frame"], "r7FrontRecords": ["本や箱が並んでいる。\n箱にはラベルが貼られているが、文字がかすれて読めない。", "records"]};
     Object.entries(notices).forEach(([id,[text,log]])=>bind(id,()=>r7Notice(text,'r7_'+log)));
     if(room7State.completed&&view==='front'){const door=game.querySelector('#r7Door');door.id='r7Next';door.setAttribute('aria-label','第八の部屋へ進む');}
+    window.RoomExploration?.mount('room07',game.querySelector('.r7-scene'),view,room7State,{image:'images/background/room07/'+view+'.webp'});
     setHud('room07','第七の部屋',r7Objective,r7Hana);
   }
   function r7Turn(delta){const order=['front','right','back','left'];room7State.view=order[(order.indexOf(room7State.view)+delta+4)%4];saveGame();renderR7()}
@@ -2072,4 +2075,5 @@
     document.getElementById("r8Title").onclick=()=>showTitle();
   }
 })();
+
 

@@ -11,11 +11,14 @@ const expectedAssets = [
   "room5.css",
   "room6.css",
   "late-game.css",
+  "room-exploration.css",
   "scenario.js",
   "game-audio.js",
   "game-log.js",
   "dialogue.js",
   "inspection.js",
+  "exploration-scenario.js",
+  "room-exploration.js",
   "script.js",
   "hana-choice.js",
   "opening-sequence.js",
@@ -63,6 +66,8 @@ test("script load order remains intentional", () => {
     "game-log.js",
     "dialogue.js",
     "inspection.js",
+    "exploration-scenario.js",
+    "room-exploration.js",
     "script.js",
     "hana-choice.js",
     "opening-sequence.js",
@@ -83,3 +88,4 @@ test("script load order remains intentional", () => {
   "design-ui.js"
   ]);
 });
+

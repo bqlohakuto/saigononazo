@@ -1,0 +1,8 @@
+/* Match the existing investigation rings without painting over the room art. */
+#game .ambient-layer{position:absolute;inset:0;z-index:9;pointer-events:none}
+#game .ambient-layer.ambient-cover{top:50%;bottom:auto;height:calc(100cqw / 1.5);transform:translateY(-50%)}
+#game .ambient-target{position:absolute;bottom:auto;right:auto;padding:0;min-width:0;min-height:0;border:0;border-radius:0;background:transparent;box-shadow:none;pointer-events:auto;cursor:pointer;transform:none}
+#game .ambient-target::before{display:none}
+#game .ambient-target:focus-visible{outline:2px solid var(--gold,#e9c36a);outline-offset:-2px}
+#game .ambient-target>span{display:none!important}
+#game .ambient-target:hover>span,#game .ambient-target:focus-visible>span{display:none!important}

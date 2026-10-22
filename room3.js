@@ -156,6 +156,7 @@ function renderThirdRoomView(){
  document.getElementById("r3Background").src=`images/background/room03/room03_${view}.webp`;
  const targets={front:room3State.bedInspected?["r3Door","r3Hana"]:["r3Door"],right:["r3Desk","r3Phone","r3Board"],back:["r3Shelf","r3Trumpet"],left:room3State.bedInspected?["r3Bed"]:["r3Bed","r3SleepingHana"]};
  for(const button of stage.querySelectorAll(".room3-object")){button.hidden=!targets[view].includes(button.id);button.setAttribute("aria-label",button.querySelector("span").textContent);}
+ window.RoomExploration?.mount('room03',stage,view,room3State,{image:`images/background/room03/room03_${view}.webp`,imageAspect:16/9});
 }
 function turnThirdRoom(step){
  if(currentScene!=="room03"||game.querySelector(".room-dialog-overlay,.device-overlay,.design-overlay,.inspection-overlay"))return;
@@ -300,4 +301,5 @@ function showThirdRoomHana(){
  room2State.nextRoomTransitionSeen=true;saveGame();Dialogue.stop();game.innerHTML=`<div class="room-transition room3-transition" aria-label="第三の部屋へ移動"><img src="images/background/room01/room01_door_halfopen.png" alt="扉を通って次の部屋へ"></div>`;
  setTimeout(()=>{if(game.querySelector(".room3-transition"))showThirdRoom(roomStates.room03)},1100);
 }
+
 

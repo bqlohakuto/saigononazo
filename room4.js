@@ -70,6 +70,7 @@ function renderFourthRoomView(){
  document.getElementById("r4Background").src=`images/background/room04/room04_${view}.webp`;
  const targets={front:["r4Door","r4Wall","r4Box","r4Hana"],right:["r4Const","r4Flowers","r4P1"],back:["r4Meteor","r4Moon","r4P2","r4P3"],left:["r4Light","r4Stand"]};
  for(const b of stage.querySelectorAll(".r4obj")){b.hidden=!targets[view].includes(b.id);b.setAttribute("aria-label",b.querySelector("span").textContent);}
+ window.RoomExploration?.mount('room04',stage,view,room4State,{image:`images/background/room04/room04_${view}.webp`,imageAspect:16/9});
 }
 function turnFourthRoom(step){
  if(currentScene!=="room04"||game.querySelector(".room-dialog-overlay,.device-overlay,.design-overlay,.inspection-overlay"))return;
@@ -142,4 +143,5 @@ function showFourthRoomBoundary(){if(room3State){room3State.nextRoomTransitionSe
 
 
 function r4FlowerNotice(){showRoomDialog([{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"}],r4OpenFlowerExhibit)}
+
 

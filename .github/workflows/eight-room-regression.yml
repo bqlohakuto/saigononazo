@@ -8,6 +8,9 @@ on:
       - 'index.html'
       - 'script.js'
       - 'inspection.js'
+      - 'exploration-scenario.js'
+      - 'room-exploration.js'
+      - 'room-exploration.css'
       - 'scenario.js'
       - 'room2.js'
       - 'room3.js'
@@ -44,7 +47,7 @@ jobs:
         run: npm install --no-save --no-package-lock jsdom@26
       - name: Check gameplay scripts and room entry/artwork completeness
         run: |
-          for f in viewport-scaler.js script.js inspection.js room2.js room3.js room4.js late-game.js design-ui.js; do node --check "$f"; done
+          for f in viewport-scaler.js script.js inspection.js exploration-scenario.js room-exploration.js room2.js room3.js room4.js late-game.js design-ui.js; do node --check "$f"; done
           node --test tests/critical-path.test.cjs tests/cache-version.test.cjs tests/room3-morse.test.cjs tests/room2-choice-keyboard-focus.test.cjs tests/room2-compact-choice-panel.test.cjs
       - name: Test room five puzzle through its transition
         run: node tests/room5-mirror.test.cjs
@@ -56,3 +59,4 @@ jobs:
         run: node tests/room8-flow.test.cjs
       - name: Test the room six through ending critical path
         run: node tests/late-game-flow.test.cjs
+

@@ -393,6 +393,7 @@ function renderFirstRoomWall(){
  document.getElementById("roomStage").setAttribute("aria-label",wall.label);
  positionFirstRoomKeyboard();
  document.querySelectorAll(".room-wall").forEach(layer=>{layer.hidden=layer.dataset.wall!==wall.id});
+ window.RoomExploration?.mount('room01',document.getElementById('roomStage'),wall.id,firstRoomState,{image:wall.background,cover:true});
 }
 
 function turnFirstRoom(direction){
@@ -415,7 +416,7 @@ function inspectRoomFurniture(id){
   shelf:{label:"三段棚",image:firstRoomWalls[1].background,crop:[.26,.15,.20,.63]},
   desk:{label:"勉強机",image:firstRoomWalls[2].background,crop:[.56,.34,.18,.135],layers:[firstRoomPhone]}
  };
- if(items[id])showItemInspection({container:game,item:items[id]});
+ if(items[id])showItemInspection({container:game,item:items[id],onContinue:()=>window.RoomExploration?.describe('room01',id,firstRoomState)});
 }
 
 function inspectDoor(){
@@ -850,4 +851,5 @@ document.addEventListener("touchend",event=>{
 ["gesturestart","gesturechange","gestureend"].forEach(type=>{
  document.addEventListener(type,e=>e.preventDefault());
 });
+
 

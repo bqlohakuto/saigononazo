@@ -40,11 +40,23 @@
     },
     {
       title:"顔文字とモールス", question:"顔に隠された合図を読み、隠された想いを言葉にせよ。",
-      focus:"スマートフォンの15通の顔文字と、棚のモールス信号対応表を組み合わせる。",
+      focus:"スマートフォンの15通の顔文字と、棚のモールス信号対応表を組み合わせる。暗号を解くだけでなく、その結果を次の指示として使う。",
       steps:[
-        "顔文字の点と線をモールス信号として読み、各メッセージをアルファベット一文字に変換する。",
-        "15通を上から読むと「ONAJIMOJINOAIDA」＝「同じ文字の間」になる。",
-        "10×10の文字盤で、同じ文字に挟まれた文字を順に拾うと、最後の言葉が現れる。"
+        "顔文字の点と線をモールス信号として読み、各メッセージをアルファベット一文字に変換する。最初の(-_-)は横線3本＝O。",
+        "15通を上から読むと「ONAJIMOJINOAIDA」＝「同じ文字の間」になる。これは10×10文字盤に対する指示。",
+        "文字盤の縦・横・斜めを調べ、同じ文字二つのちょうど真ん中に別の一文字がある場所を探す。",
+        "たとえば2行2列のイは斜めのラとラに挟まれている。該当する七文字を盤面の上から順に読む。"
+      ],
+      breakdownTitle:"文字盤の拾い方（上から順）",
+      breakdownHeaders:["場所","挟んでいる文字","拾う字"],
+      breakdown:[
+        ["2行2列","ラ・イ・ラ（斜め）","イ"],
+        ["3行7列","ケ・ツ・ケ（縦）","ツ"],
+        ["4行4列","ソ・モ・ソ（横）","モ"],
+        ["5行9列","ネ・ト・ネ（斜め）","ト"],
+        ["6行3列","フ・ナ・フ（縦）","ナ"],
+        ["8行7列","マ・リ・マ（斜め）","リ"],
+        ["9行4列","ヨ・ニ・ヨ（横）","ニ"]
       ],
       answer:"イツモトナリニ（いつも隣に）",
       after:"暗号そのものの答えが、もう一段階先の解き方を示している。"
@@ -135,7 +147,7 @@
       pageSection("問題のおさらい",'<p>'+esc(c.question)+'</p>')+
       pageSection("着眼点",'<p>'+esc(c.focus)+'</p>')+
       pageSection("解き方",'<ol>'+items+'</ol>')+
-      (c.breakdown?pageSection("メールと音階の対応",'<table class="pguide-breakdown"><thead><tr><th>時刻</th><th>手がかり</th><th>音</th></tr></thead><tbody>'+c.breakdown.map(row=>'<tr>'+row.map(cell=>'<td>'+esc(cell)+'</td>').join('')+'</tr>').join('')+'</tbody></table>'):'')+
+      (c.breakdown?pageSection(c.breakdownTitle||"メールと音階の対応",'<table class="pguide-breakdown"><thead><tr>'+(c.breakdownHeaders||["時刻","手がかり","音"]).map(head=>'<th>'+esc(head)+'</th>').join('')+'</tr></thead><tbody>'+c.breakdown.map(row=>'<tr>'+row.map(cell=>'<td>'+esc(cell)+'</td>').join('')+'</tr>').join('')+'</tbody></table>'):'')+
       pageSection("正解",'<p class="pguide-answer">'+esc(c.answer)+'</p>')+
       pageSection("記憶とのつながり",'<p>'+esc(c.after)+'</p>')+
       '<div class="pguide-pager"><button type="button" id="pguidePrev" '+(selected===0?"disabled":"")+'>← 前の謎</button><button type="button" id="pguideNext" '+(selected===CHAPTERS.length-1?"disabled":"")+'>次の謎 →</button></div></article></div></main>';

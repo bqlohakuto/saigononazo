@@ -16,6 +16,8 @@ function tokens(values){
   for(const viewport of [{width:1280,height:720},{width:852,height:393}]){
    const page=await browser.newPage({viewport,reducedMotion:"reduce"});
    const errors=[];page.on("pageerror",error=>errors.push(error.message));
+   // The first-run guide is a separate modal; test the puzzle without covering it.
+   await page.addInitScript(()=>localStorage.setItem("saigononazo-help-seen","1"));
    await page.goto(base,{waitUntil:"load"});
    await page.evaluate(()=>{
     settings.instantText=true;

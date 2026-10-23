@@ -194,6 +194,8 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  assert.equal(await page.locator('.r4-ratio-specimen').count(),5,'All five color-area clues are visible');
  assert.deepEqual(await page.locator('.r4-ratio-digit').allTextContents(),['3','4','4','2','2'],'Approved letter extraction positions are preserved');
  assert.equal(await page.locator('.r4-ratio-exhibit svg').count(),0,'Puzzle does not disclose flag silhouettes');
+ assert.equal(await page.locator('.r4-ratio-exhibit h2,.r4-ratio-note,.r4-ratio-exhibit .design-op-button').count(),0,'Problem display has no title or explanatory text');
+ assert.equal((await page.locator('.r4-ratio-sample span').allTextContents()).filter(value=>value==='33.3%').length,9,'Thirds use decimal percentages');
  assert(!/POLAND|SPAIN|BELGIUM|THAILAND|ITALY/.test(await page.locator('.r4-ratio-exhibit').innerText()),'Country names are found in the separate reference');
  const ratioBounds=await page.locator('.r4-ratio-exhibit').boundingBox();
  assert(ratioBounds.x>=view.x-1&&ratioBounds.y>=view.y-1&&ratioBounds.x+ratioBounds.width<=view.x+view.width+1&&ratioBounds.y+ratioBounds.height<=view.y+view.height+1,'Color-area puzzle fits the game viewport');

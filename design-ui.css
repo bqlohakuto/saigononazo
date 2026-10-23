@@ -1945,15 +1945,17 @@ body{background:#0b1322!important;display:grid;place-items:center}
 
 /* Room 04, mini puzzle 2: equal-sized color specimens, with area percentages.
    Swatches never recreate flag geometry or stripe order. */
-#game .r4-mini.r4-ratio-exhibit{width:min(880px,96%)!important;grid-template-rows:auto auto auto auto auto}
+#game .r4-mini.r4-ratio-exhibit{width:min(880px,96%)!important;grid-template-rows:auto auto auto;padding-top:clamp(45px,8cqh,52px)!important}
+#game .r4-mini.r4-ratio-exhibit.r4-mini-inspected{grid-template-rows:auto auto}
+#game .r4-mini.r4-ratio-exhibit .r4-solved-answer{height:60px;min-height:0!important;padding:6px 18px!important;display:grid;place-items:center}
+#game .r4-mini.r4-ratio-exhibit .r4-solved-answer span{line-height:1}
 #game .r4-ratio-specimens{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(6px,1.1cqw,12px);padding:clamp(9px,1.4cqw,16px);border:2px solid #ae9062;background:#10212d;box-shadow:inset 0 3px 10px #0008}
 #game .r4-ratio-specimen{min-width:0;padding:clamp(7px,1cqw,12px);border:1px solid #8f7955;background:#203642;display:flex;flex-direction:column;align-items:stretch;gap:clamp(8px,1.5cqh,13px)}
-#game .r4-ratio-colors{display:grid;grid-template-rows:repeat(3,1fr);gap:clamp(6px,1.1cqh,10px);min-height:clamp(94px,22cqh,130px)}
+#game .r4-ratio-colors{display:flex;flex-direction:column;justify-content:center;gap:4px;height:170px;min-height:0}
 #game .r4-ratio-sample{display:flex;align-items:center;justify-content:space-between;gap:clamp(3px,.65cqw,7px);white-space:nowrap}
-#game .r4-ratio-sample i{flex:none;display:block;width:clamp(17px,2.7cqw,29px);height:clamp(17px,2.7cqw,29px);background:var(--sample-color);border:1px solid #d2c7a8;box-shadow:0 2px 0 #0a1822}
-#game .r4-ratio-sample span{font:700 clamp(14px,2cqw,22px)/1.2 "DotGothic16",sans-serif;color:#fff4d9;letter-spacing:0}
+#game .r4-ratio-sample i{flex:none;display:block;width:20px;height:20px;background:var(--sample-color);border:1px solid #d2c7a8;box-shadow:0 2px 0 #0a1822}
+#game .r4-ratio-sample span{font:700 clamp(14px,1.8cqw,19px)/1.2 "DotGothic16",sans-serif;color:#fff4d9;letter-spacing:0}
 #game .r4-ratio-digit{display:block;border-top:1px solid #8f7955;padding-top:clamp(6px,1cqh,10px);text-align:center;color:#f8e6ba;font:900 clamp(29px,4.2cqw,45px)/1 "DotGothic16",sans-serif;-webkit-text-stroke:.45px currentColor}
-#game .r4-ratio-note{grid-column:1/-1;text-align:center;color:#d2c3a6;font:normal clamp(10px,1.25cqw,14px)/1.5 "DotGothic16",sans-serif;margin:0}
 #game .r4-world-exhibit{position:relative;width:100%;height:100%;min-height:0;display:flex;flex-direction:column;gap:clamp(6px,1.3cqh,12px);background:#142935;color:#f6ead1;border:3px solid #ae9062;padding:clamp(12px,2cqw,24px);box-shadow:inset 0 0 0 2px #2d414c}
 #game .r4-world-exhibit header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;border-bottom:1px solid #ae906277;padding-bottom:clamp(5px,1cqh,10px)}
 #game .r4-world-exhibit h2{color:#ebd7aa;font:normal clamp(18px,2.5cqw,30px)/1.3 "DotGothic16",sans-serif;margin:0}
@@ -1968,7 +1970,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 @container game-viewport (max-height:465px) or (max-width:850px){
  #game .r4-ratio-specimens{padding:7px;gap:6px}
  #game .r4-ratio-specimen{padding:6px}
- #game .r4-ratio-colors{min-height:85px;gap:5px}
+ #game .r4-ratio-colors{height:180px;min-height:0;gap:4px}
  #game .r4-ratio-sample i{width:20px;height:20px}
  #game .r4-ratio-sample span{font-size:clamp(12px,1.9cqw,17px)}
  #game .r4-ratio-digit{font-size:30px;padding-top:6px}

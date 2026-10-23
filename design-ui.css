@@ -501,20 +501,20 @@ body{background:#0b1322!important;display:grid;place-items:center}
 /* Room 4: stage-depth companion scale and a calm ceiling-gaze pose.
    Override only Room 4; reuse the approved pixel full-body sprite. */
 #game.hana-v2-full-ready .room4-stage .r4hana::before{
- width:19.9cqw;
- height:31cqw;
- bottom:-3.875cqw;
+ width:var(--r4-hana-width,19.9cqw);
+ height:var(--r4-hana-height,31cqw);
+ bottom:var(--r4-hana-bottom,-3.875cqw);
 }
 #game.hana-v2-full-ready .room4-stage .r4hana{
- --hana-head-offset:25.4cqw;
+ --hana-head-offset:var(--r4-hana-head-offset,25.4cqw);
 }
 /* Dedicated approved full-body gaze artwork; align its shoes with the idle sprite. */
 #game .room4-stage .r4hana .r4-hana-look-pose{
  position:absolute;
  left:50%;
- bottom:calc(-1 * min(37.2px,37.2001px));
- width:min(191.04px,191.0401px);
- height:min(297.6px,297.5999px);
+ bottom:var(--r4-hana-bottom,-3.875cqw);
+ width:var(--r4-hana-width,19.9cqw);
+ height:var(--r4-hana-height,31cqw);
  background:url("images/characters/hana-hires/poses/look-up-left.webp") center bottom/contain no-repeat;
  image-rendering:pixelated;
  transform:translateX(-50%);

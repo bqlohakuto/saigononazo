@@ -5,7 +5,6 @@ const room4IntroLines=[
 {logId:"r4i04",logType:"narration",speaker:"ト書き",text:"正面には、これまでと同じ扉。部屋の中央には小さな台があり、その上には照明器具のようなものが置かれている。周囲には、いくつかの展示棚やケースが並んでいた。"},
 {logId:"r4i05",logType:"dialogue",speaker:"主人公",text:"今度は……ずいぶん雰囲気が違うな"},
 {logId:"r4i06",logType:"narration",speaker:"ト書き",text:"隣を見ると、ハナも天井を見上げていた。"},
-{logId:"r4i06_yawn",logType:"narration",speaker:"ト書き",text:"ふと、ハナが小さくあくびをかみ殺した。"},
 {logId:"r4i07",logType:"dialogue",speaker:"ハナ",text:"きれいだね"},
 {logId:"r4i08",logType:"dialogue",speaker:"主人公",text:"そうですね"},
 {logId:"r4i09",logType:"narration",speaker:"ト書き",text:"しばらく、二人で星のような光を見上げる。"},
@@ -98,3 +97,4 @@ const room4AfterMemoryLines=[
 {logId:"r4a14",logType:"dialogue",speaker:"ハナ",text:"……うん"},
 {logId:"r4a15",logType:"narration",speaker:"ト書き",text:"気づけば、もう扉へ向かって歩き出していた。今はただ、一刻も早く先へ進みたかった。"}
 ];
+

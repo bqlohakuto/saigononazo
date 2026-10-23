@@ -270,3 +270,148 @@
   padding:5px 8px!important;
   min-width:0!important;
 }
+
+
+/* A real, manipulable judgement lever fixed to the side of the puzzle.
+   The rendered control has no "pull lever" text: its physical shape is the affordance. */
+#game .room2-immersive-board .room2-wood-workbench{
+  grid-template-columns:minmax(0,1fr) clamp(60px,8cqw,88px)!important;
+  column-gap:clamp(7px,1cqw,13px);
+}
+#game .room2-immersive-board .room2-wood-workbench>.room2-bench-caption{
+  grid-column:1/3!important;
+}
+#game .room2-puzzle.room2-immersive-board .room2-wood-workbench>.room2-submit.room2-physical-lever{
+  grid-column:2!important;
+  grid-row:2/5!important;
+  align-self:center!important;
+  justify-self:center!important;
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:88px!important;
+  height:clamp(104px,22cqh,174px)!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  appearance:none;
+  border:5px solid #33231b!important;
+  border-radius:3px!important;
+  background:
+    linear-gradient(90deg,transparent 0 6px,#403024 6px calc(100% - 6px),transparent calc(100% - 6px)),
+    linear-gradient(115deg,#c1a076,#705235 58%,#c6a173)!important;
+  color:transparent!important;
+  box-shadow:
+    inset 3px 3px 0 #d1af7d,
+    inset -3px -3px 0 #432c1e,
+    2px 4px 0 #25160e!important;
+  cursor:pointer!important;
+  touch-action:manipulation;
+  transform:none!important;
+  transition:filter .12s;
+}
+#game .room2-immersive-board .room2-physical-lever::before,
+#game .room2-immersive-board .room2-physical-lever::after{
+  content:"";position:absolute;z-index:2;
+  width:6px;height:6px;border:1px solid #3b2a1d;
+  background:#c9a36b;box-shadow:inset -1px -1px 0 #796039;
+  border-radius:50%;
+  pointer-events:none;
+}
+#game .room2-immersive-board .room2-physical-lever::before{left:5px;top:5px;}
+#game .room2-immersive-board .room2-physical-lever::after{right:5px;bottom:5px;}
+#game .room2-immersive-board .room2-lever-mount{
+  position:absolute;inset:6px;
+  display:block;
+  background:linear-gradient(90deg,#4b3525,#95724a 50%,#4d3425);
+  border:2px solid #2d1b12;
+  box-shadow:inset 2px 2px 3px #24150dc0;
+  pointer-events:none;
+}
+#game .room2-immersive-board .room2-lever-track{
+  position:absolute;left:50%;top:13%;bottom:22%;
+  width:36%;transform:translateX(-50%);
+  border:2px solid #241914;
+  border-right-color:#a88656;
+  background:linear-gradient(90deg,#130f0c,#513a2c,#17100c);
+  box-shadow:inset 2px 1px 3px #080605c9;
+}
+#game .room2-immersive-board .room2-lever-arm{
+  position:absolute;z-index:3;
+  left:50%;bottom:22%;
+  display:block;
+  width:clamp(8px,1.2cqw,13px);
+  height:56%;
+  background:linear-gradient(90deg,#40342d,#f3dca1 33%,#9d805d 70%,#3b2922);
+  border:2px solid #37271e;
+  box-shadow:2px 2px 0 #1a100ba6;
+  transform:translateX(-50%) rotate(-22deg);
+  transform-origin:50% 92%;
+  pointer-events:none;
+}
+#game .room2-immersive-board .room2-lever-grip{
+  position:absolute;left:50%;top:-14px;
+  display:block;
+  width:clamp(23px,3cqw,33px);
+  height:clamp(19px,2.7cqw,28px);
+  border:3px solid #291b19;
+  border-radius:42% 42% 30% 30%;
+  background:linear-gradient(115deg,#9d4d3a,#5b211d 75%);
+  box-shadow:inset 3px 2px 0 #e09b72,2px 3px 0 #20110b;
+  transform:translateX(-50%);
+}
+#game .room2-immersive-board .room2-lever-pivot{
+  position:absolute;z-index:4;
+  left:50%;bottom:18%;
+  width:24px;height:18px;
+  border-radius:50%;
+  border:3px solid #37271c;
+  background:linear-gradient(135deg,#f0d7a0,#a18453 52%,#61462e);
+  box-shadow:inset 2px 1px 0 #f6e6c1,2px 3px 0 #24180e;
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+#game .room2-puzzle.room2-immersive-board .room2-physical-lever:disabled{
+  opacity:.66;
+  filter:saturate(.6) brightness(.78);
+  cursor:default!important;
+}
+#game .room2-immersive-board .room2-physical-lever.is-ready{
+  filter:brightness(1.06);
+}
+#game .room2-immersive-board .room2-physical-lever:focus-visible{
+  outline:3px solid #ffe3a7!important;
+  outline-offset:3px;
+}
+#game .room2-immersive-board .room2-physical-lever:active .room2-lever-arm{
+  transform:translateX(-50%) rotate(30deg);
+}
+#game .room2-immersive-board .room2-physical-lever.is-pulling .room2-lever-arm{
+  animation:room2LeverPull .4s cubic-bezier(.25,.7,.28,1) both;
+}
+@keyframes room2LeverPull{
+  0%{transform:translateX(-50%) rotate(-22deg)}
+  42%,65%{transform:translateX(-50%) rotate(30deg)}
+  100%{transform:translateX(-50%) rotate(-22deg)}
+}
+@container game-viewport (max-width:720px) or (max-height:540px){
+  #game .room2-immersive-board .room2-wood-workbench{
+    grid-template-columns:minmax(0,1fr) clamp(44px,7.5cqw,64px)!important;
+    column-gap:5px!important;
+  }
+  #game .room2-puzzle.room2-immersive-board .room2-wood-workbench>.room2-submit.room2-physical-lever{
+    max-width:64px!important;
+    height:clamp(76px,23cqh,116px)!important;
+    border-width:3px!important;
+    padding:0!important;
+  }
+  #game .room2-immersive-board .room2-lever-mount{inset:3px;}
+  #game .room2-immersive-board .room2-lever-arm{width:9px;height:51%;}
+  #game .room2-immersive-board .room2-lever-grip{width:21px;height:18px;top:-10px;}
+  #game .room2-immersive-board .room2-lever-pivot{width:18px;height:14px;border-width:2px;}
+}
+@media (prefers-reduced-motion:reduce){
+  #game .room2-immersive-board .room2-physical-lever.is-pulling .room2-lever-arm{animation:none;}
+}

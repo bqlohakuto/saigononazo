@@ -486,7 +486,7 @@
 }
 @container game-viewport (max-width:720px) or (max-height:540px){
  #game .room2-immersive-board .room2-wood-workbench{
-  grid-template-columns:minmax(0,1fr) clamp(55px,8.1cqw,66px)!important;
+  grid-template-columns:minmax(0,1fr) clamp(60px,8.5cqw,72px)!important;
  }
  #game .room2-immersive-board .room2-wood-workbench>.room2-digital-readout{
   padding:3px;border-width:3px;gap:1px;

@@ -92,25 +92,29 @@ async function finishDialogue(page){
  await page.locator('#r3Trumpet').click();await finishDialogue(page);
  await page.evaluate(()=>showThirdRoom({...room3State}));assert.equal(await page.locator('.room3-stage').getAttribute('data-view'),'back','Saved view restored');
  await page.locator('#r3TurnLeft').click();await page.locator('#r3Board').click();
- assert.equal(await page.locator('.room3-answer-input').evaluate(el=>el===document.activeElement),false,'Room 3 input waits for selection');await page.locator('.room3-answer-input').click();assert(await page.locator('.room3-answer-input').evaluate(el=>el===document.activeElement));
- await page.locator('.room3-answer-input').fill('オナジモジノアイダ');await page.locator('.room3-answer-submit').click();
- assert.equal(await page.locator('.room3-letterboard [role=gridcell]').count(),100);
- assert.deepEqual(await page.locator('.room3-board-row').evaluateAll(rows=>rows.map(r=>r.textContent)),['ラヘヨソヒロコモノチ','チイヘニロサケラミフ','ナロラキルヤツトイメ','ラソソモソアケワイネ','テヘフナイニワモトク','ルミナユキスシネレホ','ウハフワミマテアルハ','フヘモアトオリフニヨ','ヌヘヨニヨヒムマトレ','ツチヒワフエクノヨヒ']);
- // Finish layout/font updates, then measure the board and all cells in one frame.
- await page.screenshot({path:path.join(dir,'puzzle-layout.png')});
- const snapshot=await page.locator('.room3-letterboard').evaluate(board=>{
-  const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}};
-  return {board:rect(board),cells:[...board.querySelectorAll('[role=gridcell]')].map(rect)};
- });
- const board=snapshot.board;
- assert(board.x>=0&&board.y>=0&&board.x+board.width<=spec.viewport.width&&board.y+board.height<=spec.viewport.height,'Entire adopted board fits viewport');
- const outside=snapshot.cells.filter(r=>!(r.x>=board.x&&r.y>=board.y&&r.x+r.width<=board.x+board.width+1&&r.y+r.height<=board.y+board.height+1));
- assert.deepEqual(outside,[],'Every letter fits board: '+JSON.stringify({board,outside}));
- assert.equal(await page.locator('.room3-puzzle-note').count(),0,'No obsolete prototype label');
- await page.screenshot({path:path.join(dir,'puzzle.png')});
- assert.equal(await page.locator('.room3-final-input').evaluate(el=>el===document.activeElement),false,'Second answer field is not focused automatically');await page.locator('.room3-final-input').click();
- await page.locator('.room3-final-input').fill('いつもとなりに');await page.locator('.room3-final-submit').click();await finishDialogue(page);
- assert(await page.evaluate(()=>room3State.unlocked&&room3State.memorySeen),'Existing puzzle and memory flow succeeds');
+ const reply=page.locator('.r3-reply-input'),send=page.locator('.r3-reply-send');
+ assert.equal(await page.locator('.room3-answer-input,.room3-final-input').count(),0,'The old standalone puzzle entry no longer exists');
+ assert.equal(await reply.count(),1,'The smartphone conversation ends with one reply field');
+ assert.equal(await reply.evaluate(el=>el===document.activeElement),false,'No unwanted mobile keyboard when chat opens');
+ assert.equal(await page.locator('.r3-inline-morse').isVisible(),true,'The collected A-Z Morse chart stays beside the phone');
+ assert.equal(await page.locator('.r3-inline-morse .r3-morse-cell').count(),26);
+ assert.equal(await page.locator('.r3-board-preview').count(),0,'The letterboard is not received before the first correct reply');
+ await page.screenshot({path:path.join(dir,'chat-with-morse-chart.png')});
+ await reply.fill('オナジモジノアイダ');await send.click();
+ assert.equal(await page.evaluate(()=>room3State.morseSolved),true,'First correct reply decodes the message');
+ assert.equal(await page.locator('.r3-board-preview').count(),1,'Senpai sends the 10x10 image as a chat attachment');
+ assert(await page.locator('.r3-large-letterboard img').evaluate(async img=>{await img.decode();return img.naturalWidth===800&&img.naturalHeight===800}),'The 10x10 board image loads at full resolution');
+ assert.equal(await page.locator('.r3-large-letterboard').isVisible(),true,'Received board is enlarged in the companion pane');
+ assert.equal(await reply.evaluate(el=>el===document.activeElement),false,'No mobile keyboard appears when the image arrives');
+ await page.locator('.r3-show-morse').click();
+ assert.equal(await page.locator('.r3-inline-morse').isVisible(),true,'Morse reference can be reopened while the chat stays open');
+ await page.locator('.r3-board-preview').click();
+ assert.equal(await page.locator('.r3-large-letterboard').isVisible(),true,'Tapping the received image enlarges it beside the phone');
+ await page.screenshot({path:path.join(dir,'received-letterboard.png')});
+ await reply.fill('いつもとなりに');await send.click();
+ await page.locator('.room-dialog-overlay').waitFor();
+ await finishDialogue(page);
+ assert(await page.evaluate(()=>room3State.unlocked&&room3State.memorySeen),'Second correct reply opens the existing memory flow');
  assert.deepEqual(errors,[]);console.log(spec.name+': all four views, investigation, save and puzzle passed');
  }finally{await browser.close()}
  }

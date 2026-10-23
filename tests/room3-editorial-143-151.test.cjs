@@ -100,7 +100,7 @@ test("No.150-151: repeat desk/door inspection is concise and does not save again
  vm.runInNewContext(source+";this.__desk=inspectThirdRoomDesk;this.__door=inspectThirdRoomDoor;",sandbox);
  sandbox.__desk();sandbox.__door();
  assert.equal(notices.length,2);
- assert.equal(notices[0][0],"黒い天板の机だ。スマートフォンと文字盤がある。");
+ assert.equal(notices[0][0],"黒い天板の机だ。スマートフォンがある。");
  assert.equal(notices[1][0],"『顔に隠された合図を読み、隠された想いを言葉にせよ』");
  assert.equal(saves,0);
 });

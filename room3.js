@@ -174,7 +174,7 @@ function inspectThirdRoomDoor(){
 }
 function inspectThirdRoomDesk(){
  if(room3State.deskInspected){showRoomNotice("黒い天板の机だ。スマートフォンがある。","room3_desk_repeat","investigation");return}
- room3State.deskInspected=true;saveGame();document.getElementById("r3Phone").disabled=false;document.getElementById("r3Board").disabled=false;
+ room3State.deskInspected=true;saveGame();document.getElementById("r3Phone").disabled=false;
  showRoomDialog([{logId:"room3_desk_01",logType:"investigation",speaker:"ト書き",text:"黒い天板の机だ。一人で組み立てるのに2時間かかったことを思い出す。"},{logId:"room3_desk_02",logType:"narration",speaker:"主人公",thought:true,text:"どうして、そんなことを覚えているんだろう。"},{logId:"room3_desk_03",logType:"investigation",speaker:"ト書き",text:"机の上にはスマートフォンが置かれている。"}]);
 }
 function room3ReplyIsCorrect(text,stage){

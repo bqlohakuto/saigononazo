@@ -121,7 +121,7 @@ function showThirdRoom(savedState){
   <div class="room-stage-wrap"><section class="room-stage room3-stage" aria-label="大学時代の自室">
    <img class="room3-background-art" id="r3Background" src="images/background/room03/room03_front.webp" alt="" aria-hidden="true"><div class="room3-shared-door" aria-hidden="true"></div><div class="room3-sleeping-hana" aria-hidden="true"><span class="sleep-head"></span><span class="sleep-body"></span><span class="sleep-legs"></span></div><div class="room3-sleep-shoes" aria-hidden="true"></div><button type="button" class="object room3-object room3-sleep-target" id="r3SleepingHana" aria-label="眠っているハナ"><span>ハナ</span></button>
    <button class="object room3-object room3-door" id="r3Door"><span>扉</span></button><button class="object room3-object room3-bed" id="r3Bed"><span>ベッド</span></button>
-   <button class="object room3-object room3-desk" id="r3Desk" ${room3State.doorInspected?"":"disabled"}><span>机</span></button><button class="object room3-object room3-phone" id="r3Phone" ${room3State.deskInspected?"":"disabled"}><span>スマートフォン</span></button><button class="object room3-object room3-board" id="r3Board" ${room3State.deskInspected?"":"disabled"}><span>文字盤</span></button>
+   <button class="object room3-object room3-desk" id="r3Desk" ${room3State.doorInspected?"":"disabled"}><span>机</span></button><button class="object room3-object room3-phone" id="r3Phone" ${room3State.deskInspected?"":"disabled"}><span>スマートフォン</span></button>
    <button class="object room3-object room3-shelf" id="r3Shelf" ${room3State.doorInspected?"":"disabled"}><span>小さな棚</span></button><button class="object room3-object room3-trumpet" id="r3Trumpet"><span>トランペット</span></button><button class="object room3-object room3-hana" id="r3Hana"><span>ハナ</span></button>
   </section></div><nav class="room-navigation" aria-label="部屋を見回す"><button type="button" id="r3TurnLeft" aria-label="左を向く">◀</button><button type="button" id="r3TurnRight" aria-label="右を向く">▶</button></nav><p class="explore-status" id="exploreStatus" aria-live="polite"></p>
  </main>`;
@@ -131,7 +131,6 @@ function showThirdRoom(savedState){
  document.getElementById("r3Door").addEventListener("click",inspectThirdRoomDoor);
  document.getElementById("r3Desk").addEventListener("click",inspectThirdRoomDesk);
  document.getElementById("r3Phone").addEventListener("click",showThirdRoomChat);
- document.getElementById("r3Board").addEventListener("click",showThirdRoomPuzzle);
  document.getElementById("r3SleepingHana").addEventListener("click",inspectThirdRoomBed);
  document.getElementById("r3Bed").addEventListener("click",inspectThirdRoomBed);
  document.getElementById("r3Shelf").addEventListener("click",inspectThirdRoomShelf);
@@ -154,7 +153,7 @@ function renderThirdRoomView(){
  stage.dataset.view=view;
  stage.classList.toggle("hana-asleep",!room3State.bedInspected);
  document.getElementById("r3Background").src=`images/background/room03/room03_${view}.webp`;
- const targets={front:room3State.bedInspected?["r3Door","r3Hana"]:["r3Door"],right:["r3Desk","r3Phone","r3Board"],back:["r3Shelf","r3Trumpet"],left:room3State.bedInspected?["r3Bed"]:["r3Bed","r3SleepingHana"]};
+ const targets={front:room3State.bedInspected?["r3Door","r3Hana"]:["r3Door"],right:["r3Desk","r3Phone"],back:["r3Shelf","r3Trumpet"],left:room3State.bedInspected?["r3Bed"]:["r3Bed","r3SleepingHana"]};
  for(const button of stage.querySelectorAll(".room3-object")){button.hidden=!targets[view].includes(button.id);button.setAttribute("aria-label",button.querySelector("span").textContent);}
  window.RoomExploration?.mount('room03',stage,view,room3State,{image:`images/background/room03/room03_${view}.webp`,imageAspect:16/9});
 }
@@ -174,7 +173,7 @@ function inspectThirdRoomDoor(){
  showRoomDialog([{logId:"room3_door_01",logType:"investigation",speaker:"ト書き",text:"扉には『顔に隠された合図を読み、隠された想いを言葉にせよ』と書かれている。"},{logId:"room3_door_02",logType:"dialogue",speaker:"主人公",text:"顔に隠された合図……？"},{logId:"room3_door_03",logType:"dialogue",speaker:"主人公",text:"今回も、この部屋のどこかに手がかりがあるんだろうな。"}]);
 }
 function inspectThirdRoomDesk(){
- if(room3State.deskInspected){showRoomNotice("黒い天板の机だ。スマートフォンと文字盤がある。","room3_desk_repeat","investigation");return}
+ if(room3State.deskInspected){showRoomNotice("黒い天板の机だ。スマートフォンがある。","room3_desk_repeat","investigation");return}
  room3State.deskInspected=true;saveGame();document.getElementById("r3Phone").disabled=false;document.getElementById("r3Board").disabled=false;
  showRoomDialog([{logId:"room3_desk_01",logType:"investigation",speaker:"ト書き",text:"黒い天板の机だ。一人で組み立てるのに2時間かかったことを思い出す。"},{logId:"room3_desk_02",logType:"narration",speaker:"主人公",thought:true,text:"どうして、そんなことを覚えているんだろう。"},{logId:"room3_desk_03",logType:"investigation",speaker:"ト書き",text:"机の上にはスマートフォンが置かれている。"}]);
 }

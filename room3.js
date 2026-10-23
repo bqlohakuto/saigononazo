@@ -197,17 +197,17 @@ function showThirdRoomChat(){
     '<div class="r3-chat-scroll" tabindex="0" role="region" aria-label="先輩との会話をスクロール"></div>'+
     '<form class="r3-reply-form" aria-label="先輩に返信する"><input class="r3-reply-input" type="text" aria-label="返信の本文" placeholder="返信を入力" autocomplete="off" enterkeyhint="send"><button class="r3-reply-send" type="submit" aria-label="返信を送る">送信</button></form>'+
    '</div><div class="r3-phone-home" aria-hidden="true"></div></div>'+
-  '<aside class="r3-companion-sheet" aria-label="トークと一緒に見る資料">'+
-   '<div class="r3-companion-tabs"><button type="button" class="r3-show-morse">モールス対応表</button><button type="button" class="r3-show-letterboard">届いた画像</button></div>'+
+  '<aside class="r3-companion-sheet" aria-label="トークと一緒に見る資料" hidden>'+
+   '<div class="r3-companion-tabs"><button type="button" class="r3-show-morse" hidden>モールス対応表</button><button type="button" class="r3-show-letterboard" hidden>届いた画像</button></div>'+
    '<div class="r3-companion-content"><div class="r3-inline-morse r3-morse-chart" hidden><div class="r3-morse-grid" role="list" aria-label="AからZのモールス信号対応表"></div><p class="r3-morse-legend">・ 短点　　－ 長点</p></div>'+
    '<div class="r3-large-letterboard" hidden><img src="images/items/room03-chat-letterboard.svg" alt="先輩から送られた10行10列の文字盤"></div>'+
-   '<div class="r3-no-attachment" aria-hidden="true"></div></div>'+
+   '</div>'+
   '</aside></section>';
  game.appendChild(overlay);
  const stream=overlay.querySelector(".r3-chat-scroll"),form=overlay.querySelector(".r3-reply-form"),
   input=overlay.querySelector(".r3-reply-input"),send=overlay.querySelector(".r3-reply-send"),
   chart=overlay.querySelector(".r3-inline-morse"),grid=chart.querySelector(".r3-morse-grid"),
-  largeBoard=overlay.querySelector(".r3-large-letterboard"),empty=overlay.querySelector(".r3-no-attachment"),
+  largeBoard=overlay.querySelector(".r3-large-letterboard"),sheet=overlay.querySelector(".r3-companion-sheet"),workspace=overlay.querySelector(".r3-chat-workspace"),
   chartTab=overlay.querySelector(".r3-show-morse"),boardTab=overlay.querySelector(".r3-show-letterboard");
  // Preserve the same A-Z reference from the shelf and keep it beside the phone.
  for(const [letter,code] of Object.entries(ROOM3_MORSE)){
@@ -222,12 +222,17 @@ function showThirdRoomChat(){
  const showReference=mode=>{
   referenceMode=mode;
   const canChart=room3State.shelfInspected,canBoard=room3State.morseSolved;
-  chartTab.disabled=!canChart;boardTab.disabled=!canBoard;
+  // The reference frame itself does not exist visually until an item is found.
+  // Never show a disabled tab or an empty slot for an undiscovered clue.
+  const hasReference=canChart||canBoard;
+  sheet.hidden=!hasReference;
+  workspace.classList.toggle("has-reference",hasReference);
+  chartTab.hidden=!canChart;
+  boardTab.hidden=!canBoard;
   if(referenceMode==="morse"&&!canChart)referenceMode=canBoard?"letterboard":"none";
   if(referenceMode==="letterboard"&&!canBoard)referenceMode=canChart?"morse":"none";
   chart.hidden=referenceMode!=="morse";
   largeBoard.hidden=referenceMode!=="letterboard";
-  empty.hidden=referenceMode!=="none";
   chartTab.setAttribute("aria-pressed",String(referenceMode==="morse"));
   boardTab.setAttribute("aria-pressed",String(referenceMode==="letterboard"));
  };

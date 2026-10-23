@@ -287,7 +287,7 @@ function showSecondRoomPuzzle(){
   digitalHit.textContent=String(lastJudgement.hit);digitalBlow.textContent=String(lastJudgement.blow);
   digital.classList.add("has-result");
  }
- if(isChallenge)overlay.querySelector(".room2-abandon").addEventListener("click",()=>showRoom2AbandonConfirm(overlay,close,clearReactionTimer));
+ if(isChallenge)overlay.querySelector(".room2-abandon").addEventListener("click",()=>showRoom2AbandonConfirm(overlay,close,()=>{clearReactionTimer();pendingResolution=null}));
  overlay.querySelector(".room2-clear").onclick=()=>{if(!room2State.guess.some(Boolean))return;room2State.guess=Array(5).fill(null);selectedSlot=null;heldToken=null;feedback.textContent="";saveGame();render()};
  let reactionDone=null;
  const endReaction=()=>{

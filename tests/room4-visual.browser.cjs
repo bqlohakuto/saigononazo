@@ -64,6 +64,12 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
   return {width:parseFloat(sprite.width),height:parseFloat(sprite.height),headHeight:parseFloat(head.height),visible:!el.hidden};
  });
  const canvasWidth=await page.locator('#game-container').evaluate(el=>el.getBoundingClientRect().width);
+ const sizing=await page.locator('#r4Hana').evaluate(el=>{
+  const bounds=sel=>{const t=document.querySelector(sel)?.getBoundingClientRect();return t?{width:t.width,height:t.height,x:t.x,y:t.y}:null};
+  const st=getComputedStyle(el,'::before'),face=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
+  return {gameContainer:bounds('#game-container'),game:bounds('#game'),stageWrap:bounds('.room-stage-wrap'),stage:bounds('.room4-stage'),hana:bounds('#r4Hana'),idle:{width:st.width,height:st.height,bottom:st.bottom,background:st.backgroundImage},gaze:{width:face.width,height:face.height,bottom:face.bottom},ready:document.querySelector('#game').className};
+ });
+ console.log('ROOM4_HANA_DIAGNOSTIC '+spec.name+' '+JSON.stringify({sizing,hanaScale,canvasWidth}));
  assert(hanaScale.visible,'Hana must be visible in the fourth room front view');
  assert(Math.abs(hanaScale.height/canvasWidth-.31)<.01,'Room 4 Hana uses reduced 31cqw sprite height');
  assert(Math.abs(hanaScale.width/canvasWidth-.199)<.01,'Room 4 Hana uses reduced 19.9cqw sprite width');

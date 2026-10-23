@@ -14,6 +14,7 @@ on:
       - 'images/background/room04/**'
       - 'images/characters/hana-current/world/look-up/**'
       - 'tests/room4-visual.browser.cjs'
+      - 'tests/room4-projection.browser.cjs'
       - 'tests/room4-hana-look-source.test.cjs'
       - '.github/workflows/room4-visual-review.yml'
 permissions:
@@ -35,6 +36,8 @@ jobs:
         run: node tests/room4-hana-look-source.test.cjs
       - name: Check published room 4 on desktop Chrome and landscape WebKit
         run: node tests/room4-visual.browser.cjs
+      - name: Check partial mounting and live Virgo projection
+        run: node tests/room4-projection.browser.cjs
       - if: always()
         uses: actions/upload-artifact@v4
         with:

@@ -4,7 +4,9 @@ const R4_VIRGO_PANEL_HIPS=[[57380,69427,66249],[60030,71957,63608],[61941,72220]
 let r4HanaGazeObserver;
 function r4Count(){return [room4State.wall,room4State.box,room4State.star,room4State.lightPuzzle,room4State.meteors].filter(Boolean).length}
 function r4All(){return r4Count()===5}
-function r4Correct(){return r4All()&&room4State.angles.every((v,i)=>v===R4_ANGLES[i])}
+function r4Mounted(i){return !!(room4State[R4_PANEL_KEYS[i]]&&room4State.mountedPanels?.[i])}
+function r4AllMounted(){return R4_PANEL_KEYS.every((_,i)=>r4Mounted(i))}
+function r4Correct(){return r4AllMounted()&&room4State.angles.every((v,i)=>v===R4_ANGLES[i])}
 function showFourthRoom(savedState){
  r4HanaGazeObserver?.disconnect();r4HanaGazeObserver=null;
  Dialogue.stop();firstRoomState=undefined;room2State=undefined;room3State=undefined;currentScene="room04";
@@ -15,6 +17,9 @@ function showFourthRoom(savedState){
   room4State.angles=R4_PANEL_KEYS.map((key,i)=>room4State[key]?((Number(room4State.angles[i])-legacy[i]+360)%360)/90:R4_INITIAL[i]);
  }
  room4State.angles=room4State.angles.map((v,i)=>Number.isInteger(v)&&v>=0&&v<4?v:R4_INITIAL[i]);room4State.panelRotationVersion=1;
+ // Ownership does not put a pane into the apparatus. Completed legacy saves
+ // retain their finished constellation; other saves can insert owned panes.
+ room4State.mountedPanels=R4_PANEL_KEYS.map((key,i)=>!!room4State[key]&&(!!room4State.completed||!!room4State.mountedPanels?.[i]));
  if(!Array.isArray(room4State.rainbow)||room4State.rainbow.length!==7||room4State.rainbow.slice().sort().join("|")!==R4_RAINBOW.slice().sort().join("|"))room4State.rainbow=[...R4_RAINBOW];
  game.innerHTML=`<main class="room room-four room4-arriving ${room4State.completed?"is-restored":""}" aria-label="第四の部屋"><header class="room-header"><p class="room-label">第四の部屋</p><p class="room-color-status">${room4State.completed?"記憶を取り戻した部屋":"天文展示室"}</p></header><div class="room-stage-wrap"><section class="room-stage room4-stage"><img id="r4Background" class="room4-background-art" alt="" aria-hidden="true"><div class="room4-shared-door" aria-hidden="true"></div>${r4FlowerBoard()}<img id="r4LightOverlay" class="room4-light-overlay" src="images/background/room04/room04_light.webp" alt="" aria-hidden="true"><div id="r4Projection" class="r4-projection"></div><button class="object r4obj r4door" id="r4Door"><span>扉</span></button><button class="object r4obj r4light" id="r4Light"><span>ライト</span></button><button class="object r4obj r4stand" id="r4Stand"><span>パネル台</span></button><button class="object r4obj r4const" id="r4Const"><span>星座一覧</span></button><button class="object r4obj r4flowers" id="r4Flowers"><span>12星座の花</span></button><button class="object r4obj r4moon" id="r4Moon"><span>世界の月の見立て</span></button><button class="object r4obj r4meteor" id="r4Meteor"><span>流れ星</span></button><button class="object r4obj r4p1" id="r4P1"><span>謎1</span></button><button class="object r4obj r4p2" id="r4P2"><span>謎2</span></button><button class="object r4obj r4p3" id="r4P3"><span>謎3</span></button><button class="object r4obj r4wall" id="r4Wall" ${room4State.wall?"disabled":""}><span>壁の透明板</span></button><button class="object r4obj r4box" id="r4Box"><span>質問箱</span></button><button class="object r4obj r4hana" id="r4Hana"><i class="r4-hana-look-pose" aria-hidden="true"></i><span>ハナ</span></button></section></div><nav class="room-navigation"><button id="r4TurnLeft" class="nav-arrow" aria-label="左を向く">◀</button><button id="r4TurnRight" class="nav-arrow" aria-label="右を向く">▶</button></nav></main>`;
  [["r4Door",r4Door],["r4Light",r4Light],["r4Stand",r4Stand],["r4Const",r4Const],["r4Flowers",r4FlowerNotice],["r4Moon",r4Moon],["r4Meteor",r4Meteor],["r4P1",r4P1],["r4P2",r4P2],["r4P3",r4P3],["r4Wall",r4Wall],["r4Box",r4Box],["r4Hana",r4Hana]].forEach(([id,fn])=>document.getElementById(id).addEventListener("click",fn));
@@ -184,20 +189,48 @@ function r4Door(){
 function r4Light(){
  if(room4State.completed){showRoomNotice("おとめ座は完成している。","r4light_completed","investigation");return}
  const firstLight=!room4State.lightOn;if(firstLight){room4State.lightOn=true;saveGame()}r4Projection();
- if(r4Count()===0){if(!firstLight){showRoomNotice("ライトは点いているが、まだ星は映らない。","r4light_repeat","investigation");return}showRoomDialog([{logId:"r4le1",logType:"investigation",speaker:"ト書き",text:"スイッチを入れる。ライトが点灯し、左の壁を照らした。ただ、壁が明るく照らされただけだ。"},{logId:"r4le2",logType:"dialogue",speaker:"主人公",text:"これだけじゃ、何も起きないみたいだな"}]);return}
- if(!r4All()){showRoomNotice("集めたパネルを通して星が映ったが、まだパネルが足りない。","r4partial");return}
+ if(!R4_PANEL_KEYS.some((_,i)=>r4Mounted(i))){if(!firstLight){showRoomNotice("ライトは点いているが、まだ星は映らない。","r4light_repeat","investigation");return}showRoomDialog([{logId:"r4le1",logType:"investigation",speaker:"ト書き",text:"スイッチを入れる。ライトが点灯し、左の壁を照らした。ただ、壁が明るく照らされただけだ。"},{logId:"r4le2",logType:"dialogue",speaker:"主人公",text:"これだけじゃ、何も起きないみたいだな"}]);return}
+ if(!r4AllMounted()){showRoomNotice("はめたパネルの星が、壁に映っている。まだ空いている枠がある。","r4partial");return}
  if(!r4Correct()){showRoomDialog([{logId:"r4lw1",logType:"investigation",speaker:"ト書き",text:"ライトの光がパネルを通り、左の壁にいくつもの星が映し出される。"},{logId:"r4lw2",logType:"dialogue",speaker:"主人公",text:"……星は映ったけど。これじゃ、まだ何の形か分からないな"},{logId:"r4lw3",logType:"dialogue",speaker:"主人公",text:"パネルの向きが違うのかもしれない"}]);return}
  r4Complete();
 }
-function r4Projection(){const p=document.getElementById("r4Projection");if(!p)return;document.getElementById("r4LightOverlay").hidden=!room4State.lightOn;p.className="r4-projection"+(room4State.lightOn?" on":"")+(room4State.completed?" complete":"");p.innerHTML=room4State.lightOn?Array.from({length:r4Count()*3},(_,i)=>`<i style="--x:${10+(i*31)%78}%;--y:${12+(i*43)%72}%"></i>`).join(""):""}
+// The stand and wall share the exact coordinates used by the approved SVG panes.
+function r4VirgoLayout(){
+ const virgo=R4_ZODIAC.find(item=>item.id==="Vir");
+ const panelByHip=new Map(R4_VIRGO_PANEL_HIPS.flatMap((list,i)=>list.map(hip=>[hip,i])));
+ return {virgo,stars:virgo.stars.map(star=>({
+  hip:star.hip,x:(512+(star.x-150)*2.9)*576/1024,
+  y:(512+(star.y-100)*2.9)*576/1024,pane:panelByHip.get(star.hip)
+ }))};
+}
+function r4PanelsLinked(i,j){
+ return r4Mounted(i)&&r4Mounted(j)&&
+  (room4State.angles[i]-R4_ANGLES[i]+4)%4===(room4State.angles[j]-R4_ANGLES[j]+4)%4;
+}
+function r4Projection(){
+ const p=document.getElementById("r4Projection");if(!p)return;
+ document.getElementById("r4LightOverlay").hidden=!room4State.lightOn;
+ p.className="r4-projection"+(room4State.lightOn?" on":"")+(room4State.completed?" complete":"");
+ p.innerHTML="";
+ if(!room4State.lightOn)return;
+ const {virgo,stars}=r4VirgoLayout();
+ const points=stars.map(star=>{
+  const a=room4State.angles[star.pane]*Math.PI/2,x=star.x-288,y=star.y-288;
+  return {...star,x:288+x*Math.cos(a)-y*Math.sin(a),y:288+x*Math.sin(a)+y*Math.cos(a)};
+ });
+ const visible=points.filter(star=>r4Mounted(star.pane));
+ if(!visible.length)return;
+ const lines=virgo.edges.map(([i,j],edge)=>{
+  const a=points[i],b=points[j];
+  return r4PanelsLinked(a.pane,b.pane)?'<line data-edge="'+edge+'" x1="'+a.x.toFixed(3)+'" y1="'+a.y.toFixed(3)+'" x2="'+b.x.toFixed(3)+'" y2="'+b.y.toFixed(3)+'"/>':"";
+ }).join("");
+ const dots=visible.map(star=>'<circle class="r4-projected-star" data-hip="'+star.hip+'" data-pane="'+star.pane+'" cx="'+star.x.toFixed(3)+'" cy="'+star.y.toFixed(3)+'" r="'+(room4State.completed&&star.hip===65474?7:4.4)+'"/>').join("");
+ p.innerHTML='<svg class="r4-projected-constellation" viewBox="64 64 448 448" role="img" aria-label="'+(room4State.completed?"おとめ座の投影":"パネルを通して映る星")+'"><g class="r4-projected-lines">'+lines+'</g><g>'+dots+'</g></svg>';
+}
 function r4Stand(){
  if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
  if(room4State.completed){showRoomNotice("星座は完成している。","r4stand_complete","investigation");return}
- if(!r4All()){
-  if(room4State.standInspected){showRoomNotice("まだ空いている枠がある。","r4stand_repeat","investigation");return}
-  room4State.standInspected=true;saveGame();
-  showRoomDialog([{logId:"r4s1",logType:"investigation",speaker:"ト書き",text:"ライトの前に、透明な板を差し込めそうな枠が並んでいる。まだ空いている枠がある。"}]);return;
- }
+ room4State.standInspected=true;saveGame();
  const o=document.createElement("div");o.className="device-overlay r4-panel-overlay";
  o.innerHTML='<section class="r4-panel-ui r4-linked-puzzle" aria-label="ガラスパネルの操作">'+
   '<button type="button" class="device-close" aria-label="閉じる">×</button>'+
@@ -211,23 +244,20 @@ function r4Stand(){
  // Persist only 0..3, but use cumulative turns for a clockwise 90-degree CSS transition.
  const turns=[...room4State.angles];
  const paneSource=i=>"images/exhibits/room04/virgo-panels/virgo-panel-"+String(i+1).padStart(2,"0")+".svg";
- grid.innerHTML=turns.map((angle,i)=>'<article><button type="button" class="r4-glass r4-rotate-plate" data-i="'+i+
-  '" aria-label="ガラスパネル'+(i+1)+'を右に90度回す"><img src="'+paneSource(i)+
-  '" alt="" aria-hidden="true" draggable="false" style="transform:rotate('+(angle*90)+'deg)"></button></article>').join("");
+ grid.innerHTML=turns.map((angle,i)=>{
+  const owned=!!room4State[R4_PANEL_KEYS[i]],mounted=r4Mounted(i);
+  return '<article><button type="button" class="r4-glass r4-rotate-plate'+(mounted?' is-mounted':'')+'" data-i="'+i+
+   '" aria-label="'+(!owned?'空の枠':mounted?'ガラスパネル'+(i+1)+'を右に90度回す':'ガラスパネル'+(i+1)+'をはめる')+'"'+(!owned?' disabled':'')+'>'+
+   (owned?'<img src="'+paneSource(i)+'" alt="" aria-hidden="true" draggable="false" style="transform:rotate('+(angle*90)+'deg)">':'')+'</button></article>';
+ }).join("");
  stack.innerHTML='<svg class="r4-constellation-lines" viewBox="0 0 576 576" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>'+
-  turns.map((angle,i)=>'<img src="'+paneSource(i)+'" alt="" aria-hidden="true" draggable="false" style="transform:rotate('+(angle*90)+'deg)">').join("");
+  turns.map((angle,i)=>'<img data-pane="'+i+'" src="'+paneSource(i)+'" alt="" aria-hidden="true" draggable="false"'+(!r4Mounted(i)?' hidden':'')+' style="transform:rotate('+(angle*90)+'deg)">').join("");
  const overlay=stack.querySelector(".r4-constellation-lines");
  // Adopted Virgo stars and edges; no changes to the five original images.
- const virgo=R4_ZODIAC.find(item=>item.id==="Vir");
- const panelByHip=new Map(R4_VIRGO_PANEL_HIPS.flatMap((list,i)=>list.map(hip=>[hip,i])));
- const stars=virgo.stars.map(star=>({
-  x:(512+(star.x-150)*2.9)*576/1024,
-  y:(512+(star.y-100)*2.9)*576/1024,
-  pane:panelByHip.get(star.hip)
- }));
+ const {virgo,stars}=r4VirgoLayout();
  const relative=i=>(room4State.angles[i]-R4_ANGLES[i]+4)%4;
- const linked=(i,j)=>relative(i)===relative(j);
- const allLinked=()=>room4State.angles.every((_,i)=>relative(i)===relative(0));
+ const linked=r4PanelsLinked;
+ const allLinked=()=>r4AllMounted()&&room4State.angles.every((_,i)=>relative(i)===relative(0));
  const lines=new Map();
  function drawLinks(initial=false){
   for(const [index,[i,j]] of virgo.edges.entries()){
@@ -256,18 +286,28 @@ function r4Stand(){
   stack.disabled=!all;stack.classList.toggle("can-turn-all",all);
   stack.setAttribute("aria-label",all?"星座全体を右に90度回す":"重なった星の配置");
  }
- const plateImages=[...grid.querySelectorAll(".r4-rotate-plate img")];
+ const plateImages=turns.map((_,i)=>grid.querySelector('[data-i="'+i+'"] img'));
  const stackImages=[...stack.querySelectorAll(":scope > img")];
  const rotatePanes=indices=>{
-  if(room4State.completed)return;
+   if(room4State.completed)return;
   for(const i of indices){
    turns[i]++;room4State.angles[i]=(room4State.angles[i]+1)%4;
    const transform="rotate("+(turns[i]*90)+"deg)";
    plateImages[i].style.transform=transform;stackImages[i].style.transform=transform;
   }
-  fb.textContent="";drawLinks();saveGame();
+  fb.textContent="";drawLinks();r4Projection();saveGame();
  };
- grid.querySelectorAll(".r4-rotate-plate").forEach(button=>button.onclick=()=>rotatePanes([Number(button.dataset.i)]));
+ grid.querySelectorAll(".r4-rotate-plate").forEach(button=>button.onclick=()=>{
+  const i=Number(button.dataset.i);
+  if(!room4State[R4_PANEL_KEYS[i]])return;
+  if(!r4Mounted(i)){
+   room4State.mountedPanels[i]=true;
+   button.classList.add("is-mounted");
+   button.setAttribute("aria-label","ガラスパネル"+(i+1)+"を右に90度回す");
+   stackImages[i].hidden=false;
+   fb.textContent="";drawLinks();r4Projection();saveGame();
+  }else rotatePanes([i]);
+ });
  stack.onclick=()=>{if(allLinked())rotatePanes([0,1,2,3,4])};
  drawLinks(true);
  o.querySelector(".r4-shine").onclick=()=>{
@@ -275,7 +315,7 @@ function r4Stand(){
   if(!room4State.lightOn){room4State.lightOn=true;saveGame()}
   r4Projection();
   if(r4Correct()){close();r4Complete()}
-  else fb.textContent=allLinked()?"星はつながった。でも、全体の向きが違うようだ。":"星は映ったが、まだ何の形か分からない。";
+  else fb.textContent=!R4_PANEL_KEYS.some((_,i)=>r4Mounted(i))?"壁が明るく照らされている。":!r4AllMounted()?"はめたパネルの星が映っている。まだ空いている枠がある。":allLinked()?"星はつながった。でも、全体の向きが違うようだ。":"星は映ったが、まだ何の形か分からない。";
  };
 }
 function r4Const(){showRoomDialog([{logId:"r4c1",logType:"investigation",speaker:"ト書き",text:"12星座の名前と、星の位置を示す図が並んでいる。"},{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"},{logId:"r4c2",logType:"dialogue",speaker:"主人公",text:"これを見れば、星の形から星座を調べられそうだ"}],r4OpenZodiacExhibit)}
@@ -428,11 +468,11 @@ function r4Hana(){
  if(!room4State.hanaSleepSeen){showRoomDialog([{logId:"r4h1",logType:"dialogue",speaker:"ハナ",text:"ふぁ……"},{logId:"r4h2",logType:"dialogue",speaker:"主人公",text:"眠いんですか？"},{logId:"r4h3",logType:"dialogue",speaker:"ハナ",text:"んー……ちょっと眠いかも"},{logId:"r4h4",logType:"dialogue",speaker:"ハナ",text:"大丈夫。謎、解こっか"}],()=>{room4State.hanaSleepSeen=true;saveGame()});return}
  if(room4State.completed){showRoomDialog([{logId:'r4_hint_done',logType:'dialogue',speaker:'ハナ',text:'星がつながったね。扉の先へ進もう。'}]);return;}
  const topics=[];
- if(!r4All())topics.push({id:'r4_panels',label:'パネルの探し方',steps:['透明なパネルは五枚必要みたい。展示の謎だけでなく、部屋そのものも見てみよう。','三つの小謎でもらえるもののほかに、正面の壁と質問箱を調べてみて。']});
+ if(!r4All())topics.push({id:'r4_panels',label:'パネルの探し方',steps:['透明なパネルは五枚必要みたい。見つけたものは、一枚から台にはめられるよ。展示の謎だけでなく、部屋そのものも見てみよう。','三つの小謎でもらえるもののほかに、正面の壁と質問箱を調べてみて。']});
  if(!room4State.star)topics.push({id:'r4_star',label:'謎1：色と数字',steps:['色の名前と、その隣の数字を一緒に使えないかな？','色の名前を英語にして、数字の番目の文字を拾ってみよう。','銀はSILVER。その一文字目はSだよ。同じ方法で、表示された順に四文字を読もう。']});
  if(!room4State.lightPuzzle)topics.push({id:'r4_light',label:'謎2：色の割合',steps:['色の組み合わせと割合が表しているものを、この部屋の展示で探してみよう。','紋章の色も含めて、国旗の同じ色ごとの割合を比べてみよう。展示の国旗と見比べてみて。','国名を英語にして、下の数字の番目の文字を拾おう。白と赤が半分ずつなのは、展示の中ではポーランド。POLANDの三文字目はLだよ。']});
  if(!room4State.meteors)topics.push({id:'r4_rainbow',label:'謎3：七つの色',steps:['七つの色が一緒に現れる、空の景色を思い浮かべてみて。','虹の色の並びに合わせて、札を並べ直してみよう。','赤・橙・黄・緑・青・藍・紫の順だよ。色に付いた文字も一緒に動かしてね。']});
- if(r4All())topics.push({id:'r4_projection',label:'五枚のパネルの使い方',steps:['左側のパネル台とライトを調べよう。重ねた星を、星座一覧と見比べてみて。','重ねる順番より、それぞれの向きが大事みたい。一枚ずつ回して、星の位置を見てみよう。','星座一覧のおとめ座を手がかりにしてみて。五枚の星が、その形を作る向きを探そう。']});
+ if(r4All())topics.push({id:'r4_projection',label:'五枚のパネルの使い方',steps:['左側のパネル台に、手元のパネルをはめてみよう。ライトをつけて、映った星を星座一覧と見比べてみて。','重ねる順番より、それぞれの向きが大事みたい。一枚ずつ回して、星の位置を見てみよう。','星座一覧のおとめ座を手がかりにしてみて。五枚の星が、その形を作る向きを探そう。']});
  PuzzleHints.choose('r4Hana',topics);
 }
 function r4Complete(){

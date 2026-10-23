@@ -27,6 +27,7 @@ on:
       - 'images/background/**'
       - 'images/exhibits/**'
       - 'tests/critical-path.test.cjs'
+      - 'tests/room4-projection.test.cjs'
       - 'tests/room8-flow.test.cjs'
       - 'tests/late-game-flow.test.cjs'
       - '.github/workflows/eight-room-regression.yml'
@@ -48,7 +49,7 @@ jobs:
       - name: Check gameplay scripts and room entry/artwork completeness
         run: |
           for f in viewport-scaler.js script.js hana-choice.js inspection.js exploration-scenario.js room-exploration.js room2.js room3.js room4.js late-game.js design-ui.js; do node --check "$f"; done
-          node --test tests/critical-path.test.cjs tests/cache-version.test.cjs tests/room3-morse.test.cjs tests/room2-choice-keyboard-focus.test.cjs tests/room2-compact-choice-panel.test.cjs
+          node --test tests/critical-path.test.cjs tests/cache-version.test.cjs tests/room4-projection.test.cjs tests/room3-morse.test.cjs tests/room2-choice-keyboard-focus.test.cjs tests/room2-compact-choice-panel.test.cjs
       - name: Test room five puzzle through its transition
         run: node tests/room5-mirror.test.cjs
       - name: Test room six navigation and its transition

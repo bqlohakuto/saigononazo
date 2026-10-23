@@ -39,7 +39,7 @@ async function finish(page){
  const pickup=page.locator('.design-overlay .design-panel[aria-label="入手"]');
  if(await pickup.count()){
   assert(await pickup.getByText('ガラスパネル',{exact:true}).count(),'Received item should be the glass panel');
-  await pickup.getByRole('button',{name:'受け取る'}).click();
+  await pickup.getByRole('button',{name:'閉じる',exact:true}).last().click();
   await page.locator('.design-overlay').waitFor({state:'detached'});
  }
 }
@@ -260,6 +260,9 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
   for(const button of bounds.buttons)assert(button.top>=bounds.panel.top-1&&button.bottom<=bounds.panel.bottom+1&&button.left>=bounds.panel.left-1&&button.right<=bounds.panel.right+1,'All puzzle controls visible without scroll or clipping');
  }
  assert.deepEqual(await page.evaluate(()=>room4State.angles),[2,1,0,3,2],'Acquired panels use confirmed initial rotations');
+ assert.equal(await page.locator('.r4-panel-stack img:not([hidden])').count(),0,'Collected panes are not automatically mounted');
+ for(let i=0;i<5;i++)await page.locator('.r4-rotate-plate').nth(i).click();
+ assert.equal(await page.locator('.r4-panel-stack img:not([hidden])').count(),5,'Each owned pane can be inserted');
  assert.equal(await page.locator('.r4-panels img').count(),5);
  assert.equal(await page.locator('.r4-panel-stack img').count(),5,'Central composite contains all five layers');
  const stackBounds=await page.locator('.r4-panel-stack').boundingBox();

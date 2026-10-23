@@ -17,7 +17,7 @@ const expectedHips=source.panels.map(p=>p.stars.map(s=>s.hip));
    await page.goto(base,{waitUntil:"load"});
    await page.evaluate(()=>{
     settings.instantText=true;
-    showFourthRoom({view:"left",door:true,wall:true,box:true,star:true,lightPuzzle:true,meteors:true,hanaSleepSeen:true,angles:[2,1,0,3,2],panelRotationVersion:1});
+    showFourthRoom({view:"left",door:true,wall:true,box:true,star:true,lightPuzzle:true,meteors:true,hanaSleepSeen:true,angles:[2,1,0,3,2],mountedPanels:[true,true,true,true,true],panelRotationVersion:1});
     for(let i=0;i<50&&document.querySelector("#roomNextButton");i++)Dialogue.advance();
    });
    assert.deepEqual(await page.evaluate(()=>room4State.angles),[2,1,0,3,2],"Current-version save must preserve the approved initial angle state");

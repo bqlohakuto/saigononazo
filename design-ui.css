@@ -1989,6 +1989,18 @@ body{background:#0b1322!important;display:grid;place-items:center}
 
 /* Room 04 — Virgo: touch the actual glass to rotate it.
    The accepted panes are unchanged; thin star connections are an overlay. */
+#game .room4-stage .r4-projection{
+ left:26%;top:15%;width:48%;height:44%;
+}
+#game .r4-projected-constellation{display:block;width:100%;height:100%;overflow:visible}
+#game .r4-projected-lines line{
+ stroke:#d6ecff;stroke-width:1.4;stroke-linecap:round;
+ vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 2px #8dcaff);
+}
+#game .r4-projected-star{fill:#fff7df;filter:drop-shadow(0 0 3px #dceaff)}
+#game .r4-projection.complete .r4-projected-star[data-hip="65474"]{
+ fill:#fff;filter:drop-shadow(0 0 7px #d9ecff);
+}
 #game .r4-panel-ui.r4-linked-puzzle{
  box-sizing:border-box!important;
  display:flex;
@@ -2024,6 +2036,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
  cursor:default!important;
  opacity:1!important;
 }
+#game .r4-linked-puzzle>.device-close{color:#172c3b!important}
 #game .r4-linked-puzzle>.r4-panel-stack.can-turn-all{
  border-color:#f1d99b!important;
  box-shadow:0 0 9px #f7dfa34f,inset 0 0 0 2px #eed9a444!important;
@@ -2053,6 +2066,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
  transform-origin:50% 50%;
  transition:transform .25s ease;
 }
+#game .r4-linked-puzzle>.r4-panel-stack img[hidden]{display:none}
 #game .r4-linked-puzzle>.r4-panel-stack .r4-constellation-lines{
  position:absolute;
  inset:0;
@@ -2119,6 +2133,22 @@ body{background:#0b1322!important;display:grid;place-items:center}
  transform-origin:50% 50%;
  transition:transform .25s ease;
 }
+#game .r4-linked-puzzle>.r4-panels .r4-rotate-plate:disabled{
+ opacity:.38;cursor:default;border-style:dashed!important;box-shadow:none;
+}
+#game .r4-linked-puzzle>.r4-panels .r4-rotate-plate:disabled::before{
+ content:"";position:absolute;inset:14%;border:1px solid #84aabb55;
+}
+#game .r4-linked-puzzle>.r4-panels .r4-rotate-plate:not(:disabled)::after{
+ content:"＋";position:absolute;right:4%;bottom:4%;
+ display:grid;place-items:center;width:21px;height:21px;
+ color:#e9f2f7;background:#102438e6;border-radius:50%;font:bold 17px/1 sans-serif;
+ pointer-events:none;
+}
+#game .r4-linked-puzzle>.r4-panels .r4-rotate-plate.is-mounted{
+ border-color:#e5cc91!important;
+}
+#game .r4-linked-puzzle>.r4-panels .r4-rotate-plate.is-mounted::after{content:"↻"}
 #game .r4-linked-puzzle>.r4-panels .r4-rotate-plate:hover,
 #game .r4-linked-puzzle>.r4-panels .r4-rotate-plate:focus-visible{
  border-color:#f4dfb3!important;

@@ -28,6 +28,8 @@ function showFourthRoom(savedState){
  });
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room04",title:"第四の部屋",objective:()=>room4State.completed?"次の部屋へ進む":r4All()?"ガラスパネルの向きを合わせる":"部屋を調べる",onCompanion:r4Hana,getHighlights:()=>!!room4State.highlightEnabled,setHighlights:v=>{room4State.highlightEnabled=!!v;saveGame()}});
  r4ObserveHanaGazePose();
+ // ResizeObserver fires later; size correctly on the very first rendered frame.
+ r4SyncHanaGazePose();
  saveGame();
 }
 function r4ObserveHanaGazePose(){
@@ -48,15 +50,22 @@ function r4ObserveHanaGazePose(){
 }
 function r4SyncHanaGazePose(){
  const hana=game.querySelector(".room4-stage #r4Hana"),pose=hana?.querySelector(".r4-hana-look-pose");
- if(!pose)return;
- // WebKit resolves container units differently for children and pseudo-elements.
- // Match the rendered idle sprite, including its foot anchor, in either engine.
- const idle=getComputedStyle(hana,"::before"),height=parseFloat(idle.height);
- if(!Number.isFinite(height)||height<=0)return;
+ const stage=hana?.closest(".room4-stage");
+ if(!pose||!stage)return;
+ // cqw resolves to an unrelated fixed reference width in some nested stage
+ // layouts. Calculate against the *rendered room*, not the device viewport.
+ // Both idle and gaze receive exactly the same canvas and foot anchor.
+ const width=stage.getBoundingClientRect().width;
+ if(!Number.isFinite(width)||width<=0)return;
+ hana.style.setProperty("--r4-hana-width",(width*.199)+"px");
+ hana.style.setProperty("--r4-hana-height",(width*.31)+"px");
+ hana.style.setProperty("--r4-hana-bottom",(-width*.03875)+"px");
+ hana.style.setProperty("--r4-hana-head-offset",(width*.254)+"px");
+ const idle=getComputedStyle(hana,"::before");
  pose.style.width=idle.width;
  pose.style.height=idle.height;
  pose.style.bottom=idle.bottom;
- pose.style.backgroundSize='contain';
+ pose.style.backgroundSize="contain";
 }
 window.addEventListener("resize",r4SyncHanaGazePose);
 function r4SetHanaLookUp(active){

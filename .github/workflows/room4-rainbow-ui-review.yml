@@ -7,6 +7,7 @@ on:
       - 'room4.js'
       - 'design-ui.css'
       - 'tests/room4-rainbow.browser.cjs'
+      - 'tests/room4-relative-constellation.browser.cjs'
       - '.github/workflows/room4-rainbow-ui-review.yml'
 permissions:
   contents: read
@@ -27,10 +28,12 @@ jobs:
         run: |
           node --check room4.js
           node --check tests/room4-rainbow.browser.cjs
+          node --check tests/room4-relative-constellation.browser.cjs
       - name: Test draggable plates and short landscape display
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/r4-rainbow-server.log 2>&1 &
           BASE_URL=http://127.0.0.1:8765 ARTIFACT_DIR=artifacts/rainbow-review node tests/room4-rainbow.browser.cjs
+          BASE_URL=http://127.0.0.1:8765 ARTIFACT_DIR=artifacts/rainbow-review node tests/room4-relative-constellation.browser.cjs
       - if: always()
         uses: actions/upload-artifact@v4
         with:

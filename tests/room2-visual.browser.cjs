@@ -160,6 +160,18 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-puzzle').count(),1,'Opening help does not leave puzzle');
    await page.locator('.room2-board-help summary').click();
    assert.equal(await page.locator('.room2-board-help').evaluate(node=>node.open),false,'Help can be tucked away again');
+   // Independent wells: starting at the fifth well must not move the piece left.
+   await page.locator('.room2-palette-token[data-color="青"][data-symbol="□"]').click();
+   await page.locator('.room2-answer-slot').nth(4).click();
+   assert.deepEqual(await page.locator('.room2-answer-slot i').allTextContents(),['□'],'One piece is placed on the chosen fifth well');
+   assert.equal(await page.locator('.room2-answer-slot').nth(0).locator('i').count(),0,'The first well stays empty');
+   assert.equal(await page.locator('.room2-answer-slot').nth(4).locator('i').textContent(),'□','The last well contains the blue square');
+   assert.equal(await page.locator('.room2-palette-token[data-color="青"][data-symbol="□"]').count(),0,'A fitted piece is removed from its tray');
+   assert.equal(await page.locator('.room2-palette-empty').count(),1,'Its empty recess remains in the tray');
+   await page.locator('.room2-answer-slot').nth(4).click();
+   await page.locator('.room2-answer-slot').nth(4).click();
+   assert.equal(await page.locator('.room2-palette-token[data-color="青"][data-symbol="□"]').count(),1,'Removing a fitted piece restores it to the tray');
+   assert.equal(await page.locator('.room2-palette-empty').count(),0,'The tray is refilled');
    await page.locator('.room2-palette-token').first().click();
    assert.equal(await page.locator('.room2-palette-token.is-held').count(),1,'Taking a token raises it from the tray');
    await page.locator('.room2-answer-slot').first().click();
@@ -170,7 +182,7 @@ function within(inner,outer,tolerance=3){
    // Make the first guess certainly wrong to observe automatic judge dialogue.
    await page.evaluate(()=>{room2State.answer=ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}));});
    for(let i=1;i<5;i++){
-    await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+    await page.locator('.room2-palette-token[data-color="赤"][data-symbol="'+['〇','△','□','×','＋'][i]+'"]').click();
     await page.locator('.room2-answer-slot').nth(i).click();
    }
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5);
@@ -257,7 +269,7 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-board-help summary').click();
    await page.evaluate(()=>{room2State.answer=ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}));});
    for(let i=0;i<5;i++){
-     await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+     await page.locator('.room2-palette-token[data-color="赤"][data-symbol="'+['〇','△','□','×','＋'][i]+'"]').click();
      await page.locator('.room2-answer-slot').nth(i).click();
     }
    await page.locator('.room2-submit').click();
@@ -281,14 +293,14 @@ function within(inner,outer,tolerance=3){
    const unlimitedHelp=await page.locator('.room2-board-help .room2-rule').textContent();
    assert(unlimitedHelp.includes('回数制限はない。'),'Main story rules are explicitly unlimited');
    for(let i=0;i<5;i++){
-     await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+     await page.locator('.room2-palette-token[data-color="赤"][data-symbol="'+['〇','△','□','×','＋'][i]+'"]').click();
      await page.locator('.room2-answer-slot').nth(i).click();
     }
    await page.locator('.room2-submit').click();
    assert.equal(await page.evaluate(()=>room2State.attempts),10,'A tenth incorrect main-story attempt is permitted');
    assert.equal(await page.locator('.room2-puzzle').count(),1,'A tenth failure never blocks the story puzzle');
    for(let i=0;i<5;i++){
-     await page.locator('.room2-palette-token[data-color="青"]').nth(i).click();
+     await page.locator('.room2-palette-token[data-color="青"][data-symbol="'+['〇','△','□','×','＋'][i]+'"]').click();
      await page.locator('.room2-answer-slot').nth(i).click();
     }
    await page.locator('.room2-submit').click();
@@ -364,7 +376,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-history-row').count(),1,'Judgement history survives the cancellation');
    assert.deepEqual(await page.evaluate(()=>({
     active:room2State.challengeActive,attempts:room2State.attempts,history:room2State.history.length,
-    guess:room2State.guess.length,best:room2State.challengeBest
+    guess:room2State.guess.filter(Boolean).length,best:room2State.challengeBest
    })),{active:true,attempts:4,history:1,guess:1,best:3},'Cancelling the exit never alters progress or record');
    await page.locator('.room2-abandon').click();
    await page.keyboard.press('Escape');
@@ -377,7 +389,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room-dialog-overlay').count(),0);
    assert.deepEqual(await page.evaluate(()=>({
     active:room2State.challengeActive,attempts:room2State.attempts,history:room2State.history.length,
-    guess:room2State.guess.length,best:room2State.challengeBest,storyClear:room2State.unlocked
+    guess:room2State.guess.filter(Boolean).length,best:room2State.challengeBest,storyClear:room2State.unlocked
    })),{active:false,attempts:0,history:0,guess:0,best:3,storyClear:true},'Confirmed quit clears challenge only, preserving story and best');
 
    // No.119: "一時中断" closes the puzzle only; the next desk visit resumes the same run.
@@ -408,7 +420,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room-dialog-overlay').count(),0);
    assert.deepEqual(await page.evaluate(()=>({
     active:room2State.challengeActive,attempts:room2State.attempts,
-    best:room2State.challengeBest,history:room2State.history.length,guess:room2State.guess.length
+    best:room2State.challengeBest,history:room2State.history.length,guess:room2State.guess.filter(Boolean).length
    })),{active:true,attempts:2,best:3,history:1,guess:2},'Pause retains progress and personal best');
    await page.locator('#r2Blocks').click();
    assert.equal(await page.locator('.room2-puzzle').count(),1,'Clicking the desk blocks resumes instead of offering a new challenge');
@@ -435,7 +447,7 @@ function within(inner,outer,tolerance=3){
    });
    await page.locator('.room2-puzzle').waitFor();
    for(let i=0;i<5;i++){
-     await page.locator('.room2-palette-token[data-color="青"]').nth(i).click();
+     await page.locator('.room2-palette-token[data-color="青"][data-symbol="'+['〇','△','□','×','＋'][i]+'"]').click();
      await page.locator('.room2-answer-slot').nth(i).click();
     }
    await page.locator('.room2-submit').click();
@@ -474,7 +486,7 @@ function within(inner,outer,tolerance=3){
    }));
    await page.locator('#r2Blocks').click();
    for(let i=0;i<5;i++){
-     await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+     await page.locator('.room2-palette-token[data-color="赤"][data-symbol="'+['〇','△','□','×','＋'][i]+'"]').click();
      await page.locator('.room2-answer-slot').nth(i).click();
     }
    await page.locator('.room2-submit').click();
@@ -655,7 +667,7 @@ function within(inner,outer,tolerance=3){
     assert.equal(await page.locator('.room2-puzzle .design-op-button').count(),1,'No.126: interactive block puzzle still provides operation help');
     assert.equal(await page.locator('.room2-attempt-counter').count(),1,'Challenge counter appears');
     for(let i=0;i<5;i++){
-     await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+     await page.locator('.room2-palette-token[data-color="赤"][data-symbol="'+['〇','△','□','×','＋'][i]+'"]').click();
      await page.locator('.room2-answer-slot').nth(i).click();
     }
     await page.locator('.room2-submit').click();

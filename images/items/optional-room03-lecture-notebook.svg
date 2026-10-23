@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="168" height="96" viewBox="0 0 168 96" shape-rendering="crispEdges">
+<title>大学の講義ノート</title>
+<!-- A slim notebook with a cardboard-backed cover on a dark desk -->
+<g opacity=".29" fill="#191e22"><path d="M12 72h132v6H20v-2h-8zM30 80h117v3H30z"/></g>
+<path fill="#414e58" d="M18 55h112v5h11v6h-11v6H18v-6H11V60h7z"/>
+<path fill="#e9e1cd" d="M18 59h111v10H18z"/>
+<path fill="#b0a38e" d="M20 66h106v4H20z"/>
+<path fill="#1d3340" d="M13 28h112v4h9v30H22v-4h-9z"/>
+<path fill="#3b6472" d="M22 21h104v5h8v29H22v-4h-9V29h9z"/>
+<path fill="#476e7c" d="M26 25h99v25H26z"/>
+<path fill="#668893" d="M30 27h87v3H30z"/>
+<path fill="#243f4c" d="M22 22h3v37h-3z"/>
+<path fill="#c3af89" d="M29 31h4v23h-4zM38 31h4v23h-4zM47 31h4v23h-4zM56 31h4v23h-4z"/>
+<path fill="#f2e6d1" d="M81 30h35v22H81z"/>
+<path fill="#d4c2a5" d="M85 34h27v3H85zM85 40h24v2H85zM85 46h19v2H85z"/>
+<path fill="#172f3d" d="M134 58h14v3h-14zM141 49h6v10h-6z"/>
+<path fill="#c8a96f" d="M134 46h6v12h-6z"/>
+</svg>

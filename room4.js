@@ -92,7 +92,50 @@ function turnFourthRoom(step){
  const index=ROOM4_VIEWS.includes(room4State.view)?ROOM4_VIEWS.indexOf(room4State.view):0;
  room4State.view=ROOM4_VIEWS[(index+step+4)%4];renderFourthRoomView();saveGame();
 }
-function r4Moon(){showRoomDialog([{logId:"r4_moon_exhibit",logType:"investigation",speaker:"ト書き",text:"月の模様の展示：国旗と英語国名 POLAND / SPAIN / BELGIUM / THAILAND / ITALY など。見え方には地域・時代・伝承によって諸説があります。"}])}
+// All clues use the total area of each background color, excluding coats of arms.
+// References: Poland (gov.pl), Spain (BOE Ley 39/1981), Belgium (belgium.be),
+// Italy (Constitution art. 12), Thailand (ASEAN national flag construction sheet).
+const R4_FLAG_COLORS={black:{hex:"#141820",name:"黒"},white:{hex:"#fffdf4",name:"白"},red:{hex:"#d52f45",name:"赤"},yellow:{hex:"#f4ca45",name:"黄"},green:{hex:"#16855a",name:"緑"},blue:{hex:"#252960",name:"青"}};
+const R4_FLAG_EXHIBIT=[
+ {id:"ITALY",name:"イタリア",axis:"vertical",aspect:1.5,bands:[["green",1],["white",1],["red",1]]},
+ {id:"JAPAN",name:"日本",aspect:1.5,shares:[["white",1-Math.PI*.06],["red",Math.PI*.06]]},
+ {id:"BELGIUM",name:"ベルギー",axis:"vertical",aspect:15/13,bands:[["black",1],["yellow",1],["red",1]]},
+ {id:"POLAND",name:"ポーランド",axis:"horizontal",aspect:1.6,bands:[["white",1],["red",1]]},
+ {id:"THAILAND",name:"タイ",axis:"horizontal",aspect:1.5,bands:[["red",1],["white",1],["blue",2],["white",1],["red",1]]},
+ {id:"SWEDEN",name:"スウェーデン",aspect:1.6,shares:[["blue",.7],["yellow",.3]]},
+ {id:"SPAIN",name:"スペイン",axis:"horizontal",aspect:1.5,bands:[["red",1],["yellow",2],["red",1]]}
+];
+const R4_LIGHT_CLUES=[{country:"POLAND",position:3},{country:"SPAIN",position:4},{country:"BELGIUM",position:4},{country:"THAILAND",position:2},{country:"ITALY",position:2}];
+function r4FlagShares(entry){
+ const shares={};
+ if(entry.bands){const total=entry.bands.reduce((sum,band)=>sum+band[1],0);for(const [color,parts] of entry.bands)shares[color]=(shares[color]||0)+parts/total}
+ else for(const [color,fraction] of entry.shares)shares[color]=fraction;
+ // One palette order for every clue: no flag stripe order or orientation is retained.
+ return Object.keys(R4_FLAG_COLORS).filter(color=>shares[color]>0).map(color=>({color,fraction:shares[color]}));
+}
+function r4FlagPercent(fraction){return Math.abs(fraction-1/3)<1e-9?"33⅓%":Math.round(fraction*100)+"%"}
+function r4ColorRatioPuzzle(){
+ return '<div class="r4-ratio-specimens" role="group" aria-label="五組の色の割合と数字">'+R4_LIGHT_CLUES.map((clue,i)=>{
+  const country=R4_FLAG_EXHIBIT.find(entry=>entry.id===clue.country);
+  const samples=r4FlagShares(country).map(({color,fraction})=>'<div class="r4-ratio-sample"><i aria-label="'+R4_FLAG_COLORS[color].name+'色" style="--sample-color:'+R4_FLAG_COLORS[color].hex+'"></i><span>'+r4FlagPercent(fraction)+'</span></div>').join('');
+  return '<div class="r4-ratio-specimen" role="group" aria-label="'+(i+1)+'組目"><div class="r4-ratio-colors">'+samples+'</div><b class="r4-ratio-digit" aria-label="数字 '+clue.position+'">'+clue.position+'</b></div>';
+ }).join('')+'</div><p class="r4-ratio-note">この部屋の展示から探す。割合は紋章を除いた地色。</p>';
+}
+function r4ReferenceFlag(entry){
+ const width=160,height=width/entry.aspect;let shapes='';
+ if(entry.bands){
+  const total=entry.bands.reduce((sum,band)=>sum+band[1],0);let start=0;
+  for(const [color,parts] of entry.bands){const fraction=parts/total;shapes+='<rect x="'+(entry.axis==='vertical'?start*width:0)+'" y="'+(entry.axis==='horizontal'?start*height:0)+'" width="'+(entry.axis==='vertical'?fraction*width:width)+'" height="'+(entry.axis==='horizontal'?fraction*height:height)+'" fill="'+R4_FLAG_COLORS[color].hex+'"/>';start+=fraction}
+ }else if(entry.id==='JAPAN')shapes='<rect width="160" height="'+height+'" fill="'+R4_FLAG_COLORS.white.hex+'"/><circle cx="80" cy="'+height/2+'" r="'+height*.3+'" fill="'+R4_FLAG_COLORS.red.hex+'"/>';
+ else shapes='<rect width="160" height="100" fill="#24699c"/><path d="M50 0h20v100H50zM0 40h160v20H0z" fill="'+R4_FLAG_COLORS.yellow.hex+'"/>';
+ return '<svg class="r4-reference-flag" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'+entry.name+'の国旗（紋章省略）">'+shapes+'</svg>';
+}
+function r4Moon(){
+ if(game.querySelector('.device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay'))return;
+ const overlay=document.createElement('div');overlay.className='device-overlay r4-world-overlay';
+ overlay.innerHTML='<section class="r4-world-exhibit" aria-label="世界の月の展示"><header><h2>同じ月を見上げて</h2><button type="button" class="device-close" aria-label="展示を閉じる">戻る</button></header><p class="r4-world-intro">月の模様は、地域や伝承によってさまざまな姿に見立てられてきた。<br>同じ月を見上げる、世界の国々。</p><div class="r4-world-countries">'+R4_FLAG_EXHIBIT.map(entry=>'<article class="r4-world-country">'+r4ReferenceFlag(entry)+'<strong lang="en">'+entry.id+'</strong><span>'+entry.name+'</span></article>').join('')+'</div><p class="r4-world-note">国旗は紋章を省略して表示。月の見立てには地域・時代によって諸説があります。</p></section>';
+ game.appendChild(overlay);activateDeviceModal(overlay,'r4Moon',overlay.querySelector('.device-close'));
+}
 function r4Door(){
  if(room4State.completed&&room4State.memorySeen){showRoomDialog([{logId:"r4open1",logType:"investigation",speaker:"ト書き",text:"扉の鍵は開いている。"},{logId:"r4open2",logType:"narration",speaker:"主人公",thought:true,text:"先へ行けば、名前のことも思い出せるかもしれない。"}],r4Exit);return}
  if(room4State.door){showRoomNotice("『散らばる星を重ね、夜空にひとつの姿を描け。』","r4drepeat","investigation");return}
@@ -201,23 +244,23 @@ function r4WordPuzzle(kind){
  if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
  const solved=kind==="STAR"?room4State.star:room4State.lightPuzzle;
  const o=document.createElement("div");o.className="device-overlay r4-mini-overlay";
- const body=kind==="STAR"?`<div class="r4-color-samples" role="group" aria-label="四色の数字の展示"><div class="r4-color-plaque silver" aria-label="銀色、1"><b>1</b></div><div class="r4-color-plaque white" aria-label="白色、4"><b>4</b></div><div class="r4-color-plaque black" aria-label="黒色、3"><b>3</b></div><div class="r4-color-plaque green" aria-label="緑色、2"><b>2</b></div></div>`:`<div class="r4-flags"><span>⬜⬜⬜<br>🟥🟥🟥　<b>3</b></span><span>🟥<br>🟨🟨🟨<br>🟥　<b>4</b></span><span>⬛⬛｜🟨🟨🟨｜🟥🟥　<b>4</b></span><span>🟥<br>⬜<br>🟦🟦🟦🟦<br>⬜<br>🟥　<b>2</b></span><span>🟩🟩｜⬜｜🟥🟥　<b>2</b></span></div><p class="r4-moon">月の模様の展示：国旗と英語国名 POLAND / SPAIN / BELGIUM / THAILAND / ITALY など。見え方には地域・時代・伝承によって諸説があります。</p>`;
+ const body=kind==="STAR"?`<div class="r4-color-samples" role="group" aria-label="四色の数字の展示"><div class="r4-color-plaque silver" aria-label="銀色、1"><b>1</b></div><div class="r4-color-plaque white" aria-label="白色、4"><b>4</b></div><div class="r4-color-plaque black" aria-label="黒色、3"><b>3</b></div><div class="r4-color-plaque green" aria-label="緑色、2"><b>2</b></div></div>`:r4ColorRatioPuzzle();
  const answerView=solved?'<div class="r4-solved-answer" role="status" aria-label="解答済み"><span>'+kind+'</span></div>':'<label>答え<input autocomplete="off"></label><button class="r4-answer">答える</button><p class="r4-feedback"></p>';
- const exhibitClass=kind==="STAR"?" r4-color-exhibit":"";
- o.innerHTML=`<section class="r4-mini ${solved?"r4-mini-inspected":""}${exhibitClass}"><button class="device-close" aria-label="閉じる">×</button><h2>${kind==="STAR"?"色と数字":"謎2"}</h2>${body}${answerView}</section>`;
+ const exhibitClass=kind==="STAR"?" r4-color-exhibit":" r4-color-exhibit r4-ratio-exhibit";
+ o.innerHTML=`<section class="r4-mini ${solved?"r4-mini-inspected":""}${exhibitClass}" aria-label="${kind==="STAR"?"色と数字":"色の割合"}"><button class="device-close" aria-label="閉じる">×</button><h2>${kind==="STAR"?"色と数字":"色の割合"}</h2>${body}${answerView}</section>`;
  game.appendChild(o);
  const input=o.querySelector("input"),fb=o.querySelector(".r4-feedback");
  const close=activateDeviceModal(o,kind==="STAR"?"r4P1":"r4P2",solved?o.querySelector(".device-close"):input);
  // Reinspection is deliberately read-only: no validation, reward, or duplicate log.
  if(solved)return;
- if(kind==="STAR"){
-  input.placeholder="・・・・";input.maxLength=12;input.autocapitalize="characters";
+ {
+  input.placeholder=kind==="STAR"?"・・・・":"・・・・・";input.maxLength=12;input.autocapitalize="characters";
   input.setAttribute("aria-label","英字で答えを入力");
   o.querySelector(".r4-answer").textContent="解錠";
  }
  input.addEventListener("input",()=>{fb.textContent=""});
  input.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.isComposing&&!event.repeat){event.preventDefault();o.querySelector(".r4-answer").click()}});
- o.querySelector(".r4-answer").onclick=()=>{const answer=input.value.normalize("NFKC").trim().toUpperCase();if(!answer){fb.textContent="答えを入力してください。";return}if(answer!==kind){fb.textContent=kind==="STAR"?"鍵は開かない。":"色の並びを国旗として見て、英語国名から数字の位置を読もう。";return}if(kind==="STAR")room4State.star=true;else room4State.lightPuzzle=true;saveGame();close();showRoomDialog([{logId:"r4"+kind+"ok1",logType:"dialogue",speaker:"主人公",text:`${kind}……${kind==="STAR"?"星":"光"}、か`},{logId:"r4"+kind+"ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースのロックが外れた。中から透明なパネルを取り出す。"}],()=>r4Refresh(kind==="STAR"?"star":"lightPuzzle"))};
+ o.querySelector(".r4-answer").onclick=()=>{const answer=input.value.normalize("NFKC").trim().toUpperCase();if(!answer){fb.textContent="答えを入力してください。";return}if(answer!==kind){fb.textContent="鍵は開かない。";return}if(kind==="STAR")room4State.star=true;else room4State.lightPuzzle=true;saveGame();close();showRoomDialog([{logId:"r4"+kind+"ok1",logType:"dialogue",speaker:"主人公",text:`${kind}……${kind==="STAR"?"星":"光"}、か`},{logId:"r4"+kind+"ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースのロックが外れた。中から透明なパネルを取り出す。"}],()=>r4Refresh(kind==="STAR"?"star":"lightPuzzle"))};
 }
 function r4P1(){r4WordPuzzle("STAR")} function r4P2(){r4WordPuzzle("LIGHT")}
 function r4P3(){
@@ -347,7 +390,7 @@ function r4Hana(){
  const topics=[];
  if(!r4All())topics.push({id:'r4_panels',label:'パネルの探し方',steps:['透明なパネルは五枚必要みたい。展示の謎だけでなく、部屋そのものも見てみよう。','三つの小謎でもらえるもののほかに、正面の壁と質問箱を調べてみて。']});
  if(!room4State.star)topics.push({id:'r4_star',label:'謎1：色と数字',steps:['色の名前と、その隣の数字を一緒に使えないかな？','色の名前を英語にして、数字の番目の文字を拾ってみよう。','銀はSILVER。その一文字目はSだよ。同じ方法で、表示された順に四文字を読もう。']});
- if(!room4State.lightPuzzle)topics.push({id:'r4_light',label:'謎2：国旗と数字',steps:['国旗が表す国の名前を考えてみよう。','国名を英語にして、数字の番目の文字を拾ってみて。','ポーランドはPOLAND。その三文字目はLだよ。残りの国も同じように、表示された順に読もう。']});
+ if(!room4State.lightPuzzle)topics.push({id:'r4_light',label:'謎2：色の割合',steps:['色の組み合わせと割合が表しているものを、この部屋の展示で探してみよう。','国旗の地色を、同じ色ごとに合計した割合だよ。展示の国旗と見比べてみて。','国名を英語にして、下の数字の番目の文字を拾おう。白と赤が半分ずつなのは、展示の中ではポーランド。POLANDの三文字目はLだよ。']});
  if(!room4State.meteors)topics.push({id:'r4_rainbow',label:'謎3：七つの色',steps:['七つの色が一緒に現れる、空の景色を思い浮かべてみて。','虹の色の並びに合わせて、札を並べ直してみよう。','赤・橙・黄・緑・青・藍・紫の順だよ。色に付いた文字も一緒に動かしてね。']});
  if(r4All())topics.push({id:'r4_projection',label:'五枚のパネルの使い方',steps:['左側のパネル台とライトを調べよう。重ねた星を、星座一覧と見比べてみて。','重ねる順番より、それぞれの向きが大事みたい。一枚ずつ回して、星の位置を見てみよう。','星座一覧のおとめ座を手がかりにしてみて。五枚の星が、その形を作る向きを探そう。']});
  PuzzleHints.choose('r4Hana',topics);
@@ -365,5 +408,6 @@ function showFourthRoomBoundary(){if(room3State){room3State.nextRoomTransitionSe
 
 
 function r4FlowerNotice(){showRoomDialog([{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"}],r4OpenFlowerExhibit)}
+
 
 

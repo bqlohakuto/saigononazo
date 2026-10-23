@@ -13,7 +13,7 @@ function showFourthRoom(savedState){
   room4State.angles=R4_PANEL_KEYS.map((key,i)=>room4State[key]?((Number(room4State.angles[i])-legacy[i]+360)%360)/90:R4_INITIAL[i]);
  }
  room4State.angles=room4State.angles.map((v,i)=>Number.isInteger(v)&&v>=0&&v<4?v:R4_INITIAL[i]);room4State.panelRotationVersion=1;
- if(!Array.isArray(room4State.rainbow)||room4State.rainbow.length!==7)room4State.rainbow=[...R4_RAINBOW];
+ if(!Array.isArray(room4State.rainbow)||room4State.rainbow.length!==7||room4State.rainbow.slice().sort().join("|")!==R4_RAINBOW.slice().sort().join("|"))room4State.rainbow=[...R4_RAINBOW];
  game.innerHTML=`<main class="room room-four room4-arriving ${room4State.completed?"is-restored":""}" aria-label="第四の部屋"><header class="room-header"><p class="room-label">第四の部屋</p><p class="room-color-status">${room4State.completed?"記憶を取り戻した部屋":"天文展示室"}</p></header><div class="room-stage-wrap"><section class="room-stage room4-stage"><img id="r4Background" class="room4-background-art" alt="" aria-hidden="true"><div class="room4-shared-door" aria-hidden="true"></div>${r4FlowerBoard()}<img id="r4LightOverlay" class="room4-light-overlay" src="images/background/room04/room04_light.webp" alt="" aria-hidden="true"><div id="r4Projection" class="r4-projection"></div><button class="object r4obj r4door" id="r4Door"><span>扉</span></button><button class="object r4obj r4light" id="r4Light"><span>ライト</span></button><button class="object r4obj r4stand" id="r4Stand"><span>パネル台</span></button><button class="object r4obj r4const" id="r4Const"><span>星座一覧</span></button><button class="object r4obj r4flowers" id="r4Flowers"><span>12星座の花</span></button><button class="object r4obj r4moon" id="r4Moon"><span>世界の月の見立て</span></button><button class="object r4obj r4meteor" id="r4Meteor"><span>流れ星</span></button><button class="object r4obj r4p1" id="r4P1"><span>謎1</span></button><button class="object r4obj r4p2" id="r4P2"><span>謎2</span></button><button class="object r4obj r4p3" id="r4P3"><span>謎3</span></button><button class="object r4obj r4wall" id="r4Wall" ${room4State.wall?"disabled":""}><span>壁の透明板</span></button><button class="object r4obj r4box" id="r4Box"><span>質問箱</span></button><button class="object r4obj r4hana" id="r4Hana"><i class="r4-hana-look-pose" aria-hidden="true"></i><span>ハナ</span></button></section></div><nav class="room-navigation"><button id="r4TurnLeft" class="nav-arrow" aria-label="左を向く">◀</button><button id="r4TurnRight" class="nav-arrow" aria-label="右を向く">▶</button></nav></main>`;
  [["r4Door",r4Door],["r4Light",r4Light],["r4Stand",r4Stand],["r4Const",r4Const],["r4Flowers",r4FlowerNotice],["r4Moon",r4Moon],["r4Meteor",r4Meteor],["r4P1",r4P1],["r4P2",r4P2],["r4P3",r4P3],["r4Wall",r4Wall],["r4Box",r4Box],["r4Hana",r4Hana]].forEach(([id,fn])=>document.getElementById(id).addEventListener("click",fn));
  document.getElementById("r4TurnLeft").onclick=()=>turnFourthRoom(-1);
@@ -120,8 +120,84 @@ function r4P1(){r4WordPuzzle("STAR")} function r4P2(){r4WordPuzzle("LIGHT")}
 function r4P3(){
  if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
  if(room4State.meteors){showRoomNotice("謎3は解き終えている。","r4p3done");return}
- const o=document.createElement("div");o.className="device-overlay r4-mini-overlay";o.innerHTML=`<section class="r4-mini"><button class="device-close">×</button><h2>謎3</h2><p>七色のプレートを正しい順番に並べる。</p><div class="r4-rainbow"></div></section>`;game.appendChild(o);const list=o.querySelector(".r4-rainbow"),close=activateDeviceModal(o,"r4P3",o.querySelector(".device-close"));
- const draw=()=>{list.innerHTML=room4State.rainbow.map((v,i)=>`<div class="c${v.slice(-1)}"><b>${v}</b><button data-i="${i}" data-d="-1" ${i===0?"disabled":""}>↑</button><button data-i="${i}" data-d="1" ${i===6?"disabled":""}>↓</button></div>`).join("");list.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{if(room4State.meteors)return;const i=Number(b.dataset.i),direction=Number(b.dataset.d),j=i+direction;if(!Number.isInteger(i)||![-1,1].includes(direction)||i<0||j<0||i>=room4State.rainbow.length||j>=room4State.rainbow.length)return;[room4State.rainbow[i],room4State.rainbow[j]]=[room4State.rainbow[j],room4State.rainbow[i]];if(room4State.rainbow.map(v=>v.slice(-1)).join("")==="METEORS"){room4State.meteors=true;saveGame();close();showRoomDialog([{logId:"r4p3ok1",logType:"dialogue",speaker:"主人公",text:"METEORS……流れ星、か"},{logId:"r4p3ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースの中から透明なパネルを取り出す。"},{logId:"r4p3ok3",logType:"narration",speaker:"システム",text:"【ガラスパネルを入手】"}],r4Refresh)}else{saveGame();draw()}})};draw();
+ const o=document.createElement("div");o.className="device-overlay r4-mini-overlay r4-plate-overlay";
+ o.innerHTML='<section class="r4-mini r4-plate-exhibit" aria-label="七色のプレート">'+
+  '<button type="button" class="device-close" aria-label="戻る">×</button>'+
+  '<div class="r4-plate-exhibit-header" aria-hidden="true"><span class="r4-plate-emblem">✧</span><h2>七色のプレート</h2><span class="r4-plate-emblem">✧</span></div>'+
+  '<div class="r4-plate-rail" aria-label="七枚のプレートを並べ替える"><div class="r4-rainbow" role="group" aria-label="七色のプレート"></div></div>'+
+  '<p class="r4-plate-status" role="status" aria-live="polite"></p>'+
+  '</section>';
+ game.appendChild(o);
+ const list=o.querySelector(".r4-rainbow"),status=o.querySelector(".r4-plate-status");
+ const close=activateDeviceModal(o,"r4P3",o.querySelector(".device-close"));
+ const colors={
+  "赤":"#ac4544","橙":"#b8773d","黄":"#dcc46f","緑":"#568d72",
+  "青":"#507aaf","藍":"#505785","紫":"#8a638d"
+ };
+ let chosen=null,drag=null,suppressClick=false;
+ const complete=()=>{
+  if(room4State.rainbow.map(v=>v.slice(-1)).join("")!=="METEORS")return false;
+  room4State.meteors=true;saveGame();close();
+  showRoomDialog([{logId:"r4p3ok1",logType:"dialogue",speaker:"主人公",text:"METEORS……流れ星、か"},{logId:"r4p3ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースの中から透明なパネルを取り出す。"},{logId:"r4p3ok3",logType:"narration",speaker:"システム",text:"【ガラスパネルを入手】"}],r4Refresh);
+  return true;
+ };
+ const move=(from,to)=>{
+  if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<0||from>=7||to>=7||from===to)return;
+  const [plate]=room4State.rainbow.splice(from,1);
+  room4State.rainbow.splice(to,0,plate);
+  chosen=null;saveGame();
+  if(!complete())draw();
+ };
+ const draw=()=>{
+  list.replaceChildren();
+  room4State.rainbow.forEach((value,i)=>{
+   const button=document.createElement("button");button.type="button";
+   button.className="r4-rainbow-plate"+(chosen===i?" is-selected":"");
+   button.dataset.index=String(i);
+   const color=value.slice(0,-1),letter=value.slice(-1);
+   button.style.setProperty("--plate-color",colors[color]||"#7a7976");
+   button.setAttribute("aria-label",color+"のプレート "+letter+(chosen===i?"、選択中":""));
+   button.setAttribute("aria-pressed",String(chosen===i));
+   const tile=document.createElement("span");tile.className="r4-rainbow-face";
+   const mark=document.createElement("b");mark.className="r4-rainbow-letter";mark.textContent=letter;
+   const colorMark=document.createElement("small");colorMark.className="r4-rainbow-color";colorMark.textContent=color;
+   tile.append(mark,colorMark);button.append(tile);
+   button.addEventListener("click",()=>{
+    if(room4State.meteors||suppressClick)return;
+    if(chosen===null){chosen=i;status.textContent="";draw()}
+    else if(chosen===i){chosen=null;status.textContent="";draw()}
+    else move(chosen,i);
+   });
+   button.addEventListener("pointerdown",event=>{
+    if(event.button!==0||room4State.meteors)return;
+    drag={index:i,id:event.pointerId,x:event.clientX,y:event.clientY,moved:false};
+    button.setPointerCapture?.(event.pointerId);
+   });
+   button.addEventListener("pointermove",event=>{
+    if(!drag||drag.id!==event.pointerId)return;
+    if(Math.hypot(event.clientX-drag.x,event.clientY-drag.y)>8){
+     drag.moved=true;button.classList.add("is-dragging");
+    }
+   });
+   button.addEventListener("pointerup",event=>{
+    if(!drag||drag.id!==event.pointerId)return;
+    const moved=drag.moved||Math.hypot(event.clientX-drag.x,event.clientY-drag.y)>8;
+    const origin=drag.index;drag=null;
+    button.classList.remove("is-dragging");
+    if(!moved)return;
+    // A drag is one action, never a second tap. Also works with touch pointers.
+    suppressClick=true;
+    event.preventDefault();
+    const destination=document.elementFromPoint(event.clientX,event.clientY)?.closest(".r4-rainbow-plate");
+    if(destination&&list.contains(destination))move(origin,Number(destination.dataset.index));
+    window.setTimeout(()=>{suppressClick=false},0);
+   });
+   button.addEventListener("pointercancel",()=>{drag=null;button.classList.remove("is-dragging")});
+   list.append(button);
+  });
+ };
+ // A tap on one plate then another works on touch screens and with the keyboard.
+ draw();
 }
 function r4Wall(){if(room4State.wall){showRoomNotice("壁の透明パネルは取り外してある。","r4wall_done","investigation");return}showRoomDialog([{logId:"r4w1",logType:"dialogue",speaker:"主人公",text:"あれ……これって。もしかして、これもパネルなんじゃ……"},{logId:"r4w2",logType:"investigation",speaker:"ト書き",text:"壁に貼られている透明な板の端に指をかけると、外れた。"},{logId:"r4w3",logType:"narration",speaker:"システム",text:"【ガラスパネルを入手】"}],()=>{room4State.wall=true;saveGame();r4Refresh()})}
 function r4Box(){if(room4State.box){showRoomNotice("質問箱の透明パネルは取り外してある。","r4boxdone");return}showRoomDialog([{logId:"r4b1",logType:"investigation",speaker:"ト書き",text:"質問箱を調べる。何気なく眺めていると、一面だけ材質が違う。"},{logId:"r4b2",logType:"dialogue",speaker:"主人公",text:"……あれ？ この部分、さっきのパネルと同じじゃないか？"},{logId:"r4b3",logType:"investigation",speaker:"ト書き",text:"端に手をかけると外せそうだ。箱から透明なパネルを取り外した。"},{logId:"r4b4",logType:"narration",speaker:"システム",text:"【ガラスパネルを入手】"}],()=>{room4State.box=true;saveGame();r4Refresh()})}

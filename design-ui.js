@@ -224,9 +224,9 @@
   }
   function pickup(item){
     const m=panel('入手');
-    m.p?.classList.add('design-pickup-panel');
     let art;
     if(item.image){
+      m.p?.classList.add('design-pickup-panel');
       art=document.createElement('img');
       art.className='design-pickup-image';
       art.src=item.image;

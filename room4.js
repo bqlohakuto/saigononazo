@@ -61,10 +61,10 @@ function r4SyncHanaGazePose(){
  // Both idle and gaze receive exactly the same canvas and foot anchor.
  const width=stage.getBoundingClientRect().width;
  if(!Number.isFinite(width)||width<=0)return;
- hana.style.setProperty("--r4-hana-width",(width*.199)+"px");
- hana.style.setProperty("--r4-hana-height",(width*.31)+"px");
- hana.style.setProperty("--r4-hana-bottom",(-width*.03875)+"px");
- hana.style.setProperty("--r4-hana-head-offset",(width*.254)+"px");
+ hana.style.setProperty("--r4-hana-width",(width*.26)+"px");
+ hana.style.setProperty("--r4-hana-height",(width*.405)+"px");
+ hana.style.setProperty("--r4-hana-bottom",(-width*.050625)+"px");
+ hana.style.setProperty("--r4-hana-head-offset",(width*.332227)+"px");
  const idle=getComputedStyle(hana,"::before");
  pose.style.width=idle.width;
  pose.style.height=idle.height;

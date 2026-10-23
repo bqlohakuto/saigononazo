@@ -84,7 +84,52 @@ function tokens(values){
    assert.equal(await popup.getByText(/現在.*枚|[0-9]+\s*\/\s*5/).count(),0,"No acquisition tally in image popup");
    await page.screenshot({path:path.join(screenshots,'glass-awarded-'+viewport.width+'.png')});
    await popup.getByRole('button',{name:'受け取る'}).click();
-   assert.deepEqual(errors,[],"Rainbow UI should not generate JavaScript errors");
+   await page.locator('.design-overlay').waitFor({state:'detached'});
+   const countLog=()=>page.evaluate(()=>GameLog.list().length);
+   const rewardLogCount=await countLog();
+   // Completed rainbow exhibit can be opened repeatedly, with no second reward.
+   await page.locator('#r4P3').click();
+   assert.equal(await page.locator('.r4-plate-overlay.is-inspection').count(),1,'Completed rainbow opens again as an inspection');
+   assert.equal(await page.locator('.r4-rainbow-plate').count(),7);
+   assert.deepEqual(await order(),goal,'Completed color arrangement is preserved on reinspection');
+   assert.equal(await page.locator('.r4-rainbow-plate:disabled').count(),7,'Cleared plates cannot be moved a second time');
+   assert.equal(await page.locator('.r4-plate-overlay.is-revealing').count(),0,'No repeat of the victory animation');
+   await page.screenshot({path:path.join(screenshots,'rainbow-revisited-'+viewport.width+'.png')});
+   await page.locator('.r4-plate-overlay .device-close').click();
+   assert.equal(await page.locator('.design-overlay,.room-dialog-overlay').count(),0,'Reinspection closes without an award');
+   assert.equal(await countLog(),rewardLogCount,'Reinspection must not create reward or conversation entries');
+   assert.deepEqual(await page.evaluate(()=>room4State.rainbow),goal,'The saved arrangement must not be modified');
+   // The word puzzles also reopen: original exhibit, solved answer, no entry controls.
+   const reviewWord=async(id,kind,expectedGlass)=>{
+    const beforeLog=await countLog();
+    await page.locator(id).click();
+    const review=page.locator('.r4-mini-inspected');
+    assert.equal(await review.count(),1,kind+' should reopen in solved inspection mode');
+    assert.equal(await review.locator('.r4-solved-answer span').textContent(),kind,'Previously submitted word remains visible');
+    assert.equal(await review.locator('input,.r4-answer').count(),0,'No re-answer controls after solving');
+    assert.equal(await review.locator(kind==='STAR'?'.r4-digits':'.r4-flags').count(),1,'Original exhibit remains visible');
+    await review.locator('.device-close').click();
+    assert.equal(await page.locator('.room-dialog-overlay,.design-overlay').count(),0,'Solved word inspection gives no new dialog');
+    assert.equal(await countLog(),beforeLog,'Solved word inspection gives no new award');
+   };
+   const solveWord=async(id,kind,expectedGlass)=>{
+    await page.locator(id).click();
+    await page.locator('.r4-mini input').fill(kind);
+    await page.locator('.r4-answer').click();
+    await page.locator('.room-dialog-overlay').waitFor({timeout:2500});
+    await page.evaluate(()=>{for(let i=0;i<70&&document.querySelector('#roomNextButton');i++)Dialogue.advance()});
+    const item=page.locator('.design-overlay .design-panel[aria-label="入手"]');
+    await item.waitFor({timeout:2500});
+    const img=item.locator('img.design-pickup-image');
+    assert.equal(await img.getAttribute('src'),expectedGlass,'Correct image rewarded for '+kind);
+    await item.getByRole('button',{name:'受け取る'}).click();
+    await page.locator('.design-overlay').waitFor({state:'detached'});
+    await reviewWord(id,kind,expectedGlass);
+   };
+   await solveWord('#r4P2','LIGHT','images/exhibits/room04/virgo-panels/virgo-panel-02.svg');
+   await page.locator('#r4TurnLeft').click();
+   await solveWord('#r4P1','STAR','images/exhibits/room04/virgo-panels/virgo-panel-01.svg');
+   assert.deepEqual(errors,[],"Reinspections must not generate JavaScript errors");
    await page.close();
   }
   console.log("PASS: Room 04 physical rainbow, drag/tap, colors, solution and landscape layout");

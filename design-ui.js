@@ -238,7 +238,7 @@
     }
     m.content.append(art,paragraph(item.name));
     if(item.description)m.content.append(paragraph(item.description));
-    m.content.append(button('受け取る',m.close));
+    m.content.append(button('閉じる',m.close));
     m.content.addEventListener('click',e=>{if(!e.target.closest('button'))m.close()});
     recordLog({logId:'ui-item-'+currentScene+'-'+item.id,logType:'investigation',speaker:'ト書き',text:item.name+(item.description?'\n'+item.description:'')});
     saveGame();

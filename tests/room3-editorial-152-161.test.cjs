@@ -22,100 +22,27 @@ function node(){
  };
 }
 
-function puzzle(saved={}){
- const names=[
-  ".room3-answer-input",".room3-answer-submit",".room3-final-input",
-  ".room3-final-submit",".room3-puzzle-panel",".room3-puzzle-instruction",
-  ".room3-morse-entry",".room3-letterboard",".room3-final-entry",
-  ".room3-puzzle-feedback",".device-close"
- ];
- const nodes=Object.fromEntries(names.map(k=>[k,node()]));
- const overlay={className:"",querySelector(selector){return nodes[selector]}};
- const state=Object.assign({
-  doorInspected:true,chatRead:true,shelfInspected:true,morseSolved:false,
-  unlocked:false,puzzleAttempts:0
- },saved);
- const room=node(),status=node();
- room.querySelector=()=>status;
- let savedCount=0,opened=0,closed=0,dialogues=0,initialFocus=null;
- const sandbox={
-  room3State:state,
-  game:{
-   appendChild(){opened++},
-   querySelector(selector){return selector===".room-three"?room:null}
-  },
-  document:{createElement(){return overlay}},
-  activateDeviceModal(o,opener,initial){initialFocus=initial;return ()=>closed++},
-  saveGame(){savedCount++},
-  showRoomDialog(lines,done){dialogues++;done?.()},
-  showRoomNotice(){throw Error("No puzzle gate was expected")}
- };
- vm.runInNewContext(source+";this.__puzzle=showThirdRoomPuzzle;",sandbox);
- sandbox.__puzzle();
- return {nodes,state,initialFocus,metrics:()=>({savedCount,opened,closed,dialogues})};
-}
-
-test("No.152: restored progress focuses only a visible interactive control",()=>{
- for(const [state,selector] of [
-  [{morseSolved:false,unlocked:false},".room3-answer-input"],
-  [{morseSolved:true,unlocked:false},".room3-final-input"],
-  [{morseSolved:true,unlocked:true},".device-close"]
- ]){
-  const h=puzzle(state);
-  assert.equal(h.initialFocus,h.nodes[selector]);
- }
+test("No.152: chat opens without focusing a text field",()=>{
+ const segment=source.slice(source.indexOf("function showThirdRoomChat(){"),source.indexOf("function inspectThirdRoomBed(){"));
+ assert.match(segment,/activateDeviceModal\(overlay,"r3Phone",overlay\.querySelector\("\.device-close"\)/);
+ assert.doesNotMatch(segment,/\.focus\(\)/);
+ assert.ok(segment.includes('enterkeyhint="send"'));
 });
-
-test("No.153: existing overlays and dialogue prevent duplicate puzzle opening",()=>{
- for(const blockedSelector of [
-  ".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"
- ]){
-  let newElements=0,notices=0;
-  const sandbox={
-   room3State:{doorInspected:false,chatRead:false,shelfInspected:false},
-   game:{querySelector(selector){return selector===blockedSelector?{}:null},appendChild(){}},
-   document:{createElement(){newElements++;return node()}},
-   showRoomNotice(){notices++}
-  };
-  vm.runInNewContext(source+";this.__puzzle=showThirdRoomPuzzle;",sandbox);
-  sandbox.__puzzle();
-  assert.equal(newElements,0);
-  assert.equal(notices,0);
- }
+test("No.153: duplicate device overlays prevent extra chats",()=>{
+ const segment=source.slice(source.indexOf("function showThirdRoomChat(){"),source.indexOf("function inspectThirdRoomBed(){"));
+ assert.ok(segment.includes('game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay")'));
 });
-
-test("No.154-155: editing either field removes only the previous feedback",()=>{
- const h=puzzle(),feedback=h.nodes[".room3-puzzle-feedback"];
- h.nodes[".room3-answer-input"].value="bad";
- h.nodes[".room3-answer-submit"].click();
- assert.equal(h.state.puzzleAttempts,1);
- assert.ok(feedback.textContent);
- h.nodes[".room3-answer-input"].change("ONAJIMOJINOAIDA");
- assert.equal(feedback.textContent,"");
- assert.equal(h.state.puzzleAttempts,1);
- h.nodes[".room3-answer-submit"].click();
- h.nodes[".room3-final-input"].value="bad";
- h.nodes[".room3-final-submit"].click();
- assert.ok(feedback.textContent);
- const attempts=h.state.puzzleAttempts;
- h.nodes[".room3-final-input"].change("ｲﾂﾓﾄﾅﾘﾆ");
- assert.equal(feedback.textContent,"");
- assert.equal(h.state.puzzleAttempts,attempts);
+test("No.154-157: first reply earns a board; a second completes the memory puzzle",()=>{
+ const correct=vm.runInNewContext(source+";room3ReplyIsCorrect",{});
+ assert.equal(correct("ＯＮＡＪＩＭＯＪＩＮＯＡＩＤＡ","morse"),true);
+ assert.equal(correct("ｲﾂﾓﾄﾅﾘﾆ","final"),true);
+ const chat=source.slice(source.indexOf("function showThirdRoomChat(){"),source.indexOf("function inspectThirdRoomBed(){"));
+ assert.ok(chat.includes("if(room3State.unlocked)return;"));
+ assert.ok(chat.includes('if(correct&&stage==="morse")'));
+ assert.ok(chat.includes('if(correct&&stage==="final")'));
+ assert.ok(chat.includes("room3State.phoneReplies.push"));
+ assert.ok(chat.includes("saveGame();scrollToBottom()"));
 });
-
-test("No.156-157: Unicode-normalized equivalent answers remain accepted",()=>{
- const h=puzzle();
- h.nodes[".room3-answer-input"].value="ＯＮＡＪＩＭＯＪＩＮＯＡＩＤＡ";
- h.nodes[".room3-answer-submit"].click();
- assert.equal(h.state.morseSolved,true);
- assert.equal(h.state.puzzleAttempts,1);
- h.nodes[".room3-final-input"].value="ｲﾂﾓﾄﾅﾘﾆ";
- h.nodes[".room3-final-submit"].click();
- assert.equal(h.state.unlocked,true);
- assert.equal(h.state.puzzleAttempts,2);
- assert.equal(h.metrics().dialogues,1);
-});
-
 test("No.158-159: revisiting bed and trumpet shows concise notices without saving",()=>{
  const state={bedInspected:true,trumpetInspected:true};
  const notices=[];let saves=0;

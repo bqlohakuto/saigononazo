@@ -182,7 +182,23 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  const board=await page.locator('.r4-flower-board').boundingBox(),roomStage=await page.locator('.room4-stage').boundingBox();assert(board.x>=roomStage.x+roomStage.width*.571&&board.x+board.width<=roomStage.x+roomStage.width*.831,'Flower board stays inside the wooden frame');
  await page.screenshot({path:path.join(dir,'right-flower-board.png')});
  await page.locator('#r4P1').click();assert.equal(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),false,'STAR puzzle does not activate input on opening');await page.locator('.r4-mini input').click();assert(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),'Selected answer field is focused');await page.locator('.r4-mini input').fill('STAR');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.star));
- await page.locator('#r4TurnRight').click();await page.locator('#r4Meteor').click();await finish(page);await page.locator('#r4Moon').click();await finish(page);
+ await page.locator('#r4TurnRight').click();await page.locator('#r4Meteor').click();await finish(page);await page.locator('#r4Moon').click();
+ assert(await page.locator('.r4-world-exhibit').isVisible(),'Country reference opens as an exhibit, independently of dialogue');
+ assert.equal(await page.locator('.r4-reference-flag').count(),7,'Reference includes the five target countries and two other countries');
+ assert.notDeepEqual((await page.locator('.r4-world-country strong').allTextContents()).slice(0,5),['POLAND','SPAIN','BELGIUM','THAILAND','ITALY'],'Reference does not disclose the answer order');
+ await page.screenshot({path:path.join(dir,'country-reference.png')});
+ await page.keyboard.press('Escape');
+ assert.equal(await page.locator('.r4-world-overlay').count(),0,'Reference can be closed before opening puzzle 2');
+ assert.equal(await page.evaluate(()=>document.activeElement.id),'r4Moon','Reference returns focus to its exploration target');
+ await page.locator('#r4P2').click();
+ assert.equal(await page.locator('.r4-ratio-specimen').count(),5,'All five color-area clues are visible');
+ assert.deepEqual(await page.locator('.r4-ratio-digit').allTextContents(),['3','4','4','2','2'],'Approved letter extraction positions are preserved');
+ assert.equal(await page.locator('.r4-ratio-exhibit svg').count(),0,'Puzzle does not disclose flag silhouettes');
+ assert(!/POLAND|SPAIN|BELGIUM|THAILAND|ITALY/.test(await page.locator('.r4-ratio-exhibit').innerText()),'Country names are found in the separate reference');
+ const ratioBounds=await page.locator('.r4-ratio-exhibit').boundingBox();
+ assert(ratioBounds.x>=view.x-1&&ratioBounds.y>=view.y-1&&ratioBounds.x+ratioBounds.width<=view.x+view.width+1&&ratioBounds.y+ratioBounds.height<=view.y+view.height+1,'Color-area puzzle fits the game viewport');
+ await page.screenshot({path:path.join(dir,'color-area-puzzle.png')});
+ await page.keyboard.press('Escape');
  await page.locator('#r4P2').click();assert.equal(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),false,'LIGHT puzzle does not activate input on opening');await page.locator('.r4-mini input').click();assert(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),'Selected answer field is focused');await page.locator('.r4-mini input').fill('LIGHT');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.lightPuzzle));
  await page.locator('#r4P3').click();
  const plateButtons=page.locator('.r4-rainbow-plate');
@@ -257,4 +273,5 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  assert.deepEqual(errors,[]);console.log(spec.name+' room 4 PASS');
  }finally{await browser.close()}
 }})().catch(e=>{console.error(e);process.exit(1)});
+
 

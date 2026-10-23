@@ -27,7 +27,7 @@ function tokens(values){
     const width=stage.getBoundingClientRect().width;
     const idle=getComputedStyle(el,'::before'),gaze=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
     return width>0&&['width','height','bottom'].every((name,i)=>{
-     const expected=width*[.199,.31,-.03875][i];
+     const expected=width*[.26,.405,-.050625][i];
      return Math.abs(parseFloat(idle[name])-expected)<1
       &&Math.abs(parseFloat(idle[name])-parseFloat(gaze[name]))<1;
     });
@@ -44,8 +44,8 @@ function tokens(values){
    console.log('ROOM4_HANA_ENTRY '+viewport.width+' '+JSON.stringify(entry));
    assert(Math.abs(entry.stageWidth-entry.canvasWidth)<1,'Initial Room 4 stage must fill the game canvas');
    assert(Math.abs(entry.stageX-entry.canvasX)<1,'Initial Room 4 stage must not have side margins');
-   assert(Math.abs(entry.idleWidth-entry.canvasWidth*.199)<1,'Initial Hana width must match stage depth');
-   assert(Math.abs(entry.idleHeight-entry.canvasWidth*.31)<1,'Initial Hana height must match stage depth');
+   assert(Math.abs(entry.idleWidth-entry.canvasWidth*.26)<1,'Initial Hana width must match stage depth');
+   assert(Math.abs(entry.idleHeight-entry.canvasWidth*.405)<1,'Initial Hana height must match stage depth');
    assert(Math.abs(entry.gazeWidth-entry.idleWidth)<1&&Math.abs(entry.gazeHeight-entry.idleHeight)<1,'Initial gaze canvas must match idle');
    await page.evaluate(()=>{
     Dialogue.stop();
@@ -59,7 +59,7 @@ function tokens(values){
    });
    console.log('ROOM4_HANA_FAST_DIAGNOSTIC '+viewport.width+' '+JSON.stringify(gazeSizing));
    const roomWidth=gazeSizing.stage.width;
-   for(const [key,scale] of [['width',.199],['height',.31],['bottom',-.03875]]){
+   for(const [key,scale] of [['width',.26],['height',.405],['bottom',-.050625]]){
     const actual=parseFloat(gazeSizing.idle[key]);
     assert(Math.abs(actual-roomWidth*scale)<1,'Room 4 Hana idle '+key+' must track visible room width ('+viewport.width+'): '+JSON.stringify(gazeSizing));
     assert(Math.abs(actual-parseFloat(gazeSizing.gaze[key]))<1,'Hana gaze must match idle '+key);
@@ -68,13 +68,13 @@ function tokens(values){
    await page.waitForFunction(()=>{
     const stage=document.querySelector('.room4-stage').getBoundingClientRect();
     const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
-    return Math.abs(parseFloat(idle.height)-stage.width*.31)<1;
+    return Math.abs(parseFloat(idle.height)-stage.width*.405)<1;
    },null,{timeout:4000});
    await page.locator('.room-stage-wrap').evaluate(el=>el.style.removeProperty('width'));
    await page.waitForFunction(()=>{
     const stage=document.querySelector('.room4-stage').getBoundingClientRect();
     const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
-    return Math.abs(parseFloat(idle.height)-stage.width*.31)<1;
+    return Math.abs(parseFloat(idle.height)-stage.width*.405)<1;
    },null,{timeout:4000});
    const opener=page.locator("#r4P3");
    await opener.click();
@@ -135,7 +135,7 @@ function tokens(values){
    assert(await glass.evaluate(async img=>{await img.decode();return img.naturalWidth>0}),"Glass image must decode");
    assert.equal(await popup.getByText(/現在.*枚|[0-9]+\s*\/\s*5/).count(),0,"No acquisition tally in image popup");
    await page.screenshot({path:path.join(screenshots,'glass-awarded-'+viewport.width+'.png')});
-   await popup.getByRole('button',{name:'受け取る'}).click();
+   await popup.getByRole('button',{name:'閉じる',exact:true}).last().click();
    await page.locator('.design-overlay').waitFor({state:'detached'});
    const countLog=()=>page.evaluate(()=>GameLog.list().length);
    const rewardLogCount=await countLog();
@@ -159,7 +159,11 @@ function tokens(values){
     assert.equal(await review.count(),1,kind+' should reopen in solved inspection mode');
     assert.equal(await review.locator('.r4-solved-answer span').textContent(),kind,'Previously submitted word remains visible');
     assert.equal(await review.locator('input,.r4-answer').count(),0,'No re-answer controls after solving');
-    assert.equal(await review.locator(kind==='STAR'?'.r4-color-samples':'.r4-flags').count(),1,'Original exhibit remains visible');
+    assert.equal(await review.locator(kind==='STAR'?'.r4-color-samples':'.r4-ratio-specimens').count(),1,'Accepted exhibit remains visible');
+    if(kind==='LIGHT'){
+     assert.equal(await review.locator('.r4-ratio-specimen').count(),5,'All five accepted ratio clues remain visible');
+     assert((await review.locator('.r4-ratio-sample span').allTextContents()).includes('0.02%'),'The small emblem color keeps its numeric percentage');
+    }
     await review.locator('.device-close').click();
     assert.equal(await page.locator('.room-dialog-overlay,.design-overlay').count(),0,'Solved word inspection gives no new dialog');
     assert.equal(await countLog(),beforeLog,'Solved word inspection gives no new award');
@@ -190,7 +194,7 @@ function tokens(values){
     await item.waitFor({timeout:2500});
     const img=item.locator('img.design-pickup-image');
     assert.equal(await img.getAttribute('src'),expectedGlass,'Correct image rewarded for '+kind);
-    await item.getByRole('button',{name:'受け取る'}).click();
+    await item.getByRole('button',{name:'閉じる',exact:true}).last().click();
     await page.locator('.design-overlay').waitFor({state:'detached'});
     await reviewWord(id,kind,expectedGlass);
    };
@@ -203,3 +207,4 @@ function tokens(values){
   console.log("PASS: Room 04 physical rainbow, drag/tap, colors, solution and landscape layout");
  }finally{await browser.close()}
 })().catch(error=>{console.error(error);process.exitCode=1});
+

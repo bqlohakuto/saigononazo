@@ -2124,3 +2124,19 @@ body{background:#0b1322!important;display:grid;place-items:center}
   transition:none!important;
  }
 }
+
+
+/* Room 04 must occupy the same 16:9 stage on first entry and saved re-entry.
+   Intro/header grid padding otherwise reduces the actual cqw reference width.
+   Keep width non-important so inline resize and mobile layout remain testable. */
+#game .room-four .room-stage-wrap{
+ position:absolute;
+ inset:0;
+ display:block;
+ width:100%;
+ height:100%;
+ min-width:0;
+ min-height:0;
+ margin:0;
+ padding:0;
+}

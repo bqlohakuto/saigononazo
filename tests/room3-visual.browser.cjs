@@ -91,7 +91,7 @@ async function finishDialogue(page){
  await page.keyboard.press('Escape');assert.equal(await chart.count(),0);
  await page.locator('#r3Trumpet').click();await finishDialogue(page);
  await page.evaluate(()=>showThirdRoom({...room3State}));assert.equal(await page.locator('.room3-stage').getAttribute('data-view'),'back','Saved view restored');
- await page.locator('#r3TurnLeft').click();await page.locator('#r3Board').click();
+ await page.locator('#r3TurnLeft').click();assert.equal(await page.locator('#r3Board').count(),0,'The letterboard is not on the desk before it arrives by chat');await page.locator('#r3Phone').click();
  const reply=page.locator('.r3-reply-input'),send=page.locator('.r3-reply-send');
  assert.equal(await page.locator('.room3-answer-input,.room3-final-input').count(),0,'The old standalone puzzle entry no longer exists');
  assert.equal(await reply.count(),1,'The smartphone conversation ends with one reply field');

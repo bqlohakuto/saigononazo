@@ -36,7 +36,7 @@ fs.mkdirSync(output,{recursive:true});
    };
    const progress=()=>page.evaluate(()=>{saveGame();return JSON.parse(localStorage.getItem(SAVE_KEY)).rooms[currentScene]});
    const specs=await page.evaluate(()=>Object.entries(RoomExplorationScenes).flatMap(([scene,entries])=>entries.filter(e=>!e.existing).map(e=>({scene,id:e.id,view:e.view||'front'}))));
-   assert.equal(specs.length,17,'Keep 17 concrete optional hotspots; no number-filling');
+   assert.equal(specs.length,19,'Seventeen existing objects plus two newly drawn props');
    assert.equal(specs.some(s=>s.scene==='room03'&&s.id==='floor'),false,'Do not investigate a generic wooden floor');
    assert.equal(specs.some(s=>s.scene==='room06'&&['wall','floor'].includes(s.id)),false,'No generic wall or feet inspection in the Othello room');
    assert.equal(specs.some(s=>s.scene==='room02'&&s.id==='frame'),true,'A wall-mounted framed item remains inspectable');
@@ -49,8 +49,21 @@ fs.mkdirSync(output,{recursive:true});
     assert.equal(await target.count(),1);
     const clear=await target.evaluate(el=>{const r=el.getBoundingClientRect();return el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))});
     assert.ok(clear,`${viewport.width}: ${spec.scene}/${spec.id} center must be clickable`);
+    if(['room03/lecture-note','room05/mug-pair'].includes(spec.scene+'/'+spec.id)){
+     assert.equal(await target.locator('img.ambient-prop-image').count(),1,'The new item must be visible as its own sprite');
+     const art=await target.locator('img.ambient-prop-image').evaluate(async img=>{
+      await img.decode();return {ready:img.naturalWidth>0&&img.naturalHeight>0,src:img.getAttribute('src')};
+     });
+     assert(art.ready,'New item sprite must decode before inspecting');
+     assert.match(art.src,/optional-room0[35]-.+\.svg$/);
+    }
     await target.click();
     assert.equal(await page.locator('.inspection-overlay').count(),1);
+    if(['room03/lecture-note','room05/mug-pair'].includes(spec.scene+'/'+spec.id)){
+     const zoom=page.locator('.inspection-overlay img.inspection-image');
+     assert.equal(await zoom.count(),1,'Zoom should show the newly created object itself');
+     assert.equal(await zoom.getAttribute('src'),await target.locator('img.ambient-prop-image').getAttribute('src'),'Zoom reuses the identical sprite');
+    }
     await page.keyboard.press('Escape');
     assert.equal(await target.evaluate(el=>el===document.activeElement),true,'Escape restores focus');
     assert.deepEqual(await progress(),before,'closing an inspection cannot change puzzle progress');

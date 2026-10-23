@@ -24,6 +24,12 @@ function tokens(values){
     showFourthRoom({view:"back",door:true,hanaSleepSeen:true});
     for(let i=0;i<20&&document.querySelector("#roomNextButton");i++)Dialogue.advance();
    });
+   const gazeSizing=await page.locator('#r4Hana').evaluate(el=>{
+    const rect=sel=>{const b=document.querySelector(sel)?.getBoundingClientRect();return b?{width:b.width,height:b.height,x:b.x,y:b.y}:null};
+    const idle=getComputedStyle(el,'::before'),gaze=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
+    return {container:rect('#game-container'),game:rect('#game'),wrap:rect('.room-stage-wrap'),stage:rect('.room4-stage'),hana:rect('#r4Hana'),idle:{width:idle.width,height:idle.height,bottom:idle.bottom},gaze:{width:gaze.width,height:gaze.height,bottom:gaze.bottom},ready:document.querySelector('#game').className};
+   });
+   console.log('ROOM4_HANA_FAST_DIAGNOSTIC '+viewport.width+' '+JSON.stringify(gazeSizing));
    const opener=page.locator("#r4P3");
    await opener.click();
    const plates=page.locator(".r4-rainbow-plate");

@@ -20,100 +20,44 @@ function element(){
   append(){},appendChild(){},setAttribute(){},focus(){this.focused=true}
  };
 }
-function puzzle(){
- const selectors=[
-  ".room3-answer-input",".room3-answer-submit",".room3-final-input",".room3-final-submit",
-  ".room3-puzzle-panel",".room3-puzzle-instruction",".room3-morse-entry",
-  ".room3-letterboard",".room3-final-entry",".room3-puzzle-feedback",".device-close"
- ];
- const nodes=Object.fromEntries(selectors.map(selector=>[selector,element()]));
- const overlay={className:"",innerHTML:"",querySelector(selector){return nodes[selector]}};
- const state={
-  doorInspected:true,chatRead:true,shelfInspected:true,
-  morseSolved:false,unlocked:false,puzzleAttempts:0
- };
- const room=element();const status=element();
- let saved=0,closed=0,memories=0;
- room.querySelector=()=>status;
- const sandbox={
-  room3State:state,
-  game:{
-   appendChild(){},
-   querySelector(selector){return selector===".room-three"?room:null}
-  },
-  document:{createElement(){return overlay}},
-  activateDeviceModal(){return ()=>closed++},
-  saveGame(){saved++},
-  showRoomDialog(lines,done){memories++;done?.()},
-  showRoomNotice(){throw new Error("Puzzle should not gate with complete prerequisites")}
- };
- vm.runInNewContext(source+";this.__puzzle=showThirdRoomPuzzle;",sandbox);
- sandbox.__puzzle();
- return {nodes,state,metrics:()=>({saved,closed,memories})};
-}
+const replyCorrect=vm.runInNewContext(source+";room3ReplyIsCorrect",{});
 
-test("No.143-145: empty answers do not count; wrong answers are saved in both stages",()=>{
- const {nodes,state,metrics}=puzzle(),text=()=>nodes[".room3-puzzle-feedback"].textContent;
- assert.equal(nodes[".room3-puzzle-instruction"].textContent,"","No solution method appears as unearned interface text");
- nodes[".room3-answer-submit"].click();
- assert.equal(text(),"答えを入力してください。");
- assert.equal(state.puzzleAttempts,0);
- assert.equal(metrics().saved,0);
- nodes[".room3-answer-input"].value="wrong";
- nodes[".room3-answer-submit"].click();
- assert.equal(state.puzzleAttempts,1);
- assert.equal(metrics().saved,1);
- assert.equal(text(),"顔文字とモールス対応表を、もう一度見比べてみよう。");
- nodes[".room3-answer-input"].value="ONAJIMOJINOAIDA";
- nodes[".room3-answer-submit"].click();
- assert.equal(state.morseSolved,true);
- assert.equal(state.puzzleAttempts,2);
- assert.equal(metrics().saved,2);
- assert.equal(nodes[".room3-puzzle-instruction"].textContent,"『同じ文字の間』","The discovered phrase stays visible while the letterboard is open");
- assert.equal(text(),"","The clue is not duplicated in feedback");
- nodes[".room3-final-submit"].click();
- assert.equal(text(),"言葉を入力してください。");
- assert.equal(state.puzzleAttempts,2);
- nodes[".room3-final-input"].value="wrong";
- nodes[".room3-final-submit"].click();
- assert.equal(state.puzzleAttempts,3);
- assert.equal(metrics().saved,3);
- assert.equal(text(),"文字盤から読み取った言葉を入力しよう。");
+test("No.143-145: text replies validate both stages without spoiling the answer",()=>{
+ for(const answer of ["ONAJIMOJINOAIDA","ＯＮＡＪＩＭＯＪＩＮＯＡＩＤＡ","オナジモジノアイダ","同じ文字の間","同じ文字のあいだ"]){
+  assert.equal(replyCorrect(answer,"morse"),true,answer);
+ }
+ for(const answer of ["イツモトナリニ","いつもとなりに","ｲﾂﾓﾄﾅﾘﾆ"]){
+  assert.equal(replyCorrect(answer,"final"),true,answer);
+ }
+ for(const answer of ["", "NOT THE ANSWER","おなじもじのあいだ"]){
+  if(answer)assert.equal(replyCorrect(answer,"final"),false,answer);
+ }
+ assert.equal(replyCorrect("ONAJIMOJINOAIDA","final"),false);
+ assert.equal(replyCorrect("イツモトナリニ","morse"),false);
 });
 
-test("No.146-148: Enter respects IME; stage changes do not summon the mobile keyboard",()=>{
- const {nodes,state}=puzzle();
- const first=nodes[".room3-answer-input"],final=nodes[".room3-final-input"];
- first.value="ONAJIMOJINOAIDA";
- assert.equal(first.key("Enter",{isComposing:true}),false);
- assert.equal(first.key("Enter",{repeat:true}),false);
- assert.equal(state.puzzleAttempts,0);
- assert.equal(first.key("Enter"),true);
- assert.equal(state.puzzleAttempts,1);
- assert.equal(state.morseSolved,true);
- assert.equal(final.focused,undefined,"Next-stage answer stays unfocused until the player taps it");
- assert.equal(state.puzzleAttempts,1);
- final.value="イツモトナリニ";
- assert.equal(final.key("Enter",{isComposing:true}),false);
- assert.equal(final.key("Enter"),true);
- assert.equal(state.unlocked,true);
+test("No.146-148: third-room replies replace the old standalone input",()=>{
+ const chat=source.slice(source.indexOf("function showThirdRoomChat(){"),source.indexOf("function inspectThirdRoomBed(){"));
+ const puzzle=source.slice(source.indexOf("function showThirdRoomPuzzle(){"),source.indexOf("function playThirdRoomMemory(){"));
+ assert.ok(chat.includes('r3-reply-input'));
+ assert.ok(chat.includes('r3-reply-form'));
+ assert.ok(chat.includes('r3-board-preview'));
+ assert.ok(chat.includes('r3-large-letterboard'));
+ assert.ok(chat.includes('r3-inline-morse'));
+ assert.ok(chat.includes('input.value.trim()'));
+ assert.ok(!chat.includes('input.focus()'),"Keyboard remains closed until player selects the reply field");
+ assert.match(puzzle,/showThirdRoomChat\(\)/,"Desk object enters the phone, not another answer modal");
+ assert.doesNotMatch(source,/room3-answer-input|room3-final-input/);
 });
 
-test("Room 3 prevents repeated submission after each correct stage",()=>{
- const {nodes,state,metrics}=puzzle();
- nodes[".room3-answer-input"].value="ONAJIMOJINOAIDA";
- nodes[".room3-answer-submit"].click();
- assert.equal(state.morseSolved,true);
- assert.equal(state.puzzleAttempts,1);
- nodes[".room3-answer-submit"].click();
- assert.equal(state.puzzleAttempts,1,"First stage answer is not resubmitted after the letterboard appears");
- nodes[".room3-final-input"].value="イツモトナリニ";
- nodes[".room3-final-submit"].click();
- assert.equal(state.unlocked,true);
- assert.equal(metrics().memories,1);
- nodes[".room3-final-submit"].click();
- assert.equal(state.puzzleAttempts,2,"Second submit does not count another answer");
- assert.equal(metrics().memories,1,"Memory scene must never be started twice");
+test("Room 3 saves replies, receives the approved board and transitions only after final reply",()=>{
+ const chat=source.slice(source.indexOf("function showThirdRoomChat(){"),source.indexOf("function inspectThirdRoomBed(){"));
+ assert.match(chat,/room3State\.phoneReplies\.push/);
+ assert.match(chat,/room3State\.morseSolved=true;receiveBoard\(\)/);
+ assert.match(chat,/room3State\.unlocked=true/);
+ assert.match(chat,/setTimeout\(\(\)=>\{if\(overlay\.isConnected\)close\(\)\},650\)/);
+ assert.match(chat,/playThirdRoomMemory\(\)/);
+ assert.ok(chat.includes("images/items/room03-chat-letterboard.svg"));
 });
 
 test("No.149: chart close notification fires once across multiple opens",()=>{

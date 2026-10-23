@@ -67,6 +67,7 @@
     }
     if (saved.currentScene === "room02") {
       const state = saved.rooms?.room02 || {};
+      if (state.memoryProgress) return state.memoryProgress.phase === "memory" ? "第二の部屋・回想中" : "第二の部屋・正解後の会話";
       if (state.unlocked) return "第二の部屋・謎解きクリア後";
       if (state.attempts) return `第二の部屋・${state.attempts}回挑戦済み`;
       return "第二の部屋";

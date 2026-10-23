@@ -12,6 +12,7 @@ body{background:#171b19!important;font-family:"Yu Gothic",Meiryo,sans-serif}
 #game button:not(.title-button):not(.object):not(.late-object){font-family:inherit;border-radius:5px;touch-action:manipulation}
 #game :is(.gameplay-panel,.menu-panel,.phone-screen,.piano-screen,.room2-puzzle,.room3-puzzle-panel,.room3-chat-panel,.r4-mini,.r4-light-panel,.late-panel,.inspection-panel,.save-slot-panel){background:var(--paper)!important;color:var(--ink)!important;border:1px solid var(--gold)!important;border-radius:8px!important;max-height:92%;box-shadow:0 14px 45px #10161055;padding:clamp(12px,2cqw,30px);overflow:auto}
 #game :is(.device-overlay,.inspection-overlay,.menu-overlay,.save-slot-overlay,.gameplay-log-overlay,.gameplay-menu-overlay,.design-overlay){background:#111b1766!important;padding:3%;z-index:70}
+#game .save-slot-overlay{z-index:110}
 #game h2,#game .gameplay-room-title{font-family:"Yu Mincho",serif;font-weight:500}
 #game :is(.device-close,.inspection-close,.save-slot-close,.gameplay-panel-close){color:var(--ink);background:var(--paper);border:1px solid var(--paper-line);min-width:44px;min-height:36px;font-size:14px!important;z-index:2;width:auto!important;padding:5px 10px}
 #game :is(input,select){font:inherit;color:var(--ink);background:#fffdf8;border:1px solid var(--paper-line);border-radius:4px;min-height:36px}
@@ -430,15 +431,13 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .piano-keyboard-tools button{min-height:34px;padding:5px 12px;border:1px solid #a79b8b;border-radius:5px;background:#fffaf1;color:#392f2c;font:inherit;font-size:14px;cursor:pointer}
 #game .piano-keyboard-tools button:disabled{opacity:.55;cursor:default}
 #game .room1-piano-panel label{margin:10px 0 8px}
-/* Keep the confirmation action visible even when a short landscape viewport scrolls the piano. */
+/* Keep the input and confirmation in flow so scrolling never covers the melody. */
 #game .room1-piano-panel #playMelodyButton{
-  position:sticky;
-  bottom:0;
-  z-index:2;
+  position:static;
   display:block;
   min-height:44px;
   margin-top:6px;
-  box-shadow:0 -5px 16px rgba(25,23,20,.18);
+  box-shadow:none;
 }
 
 @container game-viewport (max-height:520px){#game .piano-keyboard{height:84px;margin-top:6px}#game .room1-piano-panel{padding-top:40px!important}#game .room1-piano-panel label{margin:6px 0}}
@@ -922,9 +921,10 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .room2-puzzle .room2-leftmost-hint{grid-column:2;grid-row:1;align-self:center}
 #game .room2-puzzle .room2-puzzle-actions{grid-column:1/-1;grid-row:5}
 #game .room2-board-help{
- position:absolute;right:57px;top:9px;z-index:12;
+ position:absolute;right:84px;top:9px;z-index:12;
  margin:0!important;padding:0;line-height:1;
 }
+#game .room2-puzzle>.design-op-button{right:130px}
 #game .room2-board-help summary{
  display:grid;place-items:center;list-style:none;
  min-width:34px;min-height:34px;width:34px;height:34px;

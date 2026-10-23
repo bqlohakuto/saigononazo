@@ -804,7 +804,7 @@ function showRoomNotice(text,logId,logType="investigation"){
  showLoggedText(document.getElementById("exploreStatus"),text,logId,logType,"#5f675a");
 }
 
-function showRoomDialog(lines,onComplete,onDisplay){
+function showRoomDialog(lines,onComplete,onDisplay,options={}){
  // Never stack dialogue overlays. Stacking disposes the older Dialogue controller
  // while leaving its overlay on screen, which makes the conversation impossible to finish.
  if(game.querySelector(".room-dialog-overlay"))return false;
@@ -824,8 +824,12 @@ function showRoomDialog(lines,onComplete,onDisplay){
   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
  });
- Dialogue.start({lines:expandScenario(lines),messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,skipButton:skip,logButton:log,logArea,dialog:overlay.querySelector(".room-dialog"),isRead:line=>GameLog.has(line.logId),onDisplay:(line,index)=>{
+ const expanded=expandScenario(lines);
+ const startIndex=Math.max(0,expanded.findIndex(line=>line.logId===options.resume?.logId));
+ Dialogue.start({lines:expanded,startIndex,startPage:options.resume?.uiPage||0,messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,skipButton:skip,logButton:log,logArea,dialog:overlay.querySelector(".room-dialog"),isRead:line=>GameLog.has(line.logId),onDisplay:(line,index)=>{
+  options.onProgress?.({logId:(line.logSource||line).logId,uiPage:line.uiPage||0});
   if(!line.logSource||line.uiPage===0)recordLog(line.logSource||line);
+  else if(options.onProgress)saveGame();
   if(!line.logSource||line.uiPage===0){if(onDisplay)onDisplay(line.logSource||line,line.sourceIndex??index);}
  },getTextSpeed:()=>settings.instantText?0:settings.textSpeed,onComplete:()=>{
   overlay.remove();

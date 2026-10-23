@@ -237,6 +237,43 @@ const allMail = {
   openedSent: ["sent-1", "sent-2", "sent-3", "sent-4"]
 };
 
+function loadRoom2Memory(h) {
+  for (const name of ["room2-flashback.js", "room2-after-flashback.js", "room2.js"]) {
+    h.run(fs.readFileSync(path.join(__dirname, "..", name), "utf8"));
+  }
+}
+
+test("room2 saves inside a memory restore its line and complete the remaining story once", () => {
+  const h = harness(); loadRoom2Memory(h);
+  h.run("settings.instantText=true;showSecondRoom({deskInspected:true});completeRoom2()");
+  for (let i = 0; h.saved.rooms.room02.memoryProgress?.logId !== "room2_memory_050_01"; i++) {
+    assert.ok(i < 300, "the midpoint must be reachable"); h.click("#roomNextButton");
+  }
+  const snapshot = h.saved;
+  assert.equal(snapshot.rooms.room02.flashbackSeen, false);
+  for (const legacy of [false, true]) {
+    const saved = JSON.parse(JSON.stringify(snapshot));
+    if (legacy) { delete saved.rooms.room02.memoryProgress; saved.rooms.room02.flashbackSeen = true; }
+    const resumed = harness(saved); loadRoom2Memory(resumed);
+    resumed.run("settings.instantText=true"); resumed.click("#continueButton");
+    assert.equal(resumed.query(".message").textContent, "褒めすぎ");
+    assert.equal(resumed.saved.rooms.room02.memoryProgress.logId, "room2_memory_050_01");
+    for (let i = 0; resumed.saved.rooms.room02.memoryProgress.phase !== "after"; i++) {
+      assert.ok(i < 300); resumed.click("#roomNextButton");
+    }
+    const after = harness(resumed.saved); loadRoom2Memory(after);
+    after.run("settings.instantText=true"); after.click("#continueButton");
+    assert.equal(after.saved.rooms.room02.memoryProgress.phase, "after");
+    assert.equal(after.query(".message").textContent, resumed.query(".message").textContent);
+    after.finishDialogue();
+    assert.equal(after.saved.rooms.room02.flashbackSeen, true);
+    assert.equal(after.saved.rooms.room02.memoryProgress, undefined);
+    assert.equal(after.saved.logs.filter(e => e.id === "room2_unlocked").length, 1);
+    const complete = harness(after.saved); loadRoom2Memory(complete); complete.click("#continueButton");
+    assert.equal(complete.game.querySelector(".room-dialog-overlay"), null);
+  }
+});
+
 test("old saves restore mail, wall and unlocked state with a safe phone-introduction default", () => {
   const h = harness({ playerName: "テスト", scene: "firstRoom", state: {
     ...unlockedItems, ...allMail, doorUnlocked: true, melodySolved: true, viewedWall: "left"

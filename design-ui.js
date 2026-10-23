@@ -129,13 +129,34 @@
     const size=large?Math.max(16,Math.min(32,w*.022)):Math.max(11,Math.min(26,w*.018));
     return lines.flatMap((line,index)=>splitText(line.text,width,`${size}px "DotGothic16", "Yu Gothic", Meiryo, sans-serif`,Math.max(1,Math.min(3,Math.floor((area.clientHeight-(line.speaker==='ハナ'||line.speaker==='花音'?size:0))/(size*1.55))))).map((text,uiPage)=>({...line,text,logSource:line,uiPage,sourceIndex:index,uiWasRead:!!isRead?.(line)})));
   }
-  function pageText(content,text){
+  function recordTextPages(entries,maxWidth,font,maxLines){
+    const pages=[];let page='';
+    for(const entry of entries){
+      const speaker=entry.kind==='heroine'||entry.kind==='character'?entry.speaker:'';
+      // A short turn stays intact. Longer turns repeat the speaker on each page.
+      const parts=splitText(entry.text,maxWidth,font,Math.max(1,maxLines-(speaker?1:0)));
+      for(const part of parts){
+        const block=(speaker?speaker+'\n':'')+part;
+        const candidate=page?page+'\n\n'+block:block;
+        if(page&&splitText(candidate,maxWidth,font,maxLines).length>1){pages.push(page);page=block}
+        else page=candidate;
+      }
+    }
+    if(page||!pages.length)pages.push(page);
+    return pages;
+  }
+  function pageText(content,text,entries){
     const area=document.createElement('p');area.className='design-page';content.append(area);
     const pager=document.createElement('div');pager.className='design-pager';content.append(pager);
     let page=0,pages=[];const count=document.createElement('span');
     const prev=button('前のページ',()=>{page--;draw()}),next=button('次のページ',()=>{page++;draw()});pager.append(prev,count,next);
     function draw(){area.textContent=pages[page]||'';prev.disabled=page===0;next.disabled=page>=pages.length-1;count.textContent=`${page+1} / ${Math.max(1,pages.length)}`}
-    function measure(){const css=getComputedStyle(area);pages=splitText(text,Math.max(100,area.clientWidth),`${css.fontSize} ${css.fontFamily}`,Math.max(1,Math.floor(area.clientHeight/parseFloat(css.lineHeight))));page=Math.min(page,pages.length-1);draw()}
+    function measure(){
+      const css=getComputedStyle(area),width=Math.max(100,area.clientWidth),font=`${css.fontSize} ${css.fontFamily}`;
+      const lines=Math.max(entries?2:1,Math.floor(area.clientHeight/parseFloat(css.lineHeight)));
+      pages=entries?recordTextPages(entries,width,font,lines):splitText(text,width,font,lines);
+      page=Math.min(page,pages.length-1);draw();
+    }
     requestAnimationFrame(measure);return area;
   }
   function records(){
@@ -159,7 +180,7 @@
       rows.slice(recordPage*perPage,(recordPage+1)*perPage).forEach((row,i)=>{const first=row.entries[0],flag=row.entries.some(clue);const title=(row.category==='investigation'?(first.target?first.target+' — ':'調査 — '):'')+first.text.slice(0,42);const b=button((flag?'● ':'')+title,()=>detail(recordPage*perPage+i),'design-record');b.classList.toggle('final-clue',flag);m.content.append(b)});
       const nav=document.createElement('div');nav.className='design-pager';const prev=button('前の一覧',()=>{recordPage--;drawList()}),next=button('次の一覧',()=>{recordPage++;drawList()});prev.disabled=recordPage===0;next.disabled=recordPage===total-1;nav.append(prev,paragraph(`${recordPage+1} / ${total}`),next);m.content.append(nav);
     }
-    function detail(index){m.content.replaceChildren();const row=rows[index];const controls=document.createElement('div');controls.className='design-actions';const prev=button('前の記録',()=>detail(index-1)),next=button('次の記録',()=>detail(index+1));prev.disabled=index===0;next.disabled=index===rows.length-1;controls.append(button('一覧に戻る',drawList),prev,next);m.content.append(controls);const text=row.entries.map(e=>(e.kind==='heroine'||e.kind==='character'?e.speaker+'\n':'')+e.text).join('\n\n');const p=pageText(m.content,text);p.classList.toggle('final-clue',row.entries.some(clue))}
+    function detail(index){m.content.replaceChildren();const row=rows[index];const controls=document.createElement('div');controls.className='design-actions';const prev=button('前の記録',()=>detail(index-1)),next=button('次の記録',()=>detail(index+1));prev.disabled=index===0;next.disabled=index===rows.length-1;controls.append(button('一覧に戻る',drawList),prev,next);m.content.append(controls);const p=pageText(m.content,'',row.entries);p.classList.toggle('final-clue',row.entries.some(clue))}
     drawList();
   }
   function inferRoom(e){if(e.room)return e.room;const n=e.id?.match(/^(?:room|r)([1-8])/);return n?'room0'+n[1]:'opening'}

@@ -11,10 +11,14 @@ const Dialogue=(()=>{
   if(typeof document?.dispatchEvent==="function"&&typeof CustomEvent==="function")document.dispatchEvent(new CustomEvent("dialogue:skipchange",{detail:{enabled,available}}));
  };
  const stop=()=>{if(active)active.dispose()};
- function start({lines,messageArea,nextButton,autoButton,skipButton,logButton,logArea,dialog,startIndex=0,getTextSpeed,isRead,onDisplay,onComplete}){
+ function start({lines,messageArea,nextButton,autoButton,skipButton,logButton,logArea,dialog,startIndex=0,startPage=0,getTextSpeed,isRead,onDisplay,onComplete}){
   stop();
   if(typeof window!=="undefined"&&window.DesignUI)lines=window.DesignUI.paginateDialogue(lines,isRead);
-  if(startIndex>0&&lines.some(line=>line.sourceIndex!==undefined))startIndex=Math.max(0,lines.findIndex(line=>line.sourceIndex===startIndex));
+  if(lines.some(line=>line.sourceIndex!==undefined)){
+   const first=lines.findIndex(line=>line.sourceIndex===startIndex);
+   const count=lines.filter(line=>line.sourceIndex===startIndex).length;
+   startIndex=first<0?0:first+Math.min(Number.isInteger(startPage)&&startPage>=0?startPage:0,count-1);
+  }
   let index=Number.isInteger(startIndex)?Math.max(0,Math.min(startIndex,lines.length-1)):0;
   let typingTimer=null,autoTimer=null,skipTimer=null,typing=false,disposed=false,logOpen=false,messageScrollTop=0,skipEnabled=false,currentWasRead=false,paused=false,typingTick=null;
   const hasLog=!!(logButton&&logArea&&dialog);

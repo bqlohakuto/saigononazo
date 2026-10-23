@@ -84,7 +84,7 @@ function harness(designed = false) {
     clock,
     document,
     Dialogue,
-    start(lines, textSpeed = 20, readIds = new Set()) {
+    start(lines, textSpeed = 20, readIds = new Set(), options = {}) {
       const messageArea = new FakeElement();
       const nextButton = new FakeElement();
       const autoButton = new FakeElement();
@@ -94,6 +94,7 @@ function harness(designed = false) {
         lines, messageArea, nextButton, autoButton, skipButton,
         getTextSpeed: () => textSpeed,
         isRead: line => readIds.has(line.logId),
+        ...options,
         onComplete: () => { completions++; }
       });
       return {
@@ -112,6 +113,25 @@ function harness(designed = false) {
 
 const player = text => ({ speaker: "主人公", text });
 const heroine = text => ({ speaker: "ハナ", text });
+
+test("saved source line and page resume within the same sentence, including the first line", () => {
+  for (const source of [0, 1]) {
+    const h = harness();
+    const lines = [
+      { ...player("前半"), sourceIndex: 0, uiPage: 0 },
+      { ...player("後半"), sourceIndex: 0, uiPage: 1 },
+      { ...player("次の文"), sourceIndex: 1, uiPage: 0 }
+    ];
+    const d = h.start(lines, 0, new Set(), { startIndex: source, startPage: source === 0 ? 1 : 99 });
+    assert.equal(d.text, source === 0 ? "後半" : "次の文");
+    d.controller.advance();
+    if (source === 0) {
+      assert.equal(d.text, "次の文");
+      d.controller.advance();
+    }
+    assert.equal(d.completions, 1);
+  }
+});
 
 test("typing reveals complete Unicode characters; manual input finishes then advances", () => {
   const h = harness();

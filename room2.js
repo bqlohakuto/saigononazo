@@ -42,7 +42,10 @@ function showSecondRoom(savedState){
  document.getElementById("r2Blocks").addEventListener("click",()=>room2State.unlocked&&!room2State.challengeActive?showRoom2ChallengeMenu():showSecondRoomPuzzle());
  document.getElementById("r2Hana").addEventListener("click",()=>showSecondRoomHana());
  window.RoomExploration?.mount('room02',game.querySelector('.room2-stage'),'front',room2State,{image:'images/background/room02/room02_bg_nodesk.png',imageAspect:16/9});
+ const memoryProgress=room2SavedMemoryProgress(savedState);
  if(!savedState){showRoomDialog(room2IntroLines)} else if(savedState.nextRoomTransitionSeen){showThirdRoomBoundary()}
+ else if(memoryProgress?.phase==="correct"){handleRoom2Correct(()=>{},memoryProgress)}
+ else if(memoryProgress){completeRoom2(memoryProgress)}
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room02",title:"第二の部屋",objective:()=>room2State.unlocked?"扉を調べて次へ進む":"部屋を調べる",onCompanion:showSecondRoomHana,getHighlights:()=>!!room2State.highlightEnabled,setHighlights:enabled=>{room2State.highlightEnabled=!!enabled;saveGame()}});
  saveGame();
 }
@@ -370,19 +373,44 @@ function room2MilestoneLines(attempt){
  return (sets[attempt]||[]).map((line,index)=>({logId:`room2_attempt_${attempt}_${index}`,logType:"dialogue",speaker:line[1],text:line[0]}));
 }
 
-function handleRoom2Correct(close){
+function room2SavedMemoryProgress(savedState){
+ if(!savedState)return null;
+ const progress=savedState.memoryProgress;
+ if(progress&&["correct","memory","after"].includes(progress.phase)&&typeof progress.logId==="string"){
+  return {phase:progress.phase,logId:progress.logId,uiPage:Number.isInteger(progress.uiPage)&&progress.uiPage>=0?progress.uiPage:0};
+ }
+ // Older builds marked the memory seen before playing it. Recover its last
+ // displayed line when the completion notice has not yet been recorded.
+ const logs=typeof GameLog!=="undefined"?GameLog.list():[];
+ if(logs.some(entry=>entry.id==="room2_unlocked"))return null;
+ const id=logs.at(-1)?.id||"";
+ const phase=/^room2_correct_/.test(id)?"correct":/^room2_(?:after_correct|memory)_/.test(id)?"memory":/^room2_after_memory_/.test(id)?"after":null;
+ return phase?{phase,logId:id,uiPage:0}:null;
+}
+function room2MemoryOptions(phase,resume){
+ return {resume,onProgress:position=>{room2State.memoryProgress={phase,...position}}};
+}
+function handleRoom2Correct(close,resume){
  close();
  const lines=[["……解けた","主人公"],["やった！　正解だね！","ハナ"],["はい。なんとかたどり着けました","主人公"]];
- showRoomDialog(lines.map((line,index)=>({logId:`room2_correct_${index}`,logType:"dialogue",speaker:line[1],text:line[0]})),()=>completeRoom2());
+ showRoomDialog(lines.map((line,index)=>({logId:`room2_correct_${index}`,logType:"dialogue",speaker:line[1],text:line[0]})),()=>completeRoom2(),undefined,room2MemoryOptions("correct",resume));
 }
-function completeRoom2(){
- room2State.unlocked=true;room2State.flashbackSeen=true;saveGame();
+function completeRoom2(resume){
+ room2State.unlocked=true;room2State.flashbackSeen=false;
+ if(resume?.phase==="after"){showRoom2AfterMemory(resume);return}
  showRoomDialog([
   {logId:"room2_after_correct_01",logType:"narration",speaker:"ト書き",text:"5つのブロックをはめ終わると、装置全体がうっすらと光り始めた。"},{logId:"room2_after_correct_02",logType:"dialogue",speaker:"主人公",text:"……光ってる？"},{logId:"room2_after_correct_03",logType:"dialogue",speaker:"ハナ",text:"わっ……！"},{logId:"room2_after_correct_04",logType:"narration",speaker:"ト書き",text:"光は次第に強くなり、机から部屋全体へと広がっていく。"},{logId:"room2_after_correct_05",logType:"dialogue",speaker:"主人公",text:"これで、扉が――"},{logId:"room2_after_correct_06",logType:"narration",speaker:"ト書き",text:"言い終わるより先に、まばゆい光が視界を覆った。部屋の輪郭が、光の中へ溶けていく。どこか遠くから、楽器の音が聞こえてきた。"},{logId:"room2_after_correct_07",logType:"narration",speaker:"主人公",thought:true,text:"この音……"},{logId:"room2_after_correct_08",logType:"narration",speaker:"ト書き",text:"聞き覚えのある音に引かれるように、意識がゆっくりと遠のいていく。"},
   ...room2FlashbackContent.map(line=>({...line,logType:line.thought||line.speaker==="ト書き"?"narration":"dialogue"}))
- ],()=>showRoomDialog([
+ ],()=>showRoom2AfterMemory(),undefined,room2MemoryOptions("memory",resume));
+}
+function showRoom2AfterMemory(resume){
+ showRoomDialog([
   ...room2AfterFlashbackContent.map(line=>({...line,logType:line.thought||line.speaker==="ト書き"?"narration":"dialogue"}))
- ],()=>{const door=document.getElementById("r2Door");door?.classList.add("is-unlocked");showRoomNotice("扉の鍵が開いた。机の仕掛けは、まだ動いているようだ。","room2_unlocked","narration")}));
+ ],()=>{
+  room2State.flashbackSeen=true;delete room2State.memoryProgress;saveGame();
+  const door=document.getElementById("r2Door");door?.classList.add("is-unlocked");
+  showRoomNotice("扉の鍵が開いた。机の仕掛けは、まだ動いているようだ。","room2_unlocked","narration");
+ },undefined,room2MemoryOptions("after",resume));
 }
 function showSecondRoomHana(){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;

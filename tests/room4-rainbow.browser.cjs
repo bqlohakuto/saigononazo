@@ -30,6 +30,24 @@ function tokens(values){
     return {container:rect('#game-container'),game:rect('#game'),wrap:rect('.room-stage-wrap'),stage:rect('.room4-stage'),hana:rect('#r4Hana'),idle:{width:idle.width,height:idle.height,bottom:idle.bottom},gaze:{width:gaze.width,height:gaze.height,bottom:gaze.bottom},ready:document.querySelector('#game').className};
    });
    console.log('ROOM4_HANA_FAST_DIAGNOSTIC '+viewport.width+' '+JSON.stringify(gazeSizing));
+   const roomWidth=gazeSizing.stage.width;
+   for(const [key,scale] of [['width',.199],['height',.31],['bottom',-.03875]]){
+    const actual=parseFloat(gazeSizing.idle[key]);
+    assert(Math.abs(actual-roomWidth*scale)<1,'Room 4 Hana idle '+key+' must track visible room width ('+viewport.width+'): '+JSON.stringify(gazeSizing));
+    assert(Math.abs(actual-parseFloat(gazeSizing.gaze[key]))<1,'Hana gaze must match idle '+key);
+   }
+   await page.locator('.room-stage-wrap').evaluate(el=>el.style.width='calc(100% - 48px)');
+   await page.waitForFunction(()=>{
+    const stage=document.querySelector('.room4-stage').getBoundingClientRect();
+    const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
+    return Math.abs(parseFloat(idle.height)-stage.width*.31)<1;
+   },null,{timeout:4000});
+   await page.locator('.room-stage-wrap').evaluate(el=>el.style.removeProperty('width'));
+   await page.waitForFunction(()=>{
+    const stage=document.querySelector('.room4-stage').getBoundingClientRect();
+    const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
+    return Math.abs(parseFloat(idle.height)-stage.width*.31)<1;
+   },null,{timeout:4000});
    const opener=page.locator("#r4P3");
    await opener.click();
    const plates=page.locator(".r4-rainbow-plate");

@@ -1275,3 +1275,138 @@ body{background:#0b1322!important;display:grid;place-items:center}
   font:normal clamp(16px,1.85cqw,22px)/1.45 "DotGothic16",sans-serif!important;
   letter-spacing:.07em;
 }
+
+/* Room 03: one phone conversation for both answers, with a companion reference.
+   The full-size attachment and Morse chart remain readable in landscape. */
+#game .room3-chat-overlay{padding:1.5%!important}
+#game .room3-chat-overlay .r3-chat-workspace{
+  box-sizing:border-box;
+  display:grid;grid-template-columns:minmax(180px,.34fr) minmax(0,.66fr);
+  align-items:stretch;justify-items:stretch;
+  width:min(96%,1110px);height:96%;max-height:100%;min-height:0;gap:clamp(10px,1.6cqw,20px);
+  background:transparent;border:0;overflow:visible;
+}
+#game .r3-chat-workspace>.r3-handset{
+  justify-self:center;
+  height:100%!important;max-width:100%!important;min-height:0;
+  box-sizing:border-box;
+}
+#game .r3-chat-workspace .r3-reply-form{
+  flex:0 0 auto;display:flex;align-items:stretch;gap:4px;
+  padding:6px 5px;
+  border-top:2px solid #738c99;
+  background:#d6e4e7;
+}
+#game .r3-chat-workspace .r3-reply-form[hidden]{display:none!important}
+#game .r3-chat-workspace .r3-reply-input{
+  flex:1 1 auto;min-width:0;min-height:32px;
+  box-sizing:border-box;
+  margin:0;padding:4px 6px;
+  font:normal clamp(12px,1.5cqw,16px)/1.35 'DotGothic16',sans-serif;
+  color:#26333a;background:#fafbf8;
+  border:1px solid #879aa2;border-radius:4px;
+}
+#game .r3-chat-workspace .r3-reply-send{
+  flex:0 0 auto;min-width:48px;min-height:32px;
+  padding:3px 6px!important;
+  color:#fff!important;background:#365f73!important;
+  border:1px solid #2b4656!important;
+  font:normal clamp(12px,1.3cqw,14px)/1 'DotGothic16',sans-serif!important;
+}
+#game .r3-chat-workspace .r3-reply-send:disabled{opacity:.5}
+#game .r3-chat-workspace .r3-photo-message{
+  display:flex;flex-direction:column;align-items:flex-start;
+  gap:3px;max-width:88%;align-self:flex-start;
+}
+#game .r3-chat-workspace .r3-photo-message small{font-size:.73em;color:#40535e}
+#game .r3-chat-workspace .r3-board-preview{
+  display:block;width:min(186px,100%);height:auto;
+  padding:5px!important;border:1px solid #879ba2!important;
+  border-radius:4px;background:#f7f0e3!important;
+  cursor:zoom-in;
+}
+#game .r3-chat-workspace .r3-board-preview img{
+  display:block;width:100%;height:auto;aspect-ratio:1;
+  object-fit:contain;image-rendering:auto;pointer-events:none;
+}
+#game .r3-chat-workspace .r3-companion-sheet{
+  display:flex;flex-direction:column;min-height:0;min-width:0;
+  padding:clamp(8px,1.2cqw,16px);
+  box-sizing:border-box;
+  border:3px solid #7c674e;
+  background:linear-gradient(100deg,#dbd0b8,#f6ecd6 40%,#e5d7b9);
+  box-shadow:inset 0 0 0 3px #faf2e0,4px 6px 0 #17120ca1;
+}
+#game .r3-chat-workspace .r3-companion-tabs{
+  flex:0 0 auto;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;
+}
+#game .r3-chat-workspace .r3-companion-tabs button{
+  padding:5px 10px!important;min-height:30px;
+  font:normal clamp(12px,1.4cqw,16px)/1.25 'DotGothic16',sans-serif!important;
+  background:#e4d5b8!important;color:#3e3428!important;
+  border:1px solid #a18b69!important;cursor:pointer;
+}
+#game .r3-chat-workspace .r3-companion-tabs button[aria-pressed="true"]{
+  background:#68513a!important;color:#fff4dc!important;
+}
+#game .r3-chat-workspace .r3-companion-tabs button:disabled{
+  opacity:.35;cursor:default;
+}
+#game .r3-chat-workspace .r3-companion-content{
+  flex:1 1 auto;min-height:0;min-width:0;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+#game .r3-chat-workspace .r3-inline-morse{
+  --morse-unit:clamp(3px,.44cqw,6px);
+  display:flex;flex-direction:column;flex:1;
+  gap:5px;width:100%;height:100%;min-width:0;min-height:0;
+  box-sizing:border-box;
+  padding:clamp(5px,.8cqw,10px);
+  background:#f8f2e6;border:2px solid #a48c6e;
+  box-shadow:none;overflow:hidden;
+}
+#game .r3-chat-workspace .r3-inline-morse .r3-morse-grid{
+  flex:1;min-height:0;gap:clamp(2px,.4cqw,5px) clamp(3px,.7cqw,9px);
+}
+#game .r3-chat-workspace .r3-inline-morse .r3-morse-cell{
+  min-width:0;min-height:0;gap:clamp(4px,.55cqw,8px);
+  padding:0 2px;
+}
+#game .r3-chat-workspace .r3-inline-morse .r3-morse-cell strong{
+  font-size:clamp(12px,1.6cqw,18px);width:1em;
+}
+#game .r3-chat-workspace .r3-inline-morse .r3-morse-code{
+  gap:calc(var(--morse-unit)*.55);
+}
+#game .r3-chat-workspace .r3-inline-morse .r3-morse-legend{
+  font-size:clamp(10px,1.2cqw,13px);
+}
+#game .r3-chat-workspace .r3-large-letterboard{
+  display:grid;place-items:center;
+  height:100%;width:100%;min-width:0;min-height:0;
+  padding:4px;box-sizing:border-box;
+}
+#game .r3-chat-workspace .r3-large-letterboard img{
+  display:block;max-height:100%;max-width:100%;width:auto;height:auto;
+  object-fit:contain;border:3px solid #927c5d;background:#f3e9d5;
+}
+#game .r3-chat-workspace .r3-no-attachment{
+  flex:1;background:repeating-linear-gradient(0deg,transparent 0 22px,#b5a68b3b 23px 24px);
+}
+#game .r3-chat-workspace :is(.r3-inline-morse,.r3-large-letterboard,.r3-no-attachment)[hidden]{display:none!important}
+@container game-viewport (max-width:900px) or (max-height:470px){
+  #game .room3-chat-overlay .r3-chat-workspace{
+    grid-template-columns:minmax(165px,.30fr) minmax(0,.70fr);
+    width:98%;height:98%;gap:8px;
+  }
+  #game .r3-chat-workspace .r3-companion-sheet{padding:6px;border-width:2px}
+  #game .r3-chat-workspace .r3-companion-tabs{gap:4px;margin-bottom:4px}
+  #game .r3-chat-workspace .r3-companion-tabs button{padding:4px 7px!important;min-height:25px;font-size:12px!important}
+  #game .r3-chat-workspace .r3-reply-form{padding:3px;gap:3px}
+  #game .r3-chat-workspace .r3-reply-input{min-height:28px;font-size:12px}
+  #game .r3-chat-workspace .r3-reply-send{min-height:28px;min-width:42px;font-size:11px!important}
+  #game .r3-chat-workspace .r3-inline-morse{padding:3px}
+  #game .r3-chat-workspace .r3-inline-morse .r3-morse-cell strong{font-size:12px}
+  #game .r3-chat-workspace .r3-inline-morse .r3-morse-legend{font-size:10px}
+}

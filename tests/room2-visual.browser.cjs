@@ -138,6 +138,14 @@ function within(inner,outer,tolerance=3){
    assert.equal(await lever.getAttribute('aria-label'),'判定レバーを倒す','The lever has an accessible name');
    assert.equal(await lever.locator('.room2-lever-arm .room2-lever-grip').count(),1,'The lever has a physical handle');
    assert.equal(await lever.isDisabled(),true,'The lever cannot be moved before five pieces are fitted');
+   const readout=page.locator('.room2-digital-readout');
+   assert.equal(await readout.count(),1,'The mechanism has an amber digital display');
+   assert.equal(await readout.locator('.room2-digital-row').count(),2,'HIT and BLOW have separate lines');
+   assert.deepEqual(await readout.locator('output').allTextContents(),['--','--'],'An unjudged puzzle starts with empty digits');
+   assert.equal(await readout.evaluate(el=>{
+    const screen=el.getBoundingClientRect(),desk=el.closest('.room2-wood-workbench').getBoundingClientRect();
+    return screen.left>=desk.left&&screen.right<=desk.right+1&&screen.top>=desk.top&&screen.bottom<=desk.bottom+1;
+   }),true,'Display stays on the device');
    assert.equal(await page.locator('.room2-paper-heading').count(),1,'Judgements are kept on a paper note');
    assert.equal(await page.locator('.room2-palette-token').count(),10,'Five red and five blue symbols');
    for(const color of ['赤','青'])assert.equal(await page.locator('.room2-palette-token[data-color="'+color+'"]').count(),5);
@@ -195,6 +203,11 @@ function within(inner,outer,tolerance=3){
    assert.equal(await lever.isDisabled(),false,'Five fitted pieces unlock the lever');
    assert.equal(await lever.evaluate(el=>el.classList.contains('is-ready')),true,'Lever shows its ready state');
    await page.locator('.room2-submit').click();
+   assert.equal(await page.locator('.room2-history-row').count(),0,'Paper remains blank before machine judgement');
+   await page.waitForFunction(()=>document.querySelector('.room2-digital-readout')?.classList.contains('has-result'));
+   assert.deepEqual(await readout.locator('output').allTextContents(),['0','0'],'HIT/BLOW digits show on the machine first');
+   assert.equal(await page.locator('.room2-history-row').count(),0,'Paper is not written instantly');
+   await page.locator('.room2-history-row').waitFor();
    await page.locator('.room2-reaction:not([hidden])').waitFor({state:'visible'});
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5,'All five fitted blocks stay after submission');
    await page.locator('.room2-submit').click();
@@ -233,6 +246,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5,'Closing and reopening retains the board');
    assert.equal(await page.evaluate(()=>JSON.stringify(room2State.guess)),previousPlacement,'Exact position and color are saved');
    await page.locator('.room2-submit').click();
+   await page.locator('.room2-history-row').nth(1).waitFor();
    assert.equal(await page.locator('.room2-history-row').count(),2,'Changed placement receives a new result');
    assert.equal(await page.evaluate(()=>room2State.attempts),2,'Changed placement consumes exactly one attempt');
    await page.locator('.room2-submit').click();
@@ -283,6 +297,7 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-submit').click();
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5,'Challenge also retains placement');
    assert.equal(await page.evaluate(()=>room2State.attempts),1,'First challenge attempt is counted');
+   await page.locator('.room2-history-row').waitFor();
    await page.locator('.room2-submit').click();
    assert.equal(await page.evaluate(()=>room2State.attempts),1,'Duplicate cannot consume an 8-attempt challenge turn');
    assert.equal(await page.locator('.room2-attempt-left').textContent(),'残り7回');
@@ -307,11 +322,13 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-submit').click();
    assert.equal(await page.evaluate(()=>room2State.attempts),10,'A tenth incorrect main-story attempt is permitted');
    assert.equal(await page.locator('.room2-puzzle').count(),1,'A tenth failure never blocks the story puzzle');
+   await page.locator('.room2-history-row').waitFor();
    for(let i=0;i<5;i++){
      await page.locator('.room2-palette-token[data-color="青"][data-symbol="'+['〇','△','□','×','＋'][i]+'"]').click();
      await page.locator('.room2-answer-slot').nth(i).click();
     }
    await page.locator('.room2-submit').click();
+   await page.locator('.room-dialog-overlay').waitFor();
    assert.equal(await page.evaluate(()=>room2State.attempts),11,'A correct eleventh attempt is accepted');
    assert.equal(await page.locator('.room2-puzzle').count(),0,'Correct main-story answer starts the flashback dialogue flow');
    assert.equal(await page.locator('.room-dialog-overlay').count(),1,'Success proceeds to in-story conversation');
@@ -459,6 +476,7 @@ function within(inner,outer,tolerance=3){
      await page.locator('.room2-answer-slot').nth(i).click();
     }
    await page.locator('.room2-submit').click();
+   await page.locator('.room2-result-panel').waitFor();
    const challengeResult=await page.evaluate(()=>({
     attempts:room2State.attempts,active:room2State.challengeActive,
     cleared:room2State.challengeCleared,best:room2State.challengeBest,
@@ -499,6 +517,7 @@ function within(inner,outer,tolerance=3){
     }
    await page.locator('.room2-submit').click();
    assert.equal(await page.evaluate(()=>room2State.attempts),8);
+   await page.locator('.room2-reaction:not([hidden])').waitFor();
    assert.equal(await page.locator('.room2-reaction-line').count(),2,'Last incorrect judgement remains two lines');
    await page.locator('.room2-reaction-skip').click();
    await page.locator('.room2-result-panel').waitFor();
@@ -680,6 +699,7 @@ function within(inner,outer,tolerance=3){
     }
     await page.locator('.room2-submit').click();
     assert.equal(await page.evaluate(()=>room2State.attempts),turn,'Challenge increment is recorded');
+    await page.locator('.room2-history-row').waitFor();
     assert.equal(await page.locator('.room2-history-row').count(),1,'HIT/BLOW history still records the result');
     assert.match(await page.locator('.room2-history-row').textContent(),/0H\s*0B/);
     assert.equal(await page.locator('.room2-reaction-line').count(),2,'Only the milestone pair is shown');

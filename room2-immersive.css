@@ -585,7 +585,7 @@
   gap:3px!important;
   align-self:flex-start;
   box-sizing:border-box;
-  max-width:96%;
+  max-width:100%;
   width:fit-content;
   min-width:0!important;
   padding:clamp(8px,.9cqw,12px)!important;
@@ -620,7 +620,7 @@
 #game .room2-puzzle.room2-immersive-board .room2-sidebar>.room2-reaction .room2-reaction-name{
   background:transparent!important;border:0!important;
   padding:0!important;
-  font:700 clamp(10px,1.15cqw,13px)/1.2 'DotGothic16',sans-serif!important;
+  font:700 clamp(12px,1.35cqw,15px)/1.25 'DotGothic16',sans-serif!important;
   color:#7d5731!important;
 }
 #game .room2-puzzle.room2-immersive-board .room2-sidebar>.room2-reaction .is-protagonist .room2-reaction-name{
@@ -628,7 +628,7 @@
 }
 #game .room2-puzzle.room2-immersive-board .room2-sidebar>.room2-reaction .room2-reaction-speech{
   color:#30261c!important;
-  font:normal clamp(12px,1.35cqw,15px)/1.4 'DotGothic16',sans-serif!important;
+  font:normal clamp(17px,1.9cqw,20px)/1.45 'DotGothic16',sans-serif!important;
   margin:0!important;white-space:pre-wrap;overflow-wrap:anywhere;
 }
 @keyframes room2BubbleAppear{
@@ -666,11 +666,11 @@
     padding:5px 7px!important;border-width:2px;border-radius:8px;
   }
   #game .room2-puzzle.room2-immersive-board .room2-sidebar>.room2-reaction .room2-reaction-name{
-    font-size:10px!important;
+    font-size:12px!important;
   }
   #game .room2-puzzle.room2-immersive-board .room2-sidebar>.room2-reaction .room2-reaction-speech{
-    font-size:clamp(10px,1.5cqw,12px)!important;
-    line-height:1.27!important;
+    font-size:clamp(15px,1.95cqw,18px)!important;
+    line-height:1.4!important;
   }
 }
 @media (prefers-reduced-motion:reduce){

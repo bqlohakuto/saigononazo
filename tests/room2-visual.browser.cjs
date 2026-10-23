@@ -132,6 +132,12 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-puzzle').waitFor();
    assert.equal(await page.locator('.room2-answer-slot').count(),5,'Exactly five answer slots');
    assert.equal(await page.locator('.room2-wood-workbench').count(),1,'Puzzle is a tabletop object');
+   const lever=page.locator('.room2-submit.room2-physical-lever');
+   assert.equal(await lever.count(),1,'The puzzle has a mechanical judgement lever');
+   assert.equal((await lever.textContent()).trim(),'','The lever has no system-style text label');
+   assert.equal(await lever.getAttribute('aria-label'),'判定レバーを倒す','The lever has an accessible name');
+   assert.equal(await lever.locator('.room2-lever-arm .room2-lever-grip').count(),1,'The lever has a physical handle');
+   assert.equal(await lever.isDisabled(),true,'The lever cannot be moved before five pieces are fitted');
    assert.equal(await page.locator('.room2-paper-heading').count(),1,'Judgements are kept on a paper note');
    assert.equal(await page.locator('.room2-palette-token').count(),10,'Five red and five blue symbols');
    for(const color of ['赤','青'])assert.equal(await page.locator('.room2-palette-token[data-color="'+color+'"]').count(),5);
@@ -186,6 +192,8 @@ function within(inner,outer,tolerance=3){
     await page.locator('.room2-answer-slot').nth(i).click();
    }
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5);
+   assert.equal(await lever.isDisabled(),false,'Five fitted pieces unlock the lever');
+   assert.equal(await lever.evaluate(el=>el.classList.contains('is-ready')),true,'Lever shows its ready state');
    await page.locator('.room2-submit').click();
    await page.locator('.room2-reaction:not([hidden])').waitFor({state:'visible'});
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5,'All five fitted blocks stay after submission');

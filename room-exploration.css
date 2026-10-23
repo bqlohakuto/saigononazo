@@ -6,3 +6,30 @@
 #game .ambient-target:focus-visible{outline:2px solid var(--gold,#e9c36a);outline-offset:-2px}
 #game .ambient-target>span{display:none!important}
 #game .ambient-target:hover>span,#game .ambient-target:focus-visible>span{display:none!important}
+
+/* New props are genuinely present in the room, not invisible click regions. */
+#game .ambient-target.ambient-prop{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ overflow:visible;
+ box-shadow:none!important;
+ background:transparent!important;
+ border:0!important;
+ line-height:0;
+}
+#game .ambient-target.ambient-prop .ambient-prop-image{
+ display:block;
+ width:100%;
+ height:100%;
+ object-fit:contain;
+ image-rendering:pixelated;
+ pointer-events:none;
+ user-select:none;
+ -webkit-user-drag:none;
+ filter:drop-shadow(1px 2px 1px #25201838);
+}
+#game .ambient-target.ambient-prop:focus-visible{
+ outline:2px solid var(--gold,#e9c36a);
+ outline-offset:3px;
+}

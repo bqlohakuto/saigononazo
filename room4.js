@@ -119,7 +119,7 @@ function r4FlagShares(entry){
  // One palette order for every clue: no flag stripe order or orientation is retained.
  return Object.keys(R4_FLAG_COLORS).filter(color=>shares[color]>0).map(color=>({color,fraction:shares[color]}));
 }
-function r4FlagPercent(fraction){return fraction>0&&fraction<.0005?"<0.1%":(fraction*100).toFixed(1).replace(/\.0$/,"")+"%"}
+function r4FlagPercent(fraction){return (fraction*100).toFixed(fraction>0&&fraction<.001?2:1).replace(/\.0$/,"")+"%"}
 function r4ColorRatioPuzzle(){
  return '<div class="r4-ratio-specimens" role="group" aria-label="五組の色の割合と数字">'+R4_LIGHT_CLUES.map((clue,i)=>{
   const country=R4_FLAG_EXHIBIT.find(entry=>entry.id===clue.country);

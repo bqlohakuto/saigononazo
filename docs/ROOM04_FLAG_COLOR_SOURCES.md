@@ -8,7 +8,7 @@ Authors: RelShot 263, Echando una mano; earlier version Pedro A. Gracia Fajardo.
 
 Ratios are derived from the same image used in the reference exhibit. Shades of one heraldic color are combined: white/silver, yellow/gold, dark outlines as black, reds, blues, pink, green. Full-image area is integrated from grayscale coverage masks rendered at 3000 x 2000; antialias coverage is included. Coverage is normalized to 1.
 
-Display: one decimal place, omit trailing .0; positive areas below 0.05% are shown as <0.1%. Independent rounding need not add to exactly 100%.
+Display: one decimal place, omit trailing .0; positive areas below 0.1% use two decimal places (for example, Spain's green area is shown as 0.02%). Independent rounding need not add to exactly 100%.
 
 Measured groups:
 

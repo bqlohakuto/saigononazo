@@ -129,7 +129,17 @@ function r4P3(){
   '</section>';
  game.appendChild(o);
  const list=o.querySelector(".r4-rainbow"),status=o.querySelector(".r4-plate-status");
- const close=activateDeviceModal(o,"r4P3",o.querySelector(".device-close"));
+ let revealTimer=null,successTimer=null,dialogueStarted=false;
+ const finishSuccess=()=>{
+  if(dialogueStarted||currentScene!=="room04"||!room4State.meteors)return;
+  dialogueStarted=true;
+  showRoomDialog([{logId:"r4p3ok1",logType:"dialogue",speaker:"主人公",text:"METEORS……流れ星、か"},{logId:"r4p3ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースの中から透明なパネルを取り出す。"},{logId:"r4p3ok3",logType:"narration",speaker:"システム",text:"【ガラスパネルを入手】"}],r4Refresh);
+ };
+ const close=activateDeviceModal(o,"r4P3",o.querySelector(".device-close"),()=>{
+  window.clearTimeout(revealTimer);
+  window.clearTimeout(successTimer);
+  if(room4State.meteors)finishSuccess();
+ });
  const colors={
   "赤":"#ac4544","橙":"#b8773d","黄":"#dcc46f","緑":"#568d72",
   "青":"#507aaf","藍":"#505785","紫":"#8a638d"
@@ -137,8 +147,15 @@ function r4P3(){
  let chosen=null,drag=null,suppressClick=false;
  const complete=()=>{
   if(room4State.rainbow.map(v=>v.slice(-1)).join("")!=="METEORS")return false;
-  room4State.meteors=true;saveGame();close();
-  showRoomDialog([{logId:"r4p3ok1",logType:"dialogue",speaker:"主人公",text:"METEORS……流れ星、か"},{logId:"r4p3ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースの中から透明なパネルを取り出す。"},{logId:"r4p3ok3",logType:"narration",speaker:"システム",text:"【ガラスパネルを入手】"}],r4Refresh);
+  // Let the player actually see the completed order before revealing it.
+  room4State.meteors=true;saveGame();draw();
+  o.classList.add("is-solved");
+  revealTimer=window.setTimeout(()=>{
+   if(o.isConnected)o.classList.add("is-revealing");
+  },750);
+  successTimer=window.setTimeout(()=>{
+   if(o.isConnected)close();
+  },2800);
   return true;
  };
  const move=(from,to)=>{

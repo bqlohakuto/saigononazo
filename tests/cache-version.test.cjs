@@ -8,6 +8,7 @@ const expectedAssets = [
   "style.css",
   "viewport-scaler.js",
   "design-ui.css",
+  "room2-immersive.css",
   "puzzle-explanations.css",
   "room5.css",
   "room6.css",
@@ -91,4 +92,5 @@ test("script load order remains intentional", () => {
   "puzzle-explanations.js"
   ]);
 });
+
 

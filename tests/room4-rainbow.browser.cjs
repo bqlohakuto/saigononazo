@@ -21,6 +21,17 @@ function tokens(values){
    await page.goto(base,{waitUntil:"load"});
    // Regression: the very first entry must fill the same 16:9 stage as a reload.
    await page.evaluate(()=>{settings.instantText=true;showFourthRoom()});
+   await page.waitForFunction(()=>{
+    const el=document.getElementById('r4Hana'),stage=document.querySelector('.room4-stage');
+    if(!el||!stage)return false;
+    const width=stage.getBoundingClientRect().width;
+    const idle=getComputedStyle(el,'::before'),gaze=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
+    return width>0&&['width','height','bottom'].every((name,i)=>{
+     const expected=width*[.199,.31,-.03875][i];
+     return Math.abs(parseFloat(idle[name])-expected)<1
+      &&Math.abs(parseFloat(idle[name])-parseFloat(gaze[name]))<1;
+    });
+   },null,{timeout:3000});
    const entry=await page.evaluate(()=>{
     const canvas=document.querySelector('#game-container').getBoundingClientRect();
     const stage=document.querySelector('.room4-stage').getBoundingClientRect();

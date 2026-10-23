@@ -253,17 +253,17 @@ function showSecondRoomPuzzle(){
  const isChallenge=room2State.challengeActive===true;
  const counterMarkup=isChallenge?`<section class="room2-attempt-counter" role="status" aria-live="polite" aria-label="チャレンジの残り回数"><div class="room2-attempt-summary"><span class="room2-attempt-used">解答 0 / 8 回</span><strong class="room2-attempt-left">残り8回</strong></div><div class="room2-attempt-track" aria-hidden="true">${Array.from({length:8},()=>'<span class="room2-attempt-step"></span>').join("")}</div></section>`:"";
  const overlay=document.createElement("div");overlay.className="device-overlay room2-puzzle-overlay";
- overlay.innerHTML=`<section class="room2-puzzle ${isChallenge?"room2-challenge-board":"room2-standard-board"}" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎">${isChallenge?'<button type="button" class="device-close room2-pause" aria-label="一時中断" title="回答と判定履歴を保持して部屋に戻る">一時中断</button>':'<button type="button" class="device-close" aria-label="閉じる">×</button>'}<h2>${isChallenge?"8回チャレンジ":"記号と色を並べる"}</h2><details class="room2-board-help"><summary title="操作方法・ルール" aria-label="操作方法・ルールを確認">？</summary><div class="room2-rule"><p>【駒の操作】</p><p>〇、△、□、×、＋の5種類の記号を5つの枠に一つずつ配置する。記号の色は赤・青から選べる。同じ記号・同じ色を選び直すと外れ、同じ記号の色違いを選ぶと色が変わる。配置済みの枠を2つ選ぶと位置を入れ替えられる。</p><p>【判定】</p><p>答えと記号・色・位置がすべて一致するとHIT。記号と色が一致し、位置だけが異なるとBLOW。判定後も駒はそのまま残るので、配置を変えて次の解答を試せる。同じ配置の再解答では回数を消費しない。</p><p>【挑戦条件】</p><p>${isChallenge?"8回以内に5枠すべてを一致させれば達成。8回目までに正解できなければ今回の挑戦は終了する。何度でも再挑戦できる。":"判定結果を手がかりに正しい組み合わせを導き出せ。回数制限はない。"}</p></div></details>${counterMarkup}<div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-palette" role="group" aria-label="駒のパレット"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">配置をクリア</button><button type="button" class="room2-submit">解答</button><button type="button" class="room2-leftmost-request" hidden>左端のヒントを見る</button>${isChallenge?`<button type="button" class="room2-abandon">挑戦をやめる</button>`:""}</div><aside class="room2-sidebar" aria-label="判定履歴と会話"><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-label="判定後の会話"><div class="room2-reaction-top"><strong class="room2-reaction-title">会話</strong><button type="button" class="room2-reaction-skip" aria-label="会話の表示を閉じる">×</button></div><div class="room2-reaction-lines" role="log" aria-live="polite"></div></section><div class="room2-history" aria-label="これまでの判定"></div></aside></section>`;
+ overlay.innerHTML=`<section class="room2-puzzle room2-immersive-board ${isChallenge?"room2-challenge-board":"room2-standard-board"}" role="dialog" aria-modal="true" aria-label="HITとBLOWの謎">${isChallenge?'<button type="button" class="device-close room2-pause" aria-label="一時中断" title="回答と判定履歴を保持して部屋に戻る">一時中断</button>':'<button type="button" class="device-close" aria-label="閉じる">×</button>'}<h2 class="room2-immersive-heading">${isChallenge?"8回チャレンジ":"記号と色を並べる"}</h2><details class="room2-board-help"><summary title="操作方法・ルール" aria-label="操作方法・ルールを確認">？</summary><div class="room2-rule"><p>【駒の操作】</p><p>赤と青の駒から記号を選び、盤面の穴を押してはめ込む。マウスなら駒をドラッグしてもよい。盤上の駒を2つ続けて押すと位置を交換できる。同じ駒を2度押すと取り外せる。色を変えたい時は別の色の駒を選んで置き直そう。</p><p>【判定】</p><p>答えと記号・色・位置がすべて一致するとHIT。記号と色が一致し、位置だけが異なるとBLOW。判定後も駒はそのまま残るので、配置を変えて次の解答を試せる。同じ配置の再解答では回数を消費しない。</p><p>【挑戦条件】</p><p>${isChallenge?"8回以内に5枠すべてを一致させれば達成。8回目までに正解できなければ今回の挑戦は終了する。何度でも再挑戦できる。":"判定結果を手がかりに正しい組み合わせを導き出せ。回数制限はない。"}</p></div></details><div class="room2-wood-workbench" aria-label="机に置かれた木の仕掛け"><div class="room2-bench-caption" aria-hidden="true">五つの穴</div><div class="room2-answer-slots" role="group" aria-label="回答"></div><div class="room2-bench-ridge" aria-hidden="true"></div><div class="room2-palette" role="group" aria-label="手元の駒"></div><div class="room2-puzzle-actions"><button type="button" class="room2-clear">駒を戻す</button><button type="button" class="room2-submit">レバーを引く</button><button type="button" class="room2-leftmost-request" hidden>左端を調べる</button>${isChallenge?`<button type="button" class="room2-abandon">挑戦をやめる</button>`:""}</div></div><aside class="room2-sidebar" aria-label="机に置かれた判定メモ">${counterMarkup}<div class="room2-paper-heading" aria-hidden="true">判定の記録</div><p class="room2-feedback" aria-live="polite"></p><p class="room2-leftmost-hint" aria-live="polite" hidden></p><section class="room2-reaction" hidden aria-label="判定後の会話"><div class="room2-reaction-top"><strong class="room2-reaction-title">会話</strong><button type="button" class="room2-reaction-skip" aria-label="会話の表示を閉じる">×</button></div><div class="room2-reaction-lines" role="log" aria-live="polite"></div></section><div class="room2-history" aria-label="これまでの判定"></div></aside></section>`;
  game.appendChild(overlay);
  // Both puzzle modes show the two-line judgement in a full-width bottom row.
  // Move the existing (nonblocking) reaction element out of the history sidebar.
  overlay.querySelector(".room2-puzzle").appendChild(overlay.querySelector(".room2-reaction"));
- const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),hint=overlay.querySelector(".room2-leftmost-hint"),hintRequest=overlay.querySelector(".room2-leftmost-request"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null,lastPlacedSlot=null;
+ const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),hint=overlay.querySelector(".room2-leftmost-hint"),hintRequest=overlay.querySelector(".room2-leftmost-request"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null,lastPlacedSlot=null,heldToken=null;
  let reactionTimer=null;
  const clearReactionTimer=()=>{if(reactionTimer!==null){window.clearTimeout(reactionTimer);reactionTimer=null}};
  const close=activateDeviceModal(overlay,"r2Blocks",overlay.querySelector(".device-close"),clearReactionTimer);
  if(isChallenge)overlay.querySelector(".room2-abandon").addEventListener("click",()=>showRoom2AbandonConfirm(overlay,close,clearReactionTimer));
- overlay.querySelector(".room2-clear").onclick=()=>{if(!room2State.guess.length)return;room2State.guess=[];selectedSlot=null;feedback.textContent="";saveGame();render()};
+ overlay.querySelector(".room2-clear").onclick=()=>{if(!room2State.guess.length)return;room2State.guess=[];selectedSlot=null;heldToken=null;feedback.textContent="";saveGame();render()};
  let reactionDone=null;
  const endReaction=()=>{
   clearReactionTimer();reactionPanel.hidden=true;
@@ -292,10 +292,68 @@ function showSecondRoomPuzzle(){
  });
  let renderedHistoryCount=-1;
  const render=()=>{
-  slots.innerHTML=ROOM2_SYMBOLS.map((_,index)=>{const piece=room2State.guess[index];return `<button type="button" class="room2-answer-slot${piece?" is-filled":""}${selectedSlot===index?" is-selected":""}${lastPlacedSlot===index?" is-snapping":""}" data-slot="${index}" aria-label="枠${index+1}${piece?` ${piece.color}${piece.symbol}`:" 空"}" aria-pressed="${selectedSlot===index}">${piece?`<i class="${piece.color==="赤"?"red":"blue"}">${piece.symbol}</i>`:``}</button>`}).join("");
-  slots.querySelectorAll("[data-slot]").forEach(button=>button.addEventListener("click",()=>{const index=Number(button.dataset.slot);if(!room2State.guess[index])return;if(selectedSlot===null){selectedSlot=index}else if(selectedSlot===index){selectedSlot=null}else{[room2State.guess[selectedSlot],room2State.guess[index]]=[room2State.guess[index],room2State.guess[selectedSlot]];lastPlacedSlot=index;selectedSlot=null;feedback.textContent="";saveGame()}render()}));
-  palette.innerHTML=ROOM2_COLORS.flatMap(color=>ROOM2_SYMBOLS.map(symbol=>{const active=room2State.guess.some(piece=>piece.symbol===symbol&&piece.color===color);return `<button type="button" class="room2-palette-token${active?" is-active":""}" data-symbol="${symbol}" data-color="${color}" aria-pressed="${active}" aria-label="${color}${symbol}"><i class="${color==="赤"?"red":"blue"}">${symbol}</i></button>`})).join("");
-  palette.querySelectorAll("[data-symbol]").forEach(button=>button.addEventListener("click",()=>{const token={symbol:button.dataset.symbol,color:button.dataset.color};const index=room2State.guess.findIndex(piece=>piece.symbol===token.symbol);if(index>=0){if(room2State.guess[index].color===token.color){room2State.guess.splice(index,1);lastPlacedSlot=null}else{room2State.guess[index]=token;lastPlacedSlot=index}}else if(room2State.guess.length<5){room2State.guess.push(token);lastPlacedSlot=room2State.guess.length-1}selectedSlot=null;feedback.textContent="";saveGame();render()}));
+  // A physical token is picked up first, then placed in a hole. Drag-and-drop is
+  // an enhancement on desktop; two taps always work on phones and keyboards.
+  const dropToken=(token,index)=>{
+   if(!token||!ROOM2_SYMBOLS.includes(token.symbol)||!ROOM2_COLORS.includes(token.color))return;
+   const existing=room2State.guess.findIndex(piece=>piece.symbol===token.symbol);
+   if(existing>=0)room2State.guess.splice(existing,1);
+   else if(room2State.guess.length>=5)return;
+   const destination=Math.max(0,Math.min(index,room2State.guess.length));
+   room2State.guess.splice(destination,0,{symbol:token.symbol,color:token.color});
+   selectedSlot=null;heldToken=null;lastPlacedSlot=destination;feedback.textContent="";
+   saveGame();render();
+  };
+  const attachDrag=(button,payload)=>{
+   button.draggable=true;
+   button.addEventListener("dragstart",event=>{
+    if(!event.dataTransfer)return;
+    event.dataTransfer.effectAllowed="move";
+    event.dataTransfer.setData("text/plain",JSON.stringify(payload));
+   });
+  };
+  slots.innerHTML=ROOM2_SYMBOLS.map((_,index)=>{
+   const piece=room2State.guess[index];
+   const marked=selectedSlot===index;
+   return `<button type="button" class="room2-answer-slot${piece?" is-filled":""}${marked?" is-selected":""}${lastPlacedSlot===index?" is-snapping":""}" data-slot="${index}" aria-label="穴${index+1}${piece?` ${piece.color}${piece.symbol}。2回押すと取り外す`:" 空。駒を選んでから押す"}" aria-pressed="${marked}">${piece?`<i class="${piece.color==="赤"?"red":"blue"}">${piece.symbol}</i>`:""}</button>`;
+  }).join("");
+  slots.querySelectorAll("[data-slot]").forEach(button=>{
+   const index=Number(button.dataset.slot);
+   const piece=room2State.guess[index];
+   if(piece)attachDrag(button,{symbol:piece.symbol,color:piece.color});
+   button.addEventListener("click",()=>{
+    if(heldToken){dropToken(heldToken,index);return}
+    if(!room2State.guess[index])return;
+    if(selectedSlot===null)selectedSlot=index;
+    else if(selectedSlot===index){
+     room2State.guess.splice(index,1);selectedSlot=null;
+     feedback.textContent="";saveGame();
+    }else{
+     [room2State.guess[selectedSlot],room2State.guess[index]]=[room2State.guess[index],room2State.guess[selectedSlot]];
+     lastPlacedSlot=index;selectedSlot=null;feedback.textContent="";saveGame();
+    }
+    render();
+   });
+   button.addEventListener("dragover",event=>{event.preventDefault();event.dataTransfer.dropEffect="move";button.classList.add("room2-drop-target")});
+   button.addEventListener("dragleave",()=>button.classList.remove("room2-drop-target"));
+   button.addEventListener("drop",event=>{
+    event.preventDefault();button.classList.remove("room2-drop-target");
+    try{dropToken(JSON.parse(event.dataTransfer.getData("text/plain")),index)}catch(_){}
+   });
+  });
+  palette.innerHTML=ROOM2_COLORS.flatMap(color=>ROOM2_SYMBOLS.map(symbol=>{
+   const active=room2State.guess.some(piece=>piece.symbol===symbol&&piece.color===color);
+   const held=heldToken?.symbol===symbol&&heldToken?.color===color;
+   return `<button type="button" class="room2-palette-token${active?" is-active":""}${held?" is-held":""}" data-symbol="${symbol}" data-color="${color}" aria-pressed="${held}" aria-label="${color}${symbol}の駒を手に取る"><i class="${color==="赤"?"red":"blue"}">${symbol}</i></button>`;
+  })).join("");
+  palette.querySelectorAll("[data-symbol]").forEach(button=>{
+   const token={symbol:button.dataset.symbol,color:button.dataset.color};
+   attachDrag(button,token);
+   button.addEventListener("click",()=>{
+    heldToken=heldToken?.symbol===token.symbol&&heldToken?.color===token.color?null:token;
+    selectedSlot=null;feedback.textContent="";render();
+   });
+  });
   const previousHistoryScroll=history.scrollTop;
   const historyCountChanged=room2State.history.length!==renderedHistoryCount;
   history.innerHTML=room2State.history.map((entry,index)=>`<div class="room2-history-row${index===room2State.history.length-1?" is-latest":""}">${isChallenge?`<small class="room2-history-turn">${index+1}回目</small>`:""}<span>${entry.guess.map(piece=>`<i class="${piece.color=== "赤"?"red":"blue"}">${piece.symbol}</i>`).join("")}</span><b>${entry.hit}H ${entry.blow}B</b></div>`).join("");

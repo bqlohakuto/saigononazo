@@ -187,7 +187,12 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
   }
   if(!(await page.locator('.r4-mini-overlay').count()))break;
  }
- await finish(page);assert(await page.evaluate(()=>room4State.meteors));assert.equal(await page.evaluate(()=>r4Count()),5,'Five panels remain in game state');assert.equal(await page.locator('#r4Count').count(),0,'Collecting panels does not recreate a counter');
+ assert(await page.evaluate(()=>room4State.meteors),'Physical rainbow should be solved');
+ assert.equal(await page.locator('.r4-plate-overlay.is-solved').count(),1,'The finished rainbow pauses for the player to see it');
+ await page.locator('.r4-plate-overlay.is-revealing').waitFor({timeout:2500});
+ await page.locator('.r4-plate-overlay').waitFor({state:'detached',timeout:6500});
+ await page.locator('.room-dialog-overlay').waitFor({timeout:2500});
+ await finish(page);assert.equal(await page.evaluate(()=>r4Count()),5,'Five panels remain in game state');assert.equal(await page.locator('#r4Count').count(),0,'Collecting panels does not recreate a counter');
  await page.locator('#r4TurnRight').click();await page.locator('#r4Light').click();await finish(page);
  assert(await page.locator('#r4LightOverlay').isVisible());assert.deepEqual(await page.locator('#r4LightOverlay').evaluate(async img=>{await img.decode();return [img.naturalWidth,img.naturalHeight]}),[1672,941]);
  await page.screenshot({path:path.join(dir,'left-light-on.png')});

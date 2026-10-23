@@ -107,13 +107,29 @@ function tokens(values){
     assert.equal(await review.count(),1,kind+' should reopen in solved inspection mode');
     assert.equal(await review.locator('.r4-solved-answer span').textContent(),kind,'Previously submitted word remains visible');
     assert.equal(await review.locator('input,.r4-answer').count(),0,'No re-answer controls after solving');
-    assert.equal(await review.locator(kind==='STAR'?'.r4-digits':'.r4-flags').count(),1,'Original exhibit remains visible');
+    assert.equal(await review.locator(kind==='STAR'?'.r4-color-samples':'.r4-flags').count(),1,'Original exhibit remains visible');
     await review.locator('.device-close').click();
     assert.equal(await page.locator('.room-dialog-overlay,.design-overlay').count(),0,'Solved word inspection gives no new dialog');
     assert.equal(await countLog(),beforeLog,'Solved word inspection gives no new award');
    };
    const solveWord=async(id,kind,expectedGlass)=>{
     await page.locator(id).click();
+    if(kind==='STAR'){
+     const exhibit=page.locator('.r4-color-exhibit');
+     assert.equal(await exhibit.count(),1,'The first mini-puzzle uses its physical exhibition case');
+     const plaques=exhibit.locator('.r4-color-plaque');
+     assert.deepEqual(await plaques.locator('b').allTextContents(),['1','4','3','2'],'Original number sequence must remain unchanged');
+     const palettes=await plaques.evaluateAll(items=>items.map(el=>getComputedStyle(el).backgroundImage));
+     assert.equal(new Set(palettes).size,4,'Silver, white, black and green materials must have distinct finishes');
+     assert.equal(await exhibit.locator('.r4-color-label').count(),0,'Color names are not given away as text');
+     assert.equal(await exhibit.locator('.r4-color-samples').count(),1);
+     const frame=await exhibit.boundingBox();
+     const tileBoxes=await plaques.evaluateAll(items=>items.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom}}));
+     for(const tile of tileBoxes)assert(tile.x>=frame.x&&tile.y>=frame.y&&tile.right<=frame.x+frame.width+1&&tile.bottom<=frame.y+frame.height+1,'Color plaque stays in exhibit');
+     assert.equal(await exhibit.locator('input').evaluate(el=>el===document.activeElement),false,'Do not open mobile keyboard automatically');
+     assert.equal(await exhibit.locator('.r4-answer').textContent(),'解錠');
+     await page.screenshot({path:path.join(screenshots,'color-exhibit-'+viewport.width+'.png')});
+    }
     await page.locator('.r4-mini input').fill(kind);
     await page.locator('.r4-answer').click();
     await page.locator('.room-dialog-overlay').waitFor({timeout:2500});

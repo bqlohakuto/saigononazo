@@ -165,9 +165,27 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  await page.locator('#r4TurnRight').click();await page.locator('#r4Meteor').click();await finish(page);await page.locator('#r4Moon').click();await finish(page);
  await page.locator('#r4P2').click();assert.equal(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),false,'LIGHT puzzle does not activate input on opening');await page.locator('.r4-mini input').click();assert(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),'Selected answer field is focused');await page.locator('.r4-mini input').fill('LIGHT');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.lightPuzzle));
  await page.locator('#r4P3').click();
+ const plateButtons=page.locator('.r4-rainbow-plate');
+ assert.equal(await plateButtons.count(),7,'Exactly seven tactile rainbow plates');
+ assert.equal(await page.locator('.r4-rainbow button[data-d]').count(),0,'No up/down control clutter remains');
+ assert.equal(await page.locator('.r4-plate-exhibit').count(),1,'Puzzle sits inside its own exhibition case');
+ assert.deepEqual(await plateButtons.locator('.r4-rainbow-color').allTextContents(),['青','赤','紫','黄','藍','橙','緑']);
+ const plateBounds=await page.locator('.r4-plate-exhibit').boundingBox();
+ const buttonBounds=await plateButtons.evaluateAll(buttons=>buttons.map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom}}));
+ assert(plateBounds.x>=-1&&plateBounds.y>=-1&&plateBounds.x+plateBounds.width<=spec.viewport.width+1&&plateBounds.y+plateBounds.height<=spec.viewport.height+1,'Rainbow exhibit must fit the landscape viewport');
+ assert(buttonBounds.every(rect=>rect.left>=plateBounds.x&&rect.right<=plateBounds.x+plateBounds.width+1&&rect.top>=plateBounds.y&&rect.bottom<=plateBounds.y+plateBounds.height+1),'All seven plates stay inside the exhibition display');
+ await page.screenshot({path:path.join(dir,'rainbow-plates-initial.png')});
+ // Move a plate by choosing it, then choosing the destination slot.
  for(const [i,value] of ['赤M','橙E','黄T','緑E','青O','藍R','紫S'].entries()){
-  let values=await page.locator('.r4-rainbow b').allTextContents(),j=values.indexOf(value);
-  while(j>i){await page.locator(`.r4-rainbow button[data-i="${j}"][data-d="-1"]`).click();j--;if(!(await page.locator('.r4-mini-overlay').count()))break}
+  const values=await page.locator('.r4-rainbow-plate').evaluateAll(buttons=>buttons.map(el=>el.querySelector('.r4-rainbow-color').textContent+el.querySelector('.r4-rainbow-letter').textContent));
+  const from=values.indexOf(value);
+  assert(from>=i,'Expected plate remains available to position: '+value);
+  if(from>i){
+   await page.locator('.r4-rainbow-plate[data-index="'+from+'"]').click();
+   assert.equal(await page.locator('.r4-rainbow-plate[data-index="'+from+'"]').getAttribute('aria-pressed'),'true','Tapped plate becomes visibly selected');
+   await page.locator('.r4-rainbow-plate[data-index="'+i+'"]').click();
+  }
+  if(!(await page.locator('.r4-mini-overlay').count()))break;
  }
  await finish(page);assert(await page.evaluate(()=>room4State.meteors));assert.equal(await page.evaluate(()=>r4Count()),5,'Five panels remain in game state');assert.equal(await page.locator('#r4Count').count(),0,'Collecting panels does not recreate a counter');
  await page.locator('#r4TurnRight').click();await page.locator('#r4Light').click();await finish(page);

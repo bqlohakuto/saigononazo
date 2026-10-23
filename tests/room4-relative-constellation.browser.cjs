@@ -17,9 +17,10 @@ const expectedHips=source.panels.map(p=>p.stars.map(s=>s.hip));
    await page.goto(base,{waitUntil:"load"});
    await page.evaluate(()=>{
     settings.instantText=true;
-    showFourthRoom({view:"left",door:true,wall:true,box:true,star:true,lightPuzzle:true,meteors:true,hanaSleepSeen:true,angles:[2,1,0,3,2]});
+    showFourthRoom({view:"left",door:true,wall:true,box:true,star:true,lightPuzzle:true,meteors:true,hanaSleepSeen:true,angles:[2,1,0,3,2],panelRotationVersion:1});
     for(let i=0;i<50&&document.querySelector("#roomNextButton");i++)Dialogue.advance();
    });
+   assert.deepEqual(await page.evaluate(()=>room4State.angles),[2,1,0,3,2],"Current-version save must preserve the approved initial angle state");
    assert.deepEqual(await page.evaluate(()=>R4_VIRGO_PANEL_HIPS),expectedHips,"Panel HIP allocation must exactly match the approved SVG generation data");
    assert.equal(await page.evaluate(()=>R4_ZODIAC.find(e=>e.id==="Vir").edges.length),12,"Use all 12 original zodiac lines");
    await page.locator("#r4Stand").click();

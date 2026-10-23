@@ -227,6 +227,9 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-reaction').evaluate(el=>getComputedStyle(el).pointerEvents),'none','Bubbles never block puzzle controls');
    assert.equal(await page.locator('.room2-reaction-line').count(),2,'Both judgement lines appear simultaneously');
    assert.deepEqual(await page.locator('.room2-reaction-name').allTextContents(),['ハナ','主人公'],'Hana and protagonist share the same dialogue window');
+   const speechSize=await page.locator('.room2-reaction-speech').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+   assert(speechSize>=15,'Room two speech bubbles must stay legible on landscape devices: '+speechSize);
+   assert.equal(await page.locator('.room2-reaction-speech').count(),2,'Both characters use the larger dialogue style');
    const paneBounds=await page.evaluate(()=>{
     const rect=s=>document.querySelector(s).getBoundingClientRect();
     const tray=rect('.room2-palette'),dialog=rect('.room2-reaction');

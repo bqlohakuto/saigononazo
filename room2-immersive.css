@@ -1,0 +1,251 @@
+/* Room 02 immersive puzzle: the camera faces the actual tabletop, not a settings panel.
+   Loaded after design-ui.css, intentionally scoped to the second-room puzzle. */
+#game .room2-puzzle-overlay{
+  background:
+    radial-gradient(ellipse at center,rgba(14,10,7,.12),rgba(11,8,7,.76) 80%),
+    url("images/background/room02/room02_bg_nodesk.png") center / cover no-repeat,
+    #18110d;
+}
+#game .room2-puzzle.room2-immersive-board{
+  --r2-paper:#e6d6ad;
+  box-sizing:border-box;
+  position:relative;
+  display:grid!important;
+  grid-template-columns:minmax(0,1.65fr) minmax(0,.92fr)!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+  align-items:stretch!important;
+  gap:8px clamp(9px,1.8cqw,22px)!important;
+  width:min(97%,980px)!important;
+  height:93%!important;
+  min-height:0!important;
+  max-height:96%!important;
+  padding:clamp(12px,1.6cqw,23px)!important;
+  overflow:hidden!important;
+  background:linear-gradient(120deg,#281d16,#493221 46%,#261b14)!important;
+  border:7px solid #241811!important;
+  outline:3px solid #916b42;
+  outline-offset:-11px;
+  box-shadow:inset 0 0 0 3px #775333,0 20px 45px #090706c9!important;
+}
+#game .room2-immersive-board>.room2-immersive-heading{
+  position:absolute!important;
+  width:1px!important;height:1px!important;
+  padding:0!important;margin:-1px!important;
+  overflow:hidden!important;clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;border:0!important;
+}
+#game .room2-immersive-board>.room2-board-help{top:13px!important;right:62px!important;z-index:20;}
+#game .room2-immersive-board:has(.room2-pause)>.room2-board-help{right:137px!important;}
+#game .room2-immersive-board>.device-close{top:12px!important;right:12px!important;z-index:20;}
+#game .room2-immersive-board .room2-wood-workbench{
+  grid-column:1!important;
+  grid-row:1!important;
+  display:grid;
+  grid-template-rows:auto minmax(65px,.9fr) auto minmax(105px,1.5fr) auto;
+  align-items:stretch;
+  min-width:0;min-height:0;
+  gap:clamp(4px,.65cqw,9px);
+  padding:clamp(11px,1.4cqw,19px);
+  background:
+    repeating-linear-gradient(0deg,transparent 0 7px,#2414071a 8px 9px),
+    linear-gradient(98deg,#6a4a2c,#9b7344 36%,#8a603b 75%,#5b3b25);
+  border:5px solid #352318;
+  box-shadow:inset 3px 3px 0 #c29659,inset -4px -4px 0 #4c2c19,5px 7px 0 #1e130f;
+  overflow:hidden;
+}
+#game .room2-immersive-board .room2-bench-caption{
+  display:flex;align-items:center;gap:12px;
+  color:#ebd2a2;font:normal clamp(11px,1.3cqw,15px)/1.2 "DotGothic16",sans-serif;
+  text-shadow:1px 2px 0 #281b15;
+  letter-spacing:.15em;
+}
+#game .room2-immersive-board .room2-bench-caption::before,
+#game .room2-immersive-board .room2-bench-caption::after{
+  content:"";display:block;flex:1;height:1px;background:#d7a76e77;
+}
+#game .room2-immersive-board .room2-answer-slots{
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-rows:minmax(0,1fr)!important;min-width:0;min-height:0;
+  gap:clamp(4px,.7cqw,9px)!important;padding:clamp(6px,.8cqw,10px)!important;
+  border:5px solid #382217!important;
+  background:linear-gradient(180deg,#2a1b14,#533727)!important;
+  box-shadow:inset 1px 4px 8px #100a09b8,inset 0 0 0 2px #9b7243,0 3px 0 #bb8d52!important;
+}
+#game .room2-immersive-board .room2-answer-slot{
+  width:100%;height:100%;min-height:0!important;padding:3px!important;
+  cursor:pointer;touch-action:manipulation;
+}
+#game .room2-immersive-board .room2-answer-slot.is-selected{
+  outline:3px solid #ffdea1;outline-offset:1px;
+}
+#game .room2-immersive-board .room2-answer-slot.room2-drop-target{
+  outline:3px solid #ffcf66;outline-offset:0;
+}
+#game .room2-immersive-board .room2-bench-ridge{
+  width:100%;height:7px;
+  background:linear-gradient(#c49a60,#53351f 45%,#b58751);
+  box-shadow:0 2px 0 #2b1c12;
+}
+#game .room2-immersive-board .room2-palette{
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;
+  gap:clamp(3px,.5cqw,7px)!important;
+  min-width:0;min-height:0!important;
+  padding:clamp(4px,.6cqw,8px)!important;
+  overflow:hidden!important;
+  border:4px solid #48301e!important;
+  background:linear-gradient(#433020,#2d2118)!important;
+  box-shadow:inset 0 3px 7px #0e0a08a6,0 2px 0 #bd9159!important;
+}
+#game .room2-immersive-board .room2-palette-token{
+  display:flex;align-items:center;justify-content:center;
+  min-height:0!important;padding:1px!important;
+  cursor:grab;touch-action:manipulation;
+}
+#game .room2-immersive-board .room2-palette-token.is-held{
+  outline:3px solid #ffd888!important;
+  background:#c89d583d!important;
+  transform:translateY(-2px);
+}
+#game .room2-immersive-board .room2-palette-token i,
+#game .room2-immersive-board .room2-answer-slot i{
+  width:100%!important;height:100%!important;
+  min-height:0!important;
+  display:flex;align-items:center;justify-content:center;
+  user-select:none;pointer-events:none;
+}
+#game .room2-immersive-board .room2-puzzle-actions{
+  display:flex!important;grid-column:auto!important;grid-row:auto!important;
+  align-items:center!important;justify-content:flex-start!important;
+  gap:8px!important;flex-wrap:wrap;
+  min-height:0;margin:0!important;padding:5px 0 0!important;
+  border-top:1px solid #cf9f665e!important;
+}
+#game .room2-immersive-board .room2-puzzle-actions .room2-submit{
+  position:relative;
+  min-width:170px!important;
+  margin-left:auto!important;
+  padding:7px 13px 7px 30px!important;
+  font-family:"DotGothic16",sans-serif!important;
+  font-size:clamp(12px,1.45cqw,17px)!important;
+  font-weight:900!important;
+  letter-spacing:.02em;
+  background:linear-gradient(180deg,#dbb879,#a8753f)!important;
+  color:#2d2117!important;
+  box-shadow:inset 0 2px 0 #ffdc9c,0 4px 0 #4f3018!important;
+}
+#game .room2-immersive-board .room2-puzzle-actions .room2-submit::before{
+  content:"";
+  display:block;position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  width:9px;height:15px;
+  border:2px solid #53351a;
+  background:linear-gradient(90deg,#f4e1ae,#806b4f);
+  box-shadow:2px 2px 0 #54371e;
+}
+#game .room2-immersive-board .room2-sidebar{
+  grid-column:2!important;grid-row:1!important;
+  position:relative;min-width:0;min-height:0;
+  display:flex!important;flex-direction:column;gap:6px;
+  padding:clamp(13px,1.4cqw,20px) clamp(11px,1.2cqw,17px)!important;
+  overflow:hidden!important;
+  color:#372a1d!important;
+  background:
+    repeating-linear-gradient(transparent 0 24px,#a589593c 25px 26px),
+    linear-gradient(105deg,#d6bd8f,#f2e2ba 34%,#dfc89c 100%)!important;
+  border:1px solid #997447;
+  box-shadow:inset 0 0 0 4px #e0cba2,4px 5px 0 #20150e,6px 8px 9px #1009079c!important;
+  transform:rotate(-.3deg);
+}
+#game .room2-immersive-board .room2-paper-heading{
+  display:block;flex:0 0 auto;
+  margin:4px 0 3px;padding-bottom:6px;
+  border-bottom:2px solid #78583f;
+  color:#513820;
+  font:bold clamp(14px,1.7cqw,20px)/1.3 "DotGothic16",sans-serif;
+  letter-spacing:.08em;
+}
+#game .room2-immersive-board .room2-attempt-counter{
+  flex:0 0 auto;
+  margin:0!important;padding:5px 8px!important;
+  border:1px solid #9e8054!important;
+  background:#d2b88a!important;
+  color:#3d2b1b!important;
+  box-shadow:none!important;
+}
+#game .room2-immersive-board .room2-attempt-summary{font-size:clamp(10px,1.15cqw,13px);}
+#game .room2-immersive-board .room2-sidebar .room2-history{
+  display:block;flex:1 1 auto;
+  min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;
+  border:0!important;background:transparent!important;
+  box-shadow:none!important;overflow:auto!important;
+}
+#game .room2-immersive-board .room2-sidebar .room2-history-row{
+  display:flex;gap:4px;align-items:center;
+  padding:5px 1px!important;
+  background:transparent!important;
+  border:0!important;border-bottom:1px solid #9b805759!important;
+  color:#392a1d;
+  font-family:"DotGothic16",sans-serif;
+}
+#game .room2-immersive-board .room2-sidebar .room2-history-row.is-latest{
+  background:#fff4c660!important;
+  border-left:0!important;
+}
+#game .room2-immersive-board .room2-history-row>span{display:flex;gap:2px;min-width:0;}
+#game .room2-immersive-board .room2-history-row b{white-space:nowrap;margin-left:auto;font-size:clamp(10px,1.2cqw,14px);}
+#game .room2-immersive-board .room2-sidebar .room2-feedback,
+#game .room2-immersive-board .room2-sidebar .room2-leftmost-hint{
+  flex:0 0 auto;
+  color:#4b3121!important;
+  background:#f4e5c6!important;
+  border:1px solid #a88a57!important;
+  box-shadow:none!important;
+  min-height:0!important;
+  font-size:clamp(10px,1.1cqw,13px)!important;
+}
+#game .room2-immersive-board .room2-sidebar .room2-feedback:empty{display:none!important;}
+#game .room2-immersive-board>.room2-reaction{
+  grid-column:1/-1!important;
+  grid-row:2!important;
+  display:flex;flex-direction:column;
+  position:relative!important;inset:auto!important;
+  width:100%!important;max-height:min(130px,25cqh)!important;
+  margin:0!important;padding:8px 12px!important;
+  overflow:auto!important;
+}
+#game .room2-immersive-board>.room2-reaction[hidden]{display:none!important;}
+#game .room2-immersive-board>.room2-reaction .room2-reaction-lines{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px 12px;
+}
+@container game-viewport (max-height:540px) or (max-width:720px){
+  #game .room2-puzzle.room2-immersive-board{
+    padding:10px!important;gap:5px 8px!important;
+    grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)!important;
+  }
+  #game .room2-immersive-board .room2-wood-workbench{
+    grid-template-rows:auto minmax(44px,.85fr) 4px minmax(92px,1.5fr) auto;
+    padding:7px;gap:4px;border-width:3px;
+  }
+  #game .room2-immersive-board .room2-bench-caption{font-size:10px;}
+  #game .room2-immersive-board .room2-answer-slots{border-width:3px!important;padding:3px!important;gap:3px!important;}
+  #game .room2-immersive-board .room2-answer-slot{min-height:0!important;padding:1px!important;}
+  #game .room2-immersive-board .room2-palette{padding:3px!important;gap:2px!important;border-width:2px!important;}
+  #game .room2-immersive-board .room2-palette-token i,
+  #game .room2-immersive-board .room2-answer-slot i{font-size:clamp(17px,2.3cqw,27px)!important;}
+  #game .room2-immersive-board .room2-sidebar{padding:8px!important;gap:4px!important;}
+  #game .room2-immersive-board .room2-paper-heading{font-size:13px;margin:1px 0;}
+  #game .room2-immersive-board .room2-puzzle-actions{gap:4px!important;padding-top:3px!important;}
+  #game .room2-immersive-board .room2-puzzle-actions button{min-height:28px!important;padding:4px 8px!important;font-size:10px!important;}
+  #game .room2-immersive-board .room2-puzzle-actions .room2-submit{min-width:120px!important;padding:5px 8px 5px 24px!important;font-size:12px!important;}
+  #game .room2-immersive-board .room2-puzzle-actions .room2-submit::before{left:8px;width:6px;height:10px;}
+  #game .room2-immersive-board>.room2-board-help{top:7px!important;right:49px!important;}
+  #game .room2-immersive-board:has(.room2-pause)>.room2-board-help{right:117px!important;}
+  #game .room2-immersive-board>.device-close{top:7px!important;right:7px!important;}
+  #game .room2-immersive-board>.room2-reaction{max-height:105px!important;padding:5px 8px!important;}
+  #game .room2-immersive-board>.room2-reaction .room2-reaction-lines{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media (prefers-reduced-motion:reduce){
+  #game .room2-immersive-board .room2-palette-token.is-held{transform:none;}
+}

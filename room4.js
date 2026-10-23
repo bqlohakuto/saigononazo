@@ -175,8 +175,11 @@ function r4P3(){
    });
    button.addEventListener("pointermove",event=>{
     if(!drag||drag.id!==event.pointerId)return;
-    if(Math.hypot(event.clientX-drag.x,event.clientY-drag.y)>8){
-     drag.moved=true;button.classList.add("is-dragging");
+    if(Math.hypot(event.clientX-drag.x,event.clientY-drag.y)>8)drag.moved=true;
+    if(drag.moved){
+     button.classList.add("is-dragging");
+     button.style.setProperty("--drag-x",(event.clientX-drag.x)+"px");
+     button.style.setProperty("--drag-y",(event.clientY-drag.y)+"px");
     }
    });
    button.addEventListener("pointerup",event=>{

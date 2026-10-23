@@ -1957,12 +1957,15 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r4-ratio-sample span{font:700 clamp(14px,1.8cqw,19px)/1.2 "DotGothic16",sans-serif;color:#fff4d9;letter-spacing:0}
 #game .r4-ratio-digit{display:block;border-top:1px solid #8f7955;padding-top:clamp(6px,1cqh,10px);text-align:center;color:#f8e6ba;font:900 clamp(29px,4.2cqw,45px)/1 "DotGothic16",sans-serif;-webkit-text-stroke:.45px currentColor}
 #game .r4-world-exhibit{position:relative;width:100%;height:100%;min-height:0;display:flex;flex-direction:column;gap:clamp(6px,1.3cqh,12px);background:#142935;color:#f6ead1;border:3px solid #ae9062;padding:clamp(12px,2cqw,24px);box-shadow:inset 0 0 0 2px #2d414c}
-#game .r4-world-exhibit header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;border-bottom:1px solid #ae906277;padding-bottom:clamp(5px,1cqh,10px)}
+#game .r4-world-exhibit header{display:flex;align-items:center;justify-content:flex-end;flex:none}
 #game .r4-world-exhibit h2{color:#ebd7aa;font:normal clamp(18px,2.5cqw,30px)/1.3 "DotGothic16",sans-serif;margin:0}
 #game .r4-world-exhibit .device-close{position:static;background:#243d4a!important;color:#f6ead1!important;border:1px solid #ae9062!important}
 #game .r4-world-intro{flex:none;font:normal clamp(11px,1.4cqw,16px)/1.5 "DotGothic16",sans-serif;color:#d5d7cd;margin:0}
 #game .r4-world-countries{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:clamp(6px,1.2cqw,13px)}
 #game .r4-world-country{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(3px,.65cqh,7px);min-height:0;min-width:0;border:1px solid #6b7f82;background:#203642;padding:clamp(5px,1cqw,10px)}
+#game .r4-moon-illustration{display:block;width:clamp(78px,22cqh,130px);height:clamp(78px,22cqh,130px);max-width:100%;min-height:0;flex-shrink:1;overflow:hidden;border-radius:50%}
+#game .r4-moon-caption{display:flex;align-items:center;justify-content:center;gap:clamp(5px,.8cqw,9px);flex:none;min-width:0;max-width:100%}
+#game .r4-moon-caption .r4-reference-flag{height:18px;width:auto;max-width:31px;flex:none;filter:none}
 #game .r4-reference-flag{display:block;width:auto;height:clamp(35px,10cqh,68px);max-width:85%;flex-shrink:1;min-height:0;filter:drop-shadow(0 2px 1px #0008)}
 #game .r4-world-country strong{font:900 clamp(13px,1.9cqw,22px)/1.2 "DotGothic16",sans-serif;color:#fff4d9;letter-spacing:.06em;-webkit-text-stroke:.25px currentColor}
 #game .r4-world-country>span{font:normal clamp(10px,1.3cqw,15px)/1.2 "DotGothic16",sans-serif;color:#d4d2bf}

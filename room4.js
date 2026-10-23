@@ -103,14 +103,14 @@ const R4_FLAG_EXHIBIT=[
  {id:"BELGIUM",name:"ベルギー",axis:"vertical",aspect:15/13,bands:[["black",1],["yellow",1],["red",1]]},
  {id:"POLAND",name:"ポーランド",axis:"horizontal",aspect:1.6,bands:[["white",1],["red",1]]},
  {id:"THAILAND",name:"タイ",axis:"horizontal",aspect:1.5,bands:[["red",1],["white",1],["blue",2],["white",1],["red",1]]},
- {id:"SWEDEN",name:"スウェーデン",aspect:1.6,shares:[["blue",.7],["yellow",.3]]},
+ {id:"CHINA",name:"中国",flagCrop:[303,461,55,36]},
  {id:"SPAIN",name:"スペイン",aspect:1.5,image:"images/exhibits/room04/flags/spain.svg",shares:[["red",0.520165625496],["yellow",0.45577120888],["white",0.011883840886],["black",0.00850602271],["blue",0.002046386561],["pink",0.001395801423],["green",0.000231114044]]}
 ];
 const R4_LIGHT_CLUES=[{country:"POLAND",position:3},{country:"SPAIN",position:4},{country:"BELGIUM",position:4},{country:"THAILAND",position:2},{country:"ITALY",position:2}];
 function r4FlagShares(entry){
  const shares={};
  if(entry.shares)for(const [color,fraction] of entry.shares)shares[color]=fraction;
- else {const total=entry.bands.reduce((sum,band)=>sum+band[1],0);for(const [color,parts] of entry.bands)shares[color]=(shares[color]||0)+parts/total}
+ else if(entry.bands){const total=entry.bands.reduce((sum,band)=>sum+band[1],0);for(const [color,parts] of entry.bands)shares[color]=(shares[color]||0)+parts/total}
  // One palette order for every clue: no flag stripe order or orientation is retained.
  return Object.keys(R4_FLAG_COLORS).filter(color=>shares[color]>0).map(color=>({color,fraction:shares[color]}));
 }
@@ -123,6 +123,7 @@ function r4ColorRatioPuzzle(){
  }).join('')+'</div>';
 }
 function r4ReferenceFlag(entry){
+ if(entry.flagCrop)return r4MoonAtlasCrop(entry.flagCrop,'r4-reference-flag',entry.id+' flag');
  if(entry.image)return '<img class="r4-reference-flag" src="'+entry.image+'" alt="'+entry.name+'の国旗">';
  const width=160,height=width/entry.aspect;let shapes='';
  if(entry.bands){
@@ -132,10 +133,15 @@ function r4ReferenceFlag(entry){
  else shapes='<rect width="160" height="100" fill="#24699c"/><path d="M50 0h20v100H50zM0 40h160v20H0z" fill="'+R4_FLAG_COLORS.yellow.hex+'"/>';
  return '<svg class="r4-reference-flag" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'+entry.name+'の国旗">'+shapes+'</svg>';
 }
+// Windows into the approved original artwork; no embedded titles or captions.
+const R4_MOON_CROPS={ITALY:[1300,302,160,160],JAPAN:[77,302,160,160],BELGIUM:[76,636,160,160],POLAND:[810,302,160,160],THAILAND:[566,302,160,160],CHINA:[321,302,160,160],SPAIN:[1056,302,160,160]};
+function r4MoonAtlasCrop(rect,className,label){
+ return '<svg class="'+className+'" viewBox="'+rect.join(' ')+'" role="img" aria-label="'+label+'"><image href="images/exhibits/room04/moon-views-atlas.webp" width="1536" height="1024"/></svg>';
+}
 function r4Moon(){
  if(game.querySelector('.device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay'))return;
  const overlay=document.createElement('div');overlay.className='device-overlay r4-world-overlay';
- overlay.innerHTML='<section class="r4-world-exhibit" aria-label="世界の月の展示"><header><h2>同じ月を見上げて</h2><button type="button" class="device-close" aria-label="展示を閉じる">戻る</button></header><p class="r4-world-intro">月の模様は、地域や伝承によってさまざまな姿に見立てられてきた。<br>同じ月を見上げる、世界の国々。</p><div class="r4-world-countries">'+R4_FLAG_EXHIBIT.map(entry=>'<article class="r4-world-country">'+r4ReferenceFlag(entry)+'<strong lang="en">'+entry.id+'</strong><span>'+entry.name+'</span></article>').join('')+'</div><p class="r4-world-note">月の見立てには地域・時代によって諸説があります。</p></section>';
+ overlay.innerHTML='<section class="r4-world-exhibit" aria-label="World moon views"><header><button type="button" class="device-close" aria-label="展示を閉じる">戻る</button></header><div class="r4-world-countries">'+R4_FLAG_EXHIBIT.map(entry=>'<article class="r4-world-country">'+r4MoonAtlasCrop(R4_MOON_CROPS[entry.id],'r4-moon-illustration','Moon view in '+entry.id)+'<div class="r4-moon-caption">'+r4ReferenceFlag(entry)+'<strong lang="en">'+entry.id+'</strong></div></article>').join('')+'</div></section>';
  game.appendChild(overlay);activateDeviceModal(overlay,'r4Moon',overlay.querySelector('.device-close'));
 }
 function r4Door(){

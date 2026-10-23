@@ -169,7 +169,8 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  assert.equal(await plateButtons.count(),7,'Exactly seven tactile rainbow plates');
  assert.equal(await page.locator('.r4-rainbow button[data-d]').count(),0,'No up/down control clutter remains');
  assert.equal(await page.locator('.r4-plate-exhibit').count(),1,'Puzzle sits inside its own exhibition case');
- assert.deepEqual(await plateButtons.locator('.r4-rainbow-color').allTextContents(),['青','赤','紫','黄','藍','橙','緑']);
+ assert.equal(await plateButtons.locator('.r4-rainbow-color').count(),0,'Physical plate color has no redundant written label');
+ assert.deepEqual(await plateButtons.evaluateAll(nodes=>nodes.map(el=>el.dataset.plate)),['青O','赤M','紫S','黄T','藍R','橙E','緑E']);
  const plateBounds=await page.locator('.r4-plate-exhibit').boundingBox();
  const buttonBounds=await plateButtons.evaluateAll(buttons=>buttons.map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom}}));
  assert(plateBounds.x>=-1&&plateBounds.y>=-1&&plateBounds.x+plateBounds.width<=spec.viewport.width+1&&plateBounds.y+plateBounds.height<=spec.viewport.height+1,'Rainbow exhibit must fit the landscape viewport');
@@ -177,7 +178,7 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  await page.screenshot({path:path.join(dir,'rainbow-plates-initial.png')});
  // Move a plate by choosing it, then choosing the destination slot.
  for(const [i,value] of ['赤M','橙E','黄T','緑E','青O','藍R','紫S'].entries()){
-  const values=await page.locator('.r4-rainbow-plate').evaluateAll(buttons=>buttons.map(el=>el.querySelector('.r4-rainbow-color').textContent+el.querySelector('.r4-rainbow-letter').textContent));
+  const values=await page.locator('.r4-rainbow-plate').evaluateAll(buttons=>buttons.map(el=>el.dataset.plate));
   const from=values.indexOf(value);
   assert(from>=i,'Expected plate remains available to position: '+value);
   if(from>i){

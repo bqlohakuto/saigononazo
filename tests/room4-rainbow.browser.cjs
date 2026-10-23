@@ -29,7 +29,9 @@ function tokens(values){
    const plates=page.locator(".r4-rainbow-plate");
    assert.equal(await plates.count(),7,"Exactly seven physical plates");
    assert.equal(await page.locator(".r4-rainbow button[data-d]").count(),0,"No old up/down button interface");
-   const order=()=>plates.evaluateAll(nodes=>nodes.map(n=>n.querySelector(".r4-rainbow-color").textContent+n.querySelector(".r4-rainbow-letter").textContent));
+   const order=()=>plates.evaluateAll(nodes=>nodes.map(n=>n.dataset.plate));
+   assert.equal(await page.locator(".r4-rainbow-color").count(),0,"Color is shown by the plate, not spelled out");
+   assert((await plates.nth(0).evaluate(el=>parseFloat(getComputedStyle(el.querySelector(".r4-rainbow-letter")).fontWeight)))>=800,"Letters use heavy type");
    const initial=await order();
    assert.deepEqual(initial,["青O","赤M","紫S","黄T","藍R","橙E","緑E"]);
    const frame=await page.locator(".r4-plate-exhibit").boundingBox();
@@ -65,12 +67,23 @@ function tokens(values){
    assert.equal(await page.locator(".r4-plate-overlay.is-solved").count(),1,"The solved exhibit stays open before the light-up effect");
    assert.equal(await page.locator(".room-dialog-overlay").count(),0,"Award dialogue must not replace the successful board immediately");
    await page.screenshot({path:path.join(screenshots,"rainbow-completed-"+viewport.width+".png")});
+   const solvedAt=Date.now();
    await page.locator(".r4-plate-overlay.is-revealing").waitFor({timeout:2500});
    assert.equal(await page.locator(".r4-rainbow-plate").count(),7,"All seven cards remain visible through the victory glow");
    await page.locator(".r4-plate-overlay").waitFor({state:"detached",timeout:6000});
+   assert(Date.now()-solvedAt>=2900,"Glowing rainbow must remain visible for several seconds after settling");
    await page.locator(".room-dialog-overlay").waitFor({timeout:2500});
    assert(await page.evaluate(()=>GameLog?.list?.().some(entry=>/METEORS/.test(entry.text||""))||!!document.querySelector(".room-dialog-overlay")),"Original completion dialogue starts after animation");
    await page.evaluate(()=>{for(let i=0;i<60&&document.querySelector("#roomNextButton");i++)Dialogue.advance()});
+   const popup=page.locator('.design-overlay .design-panel[aria-label="入手"]');
+   await popup.waitFor({timeout:2500});
+   const glass=popup.locator('img.design-pickup-image');
+   assert.equal(await glass.count(),1,"Acquisition shows a real glass pane image");
+   assert.equal(await glass.getAttribute('src'),'images/exhibits/room04/virgo-panels/virgo-panel-03.svg',"Rainbow puzzle awards the correct glass pane");
+   assert(await glass.evaluate(async img=>{await img.decode();return img.naturalWidth>0}),"Glass image must decode");
+   assert.equal(await popup.getByText(/現在.*枚|[0-9]+\s*\/\s*5/).count(),0,"No acquisition tally in image popup");
+   await page.screenshot({path:path.join(screenshots,'glass-awarded-'+viewport.width+'.png')});
+   await popup.getByRole('button',{name:'受け取る'}).click();
    assert.deepEqual(errors,[],"Rainbow UI should not generate JavaScript errors");
    await page.close();
   }

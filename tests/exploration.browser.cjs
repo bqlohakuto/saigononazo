@@ -36,7 +36,12 @@ fs.mkdirSync(output,{recursive:true});
    };
    const progress=()=>page.evaluate(()=>{saveGame();return JSON.parse(localStorage.getItem(SAVE_KEY)).rooms[currentScene]});
    const specs=await page.evaluate(()=>Object.entries(RoomExplorationScenes).flatMap(([scene,entries])=>entries.filter(e=>!e.existing).map(e=>({scene,id:e.id,view:e.view||'front'}))));
-   assert.equal(specs.length,20);
+   assert.equal(specs.length,17,'Keep 17 concrete optional hotspots; no number-filling');
+   assert.equal(specs.some(s=>s.scene==='room03'&&s.id==='floor'),false,'Do not investigate a generic wooden floor');
+   assert.equal(specs.some(s=>s.scene==='room06'&&['wall','floor'].includes(s.id)),false,'No generic wall or feet inspection in the Othello room');
+   assert.equal(specs.some(s=>s.scene==='room02'&&s.id==='frame'),true,'A wall-mounted framed item remains inspectable');
+   assert.equal(specs.some(s=>s.scene==='room07'&&s.id==='wall-lamp'),true,'A tangible wall lamp remains inspectable');
+   assert.equal(specs.some(s=>s.scene==='room07'&&s.id==='wall-shelf'),true,'A tangible wall shelf remains inspectable');
    for(const spec of specs){
     await open(spec.scene,spec.view);
     const before=await progress();

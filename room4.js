@@ -108,10 +108,16 @@ function r4Const(){showRoomDialog([{logId:"r4c1",logType:"investigation",speaker
 function r4Meteor(){showRoomDialog([{logId:"r4m1",logType:"investigation",speaker:"ト書き",text:"流れ星についての展示だ。流れ星は、宇宙空間の小さなちりや岩石が大気に飛び込み、高温になって光って見える現象らしい。地球が彗星の残したちりの中を通ると、流星群が見られることもある。"},{logId:"r4m2",logType:"dialogue",speaker:"主人公",text:"こんな小さいものが、あんなに明るく見えるんだな"}])}
 function r4WordPuzzle(kind){
  if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
- const solved=kind==="STAR"?room4State.star:room4State.lightPuzzle;if(solved){showRoomNotice("この謎は解き終えている。","r4done"+kind);return}
+ const solved=kind==="STAR"?room4State.star:room4State.lightPuzzle;
  const o=document.createElement("div");o.className="device-overlay r4-mini-overlay";
  const body=kind==="STAR"?`<div class="r4-digits"><b class="silver">1</b><b class="white">4</b><b class="black">3</b><b class="green">2</b></div>`:`<div class="r4-flags"><span>⬜⬜⬜<br>🟥🟥🟥　<b>3</b></span><span>🟥<br>🟨🟨🟨<br>🟥　<b>4</b></span><span>⬛⬛｜🟨🟨🟨｜🟥🟥　<b>4</b></span><span>🟥<br>⬜<br>🟦🟦🟦🟦<br>⬜<br>🟥　<b>2</b></span><span>🟩🟩｜⬜｜🟥🟥　<b>2</b></span></div><p class="r4-moon">月の模様の展示：国旗と英語国名 POLAND / SPAIN / BELGIUM / THAILAND / ITALY など。見え方には地域・時代・伝承によって諸説があります。</p>`;
- o.innerHTML=`<section class="r4-mini"><button class="device-close">×</button><h2>謎 ${kind==="STAR"?"1":"2"}</h2>${body}<label>答え<input autocomplete="off"></label><button class="r4-answer">答える</button><p class="r4-feedback"></p></section>`;game.appendChild(o);const input=o.querySelector("input"),fb=o.querySelector(".r4-feedback"),close=activateDeviceModal(o,kind==="STAR"?"r4P1":"r4P2",input);
+ const answerView=solved?'<div class="r4-solved-answer" role="status" aria-label="解答済み"><span>'+kind+'</span></div>':'<label>答え<input autocomplete="off"></label><button class="r4-answer">答える</button><p class="r4-feedback"></p>';
+ o.innerHTML=`<section class="r4-mini ${solved?"r4-mini-inspected":""}"><button class="device-close">×</button><h2>謎 ${kind==="STAR"?"1":"2"}</h2>${body}${answerView}</section>`;
+ game.appendChild(o);
+ const input=o.querySelector("input"),fb=o.querySelector(".r4-feedback");
+ const close=activateDeviceModal(o,kind==="STAR"?"r4P1":"r4P2",solved?o.querySelector(".device-close"):input);
+ // Reinspection is deliberately read-only: no validation, reward, or duplicate log.
+ if(solved)return;
  input.addEventListener("input",()=>{fb.textContent=""});
  input.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.isComposing&&!event.repeat){event.preventDefault();o.querySelector(".r4-answer").click()}});
  o.querySelector(".r4-answer").onclick=()=>{const answer=input.value.normalize("NFKC").trim().toUpperCase();if(!answer){fb.textContent="答えを入力してください。";return}if(answer!==kind){fb.textContent=kind==="STAR"?"色の英語名と数字を使えそうだ。":"色の並びを国旗として見て、英語国名から数字の位置を読もう。";return}if(kind==="STAR")room4State.star=true;else room4State.lightPuzzle=true;saveGame();close();showRoomDialog([{logId:"r4"+kind+"ok1",logType:"dialogue",speaker:"主人公",text:`${kind}……${kind==="STAR"?"星":"光"}、か`},{logId:"r4"+kind+"ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースのロックが外れた。中から透明なパネルを取り出す。"}],()=>r4Refresh(kind==="STAR"?"star":"lightPuzzle"))};
@@ -119,8 +125,8 @@ function r4WordPuzzle(kind){
 function r4P1(){r4WordPuzzle("STAR")} function r4P2(){r4WordPuzzle("LIGHT")}
 function r4P3(){
  if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
- if(room4State.meteors){showRoomNotice("謎3は解き終えている。","r4p3done");return}
- const o=document.createElement("div");o.className="device-overlay r4-mini-overlay r4-plate-overlay";
+ const solvedOnOpen=!!room4State.meteors;
+ const o=document.createElement("div");o.className="device-overlay r4-mini-overlay r4-plate-overlay"+(solvedOnOpen?" is-inspection":"");
  o.innerHTML='<section class="r4-mini r4-plate-exhibit" aria-label="七色のプレート">'+
   '<button type="button" class="device-close" aria-label="戻る">×</button>'+
   '<div class="r4-plate-exhibit-header" aria-hidden="true"><span class="r4-plate-emblem">✧</span><h2>七色のプレート</h2><span class="r4-plate-emblem">✧</span></div>'+
@@ -129,16 +135,16 @@ function r4P3(){
   '</section>';
  game.appendChild(o);
  const list=o.querySelector(".r4-rainbow"),status=o.querySelector(".r4-plate-status");
- let revealTimer=null,successTimer=null,dialogueStarted=false;
+ let revealTimer=null,successTimer=null,dialogueStarted=false,earnedThisOpen=false;
  const finishSuccess=()=>{
-  if(dialogueStarted||currentScene!=="room04"||!room4State.meteors)return;
+  if(dialogueStarted||!earnedThisOpen||currentScene!=="room04"||!room4State.meteors)return;
   dialogueStarted=true;
   showRoomDialog([{logId:"r4p3ok1",logType:"dialogue",speaker:"主人公",text:"METEORS……流れ星、か"},{logId:"r4p3ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースの中から透明なパネルを取り出す。"}],()=>r4Refresh("meteors"));
  };
  const close=activateDeviceModal(o,"r4P3",o.querySelector(".device-close"),()=>{
   window.clearTimeout(revealTimer);
   window.clearTimeout(successTimer);
-  if(room4State.meteors)finishSuccess();
+  if(earnedThisOpen)finishSuccess();
  });
  const colors={
   "赤":"#ac4544","橙":"#b8773d","黄":"#dcc46f","緑":"#568d72",
@@ -148,6 +154,7 @@ function r4P3(){
  const complete=()=>{
   if(room4State.rainbow.map(v=>v.slice(-1)).join("")!=="METEORS")return false;
   // Let the player actually see the completed order before revealing it.
+  earnedThisOpen=true;
   room4State.meteors=true;saveGame();draw();
   o.classList.add("is-solved");
   revealTimer=window.setTimeout(()=>{
@@ -172,6 +179,7 @@ function r4P3(){
    button.className="r4-rainbow-plate"+(chosen===i?" is-selected":"");
    button.dataset.index=String(i);
    button.dataset.plate=value;
+   button.disabled=!!room4State.meteors;
    const color=value.slice(0,-1),letter=value.slice(-1);
    button.style.setProperty("--plate-color",colors[color]||"#7a7976");
    button.setAttribute("aria-label",color+"のプレート "+letter+(chosen===i?"、選択中":""));

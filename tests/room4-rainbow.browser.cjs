@@ -19,8 +19,25 @@ function tokens(values){
    // The first-run guide is a separate modal; test the puzzle without covering it.
    await page.addInitScript(()=>localStorage.setItem("saigononazo-help-seen","1"));
    await page.goto(base,{waitUntil:"load"});
+   // Regression: the very first entry must fill the same 16:9 stage as a reload.
+   await page.evaluate(()=>{settings.instantText=true;showFourthRoom()});
+   const entry=await page.evaluate(()=>{
+    const canvas=document.querySelector('#game-container').getBoundingClientRect();
+    const stage=document.querySelector('.room4-stage').getBoundingClientRect();
+    const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
+    const gaze=getComputedStyle(document.querySelector('#r4Hana .r4-hana-look-pose'));
+    return {canvasWidth:canvas.width,stageWidth:stage.width,stageX:stage.x,canvasX:canvas.x,
+      idleWidth:parseFloat(idle.width),idleHeight:parseFloat(idle.height),
+      gazeWidth:parseFloat(gaze.width),gazeHeight:parseFloat(gaze.height)};
+   });
+   console.log('ROOM4_HANA_ENTRY '+viewport.width+' '+JSON.stringify(entry));
+   assert(Math.abs(entry.stageWidth-entry.canvasWidth)<1,'Initial Room 4 stage must fill the game canvas');
+   assert(Math.abs(entry.stageX-entry.canvasX)<1,'Initial Room 4 stage must not have side margins');
+   assert(Math.abs(entry.idleWidth-entry.canvasWidth*.199)<1,'Initial Hana width must match stage depth');
+   assert(Math.abs(entry.idleHeight-entry.canvasWidth*.31)<1,'Initial Hana height must match stage depth');
+   assert(Math.abs(entry.gazeWidth-entry.idleWidth)<1&&Math.abs(entry.gazeHeight-entry.idleHeight)<1,'Initial gaze canvas must match idle');
    await page.evaluate(()=>{
-    settings.instantText=true;
+    Dialogue.stop();
     showFourthRoom({view:"back",door:true,hanaSleepSeen:true});
     for(let i=0;i<20&&document.querySelector("#roomNextButton");i++)Dialogue.advance();
    });

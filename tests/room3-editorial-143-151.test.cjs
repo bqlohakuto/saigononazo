@@ -78,7 +78,7 @@ test("No.143-145: empty answers do not count; wrong answers are saved in both st
  assert.equal(text(),"文字盤から読み取った言葉を入力しよう。");
 });
 
-test("No.146-148: Enter submits unless composing/repeated; focus advances after first solution",()=>{
+test("No.146-148: Enter respects IME; stage changes do not summon the mobile keyboard",()=>{
  const {nodes,state}=puzzle();
  const first=nodes[".room3-answer-input"],final=nodes[".room3-final-input"];
  first.value="ONAJIMOJINOAIDA";
@@ -88,11 +88,29 @@ test("No.146-148: Enter submits unless composing/repeated; focus advances after 
  assert.equal(first.key("Enter"),true);
  assert.equal(state.puzzleAttempts,1);
  assert.equal(state.morseSolved,true);
- assert.equal(final.focused,true);
+ assert.equal(final.focused,undefined,"Next-stage answer stays unfocused until the player taps it");
+ assert.equal(state.puzzleAttempts,1);
  final.value="イツモトナリニ";
  assert.equal(final.key("Enter",{isComposing:true}),false);
  assert.equal(final.key("Enter"),true);
  assert.equal(state.unlocked,true);
+});
+
+test("Room 3 prevents repeated submission after each correct stage",()=>{
+ const {nodes,state,metrics}=puzzle();
+ nodes[".room3-answer-input"].value="ONAJIMOJINOAIDA";
+ nodes[".room3-answer-submit"].click();
+ assert.equal(state.morseSolved,true);
+ assert.equal(state.puzzleAttempts,1);
+ nodes[".room3-answer-submit"].click();
+ assert.equal(state.puzzleAttempts,1,"First stage answer is not resubmitted after the letterboard appears");
+ nodes[".room3-final-input"].value="イツモトナリニ";
+ nodes[".room3-final-submit"].click();
+ assert.equal(state.unlocked,true);
+ assert.equal(metrics().memories,1);
+ nodes[".room3-final-submit"].click();
+ assert.equal(state.puzzleAttempts,2,"Second submit does not count another answer");
+ assert.equal(metrics().memories,1,"Memory scene must never be started twice");
 });
 
 test("No.149: chart close notification fires once across multiple opens",()=>{

@@ -50,12 +50,14 @@ const expectedHips=source.panels.map(p=>p.stars.map(s=>s.hip));
    }
    // Both 90 degrees off the absolute solution but the connection is correct.
    await setAngles([1,1,0,3,2]);
+   await page.locator('.r4-constellation-edge[data-edge="0"].is-visible').waitFor({timeout:2500});
    assert.equal(await page.locator('.r4-constellation-edge[data-edge="0"].is-visible').count(),1,"Relative 1/2 pair should light up despite absolute 90-degree shift");
    // Changing only one pane destroys their connection.
    await setAngles([1,0,0,3,2]);
    await page.locator('.r4-constellation-edge[data-edge="0"]').waitFor({state:"detached",timeout:2000});
    assert.equal(await page.locator('.r4-constellation-edge[data-edge="0"].is-visible').count(),0,"Mismatched relative rotation must break the line");
    await setAngles([1,1,1,1,1]);
+   await page.waitForFunction(()=>document.querySelectorAll(".r4-constellation-edge.is-visible").length===12,null,{timeout:2500});
    assert.equal(await line.count(),12,"All 12 approved connections must show for any common rotation");
    assert(await page.locator(".r4-panel-stack").isEnabled(),"Matching all five panes activates whole-star rotation");
    assert.equal(await page.locator(".r4-shine").count(),1,"Original light-based final check remains");

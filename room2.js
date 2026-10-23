@@ -266,13 +266,14 @@ function showSecondRoomPuzzle(){
  const slots=overlay.querySelector(".room2-answer-slots"),palette=overlay.querySelector(".room2-palette"),history=overlay.querySelector(".room2-history"),feedback=overlay.querySelector(".room2-feedback"),hint=overlay.querySelector(".room2-leftmost-hint"),hintRequest=overlay.querySelector(".room2-leftmost-request"),reactionPanel=overlay.querySelector(".room2-reaction");let selectedSlot=null,lastPlacedSlot=null,heldToken=null;
  const digital=overlay.querySelector(".room2-digital-readout");
  const digitalHit=digital.querySelector(".room2-digital-hit"),digitalBlow=digital.querySelector(".room2-digital-blow");
- let reactionTimer=null,screenTimer=null,memoTimer=null;
+ let reactionTimer=null,screenTimer=null,memoTimer=null,resolutionTimer=null;
  let visibleHistoryCount=room2State.history.length,pendingMemo=false,pendingResolution=null,newlyWrittenCount=-1;
  const clearReactionTimer=()=>{if(reactionTimer!==null){window.clearTimeout(reactionTimer);reactionTimer=null}};
  const clearPuzzleTimers=()=>{
   clearReactionTimer();
   if(screenTimer!==null){window.clearTimeout(screenTimer);screenTimer=null}
   if(memoTimer!==null){window.clearTimeout(memoTimer);memoTimer=null}
+  if(resolutionTimer!==null){window.clearTimeout(resolutionTimer);resolutionTimer=null}
  };
  const finishPendingResolution=()=>{const finish=pendingResolution;pendingResolution=null;finish?.()};
  const onClosePuzzle=()=>{
@@ -408,7 +409,7 @@ function showSecondRoomPuzzle(){
    overlay.querySelectorAll(".room2-attempt-step").forEach((step,index)=>step.classList.toggle("is-used",index<count.used));
   }
   overlay.querySelector(".room2-clear").disabled=!room2State.guess.some(Boolean);
-   overlay.querySelector(".room2-submit").disabled=pendingMemo||room2State.guess.some(piece=>!piece)||(isChallenge&&room2State.attempts>=8);
+   overlay.querySelector(".room2-submit").disabled=pendingMemo||Boolean(pendingResolution)||room2State.guess.some(piece=>!piece)||(isChallenge&&room2State.attempts>=8);
    overlay.querySelector(".room2-submit").classList.toggle("is-ready",!overlay.querySelector(".room2-submit").disabled);
   hintRequest.hidden=isChallenge||!room2ShouldRevealLeftmostHint(room2State.history,room2State.attempts)||room2State.leftmostHintRevealed||room2State.unlocked;
   hint.hidden=!room2State.leftmostHintRevealed;
@@ -459,7 +460,13 @@ function showSecondRoomPuzzle(){
    memoTimer=null;if(!overlay.isConnected)return;
    pendingMemo=false;newlyWrittenCount=room2State.history.length;
    visibleHistoryCount=room2State.history.length;render();
-   if(result.hit===5){finishPendingResolution();return}
+   if(result.hit===5){
+    // The freshly written paper remains visible before the room changes.
+    resolutionTimer=window.setTimeout(()=>{
+     resolutionTimer=null;if(overlay.isConnected)finishPendingResolution();
+    },850);
+    return;
+   }
    const reaction=room2JudgeReactionLines(result,room2State.attempts,isChallenge);
    if(reaction.length)showReaction(reaction,challengeFailed?finishPendingResolution:null);
    else if(challengeFailed)finishPendingResolution();

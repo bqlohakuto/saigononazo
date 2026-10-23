@@ -28,8 +28,12 @@ function showFourthRoom(savedState){
  });
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room04",title:"第四の部屋",objective:()=>room4State.completed?"次の部屋へ進む":r4All()?"ガラスパネルの向きを合わせる":"部屋を調べる",onCompanion:r4Hana,getHighlights:()=>!!room4State.highlightEnabled,setHighlights:v=>{room4State.highlightEnabled=!!v;saveGame()}});
  r4ObserveHanaGazePose();
- // ResizeObserver fires later; size correctly on the very first rendered frame.
+ // Initialize immediately and once after first layout; ResizeObserver handles
+ // later stage size changes without requiring a window resize event.
  r4SyncHanaGazePose();
+ window.requestAnimationFrame(()=>{
+  if(currentScene==="room04"&&game.querySelector(".room4-stage"))r4SyncHanaGazePose();
+ });
  saveGame();
 }
 function r4ObserveHanaGazePose(){

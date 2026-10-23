@@ -1259,3 +1259,19 @@ body{background:#0b1322!important;display:grid;place-items:center}
   grid-template-columns:1fr;gap:4px;
  }
 }
+
+
+/* Room 03 review: keep unearned solution instructions off the puzzle screen.
+   Once decoded, the player's own words stay visible as a small paper clue. */
+#game .room3-puzzle-panel .room3-puzzle-instruction:empty{display:none!important}
+#game .room3-puzzle-panel.r3-board-ready .room3-puzzle-instruction{
+  justify-self:stretch;
+  align-self:start;
+  padding:clamp(8px,1cqw,14px)!important;
+  border:1px solid #b8a078;
+  border-left:4px solid #907653;
+  background:#efe6d4;
+  color:#493824;
+  font:normal clamp(16px,1.85cqw,22px)/1.45 "DotGothic16",sans-serif!important;
+  letter-spacing:.07em;
+}

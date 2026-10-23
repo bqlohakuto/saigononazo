@@ -184,12 +184,21 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  await page.locator('#r4P1').click();assert.equal(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),false,'STAR puzzle does not activate input on opening');await page.locator('.r4-mini input').click();assert(await page.locator('.r4-mini input').evaluate(el=>el===document.activeElement),'Selected answer field is focused');await page.locator('.r4-mini input').fill('STAR');await page.locator('.r4-answer').click();await finish(page);assert(await page.evaluate(()=>room4State.star));
  await page.locator('#r4TurnRight').click();await page.locator('#r4Meteor').click();await finish(page);await page.locator('#r4Moon').click();
  assert(await page.locator('.r4-world-exhibit').isVisible(),'Country reference opens as an exhibit, independently of dialogue');
- assert.equal(await page.locator('.r4-reference-flag').count(),7,'Reference includes the five target countries and two other countries');
- assert.equal(await page.locator('.r4-moon-illustration').count(),7,'Each flag and English country name belongs to a moon-view illustration');
- assert((await page.locator('.r4-world-country').allTextContents()).every(text=>/^[A-Z]+$/.test(text.trim())),'Moon captions contain English country names only');
- assert.equal(await page.locator('.r4-world-exhibit h2,.r4-world-intro,.r4-world-note').count(),0,'No additional title or prose is embedded in the moon exhibit');
- assert.notDeepEqual((await page.locator('.r4-world-country strong').allTextContents()).slice(0,5),['POLAND','SPAIN','BELGIUM','THAILAND','ITALY'],'Reference does not disclose the answer order');
- await page.screenshot({path:path.join(dir,'country-reference.png')});
+ const moonCountries=[];
+ for(let moonPage=0;moonPage<2;moonPage++){
+  assert.equal(await page.locator('.r4-reference-flag').count(),6,'Six flags per page keep the exhibit readable');
+  assert.equal(await page.locator('.r4-moon-illustration').count(),6,'Every country has its original moon illustration');
+  const names=await page.locator('.r4-world-country strong').allTextContents();moonCountries.push(...names);
+  assert(names.every(text=>/^[A-Z ]+$/.test(text.trim())),'Country names remain English');
+  assert.equal(await page.locator('.r4-moon-copy p').count(),6,'Each interpretation includes explanatory prose');
+  assert((await page.locator('.r4-moon-copy p').allTextContents()).every(text=>text.length>15),'Descriptions explain the depicted interpretations');
+  await page.screenshot({path:path.join(dir,'country-reference-'+(moonPage+1)+'.png')});
+  if(moonPage===0)await page.getByRole('button',{name:'次のページ',exact:true}).click();
+ }
+ assert.equal(new Set(moonCountries).size,12,'The exhibit includes twelve distinct countries');
+ for(const target of ['POLAND','SPAIN','BELGIUM','THAILAND','ITALY'])assert(moonCountries.includes(target));
+ await page.getByRole('button',{name:'前のページ',exact:true}).click();
+ assert.equal(await page.locator('.r4-moon-pages output').textContent(),'1 / 2');
  await page.keyboard.press('Escape');
  assert.equal(await page.locator('.r4-world-overlay').count(),0,'Reference can be closed before opening puzzle 2');
  assert.equal(await page.evaluate(()=>document.activeElement.id),'r4Moon','Reference returns focus to its exploration target');

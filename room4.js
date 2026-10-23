@@ -104,6 +104,11 @@ const R4_FLAG_EXHIBIT=[
  {id:"POLAND",name:"ポーランド",axis:"horizontal",aspect:1.6,bands:[["white",1],["red",1]]},
  {id:"THAILAND",name:"タイ",axis:"horizontal",aspect:1.5,bands:[["red",1],["white",1],["blue",2],["white",1],["red",1]]},
  {id:"CHINA",name:"中国",flagCrop:[303,461,55,36]},
+ {id:"GERMANY",name:"ドイツ",flagCrop:[300,790,55,37]},
+ {id:"FRANCE",name:"フランス",flagCrop:[546,790,55,37]},
+ {id:"UNITED KINGDOM",name:"イギリス",flagCrop:[789,790,55,37]},
+ {id:"UNITED STATES",name:"アメリカ",flagCrop:[1034,790,55,37]},
+ {id:"INDIA",name:"インド",flagCrop:[1278,790,55,37]},
  {id:"SPAIN",name:"スペイン",aspect:1.5,image:"images/exhibits/room04/flags/spain.svg",shares:[["red",0.520165625496],["yellow",0.45577120888],["white",0.011883840886],["black",0.00850602271],["blue",0.002046386561],["pink",0.001395801423],["green",0.000231114044]]}
 ];
 const R4_LIGHT_CLUES=[{country:"POLAND",position:3},{country:"SPAIN",position:4},{country:"BELGIUM",position:4},{country:"THAILAND",position:2},{country:"ITALY",position:2}];
@@ -134,14 +139,41 @@ function r4ReferenceFlag(entry){
  return '<svg class="r4-reference-flag" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'+entry.name+'の国旗">'+shapes+'</svg>';
 }
 // Windows into the approved original artwork; no embedded titles or captions.
-const R4_MOON_CROPS={ITALY:[1300,302,160,160],JAPAN:[77,302,160,160],BELGIUM:[76,636,160,160],POLAND:[810,302,160,160],THAILAND:[566,302,160,160],CHINA:[321,302,160,160],SPAIN:[1056,302,160,160]};
+const R4_MOON_CROPS={ITALY:[1300,302,160,160],JAPAN:[77,302,160,160],BELGIUM:[76,636,160,160],POLAND:[810,302,160,160],THAILAND:[566,302,160,160],CHINA:[321,302,160,160],SPAIN:[1056,302,160,160],GERMANY:[321,636,160,160],FRANCE:[566,636,160,160],"UNITED KINGDOM":[810,636,160,160],"UNITED STATES":[1056,636,160,160],INDIA:[1300,636,160,160]};
+// Short descriptions of the interpretations depicted in the accepted source atlas.
+const R4_MOON_DESCRIPTIONS={
+ ITALY:["カイン","月に薪を背負ったカインの姿を見るという、中世の伝承が残っています。"],
+ JAPAN:["餅をつくウサギ","月の模様を、臼で餅をつくウサギの姿に見立てると言われています。"],
+ BELGIUM:["カニ","大きなハサミを持つカニの姿に、月の模様を見立てる地域があります。"],
+ POLAND:["パン・トファルドフスキ","月にいる人物の顔に見えるという伝承があります。図では帽子をかぶった横顔です。"],
+ THAILAND:["月のウサギ","月の模様が、長い耳を持つウサギの姿に見えると言われています。"],
+ CHINA:["嫦娥（じょうが）","月に住む美しい女性・嫦娥の姿に、月の模様を見立てることがあります。"],
+ SPAIN:["月の人","月の模様を、人の顔に見立てることが多いと言われています。"],
+ GERMANY:["シカ","枝分かれした角を持つシカの姿に、月の模様を見立てる地域があります。"],
+ FRANCE:["女性の横顔","月の模様を、女性の横顔に見立てることがあります。"],
+ "UNITED KINGDOM":["月の紳士","帽子をかぶった男性の横顔に見え、「月の紳士」と呼ばれることもあります。"],
+ "UNITED STATES":["本を読む女性","北米の一部では、本を開いている女性の姿に見えると言われます。"],
+ INDIA:["犬","月の模様を犬の姿に見立てるという、言い伝えがあります。"]
+};
 function r4MoonAtlasCrop(rect,className,label){
  return '<svg class="'+className+'" viewBox="'+rect.join(' ')+'" role="img" aria-label="'+label+'"><image href="images/exhibits/room04/moon-views-atlas.webp" width="1536" height="1024"/></svg>';
 }
 function r4Moon(){
  if(game.querySelector('.device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay'))return;
  const overlay=document.createElement('div');overlay.className='device-overlay r4-world-overlay';
- overlay.innerHTML='<section class="r4-world-exhibit" aria-label="World moon views"><header><button type="button" class="device-close" aria-label="展示を閉じる">戻る</button></header><div class="r4-world-countries">'+R4_FLAG_EXHIBIT.map(entry=>'<article class="r4-world-country">'+r4MoonAtlasCrop(R4_MOON_CROPS[entry.id],'r4-moon-illustration','Moon view in '+entry.id)+'<div class="r4-moon-caption">'+r4ReferenceFlag(entry)+'<strong lang="en">'+entry.id+'</strong></div></article>').join('')+'</div></section>';
+ overlay.innerHTML='<section class="r4-world-exhibit" aria-label="World moon views"><header><nav class="r4-moon-pages" aria-label="展示のページ"><button type="button" data-moon-step="-1" aria-label="前のページ">◀</button><output aria-live="polite">1 / 2</output><button type="button" data-moon-step="1" aria-label="次のページ">▶</button></nav><button type="button" class="device-close" aria-label="展示を閉じる">戻る</button></header><div class="r4-world-countries"></div></section>';
+ let page=0;
+ const render=()=>{
+  overlay.querySelector('.r4-world-countries').innerHTML=R4_FLAG_EXHIBIT.slice(page*6,page*6+6).map(entry=>{
+   const [title,description]=R4_MOON_DESCRIPTIONS[entry.id];
+   return '<article class="r4-world-country">'+r4MoonAtlasCrop(R4_MOON_CROPS[entry.id],'r4-moon-illustration','Moon view in '+entry.id)+'<div class="r4-moon-copy"><div class="r4-moon-caption">'+r4ReferenceFlag(entry)+'<strong lang="en">'+entry.id+'</strong></div><h3>'+title+'</h3><p>'+description+'</p></div></article>';
+  }).join('');
+  overlay.querySelector('output').textContent=(page+1)+' / 2';
+  overlay.querySelector('[data-moon-step="-1"]').disabled=page===0;
+  overlay.querySelector('[data-moon-step="1"]').disabled=page===1;
+ };
+ overlay.querySelectorAll('[data-moon-step]').forEach(button=>button.addEventListener('click',()=>{page+=Number(button.dataset.moonStep);render()}));
+ render();
  game.appendChild(overlay);activateDeviceModal(overlay,'r4Moon',overlay.querySelector('.device-close'));
 }
 function r4Door(){

@@ -252,7 +252,7 @@ test("No.139: clear removes only current blocks with no message and preserves hi
    saveGame(){calls.saves++},render(){calls.renders++}
   };
   vm.runInNewContext("(()=>{"+clearBody+"})()",sandbox);
-  assert.equal(state.guess.length,0,"All placed blocks should be removed");
+  assert.equal(state.guess.filter(Boolean).length,0,"All placed blocks should be removed without shifting the five wells");
   assert.equal(sandbox.selectedSlot,null);
   assert.equal(feedback.textContent,"","No clear confirmation or stale feedback should remain");
   assert.equal(state.history,originalHistory,"Existing judgment history must not be reset");
@@ -303,74 +303,68 @@ test("No.140: repeated answer displays only a concise notice and consumes no att
  }
 });
 
-test("No.141: feedback clears only when two placed blocks are actually swapped",()=>{
- const handler=code.split("\n").find(line=>line.trim().startsWith('slots.querySelectorAll("[data-slot]").forEach('));
- assert.ok(handler,"Slots listener must exist");
- for(const challengeActive of [false,true]){
-  const buttons=Array.from({length:5},(_,i)=>({
-   dataset:{slot:String(i)},
-   addEventListener(type,callback){if(type==="click")this.click=callback}
-  }));
-  const originalGuess=[{symbol:"〇",color:"赤"},{symbol:"△",color:"青"}];
-  const history=[{hit:1,blow:1,guess:originalGuess.map(x=>({...x}))}];
-  const state={guess:[...originalGuess],history,attempts:3,challengeActive,challengeBest:2,leftmostHintRevealed:true};
-  const feedback={textContent:"この配置は判定済みです。"};
-  const calls={saves:0,renders:0};
-  const sandbox={
-   slots:{querySelectorAll(){return buttons}},
-   room2State:state,feedback,
-   saveGame(){calls.saves++},
-   render(){calls.renders++}
-  };
-  vm.runInNewContext("let selectedSlot=null,lastPlacedSlot=null;"+handler+";this.getSelection=()=>selectedSlot;",sandbox);
-  buttons[0].click();
-  assert.equal(sandbox.getSelection(),0);
-  assert.equal(feedback.textContent,"この配置は判定済みです。","First selection must not clear the notice");
-  assert.equal(calls.saves,0);
-  buttons[0].click();
-  assert.equal(sandbox.getSelection(),null);
-  assert.equal(feedback.textContent,"この配置は判定済みです。","Deselecting must not clear the notice");
-  buttons[4].click();
-  assert.equal(feedback.textContent,"この配置は判定済みです。","Empty slot does not change the layout");
-  buttons[0].click();
-  buttons[1].click();
-  assert.equal(state.guess[0],originalGuess[1]);
-  assert.equal(state.guess[1],originalGuess[0]);
-  assert.equal(feedback.textContent,"","Swap must clear obsolete notice");
-  assert.equal(sandbox.getSelection(),null);
-  assert.equal(calls.saves,1,"Only the completed swap is saved");
-  assert.equal(state.history,history,"Judgment history remains");
-  assert.equal(state.attempts,3,"Attempt count remains");
-  assert.equal(state.challengeBest,2,"Challenge best remains");
-  assert.equal(state.leftmostHintRevealed,true,"Hint state remains");
-  assert.equal(calls.renders,4,"Selection/deselection/swap renders unchanged");
- }
- for(const manuscript of [chapter,full]){
-  assert.ok(manuscript.includes("【校閲No.141・案2 採用】"));
-  assert.ok(manuscript.includes("位置を実際に入れ替えた場合のみ"));
- }
+test("No.141: wells can be swapped, moved into empty positions, and returned to the tray",()=>{
+ const handlerStart=code.indexOf('  slots.querySelectorAll("[data-slot]").forEach(');
+ const handlerEnd=code.indexOf('  // Keep ten visible recess positions',handlerStart);
+ assert.ok(handlerStart>=0&&handlerEnd>handlerStart,"The slot controls exist");
+ const handler=code.slice(handlerStart,handlerEnd);
+ const buttons=Array.from({length:5},(_,i)=>({
+  dataset:{slot:String(i)},
+  addEventListener(type,callback){if(type==="click")this.click=callback}
+ }));
+ const first={symbol:"〇",color:"赤"},second={symbol:"△",color:"青"};
+ const history=[{hit:1,blow:1,guess:[first,second]}];
+ const state={guess:[first,second,null,null,null],history,attempts:3};
+ const feedback={textContent:"この配置は判定済みです。"};
+ const calls={saves:0,renders:0};
+ const sandbox={
+  slots:{querySelectorAll(){return buttons}},
+  room2State:state,feedback,
+  attachDrag(){},dropToken(){},
+  saveGame(){calls.saves++},
+  render(){calls.renders++}
+ };
+ vm.runInNewContext("let selectedSlot=null,lastPlacedSlot=null,heldToken=null;"+handler+";this.getSelection=()=>selectedSlot;",sandbox);
+ buttons[0].click();
+ assert.equal(sandbox.getSelection(),0);
+ assert.equal(feedback.textContent,"この配置は判定済みです。");
+ buttons[1].click();
+ assert.equal(state.guess[0],second);
+ assert.equal(state.guess[1],first);
+ assert.equal(feedback.textContent,"","A physical swap clears a stale judgement");
+ buttons[1].click();
+ buttons[4].click();
+ assert.equal(state.guess[1],null,"Moving to the fifth slot leaves an empty hole");
+ assert.equal(state.guess[4],first,"The fifth slot receives the selected piece");
+ buttons[4].click();
+ buttons[4].click();
+ assert.equal(state.guess[4],null,"Removing the piece clears only its well");
+ assert.equal(state.guess[0],second,"Other wells keep their positions");
+ assert.equal(state.history,history,"History does not change when moving blocks");
+ assert.equal(state.attempts,3,"Moving blocks never consumes attempts");
+ assert.equal(calls.saves,3,"Swap, move and removal each save exactly once");
 });
 
 test("No.142: clear button disables when empty and ignores stale empty clicks",()=>{
  const clearLine=code.split("\n").find(line=>line.includes('overlay.querySelector(".room2-clear").onclick=()=>{'));
  const disabledLine=code.split("\n").find(line=>line.includes('overlay.querySelector(".room2-clear").disabled='));
  assert.ok(clearLine&&disabledLine,"Clear handler and disabled update should exist");
- assert.ok(disabledLine.includes("room2State.guess.length===0"));
+ assert.ok(disabledLine.includes("!room2State.guess.some(Boolean)"));
  const body=clearLine.slice(clearLine.indexOf("=>{")+3,clearLine.lastIndexOf("};"));
  for(const isChallenge of [false,true]){
   const state={guess:[],attempts:3,history:[{hit:1,blow:1}],challengeActive:isChallenge};
   const feedback={textContent:"以前の判定"};
   let saves=0,renders=0;
-  const fn=new Function("room2State","feedback","saveGame","render","selectedSlot",
+  const fn=new Function("room2State","feedback","saveGame","render","selectedSlot","heldToken",
    body+";return selectedSlot;");
-  let selected=fn(state,feedback,()=>saves++,()=>renders++,null);
-  assert.equal(state.guess.length,0);
+  let selected=fn(state,feedback,()=>saves++,()=>renders++,null,null);
+  assert.equal(state.guess.filter(Boolean).length,0);
   assert.equal(feedback.textContent,"以前の判定");
   assert.equal(saves,0);
   assert.equal(renders,0);
   state.guess=[{symbol:"〇",color:"青"}];
-  selected=fn(state,feedback,()=>saves++,()=>renders++,0);
-  assert.equal(state.guess.length,0);
+  selected=fn(state,feedback,()=>saves++,()=>renders++,0,null);
+  assert.equal(state.guess.filter(Boolean).length,0);
   assert.equal(feedback.textContent,"");
   assert.equal(selected,null);
   assert.equal(saves,1);

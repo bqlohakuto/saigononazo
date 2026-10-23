@@ -69,8 +69,8 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
   const width=stage.getBoundingClientRect().width,canvas=container.getBoundingClientRect().width;
   const idle=getComputedStyle(hana,'::before'),gaze=getComputedStyle(hana.querySelector('.r4-hana-look-pose'));
   return Math.abs(width-canvas)<1
-   &&Math.abs(parseFloat(idle.height)-width*.31)<1
-   &&Math.abs(parseFloat(idle.width)-width*.199)<1
+   &&Math.abs(parseFloat(idle.height)-width*.405)<1
+   &&Math.abs(parseFloat(idle.width)-width*.26)<1
    &&['height','width','bottom'].every(key=>Math.abs(parseFloat(idle[key])-parseFloat(gaze[key]))<1);
  },null,{timeout:4000});
  const hanaScale=await page.locator('#r4Hana').evaluate(el=>{
@@ -85,8 +85,8 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  });
  console.log('ROOM4_HANA_DIAGNOSTIC '+spec.name+' '+JSON.stringify({sizing,hanaScale,canvasWidth}));
  assert(hanaScale.visible,'Hana must be visible in the fourth room front view');
- assert(Math.abs(hanaScale.height/canvasWidth-.31)<.01,'Room 4 Hana uses reduced 31cqw sprite height');
- assert(Math.abs(hanaScale.width/canvasWidth-.199)<.01,'Room 4 Hana uses reduced 19.9cqw sprite width');
+ assert(Math.abs(hanaScale.height/canvasWidth-.405)<.01,'Room 4 Hana uses restored 40.5cqw sprite height');
+ assert(Math.abs(hanaScale.width/canvasWidth-.26)<.01,'Room 4 Hana uses restored 26cqw sprite width');
  await page.evaluate(()=>{
   for(let i=0;i<70&&!/^r4i06(?:_\d+)?$/.test(GameLog.list().at(-1)?.id||'');i++)Dialogue.advance();
  });
@@ -105,7 +105,7 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  assert.match(await page.locator('#r4Hana .r4-hana-look-pose').evaluate(el=>getComputedStyle(el).backgroundImage),/poses\/look-up-left\.webp/);
  assert.equal(await page.locator('#r4Hana').evaluate(el=>getComputedStyle(el,'::before').opacity),'0','Idle sprite is hidden during gaze');
  const initialScale=await assertGazeAligned(page,dir,'entry');
- assert(Math.abs(initialScale.idle.height-canvasWidth*.31)<1,'Entry layout has settled at the intended companion scale');
+ assert(Math.abs(initialScale.idle.height-canvasWidth*.405)<1,'Entry layout has settled at the intended companion scale');
  // Reproduce the room layout settling without a window resize or another line.
  await page.locator('.room-stage-wrap').evaluate(el=>{el.style.width='calc(100% - 48px)'});
  await page.waitForFunction(height=>parseFloat(getComputedStyle(document.getElementById('r4Hana'),'::before').height)<height-1,initialScale.idle.height);

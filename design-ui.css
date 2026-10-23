@@ -1749,3 +1749,195 @@ body{background:#0b1322!important;display:grid;place-items:center}
   font-size:clamp(22px,3.7cqw,32px);
  }
 }
+
+
+/* Room 04, mini puzzle 1: four real colored enamel specimens in an exhibition case.
+   The 1/4/3/2 order and answer STAR are unchanged; no written color names. */
+#game .r4-mini.r4-color-exhibit{
+ box-sizing:border-box;
+ width:min(820px,94%)!important;
+ max-height:94%!important;
+ min-height:0;
+ overflow:hidden!important;
+ display:grid;
+ grid-template-columns:minmax(0,1fr) auto;
+ grid-template-rows:auto auto auto auto;
+ align-content:center;
+ gap:clamp(8px,1.65cqh,16px) clamp(9px,1.7cqw,20px);
+ padding:clamp(16px,2.2cqw,30px)!important;
+ background:linear-gradient(130deg,#2c4150 0%,#142935 55%,#293b49 100%)!important;
+ color:#f6ead1!important;
+ border:clamp(4px,.65cqw,7px) solid #8b714d!important;
+ box-shadow:inset 0 0 0 3px #bd9e71,inset 0 0 0 7px #112333,0 12px 38px #050c13bd!important;
+ border-radius:3px!important;
+}
+#game .r4-mini.r4-color-exhibit>h2{
+ grid-column:1/-1;
+ justify-self:center;
+ text-align:center;
+ padding-right:0;
+ margin:0!important;
+ font:normal clamp(18px,2.25cqw,28px)/1.3 "DotGothic16",sans-serif;
+ letter-spacing:.13em;
+ color:#ebd7aa!important;
+}
+#game .r4-mini.r4-color-exhibit .device-close{
+ position:absolute;
+ right:clamp(8px,1.1cqw,16px);
+ top:clamp(8px,1.1cqw,16px);
+ min-height:34px;
+ min-width:38px;
+ z-index:2;
+ background:#182c37!important;
+ color:#f1e2c1!important;
+ border:1px solid #967c53!important;
+}
+#game .r4-mini.r4-color-exhibit .r4-color-samples{
+ grid-column:1/-1;
+ position:relative;
+ box-sizing:border-box;
+ display:grid;
+ grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:clamp(6px,1.5cqw,16px);
+ width:100%;
+ height:clamp(120px,30cqh,190px);
+ max-height:100%;
+ min-height:0;
+ padding:clamp(10px,1.4cqw,17px);
+ background:linear-gradient(100deg,#2d2622,#6b523c 5%,#46392d 17%,#55412f 82%,#806244 95%,#2c241f);
+ border:3px solid #a78b62;
+ outline:2px solid #111f28;
+ box-shadow:inset 0 7px 8px #13110db8,inset 0 -7px 8px #1b130fba,0 4px 0 #17202a;
+}
+#game .r4-mini.r4-color-exhibit .r4-color-plaque{
+ display:grid;place-items:center;
+ position:relative;
+ min-width:0;
+ width:100%;height:100%;
+ box-sizing:border-box;
+ padding:clamp(4px,.9cqw,10px);
+ border:3px solid #e2cca2;
+ border-radius:3px;
+ box-shadow:inset 0 0 0 3px #67573d,0 4px 1px #160f0aa6;
+}
+#game .r4-mini.r4-color-exhibit .r4-color-plaque::before{
+ content:"";
+ position:absolute;
+ inset:clamp(4px,.85cqw,9px);
+ border:2px solid #ffffff47;
+ box-shadow:inset 0 2px 0 #ffffff2b,inset 0 -3px 0 #00000018;
+ pointer-events:none;
+}
+#game .r4-mini.r4-color-exhibit .r4-color-plaque.silver{
+ background:linear-gradient(115deg,#c7d2d3 0%,#ecf1ec 23%,#80949b 43%,#bbc9cc 62%,#647e87 82%,#d4e0da 100%);
+ color:#17262b;
+}
+#game .r4-mini.r4-color-exhibit .r4-color-plaque.white{
+ background:linear-gradient(135deg,#fffefa,#efeadd 65%,#d2c9b4 100%);
+ color:#263039;
+}
+#game .r4-mini.r4-color-exhibit .r4-color-plaque.black{
+ background:linear-gradient(135deg,#3a464e,#151b23 64%,#313e43);
+ color:#fff5db;
+}
+#game .r4-mini.r4-color-exhibit .r4-color-plaque.green{
+ background:linear-gradient(145deg,#729883,#376751 64%,#668775);
+ color:#fff5df;
+}
+#game .r4-mini.r4-color-exhibit .r4-color-plaque b{
+ display:block;
+ position:relative;
+ z-index:1;
+ font:900 clamp(40px,6.3cqw,70px)/1 "DotGothic16",sans-serif;
+ -webkit-text-stroke:.7px currentColor;
+ letter-spacing:0;
+ text-shadow:1px 2px 0 #00000035;
+}
+#game .r4-mini.r4-color-exhibit label{
+ grid-column:1;
+ display:flex;
+ align-items:center;
+ gap:clamp(8px,1.2cqw,16px);
+ min-width:0;
+ margin:0!important;
+ color:#f1dfbc;
+ font:normal clamp(13px,1.65cqw,18px)/1.2 "DotGothic16",sans-serif;
+}
+#game .r4-mini.r4-color-exhibit label input{
+ box-sizing:border-box;
+ flex:1;
+ min-width:0;
+ height:clamp(41px,7.2cqh,59px);
+ margin:0;
+ padding:5px 14px!important;
+ border:2px solid #bea478!important;
+ border-radius:2px!important;
+ background:linear-gradient(#08151e,#142631)!important;
+ color:#fff7dd!important;
+ outline-offset:2px;
+ font:900 clamp(21px,3.35cqw,34px)/1 "DotGothic16",sans-serif;
+ letter-spacing:.22em;
+ text-align:center;
+ text-transform:uppercase;
+}
+#game .r4-mini.r4-color-exhibit label input::placeholder{
+ color:#9da49a;
+ opacity:.8;
+ letter-spacing:.12em;
+}
+#game .r4-mini.r4-color-exhibit .r4-answer{
+ grid-column:2;
+ min-height:clamp(41px,7.2cqh,59px);
+ min-width:clamp(72px,11cqw,115px);
+ margin:0;
+ padding:5px 15px!important;
+ background:linear-gradient(#d9bf87,#a48152)!important;
+ color:#1d2830!important;
+ border:2px solid #e8d3a5!important;
+ border-radius:3px!important;
+ font:900 clamp(15px,2cqw,22px)/1.2 "DotGothic16",sans-serif!important;
+ box-shadow:inset 0 2px 0 #ffffff5c,0 3px 0 #4b3b29;
+}
+#game .r4-mini.r4-color-exhibit .r4-feedback{
+ grid-column:1/-1;
+ margin:0!important;
+ padding:0!important;
+ min-height:1.3em;
+ text-align:center;
+ color:#f6caab!important;
+ font-size:clamp(11px,1.35cqw,15px);
+}
+#game .r4-mini.r4-color-exhibit .r4-solved-answer{
+ grid-column:1/-1;
+ min-height:clamp(51px,8.3cqh,75px);
+ margin:0 auto!important;
+ border-color:#b79a63!important;
+}
+#game .r4-mini.r4-color-exhibit .r4-solved-answer span{
+ font-weight:900!important;
+ font-size:clamp(24px,3.8cqw,44px)!important;
+}
+@container game-viewport (max-height:465px) or (max-width:850px){
+ #game .r4-mini.r4-color-exhibit{
+  padding:clamp(11px,1.6cqw,18px)!important;
+  gap:clamp(6px,1.4cqh,10px) clamp(6px,1.2cqw,10px);
+ }
+ #game .r4-mini.r4-color-exhibit .r4-color-samples{
+  height:clamp(104px,29cqh,145px);
+  padding:clamp(7px,1.1cqw,12px);
+  gap:clamp(4px,.9cqw,8px);
+ }
+ #game .r4-mini.r4-color-exhibit .r4-color-plaque{border-width:2px}
+ #game .r4-mini.r4-color-exhibit .r4-color-plaque b{font-size:clamp(35px,5.5cqw,53px)}
+ #game .r4-mini.r4-color-exhibit label{font-size:clamp(12px,1.55cqw,15px)}
+ #game .r4-mini.r4-color-exhibit label input{
+  height:clamp(35px,8cqh,45px);
+  font-size:clamp(19px,3.15cqw,29px);
+  letter-spacing:.15em;
+ }
+ #game .r4-mini.r4-color-exhibit .r4-answer{
+  min-height:clamp(35px,8cqh,45px);
+  min-width:clamp(65px,10cqw,90px);
+  font-size:clamp(14px,1.65cqw,17px)!important;
+ }
+}

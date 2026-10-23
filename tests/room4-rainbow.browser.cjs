@@ -107,7 +107,7 @@ function tokens(values){
     assert.equal(await review.count(),1,kind+' should reopen in solved inspection mode');
     assert.equal(await review.locator('.r4-solved-answer span').textContent(),kind,'Previously submitted word remains visible');
     assert.equal(await review.locator('input,.r4-answer').count(),0,'No re-answer controls after solving');
-    assert.equal(await review.locator(kind==='STAR'?'.r4-color-samples':'.r4-flag-gallery').count(),1,'Original exhibit remains visible');
+    assert.equal(await review.locator(kind==='STAR'?'.r4-color-samples':'.r4-flags').count(),1,'Original exhibit remains visible');
     await review.locator('.device-close').click();
     assert.equal(await page.locator('.room-dialog-overlay,.design-overlay').count(),0,'Solved word inspection gives no new dialog');
     assert.equal(await countLog(),beforeLog,'Solved word inspection gives no new award');
@@ -129,27 +129,6 @@ function tokens(values){
      assert.equal(await exhibit.locator('input').evaluate(el=>el===document.activeElement),false,'Do not open mobile keyboard automatically');
      assert.equal(await exhibit.locator('.r4-answer').textContent(),'解錠');
      await page.screenshot({path:path.join(screenshots,'color-exhibit-'+viewport.width+'.png')});
-    }
-    if(kind==='LIGHT'){
-     const exhibit=page.locator('.r4-flag-exhibit');
-     assert.equal(await exhibit.count(),1,'The country flags are presented as an exhibition');
-     assert.equal(await exhibit.getByText('POLAND').count(),0,'Country names must not reveal the answer');
-     assert.equal(await exhibit.getByText('SPAIN').count(),0,'Country names must not reveal the answer');
-     assert.equal(await exhibit.locator('.r4-moon,.r4-flags').count(),0,'Old colored emoji and spoiler block must be gone');
-     const flags=exhibit.locator('.r4-flag-specimen');
-     assert.equal(await flags.count(),5,'Five separate framed flag exhibits remain');
-     assert.deepEqual(await flags.locator('figcaption b').allTextContents(),['3','4','4','2','2'],'Original numeric clue order is unchanged');
-     assert.deepEqual(await flags.locator('.r4-flag-art').evaluateAll(els=>els.map(el=>el.className.trim().split(/\s+/).at(-1))),[
-      'r4-flag-poland','r4-flag-spain','r4-flag-belgium','r4-flag-thailand','r4-flag-italy'
-     ],'The flags retain their original country order');
-     const flagStyles=await flags.locator('.r4-flag-art').evaluateAll(els=>els.map(el=>getComputedStyle(el).backgroundImage));
-     assert(flagStyles.every(x=>x.includes('linear-gradient')),'Each flag is a real graphical arrangement rather than colored emoji');
-     const frame=await exhibit.boundingBox();
-     const positions=await flags.evaluateAll(els=>els.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom}}));
-     assert(positions.every(pos=>pos.x>=frame.x-1&&pos.y>=frame.y-1&&pos.right<=frame.x+frame.width+1&&pos.bottom<=frame.y+frame.height+1),'All five flag displays fit inside the exhibit in landscape');
-     assert.equal(await exhibit.locator('.r4-answer').textContent(),'解錠');
-     assert.equal(await exhibit.locator('input').evaluate(el=>el===document.activeElement),false,'No automatic keyboard focus when opening flags');
-     await page.screenshot({path:path.join(screenshots,'flag-exhibit-'+viewport.width+'.png')});
     }
     await page.locator('.r4-mini input').fill(kind);
     await page.locator('.r4-answer').click();

@@ -171,6 +171,7 @@ function r4P3(){
    const button=document.createElement("button");button.type="button";
    button.className="r4-rainbow-plate"+(chosen===i?" is-selected":"");
    button.dataset.index=String(i);
+   button.dataset.plate=value;
    const color=value.slice(0,-1),letter=value.slice(-1);
    button.style.setProperty("--plate-color",colors[color]||"#7a7976");
    button.setAttribute("aria-label",color+"のプレート "+letter+(chosen===i?"、選択中":""));

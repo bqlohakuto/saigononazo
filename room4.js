@@ -1,4 +1,6 @@
 const R4_ANGLES=[0,0,0,0,0],R4_INITIAL=[2,1,0,3,2],R4_PANEL_KEYS=["star","lightPuzzle","meteors","wall","box"],R4_RAINBOW=["青O","赤M","紫S","黄T","藍R","橙E","緑E"];
+// HIP identifiers from the approved 5 glass-panel SVG partition JSON.
+const R4_VIRGO_PANEL_HIPS=[[57380,69427,66249],[60030,71957,63608],[61941,72220],[65474,68520],[69701,63090]];
 let r4HanaGazeObserver;
 function r4Count(){return [room4State.wall,room4State.box,room4State.star,room4State.lightPuzzle,room4State.meteors].filter(Boolean).length}
 function r4All(){return r4Count()===5}
@@ -95,14 +97,90 @@ function r4Projection(){const p=document.getElementById("r4Projection");if(!p)re
 function r4Stand(){
  if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
  if(room4State.completed){showRoomNotice("星座は完成している。","r4stand_complete","investigation");return}
- if(!r4All()){if(room4State.standInspected){showRoomNotice("まだ空いている枠がある。","r4stand_repeat","investigation");return}room4State.standInspected=true;saveGame();showRoomDialog([{logId:"r4s1",logType:"investigation",speaker:"ト書き",text:"ライトの前に、透明な板を差し込めそうな枠が並んでいる。まだ空いている枠がある。"}]);return}
- const o=document.createElement("div");o.className="device-overlay r4-panel-overlay";o.innerHTML=`<section class="r4-panel-ui" aria-label="ガラスパネルの操作"><button class="device-close" aria-label="閉じる">×</button><div class="r4-panel-stack" role="img" aria-label="現在の向きで5枚を重ねた星の配置"></div><div class="r4-panels"></div><p class="r4-feedback" role="status" aria-live="polite"></p><button class="r4-shine">ライトを当てる</button></section>`;game.appendChild(o);
- const grid=o.querySelector(".r4-panels"),fb=o.querySelector(".r4-feedback"),close=activateDeviceModal(o,"r4Stand",o.querySelector(".device-close"));
- grid.innerHTML=room4State.angles.map((a,i)=>`<article><div class="r4-glass"><img src="images/exhibits/room04/virgo-panels/virgo-panel-${String(i+1).padStart(2,"0")}.svg" alt="ガラスパネル${i+1}の星" draggable="false" style="transform:rotate(${a*90}deg)"></div><button data-i="${i}" aria-label="パネル${i+1}を右に90度回す">↻</button></article>`).join("");
- const stack=o.querySelector(".r4-panel-stack");
- stack.innerHTML=room4State.angles.map((a,i)=>`<img src="images/exhibits/room04/virgo-panels/virgo-panel-${String(i+1).padStart(2,"0")}.svg" alt="" aria-hidden="true" draggable="false" style="transform:rotate(${a*90}deg)">`).join("");
- grid.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{if(room4State.completed)return;const i=Number(b.dataset.i);if(!Number.isInteger(i)||i<0||i>=room4State.angles.length)return;room4State.angles[i]=(room4State.angles[i]+1)%4;const degrees=room4State.angles[i]*90;grid.querySelectorAll(".r4-glass img")[i].style.transform=`rotate(${degrees}deg)`;stack.children[i].style.transform=`rotate(${degrees}deg)`;fb.textContent="";saveGame()});
- o.querySelector(".r4-shine").onclick=()=>{if(room4State.completed)return;if(!room4State.lightOn){room4State.lightOn=true;saveGame()}r4Projection();if(r4Correct()){close();r4Complete()}else fb.textContent="星は映ったが、まだ何の形か分からない。"};
+ if(!r4All()){
+  if(room4State.standInspected){showRoomNotice("まだ空いている枠がある。","r4stand_repeat","investigation");return}
+  room4State.standInspected=true;saveGame();
+  showRoomDialog([{logId:"r4s1",logType:"investigation",speaker:"ト書き",text:"ライトの前に、透明な板を差し込めそうな枠が並んでいる。まだ空いている枠がある。"}]);return;
+ }
+ const o=document.createElement("div");o.className="device-overlay r4-panel-overlay";
+ o.innerHTML='<section class="r4-panel-ui r4-linked-puzzle" aria-label="ガラスパネルの操作">'+
+  '<button type="button" class="device-close" aria-label="閉じる">×</button>'+
+  '<button type="button" class="r4-panel-stack" aria-label="重なった星の配置" disabled></button>'+
+  '<div class="r4-panels" role="group" aria-label="5枚のガラスパネルを回す"></div>'+
+  '<p class="r4-feedback" role="status" aria-live="polite"></p>'+
+  '<button type="button" class="r4-shine">ライトを当てる</button></section>';
+ game.appendChild(o);
+ const grid=o.querySelector(".r4-panels"),fb=o.querySelector(".r4-feedback"),stack=o.querySelector(".r4-panel-stack");
+ const close=activateDeviceModal(o,"r4Stand",o.querySelector(".device-close"));
+ // Persist only 0..3, but use cumulative turns for a clockwise 90-degree CSS transition.
+ const turns=[...room4State.angles];
+ const paneSource=i=>"images/exhibits/room04/virgo-panels/virgo-panel-"+String(i+1).padStart(2,"0")+".svg";
+ grid.innerHTML=turns.map((angle,i)=>'<article><button type="button" class="r4-glass r4-rotate-plate" data-i="'+i+
+  '" aria-label="ガラスパネル'+(i+1)+'を右に90度回す"><img src="'+paneSource(i)+
+  '" alt="" aria-hidden="true" draggable="false" style="transform:rotate('+(angle*90)+'deg)"></button></article>').join("");
+ stack.innerHTML='<svg class="r4-constellation-lines" viewBox="0 0 576 576" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>'+
+  turns.map((angle,i)=>'<img src="'+paneSource(i)+'" alt="" aria-hidden="true" draggable="false" style="transform:rotate('+(angle*90)+'deg)">').join("");
+ const overlay=stack.querySelector(".r4-constellation-lines");
+ // Adopted Virgo stars and edges; no changes to the five original images.
+ const virgo=R4_ZODIAC.find(item=>item.id==="Vir");
+ const panelByHip=new Map(R4_VIRGO_PANEL_HIPS.flatMap((list,i)=>list.map(hip=>[hip,i])));
+ const stars=virgo.stars.map(star=>({
+  x:(512+(star.x-150)*2.9)*576/1024,
+  y:(512+(star.y-100)*2.9)*576/1024,
+  pane:panelByHip.get(star.hip)
+ }));
+ const relative=i=>(room4State.angles[i]-R4_ANGLES[i]+4)%4;
+ const linked=(i,j)=>relative(i)===relative(j);
+ const allLinked=()=>room4State.angles.every((_,i)=>relative(i)===relative(0));
+ const lines=new Map();
+ function drawLinks(initial=false){
+  for(const [index,[i,j]] of virgo.edges.entries()){
+   const a=stars[i],b=stars[j],visible=linked(a.pane,b.pane);
+   let line=lines.get(index);
+   if(!visible){
+    if(line){
+     line.classList.remove("is-visible");lines.delete(index);
+     window.setTimeout(()=>{if(!line.classList.contains("is-visible"))line.remove()},220);
+    }
+    continue;
+   }
+   if(!line){
+    line=document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.classList.add("r4-constellation-edge");
+    line.dataset.edge=String(index);
+    line.setAttribute("x1",a.x.toFixed(3));line.setAttribute("y1",a.y.toFixed(3));
+    line.setAttribute("x2",b.x.toFixed(3));line.setAttribute("y2",b.y.toFixed(3));
+    line.style.transform="rotate("+(turns[a.pane]*90)+"deg)";
+    overlay.append(line);lines.set(index,line);
+    if(initial)line.classList.add("is-visible");
+    else requestAnimationFrame(()=>{if(line.isConnected)line.classList.add("is-visible")});
+   }else line.style.transform="rotate("+(turns[a.pane]*90)+"deg)";
+  }
+  const all=allLinked();
+  stack.disabled=!all;stack.classList.toggle("can-turn-all",all);
+  stack.setAttribute("aria-label",all?"星座全体を右に90度回す":"重なった星の配置");
+ }
+ const plateImages=[...grid.querySelectorAll(".r4-rotate-plate img")];
+ const stackImages=[...stack.querySelectorAll(":scope > img")];
+ const rotatePanes=indices=>{
+  if(room4State.completed)return;
+  for(const i of indices){
+   turns[i]++;room4State.angles[i]=(room4State.angles[i]+1)%4;
+   const transform="rotate("+(turns[i]*90)+"deg)";
+   plateImages[i].style.transform=transform;stackImages[i].style.transform=transform;
+  }
+  fb.textContent="";drawLinks();saveGame();
+ };
+ grid.querySelectorAll(".r4-rotate-plate").forEach(button=>button.onclick=()=>rotatePanes([Number(button.dataset.i)]));
+ stack.onclick=()=>{if(allLinked())rotatePanes([0,1,2,3,4])};
+ drawLinks(true);
+ o.querySelector(".r4-shine").onclick=()=>{
+  if(room4State.completed)return;
+  if(!room4State.lightOn){room4State.lightOn=true;saveGame()}
+  r4Projection();
+  if(r4Correct()){close();r4Complete()}
+  else fb.textContent=allLinked()?"星はつながった。でも、全体の向きが違うようだ。":"星は映ったが、まだ何の形か分からない。";
+ };
 }
 function r4Const(){showRoomDialog([{logId:"r4c1",logType:"investigation",speaker:"ト書き",text:"12星座の名前と、星の位置を示す図が並んでいる。"},{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"},{logId:"r4c2",logType:"dialogue",speaker:"主人公",text:"これを見れば、星の形から星座を調べられそうだ"}],r4OpenZodiacExhibit)}
 function r4Meteor(){showRoomDialog([{logId:"r4m1",logType:"investigation",speaker:"ト書き",text:"流れ星についての展示だ。流れ星は、宇宙空間の小さなちりや岩石が大気に飛び込み、高温になって光って見える現象らしい。地球が彗星の残したちりの中を通ると、流星群が見られることもある。"},{logId:"r4m2",logType:"dialogue",speaker:"主人公",text:"こんな小さいものが、あんなに明るく見えるんだな"}])}

@@ -97,6 +97,14 @@
   background:linear-gradient(#433020,#2d2118)!important;
   box-shadow:inset 0 3px 7px #0e0a08a6,0 2px 0 #bd9159!important;
 }
+#game .room2-immersive-board .room2-palette-empty{
+ display:block;min-width:0;min-height:0;
+ margin:2px;
+ background:linear-gradient(#25180f,#453021);
+ border:2px solid #2b1e15;
+ box-shadow:inset 2px 3px 5px #120d0bba,inset -1px -1px 0 #ab81514a;
+ pointer-events:none;
+}
 #game .room2-immersive-board .room2-palette-token{
   display:flex;align-items:center;justify-content:center;
   min-height:0!important;padding:1px!important;

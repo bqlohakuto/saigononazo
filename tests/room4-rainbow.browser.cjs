@@ -61,6 +61,15 @@ function tokens(values){
    }
    assert.equal(await page.evaluate(()=>room4State.meteors),true,"Correct color order triggers original solution");
    assert.deepEqual(await page.evaluate(()=>room4State.rainbow),goal,"Saved order remains correct");
+   assert.equal(await page.locator(".r4-rainbow-plate").count(),7,"Completed color arrangement remains visible after success");
+   assert.equal(await page.locator(".r4-plate-overlay.is-solved").count(),1,"The solved exhibit stays open before the light-up effect");
+   assert.equal(await page.locator(".room-dialog-overlay").count(),0,"Award dialogue must not replace the successful board immediately");
+   await page.screenshot({path:path.join(screenshots,"rainbow-completed-"+viewport.width+".png")});
+   await page.locator(".r4-plate-overlay.is-revealing").waitFor({timeout:2500});
+   assert.equal(await page.locator(".r4-rainbow-plate").count(),7,"All seven cards remain visible through the victory glow");
+   await page.locator(".r4-plate-overlay").waitFor({state:"detached",timeout:6000});
+   await page.locator(".room-dialog-overlay").waitFor({timeout:2500});
+   assert(await page.evaluate(()=>GameLog?.list?.().some(entry=>/METEORS/.test(entry.text||""))||!!document.querySelector(".room-dialog-overlay")),"Original completion dialogue starts after animation");
    await page.evaluate(()=>{for(let i=0;i<60&&document.querySelector("#roomNextButton");i++)Dialogue.advance()});
    assert.deepEqual(errors,[],"Rainbow UI should not generate JavaScript errors");
    await page.close();

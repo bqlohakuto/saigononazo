@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="168" height="96" viewBox="0 0 168 96" shape-rendering="crispEdges">
+<title>二人分のマグカップ</title>
+<g opacity=".25" fill="#514232"><path d="M16 77h60v4H12v-2h4zM88 77h70v4H85v-2h3z"/></g>
+<!-- Cream porcelain mug, drawn in the same restrained warm palette as the kitchen -->
+<g>
+<path fill="#5f4840" d="M62 28h17v4h5v28h-5v8H62v-6h12V36H62z"/>
+<path fill="#eadcc7" d="M65 35h11v7H65zM77 43h4v15h-4z"/>
+<path fill="#544039" d="M27 20h43v4H23v43h4v6h43v-6h4V24h-4v-4H27z"/>
+<path fill="#fcf1dc" d="M27 24h43v41H27z"/>
+<path fill="#d8c3a5" d="M27 61h43v6H27z"/>
+<path fill="#bda383" d="M23 25h5v38h-5z"/>
+<path fill="#fff8e9" d="M31 26h6v31h-6z"/>
+<path fill="#9c7760" d="M27 20h43v4H27z"/>
+<path fill="#fef6e6" d="M31 17h35v4H31z"/>
+<path fill="#9d7c69" d="M28 73h39v4H28z"/>
+<path fill="#c8af8e" d="M38 36h22v3H38z"/>
+</g>
+<!-- Moss-green glazed mug -->
+<g>
+<path fill="#3e493d" d="M132 30h17v4h5v27h-5v7h-17v-6h12V38h-12z"/>
+<path fill="#a0a999" d="M136 36h10v9h-10zM148 44h3v14h-3z"/>
+<path fill="#37443f" d="M95 23h41v4H91v41h4v6h41v-6h4V27h-4v-4H95z"/>
+<path fill="#81958a" d="M95 27h41v40H95z"/>
+<path fill="#667d70" d="M95 61h41v7H95z"/>
+<path fill="#aabca8" d="M99 29h7v29h-7z"/>
+<path fill="#53665c" d="M91 27h4v39h-4z"/>
+<path fill="#a9b7a8" d="M97 20h37v4H97z"/>
+<path fill="#43554c" d="M95 74h40v4H95z"/>
+<path fill="#e7d6b0" d="M108 37h16v4h-16z"/>
+</g>
+</svg>

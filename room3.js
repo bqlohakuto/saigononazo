@@ -207,7 +207,7 @@ function showThirdRoomChat(){
  const stream=overlay.querySelector(".r3-chat-scroll"),form=overlay.querySelector(".r3-reply-form"),
   input=overlay.querySelector(".r3-reply-input"),send=overlay.querySelector(".r3-reply-send"),
   chart=overlay.querySelector(".r3-inline-morse"),grid=chart.querySelector(".r3-morse-grid"),
-  largeBoard=overlay.querySelector(".r3-large-letterboard"),sheet=overlay.querySelector(".r3-companion-sheet"),workspace=overlay.querySelector(".r3-chat-workspace"),
+  largeBoard=overlay.querySelector(".r3-large-letterboard"),sheet=overlay.querySelector(".r3-companion-sheet"),tabs=overlay.querySelector(".r3-companion-tabs"),workspace=overlay.querySelector(".r3-chat-workspace"),
   chartTab=overlay.querySelector(".r3-show-morse"),boardTab=overlay.querySelector(".r3-show-letterboard");
  // Preserve the same A-Z reference from the shelf and keep it beside the phone.
  for(const [letter,code] of Object.entries(ROOM3_MORSE)){
@@ -229,6 +229,7 @@ function showThirdRoomChat(){
   workspace.classList.toggle("has-reference",hasReference);
   chartTab.hidden=!canChart;
   boardTab.hidden=!canBoard;
+  tabs.hidden=!(canChart&&canBoard);
   if(referenceMode==="morse"&&!canChart)referenceMode=canBoard?"letterboard":"none";
   if(referenceMode==="letterboard"&&!canBoard)referenceMode=canChart?"morse":"none";
   chart.hidden=referenceMode!=="morse";

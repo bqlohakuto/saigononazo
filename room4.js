@@ -77,7 +77,7 @@ function turnFourthRoom(step){
  const index=ROOM4_VIEWS.includes(room4State.view)?ROOM4_VIEWS.indexOf(room4State.view):0;
  room4State.view=ROOM4_VIEWS[(index+step+4)%4];renderFourthRoomView();saveGame();
 }
-function r4Moon(){showRoomDialog([{logId:"r4_moon_exhibit",logType:"investigation",speaker:"ト書き",text:"月の模様の展示：国旗と英語国名 POLAND / SPAIN / BELGIUM / THAILAND / ITALY など。見え方には地域・時代・伝承によって諸説があります。"}])}
+function r4Moon(){showRoomDialog([{logId:"r4_moon_exhibit",logType:"investigation",speaker:"ト書き",text:"月の模様は、国や地域によって違うものに見えるらしい。世界にはさまざまな伝承が残っている。"}])}
 function r4Door(){
  if(room4State.completed&&room4State.memorySeen){showRoomDialog([{logId:"r4open1",logType:"investigation",speaker:"ト書き",text:"扉の鍵は開いている。"},{logId:"r4open2",logType:"narration",speaker:"主人公",thought:true,text:"先へ行けば、名前のことも思い出せるかもしれない。"}],r4Exit);return}
  if(room4State.door){showRoomNotice("『散らばる星を重ね、夜空にひとつの姿を描け。』","r4drepeat","investigation");return}

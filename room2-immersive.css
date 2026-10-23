@@ -415,3 +415,91 @@
 @media (prefers-reduced-motion:reduce){
   #game .room2-immersive-board .room2-physical-lever.is-pulling .room2-lever-arm{animation:none;}
 }
+
+
+/* Room two: a two-line amber numerical readout sits physically above the
+   judgement lever. The paper is a later handwritten copy, not the machine UI. */
+#game .room2-immersive-board .room2-wood-workbench>.room2-digital-readout{
+ grid-column:2!important;grid-row:2!important;
+ position:relative;
+ align-self:stretch;justify-self:stretch;
+ display:flex;flex-direction:column;
+ align-items:stretch;justify-content:center;
+ gap:clamp(2px,.35cqw,5px);
+ min-width:0;min-height:0;
+ padding:clamp(3px,.55cqw,7px);
+ background:linear-gradient(115deg,#29231d,#100f0c 22%,#211d16 83%,#3b3228);
+ border:clamp(3px,.4cqw,5px) solid #a48354;
+ box-shadow:inset 1px 1px 0 #e5c28a,inset -2px -2px 0 #544029,2px 3px 0 #291811;
+ overflow:hidden;
+ pointer-events:none;
+}
+#game .room2-immersive-board .room2-digital-readout::before{
+ content:"";position:absolute;inset:4px;
+ background:linear-gradient(120deg,#120c06bd,transparent 45%,#d2952920);
+ border:1px solid #7b532b;
+ pointer-events:none;
+}
+#game .room2-immersive-board .room2-digital-row{
+ position:relative;z-index:1;
+ display:flex;justify-content:space-between;align-items:baseline;
+ flex:1 1 0;min-height:0;gap:1px;
+ color:#bd7731;
+ font-family:"DotGothic16",ui-monospace,monospace;
+ font-size:clamp(8px,.9cqw,12px);
+ font-weight:bold;
+ letter-spacing:-.06em;
+}
+#game .room2-immersive-board .room2-digital-row output{
+ color:#69401c;
+ font:900 clamp(13px,1.8cqw,23px)/1 ui-monospace,monospace;
+ letter-spacing:-.06em;
+ text-align:right;
+ font-variant-numeric:tabular-nums;
+ transition:color .18s,text-shadow .18s;
+}
+#game .room2-immersive-board .room2-digital-readout.has-result .room2-digital-row,
+#game .room2-immersive-board .room2-digital-readout.has-result .room2-digital-row output{
+ color:#ffc06b;
+ text-shadow:0 0 5px #ff9d3a,0 0 10px #ea7d2555;
+}
+#game .room2-immersive-board .room2-digital-readout.is-scanning .room2-digital-row output{
+ color:#ca722f;
+ animation:room2DigitalScan .35s steps(2,end) infinite;
+}
+@keyframes room2DigitalScan{
+ 0%,100%{opacity:.38}
+ 50%{opacity:1}
+}
+/* Overwrite the full-height lever from the prior iteration. */
+#game .room2-puzzle.room2-immersive-board .room2-wood-workbench>.room2-submit.room2-physical-lever{
+ grid-column:2!important;grid-row:3/5!important;
+ height:min(100%,clamp(75px,18cqh,126px))!important;
+}
+#game .room2-immersive-board .room2-sidebar .room2-history-row.is-newly-written{
+ animation:room2HandwrittenEntry .68s steps(12,end) both;
+}
+@keyframes room2HandwrittenEntry{
+ 0%{opacity:.3;clip-path:inset(0 100% 0 0);filter:sepia(.5)}
+ 95%{opacity:1;clip-path:inset(0 0 0 0);filter:sepia(.25)}
+ 100%{opacity:1;clip-path:inset(0 0 0 0);filter:none}
+}
+@container game-viewport (max-width:720px) or (max-height:540px){
+ #game .room2-immersive-board .room2-wood-workbench{
+  grid-template-columns:minmax(0,1fr) clamp(55px,8.1cqw,66px)!important;
+ }
+ #game .room2-immersive-board .room2-wood-workbench>.room2-digital-readout{
+  padding:3px;border-width:3px;gap:1px;
+ }
+ #game .room2-immersive-board .room2-digital-row{font-size:8px;}
+ #game .room2-immersive-board .room2-digital-row output{font-size:clamp(11px,1.7cqw,15px);}
+ #game .room2-puzzle.room2-immersive-board .room2-wood-workbench>.room2-submit.room2-physical-lever{
+  height:min(100%,clamp(58px,15cqh,91px))!important;
+ }
+}
+@media (prefers-reduced-motion:reduce){
+ #game .room2-immersive-board .room2-digital-readout.is-scanning .room2-digital-row output,
+ #game .room2-immersive-board .room2-sidebar .room2-history-row.is-newly-written{
+  animation:none!important;
+ }
+}

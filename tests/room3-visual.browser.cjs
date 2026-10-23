@@ -103,7 +103,7 @@ async function finishDialogue(page){
  await reply.fill('オナジモジノアイダ');await send.click();
  assert.equal(await page.evaluate(()=>room3State.morseSolved),true,'First correct reply decodes the message');
  assert.equal(await page.locator('.r3-board-preview').count(),1,'Senpai sends the 10x10 image as a chat attachment');
- assert(await page.locator('.r3-large-letterboard img').evaluate(async img=>{await img.decode();return img.naturalWidth===800&&img.naturalHeight===800}),'The 10x10 board image loads at full resolution');
+ assert(await page.locator('.r3-large-letterboard img').evaluate(async img=>{await img.decode();return img.complete&&img.naturalWidth>0&&img.naturalHeight>0}),'The received SVG image loads and decodes; exact 10x10 contents are checked in the asset unit test');
  assert.equal(await page.locator('.r3-large-letterboard').isVisible(),true,'Received board is enlarged in the companion pane');
  assert.equal(await reply.evaluate(el=>el===document.activeElement),false,'No mobile keyboard appears when the image arrives');
  await page.locator('.r3-show-morse').click();

@@ -277,6 +277,7 @@ function showThirdRoomChat(){
    solvedTransition=true;playThirdRoomMemory();
   }
  });
+ input.addEventListener("keydown",event=>{if(event.key==="Enter"&&(event.isComposing||event.keyCode===229))event.preventDefault()});
  form.addEventListener("submit",event=>{
   event.preventDefault();
   if(room3State.unlocked)return;

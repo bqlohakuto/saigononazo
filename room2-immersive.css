@@ -637,7 +637,7 @@
 }
 @container game-viewport (max-width:720px) or (max-height:540px){
   #game .room2-immersive-board .room2-wood-workbench{
-    grid-template-columns:minmax(0,1fr) clamp(75px,11.2cqw,91px)!important;
+    grid-template-columns:minmax(0,1fr) clamp(90px,12cqw,104px)!important;
     grid-template-rows:minmax(54px,.85fr) 4px minmax(86px,1.5fr) auto!important;
     gap:4px!important;
   }
@@ -645,10 +645,10 @@
     padding:3px!important;gap:2px!important;
   }
   #game .room2-immersive-board .room2-digital-row{
-    font-size:clamp(11px,1.65cqw,13px)!important;
+    font-size:clamp(14px,1.85cqw,16px)!important;
   }
   #game .room2-immersive-board .room2-digital-row output{
-    font-size:clamp(17px,2.4cqw,21px)!important;
+    font-size:clamp(20px,2.65cqw,23px)!important;
   }
   #game .room2-puzzle.room2-immersive-board .room2-sidebar>.room2-reaction{
     left:2%!important;right:2%!important;width:96%!important;

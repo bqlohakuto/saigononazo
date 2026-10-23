@@ -222,7 +222,27 @@
     game.querySelector('.device-overlay .device-close')?.click();cancelUse();pendingUse=item;
     const p=document.createElement('div');p.className='design-use-prompt';const text=paragraph(item.name+'を使う場所を選んでください。');p.append(text,button('キャンセル',cancelUse));game.append(p);document.getElementById(item.target)?.classList.add('is-use-target');p.querySelector('button').focus({preventScroll:true});
   }
-  function pickup(item){const m=panel('入手'),art=paragraph(item.art||'◇');art.className='design-item-art';m.content.append(art,paragraph(item.name),paragraph(item.description));m.content.append(button('受け取る',m.close));m.content.addEventListener('click',e=>{if(!e.target.closest('button'))m.close()});recordLog({logId:'ui-item-'+currentScene+'-'+item.id,logType:'investigation',speaker:'ト書き',text:item.name+'\n'+item.description});saveGame()}
+  function pickup(item){
+    const m=panel('入手');
+    m.p?.classList.add('design-pickup-panel');
+    let art;
+    if(item.image){
+      art=document.createElement('img');
+      art.className='design-pickup-image';
+      art.src=item.image;
+      art.alt=item.imageAlt||item.name||'入手したアイテム';
+      art.draggable=false;
+    }else{
+      art=paragraph(item.art||'◇');
+      art.className='design-item-art';
+    }
+    m.content.append(art,paragraph(item.name));
+    if(item.description)m.content.append(paragraph(item.description));
+    m.content.append(button('受け取る',m.close));
+    m.content.addEventListener('click',e=>{if(!e.target.closest('button'))m.close()});
+    recordLog({logId:'ui-item-'+currentScene+'-'+item.id,logType:'investigation',speaker:'ト書き',text:item.name+(item.description?'\n'+item.description:'')});
+    saveGame();
+  }
   function help(){
     const m=panel('操作説明');
     let text='会話パネルを押すと文字をすべて表示し、もう一度押すと次へ進みます。Space / Enter でも送れます。\n\n記録・持ち物・設定は右上から開けます。ヒントはハナとの会話で確認できます。ウィンドウは「閉じる」または Esc で閉じます。';

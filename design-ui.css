@@ -1410,3 +1410,27 @@ body{background:#0b1322!important;display:grid;place-items:center}
   #game .r3-chat-workspace .r3-inline-morse .r3-morse-cell strong{font-size:12px}
   #game .r3-chat-workspace .r3-inline-morse .r3-morse-legend{font-size:10px}
 }
+
+/* A clue is visible only after discovery. No prepared empty display frame. */
+#game .room3-chat-overlay .r3-chat-workspace:not(.has-reference){
+ display:flex!important;
+ flex-direction:row;
+ align-items:stretch;
+ justify-content:center;
+ width:min(100%,1110px);
+}
+#game .room3-chat-overlay .r3-chat-workspace:not(.has-reference)>.r3-handset{
+ flex:0 0 auto;
+ max-width:100%!important;
+}
+#game .room3-chat-overlay .r3-chat-workspace>.r3-companion-sheet[hidden],
+#game .r3-chat-workspace .r3-companion-tabs[hidden],
+#game .r3-chat-workspace .r3-companion-tabs button[hidden]{
+ display:none!important;
+}
+@container game-viewport (max-width:900px) or (max-height:470px){
+ #game .room3-chat-overlay .r3-chat-workspace:not(.has-reference){
+  width:100%!important;
+  justify-content:center!important;
+ }
+}

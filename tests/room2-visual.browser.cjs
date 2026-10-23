@@ -131,6 +131,7 @@ function within(inner,outer,tolerance=3){
    await page.locator('#r2Blocks').click({timeout:8000});
    await page.locator('.room2-puzzle').waitFor();
    assert.equal(await page.locator('.room2-answer-slot').count(),5,'Exactly five answer slots');
+   assert.equal(await page.locator('.room2-bench-caption').count(),0,'Obvious well count is not written on the tabletop');
    assert.equal(await page.locator('.room2-wood-workbench').count(),1,'Puzzle is a tabletop object');
    const lever=page.locator('.room2-submit.room2-physical-lever');
    assert.equal(await lever.count(),1,'The puzzle has a mechanical judgement lever');
@@ -141,6 +142,9 @@ function within(inner,outer,tolerance=3){
    const readout=page.locator('.room2-digital-readout');
    assert.equal(await readout.count(),1,'The mechanism has an amber digital display');
    assert.equal(await readout.locator('.room2-digital-row').count(),2,'HIT and BLOW have separate lines');
+   assert.deepEqual(await readout.locator('.room2-digital-row span').allTextContents(),['HIT','BLOW']);
+   const digitsLabelSize=await readout.locator('.room2-digital-row span').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+   assert(digitsLabelSize>=11,'HIT/BLOW labels should be large enough to read: '+digitsLabelSize);
    assert.deepEqual(await readout.locator('output').allTextContents(),['--','--'],'An unjudged puzzle starts with empty digits');
    assert.equal(await readout.evaluate(el=>{
     const screen=el.getBoundingClientRect(),desk=el.closest('.room2-wood-workbench').getBoundingClientRect();
@@ -215,7 +219,12 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.evaluate(()=>room2State.attempts),1,'Identical answer does not consume an attempt');
    assert.match(await page.locator('.room2-feedback').textContent(),/この配置は判定済みです/,'A short duplicate notice is shown');
    assert.equal(await page.locator('.room2-reaction-next').count(),0,'No manual next button');
-   assert.equal(await page.locator('.room2-reaction-skip').count(),1,'Optional dismiss remains available');
+   assert.equal(await page.locator('.room2-reaction-skip').count(),0,'Speech bubbles have no manual dismiss button');
+   assert.equal(await page.locator('.room2-reaction .room2-reaction-line.is-hana').count(),1);
+   assert.equal(await page.locator('.room2-reaction .room2-reaction-line.is-protagonist').count(),1);
+   assert.equal(await page.locator('.room2-reaction').evaluate(el=>el.parentElement.classList.contains('room2-sidebar')),true,'Bubbles hover above the handwritten ledger');
+   assert.equal(await page.locator('.room2-reaction').evaluate(el=>getComputedStyle(el).position),'absolute','Bubbles overlay paper rather than occupy a bottom row');
+   assert.equal(await page.locator('.room2-reaction').evaluate(el=>getComputedStyle(el).pointerEvents),'none','Bubbles never block puzzle controls');
    assert.equal(await page.locator('.room2-reaction-line').count(),2,'Both judgement lines appear simultaneously');
    assert.deepEqual(await page.locator('.room2-reaction-name').allTextContents(),['ハナ','主人公'],'Hana and protagonist share the same dialogue window');
    const paneBounds=await page.evaluate(()=>{
@@ -236,7 +245,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-feedback').evaluate(node=>getComputedStyle(node).display),'none','Judgement is shown in history, not duplicate feedback');
    assert.match(await page.locator('.room2-history-row.is-latest').textContent(),/0H\s*0B/,'HIT/BLOW remain recorded in the latest history row');
    await page.screenshot({path:path.join(dir,'04-room02-auto-dialogue.png')});
-   await page.locator('.room2-reaction').waitFor({state:'hidden',timeout:18000});
+   await page.locator('.room2-reaction').waitFor({state:'hidden',timeout:15000});
    assert.equal(await page.locator('.room2-answer-slot i').count(),5,'Autoplay ending does not remove submitted blocks');
    assert.equal(await page.locator('.room2-history-row').count(),1,'The result remains in the ledger');
    assert.equal(await page.locator('.room2-submit').isDisabled(),false,'Changed full placement can be submitted immediately');
@@ -519,8 +528,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.evaluate(()=>room2State.attempts),8);
    await page.locator('.room2-reaction:not([hidden])').waitFor();
    assert.equal(await page.locator('.room2-reaction-line').count(),2,'Last incorrect judgement remains two lines');
-   await page.locator('.room2-reaction-skip').click();
-   await page.locator('.room2-result-panel').waitFor();
+   await page.locator('.room2-result-panel').waitFor({timeout:20000});
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Failure result needs no novel window');
    assert.match(await page.locator('.room2-result-title').textContent(),/今回は達成できなかった/);
    assert.match(await page.locator('.room2-result-attempts').textContent(),/8回の挑戦が終わった/);

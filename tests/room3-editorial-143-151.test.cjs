@@ -54,6 +54,7 @@ function puzzle(){
 
 test("No.143-145: empty answers do not count; wrong answers are saved in both stages",()=>{
  const {nodes,state,metrics}=puzzle(),text=()=>nodes[".room3-puzzle-feedback"].textContent;
+ assert.equal(nodes[".room3-puzzle-instruction"].textContent,"","No solution method appears as unearned interface text");
  nodes[".room3-answer-submit"].click();
  assert.equal(text(),"答えを入力してください。");
  assert.equal(state.puzzleAttempts,0);
@@ -68,6 +69,8 @@ test("No.143-145: empty answers do not count; wrong answers are saved in both st
  assert.equal(state.morseSolved,true);
  assert.equal(state.puzzleAttempts,2);
  assert.equal(metrics().saved,2);
+ assert.equal(nodes[".room3-puzzle-instruction"].textContent,"『同じ文字の間』","The discovered phrase stays visible while the letterboard is open");
+ assert.equal(text(),"","The clue is not duplicated in feedback");
  nodes[".room3-final-submit"].click();
  assert.equal(text(),"言葉を入力してください。");
  assert.equal(state.puzzleAttempts,2);

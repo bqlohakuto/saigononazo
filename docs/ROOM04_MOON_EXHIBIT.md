@@ -4,7 +4,7 @@ Uses the accepted original artwork `世界の月模様図鑑.png` (1536 × 1024)
 
 The artwork is unchanged. SVG viewBox windows show only the existing moon illustrations. Captions are separate UI: a small national flag followed by the English country name, with no Japanese country label. Each card now includes a Japanese interpretation name and short explanatory prose paraphrased from the accepted atlas. There is no overall exhibit title.
 
-The twelve illustrated countries are ITALY, JAPAN, BELGIUM, POLAND, THAILAND, CHINA, GERMANY, FRANCE, UNITED KINGDOM, UNITED STATES, INDIA and SPAIN. Six cards are shown per page, with previous/next controls; all five puzzle targets are included, without revealing their answer order. Additional reference flags are windows into the original artwork. The Spain flag retains the complete emblem-bearing SVG used to calculate the puzzle color areas.
+The twelve illustrated countries are ITALY, JAPAN, BELGIUM, POLAND, THAILAND, CHINA, GERMANY, FRANCE, UNITED KINGDOM, UNITED STATES, INDIA and SPAIN. Six cards are shown per page, with previous/next controls; all five puzzle targets are included, without revealing their answer order. Additional reference flags are windows into the original artwork, except GERMANY: it uses three equal horizontal bands of black, red and gold. Gold has its own palette entry (`#d4af37`) and the flag's accessible label explicitly names black–red–gold. The Spain flag retains the complete emblem-bearing SVG used to calculate the puzzle color areas.
 
 Windows (x, y, width, height):
 

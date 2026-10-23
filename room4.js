@@ -96,7 +96,7 @@ function turnFourthRoom(step){
 // heraldic color are combined; the source image and measurement are documented.
 // References: Poland (gov.pl), Spain (BOE Ley 39/1981), Belgium (belgium.be),
 // Italy (Constitution art. 12), Thailand (ASEAN national flag construction sheet).
-const R4_FLAG_COLORS={black:{hex:"#141820",name:"黒"},white:{hex:"#fffdf4",name:"白・銀"},red:{hex:"#d52f45",name:"赤"},yellow:{hex:"#f4ca45",name:"黄・金"},green:{hex:"#16855a",name:"緑"},blue:{hex:"#252960",name:"青"},pink:{hex:"#d85aac",name:"ピンク"}};
+const R4_FLAG_COLORS={black:{hex:"#141820",name:"黒"},white:{hex:"#fffdf4",name:"白・銀"},red:{hex:"#d52f45",name:"赤"},yellow:{hex:"#f4ca45",name:"黄・金"},gold:{hex:"#d4af37",name:"金"},green:{hex:"#16855a",name:"緑"},blue:{hex:"#252960",name:"青"},pink:{hex:"#d85aac",name:"ピンク"}};
 const R4_FLAG_EXHIBIT=[
  {id:"ITALY",name:"イタリア",axis:"vertical",aspect:1.5,bands:[["green",1],["white",1],["red",1]]},
  {id:"JAPAN",name:"日本",aspect:1.5,shares:[["white",1-Math.PI*.06],["red",Math.PI*.06]]},
@@ -104,7 +104,7 @@ const R4_FLAG_EXHIBIT=[
  {id:"POLAND",name:"ポーランド",axis:"horizontal",aspect:1.6,bands:[["white",1],["red",1]]},
  {id:"THAILAND",name:"タイ",axis:"horizontal",aspect:1.5,bands:[["red",1],["white",1],["blue",2],["white",1],["red",1]]},
  {id:"CHINA",name:"中国",flagCrop:[303,461,55,36]},
- {id:"GERMANY",name:"ドイツ",flagCrop:[300,790,55,37]},
+ {id:"GERMANY",name:"ドイツ",flagLabel:"ドイツの国旗（上から黒・赤・金）",axis:"horizontal",aspect:5/3,bands:[["black",1],["red",1],["gold",1]]},
  {id:"FRANCE",name:"フランス",flagCrop:[546,790,55,37]},
  {id:"UNITED KINGDOM",name:"イギリス",flagCrop:[789,790,55,37]},
  {id:"UNITED STATES",name:"アメリカ",flagCrop:[1034,790,55,37]},
@@ -136,7 +136,7 @@ function r4ReferenceFlag(entry){
   for(const [color,parts] of entry.bands){const fraction=parts/total;shapes+='<rect x="'+(entry.axis==='vertical'?start*width:0)+'" y="'+(entry.axis==='horizontal'?start*height:0)+'" width="'+(entry.axis==='vertical'?fraction*width:width)+'" height="'+(entry.axis==='horizontal'?fraction*height:height)+'" fill="'+R4_FLAG_COLORS[color].hex+'"/>';start+=fraction}
  }else if(entry.id==='JAPAN')shapes='<rect width="160" height="'+height+'" fill="'+R4_FLAG_COLORS.white.hex+'"/><circle cx="80" cy="'+height/2+'" r="'+height*.3+'" fill="'+R4_FLAG_COLORS.red.hex+'"/>';
  else shapes='<rect width="160" height="100" fill="#24699c"/><path d="M50 0h20v100H50zM0 40h160v20H0z" fill="'+R4_FLAG_COLORS.yellow.hex+'"/>';
- return '<svg class="r4-reference-flag" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'+entry.name+'の国旗">'+shapes+'</svg>';
+ return '<svg class="r4-reference-flag" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'+(entry.flagLabel||entry.name+'の国旗')+'">'+shapes+'</svg>';
 }
 // Windows into the approved original artwork; no embedded titles or captions.
 const R4_MOON_CROPS={ITALY:[1300,302,160,160],JAPAN:[77,302,160,160],BELGIUM:[76,636,160,160],POLAND:[810,302,160,160],THAILAND:[566,302,160,160],CHINA:[321,302,160,160],SPAIN:[1056,302,160,160],GERMANY:[321,636,160,160],FRANCE:[566,636,160,160],"UNITED KINGDOM":[810,636,160,160],"UNITED STATES":[1056,636,160,160],INDIA:[1300,636,160,160]};

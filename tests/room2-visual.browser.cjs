@@ -131,6 +131,8 @@ function within(inner,outer,tolerance=3){
    await page.locator('#r2Blocks').click({timeout:8000});
    await page.locator('.room2-puzzle').waitFor();
    assert.equal(await page.locator('.room2-answer-slot').count(),5,'Exactly five answer slots');
+   assert.equal(await page.locator('.room2-wood-workbench').count(),1,'Puzzle is a tabletop object');
+   assert.equal(await page.locator('.room2-paper-heading').count(),1,'Judgements are kept on a paper note');
    assert.equal(await page.locator('.room2-palette-token').count(),10,'Five red and five blue symbols');
    for(const color of ['赤','青'])assert.equal(await page.locator('.room2-palette-token[data-color="'+color+'"]').count(),5);
    for(const color of ['赤','青'])assert.deepEqual(await page.locator('.room2-palette-token[data-color="'+color+'"] i').allTextContents(),['〇','△','□','×','＋'],'Palette matches the adopted desk artwork from left to right');
@@ -159,13 +161,18 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-board-help summary').click();
    assert.equal(await page.locator('.room2-board-help').evaluate(node=>node.open),false,'Help can be tucked away again');
    await page.locator('.room2-palette-token').first().click();
-   assert.equal(await page.locator('.room2-answer-slot i').count(),1,'Selecting token fills a single answer slot');
+   assert.equal(await page.locator('.room2-palette-token.is-held').count(),1,'Taking a token raises it from the tray');
+   await page.locator('.room2-answer-slot').first().click();
+   assert.equal(await page.locator('.room2-answer-slot i').count(),1,'Putting the selected token into a hole fills it');
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),1,'Selected block is inserted into a slot');
    await page.screenshot({path:path.join(dir,'03-room02-block-fitted.png')});
 
    // Make the first guess certainly wrong to observe automatic judge dialogue.
    await page.evaluate(()=>{room2State.answer=ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}));});
-   for(let i=1;i<5;i++)await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+   for(let i=1;i<5;i++){
+    await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+    await page.locator('.room2-answer-slot').nth(i).click();
+   }
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5);
    await page.locator('.room2-submit').click();
    await page.locator('.room2-reaction:not([hidden])').waitFor({state:'visible'});
@@ -183,12 +190,15 @@ function within(inner,outer,tolerance=3){
     const tray=rect('.room2-palette'),dialog=rect('.room2-reaction');
     return {trayRight:tray.right,dialogLeft:dialog.left};
    });
-   assert(paneBounds.dialogLeft>=paneBounds.trayRight-3,'Dialogue pane must not overlap the block tray');
+   const paneVertical=await page.evaluate(()=>({trayBottom:document.querySelector('.room2-palette').getBoundingClientRect().bottom,dialogTop:document.querySelector('.room2-reaction').getBoundingClientRect().top}));
+   assert(paneBounds.dialogLeft>=paneBounds.trayRight-3||paneVertical.dialogTop>=paneVertical.trayBottom-3,'Dialogue never overlaps the block tray');
    assert.equal(await page.locator('.room2-palette-token').first().isDisabled(),false,'Board remains operable during dialogue');
-   await page.locator('.room2-palette-token').first().click();
-   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),4,'Board lets the player remove a fitted block during dialogue');
+   await page.locator('.room2-answer-slot').first().click();
+   await page.locator('.room2-answer-slot').first().click();
+   assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),4,'A placed block can be lifted out during dialogue');
    assert.equal(await page.locator('.room2-reaction-line').count(),2,'Dialogue does not advance when player moves a block');
    await page.locator('.room2-palette-token').first().click();
+   await page.locator('.room2-answer-slot').first().click();
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5,'Removed block can be reinserted without rebuilding the board');
    assert.equal(await page.locator('.room2-feedback').evaluate(node=>getComputedStyle(node).display),'none','Judgement is shown in history, not duplicate feedback');
    assert.match(await page.locator('.room2-history-row.is-latest').textContent(),/0H\s*0B/,'HIT/BLOW remain recorded in the latest history row');
@@ -246,7 +256,10 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-answer-slot').count(),5,'Help keeps the challenge board accessible');
    await page.locator('.room2-board-help summary').click();
    await page.evaluate(()=>{room2State.answer=ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}));});
-   for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+   for(let i=0;i<5;i++){
+     await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+     await page.locator('.room2-answer-slot').nth(i).click();
+    }
    await page.locator('.room2-submit').click();
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5,'Challenge also retains placement');
    assert.equal(await page.evaluate(()=>room2State.attempts),1,'First challenge attempt is counted');
@@ -267,11 +280,17 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-abandon').count(),0,'Main story never displays optional-challenge controls');
    const unlimitedHelp=await page.locator('.room2-board-help .room2-rule').textContent();
    assert(unlimitedHelp.includes('回数制限はない。'),'Main story rules are explicitly unlimited');
-   for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+   for(let i=0;i<5;i++){
+     await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+     await page.locator('.room2-answer-slot').nth(i).click();
+    }
    await page.locator('.room2-submit').click();
    assert.equal(await page.evaluate(()=>room2State.attempts),10,'A tenth incorrect main-story attempt is permitted');
    assert.equal(await page.locator('.room2-puzzle').count(),1,'A tenth failure never blocks the story puzzle');
-   for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="青"]').nth(i).click();
+   for(let i=0;i<5;i++){
+     await page.locator('.room2-palette-token[data-color="青"]').nth(i).click();
+     await page.locator('.room2-answer-slot').nth(i).click();
+    }
    await page.locator('.room2-submit').click();
    assert.equal(await page.evaluate(()=>room2State.attempts),11,'A correct eleventh attempt is accepted');
    assert.equal(await page.locator('.room2-puzzle').count(),0,'Correct main-story answer starts the flashback dialogue flow');
@@ -415,7 +434,10 @@ function within(inner,outer,tolerance=3){
     room2State.attempts=7;
    });
    await page.locator('.room2-puzzle').waitFor();
-   for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="青"]').nth(i).click();
+   for(let i=0;i<5;i++){
+     await page.locator('.room2-palette-token[data-color="青"]').nth(i).click();
+     await page.locator('.room2-answer-slot').nth(i).click();
+    }
    await page.locator('.room2-submit').click();
    const challengeResult=await page.evaluate(()=>({
     attempts:room2State.attempts,active:room2State.challengeActive,
@@ -451,7 +473,10 @@ function within(inner,outer,tolerance=3){
     answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'}))
    }));
    await page.locator('#r2Blocks').click();
-   for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+   for(let i=0;i<5;i++){
+     await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+     await page.locator('.room2-answer-slot').nth(i).click();
+    }
    await page.locator('.room2-submit').click();
    assert.equal(await page.evaluate(()=>room2State.attempts),8);
    assert.equal(await page.locator('.room2-reaction-line').count(),2,'Last incorrect judgement remains two lines');
@@ -629,7 +654,10 @@ function within(inner,outer,tolerance=3){
     await page.locator('.room2-puzzle .design-op-button').waitFor();
     assert.equal(await page.locator('.room2-puzzle .design-op-button').count(),1,'No.126: interactive block puzzle still provides operation help');
     assert.equal(await page.locator('.room2-attempt-counter').count(),1,'Challenge counter appears');
-    for(let i=0;i<5;i++)await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+    for(let i=0;i<5;i++){
+     await page.locator('.room2-palette-token[data-color="赤"]').nth(i).click();
+     await page.locator('.room2-answer-slot').nth(i).click();
+    }
     await page.locator('.room2-submit').click();
     assert.equal(await page.evaluate(()=>room2State.attempts),turn,'Challenge increment is recorded');
     assert.equal(await page.locator('.room2-history-row').count(),1,'HIT/BLOW history still records the result');

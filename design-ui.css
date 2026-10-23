@@ -1941,3 +1941,231 @@ body{background:#0b1322!important;display:grid;place-items:center}
   font-size:clamp(14px,1.65cqw,17px)!important;
  }
 }
+
+
+/* Room 04 mini puzzle 2: real graphical flags behind exhibition glass.
+   No names of nations are printed; the five numbered flags are the puzzle. */
+#game .r4-mini.r4-flag-exhibit{
+ box-sizing:border-box;
+ display:grid;
+ grid-template-columns:minmax(0,1fr) auto;
+ grid-template-rows:auto auto auto auto;
+ align-content:center;
+ gap:clamp(7px,1.45cqh,14px) clamp(9px,1.5cqw,18px);
+ width:min(990px,96%)!important;
+ max-height:94%!important;
+ min-height:0;
+ padding:clamp(14px,2cqw,27px)!important;
+ overflow:hidden!important;
+ border:clamp(4px,.65cqw,7px) solid #8b714d!important;
+ border-radius:3px!important;
+ background:linear-gradient(130deg,#2c4150,#142935 55%,#293b49)!important;
+ color:#f6ead1!important;
+ box-shadow:inset 0 0 0 3px #bd9e71,inset 0 0 0 7px #112333,0 12px 38px #050c13bd!important;
+}
+#game .r4-mini.r4-flag-exhibit>h2{
+ grid-column:1/-1;
+ justify-self:center;
+ margin:0!important;
+ padding:0;
+ font:normal clamp(18px,2.25cqw,28px)/1.3 "DotGothic16",sans-serif;
+ letter-spacing:.13em;
+ color:#ebd7aa!important;
+}
+#game .r4-mini.r4-flag-exhibit>.device-close{
+ position:absolute;
+ top:clamp(8px,1.1cqw,16px);
+ right:clamp(8px,1.1cqw,16px);
+ min-width:38px;min-height:34px;
+ z-index:3;
+ color:#f1e2c1!important;
+ background:#182c37!important;
+ border:1px solid #967c53!important;
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-gallery{
+ grid-column:1/-1;
+ box-sizing:border-box;
+ width:100%;
+ min-width:0;
+ height:clamp(140px,37cqh,245px);
+ min-height:0;
+ display:grid;
+ grid-template-columns:repeat(5,minmax(0,1fr));
+ gap:clamp(4px,.85cqw,11px);
+ align-items:stretch;
+ padding:clamp(9px,1.3cqw,17px);
+ border:3px solid #a78b62;
+ outline:2px solid #111f28;
+ background:linear-gradient(100deg,#2d2622,#6b523c 5%,#46392d 17%,#55412f 82%,#806244 95%,#2c241f);
+ box-shadow:inset 0 7px 8px #13110db8,inset 0 -7px 8px #1b130fba,0 4px 0 #17202a;
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-specimen{
+ min-height:0;min-width:0;
+ box-sizing:border-box;
+ margin:0;
+ padding:clamp(4px,.75cqw,9px);
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:clamp(5px,1.35cqh,12px);
+ background:linear-gradient(145deg,#253442,#14252e);
+ border:2px solid #c5aa7b;
+ box-shadow:inset 0 0 0 2px #51616a,0 3px 1px #11181b91;
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-mount{
+ display:grid;place-items:center;
+ box-sizing:border-box;
+ flex:1 1 auto;
+ min-height:0;
+ width:100%;
+ padding:clamp(4px,.65cqw,9px);
+ background:linear-gradient(140deg,#1b2c35,#304652);
+ border:1px solid #60717a;
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-art{
+ display:block;
+ width:100%;
+ max-height:100%;
+ aspect-ratio:3/2;
+ box-sizing:border-box;
+ position:relative;
+ border:1px solid #bac3c3;
+ box-shadow:0 0 0 2px #2e3438,1px 3px 5px #00000072;
+ overflow:hidden;
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-poland{
+ background:linear-gradient(to bottom,#fff 0 50%,#dc143c 50% 100%);
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-spain{
+ background:linear-gradient(to bottom,#aa151b 0 25%,#f1bf00 25% 75%,#aa151b 75% 100%);
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-spain-crest{
+ position:absolute;
+ left:29%;top:36%;
+ width:13%;height:32%;
+ border-radius:1px 1px 35% 35%;
+ background:linear-gradient(90deg,#b71e33 0 43%,#f6ece2 43% 57%,#b71e33 57% 100%);
+ border:1px solid #e6c991;
+ box-shadow:0 -2px 0 0 #b79243;
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-spain-crest::before{
+ content:"";
+ position:absolute;
+ bottom:100%;left:0;right:0;
+ height:4px;
+ background:linear-gradient(90deg,#bf8930 0 20%,#e1c376 20% 80%,#bf8930 80%);
+ clip-path:polygon(0 100%,14% 0,35% 70%,50% 0,65% 70%,86% 0,100% 100%);
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-belgium{
+ background:linear-gradient(to right,#111 0 33.333%,#fae042 33.333% 66.666%,#ed2939 66.666% 100%);
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-thailand{
+ background:linear-gradient(to bottom,#a51931 0 16.666%,#f4f5f8 16.666% 33.333%,#2d2a4a 33.333% 66.666%,#f4f5f8 66.666% 83.333%,#a51931 83.333% 100%);
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-italy{
+ background:linear-gradient(to right,#009246 0 33.333%,#fff 33.333% 66.666%,#ce2b37 66.666% 100%);
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-specimen figcaption{
+ flex:0 0 auto;
+ box-sizing:border-box;
+ width:min(63%,82px);
+ min-height:clamp(38px,6.8cqh,54px);
+ display:grid;place-items:center;
+ margin:0;
+ color:#f8e9c8;
+ background:linear-gradient(#2d4554,#112634);
+ border:2px solid #a9895a;
+ box-shadow:inset 0 0 0 2px #2d4855;
+}
+#game .r4-mini.r4-flag-exhibit .r4-flag-specimen figcaption b{
+ font:900 clamp(24px,3.7cqw,41px)/1 "DotGothic16",sans-serif;
+ color:#fff5d9;
+ -webkit-text-stroke:.65px currentColor;
+}
+#game .r4-mini.r4-flag-exhibit>label{
+ grid-column:1;
+ display:flex;align-items:center;
+ gap:clamp(8px,1.2cqw,16px);
+ min-width:0;
+ margin:0!important;
+ font:normal clamp(13px,1.65cqw,18px)/1.2 "DotGothic16",sans-serif;
+ color:#f1dfbc;
+}
+#game .r4-mini.r4-flag-exhibit>label input{
+ box-sizing:border-box;
+ flex:1;
+ min-width:0;
+ height:clamp(41px,7.2cqh,59px);
+ margin:0;
+ padding:5px 14px!important;
+ color:#fff7dd!important;
+ border:2px solid #bea478!important;
+ border-radius:2px!important;
+ outline-offset:2px;
+ background:linear-gradient(#08151e,#142631)!important;
+ font:900 clamp(21px,3.35cqw,34px)/1 "DotGothic16",sans-serif;
+ letter-spacing:.22em;
+ text-align:center;
+ text-transform:uppercase;
+}
+#game .r4-mini.r4-flag-exhibit>label input::placeholder{
+ color:#9da49a;opacity:.8;letter-spacing:.12em;
+}
+#game .r4-mini.r4-flag-exhibit>.r4-answer{
+ grid-column:2;
+ min-height:clamp(41px,7.2cqh,59px);
+ min-width:clamp(72px,11cqw,115px);
+ margin:0;padding:5px 15px!important;
+ background:linear-gradient(#d9bf87,#a48152)!important;
+ color:#1d2830!important;
+ border:2px solid #e8d3a5!important;
+ border-radius:3px!important;
+ font:900 clamp(15px,2cqw,22px)/1.2 "DotGothic16",sans-serif!important;
+ box-shadow:inset 0 2px 0 #ffffff5c,0 3px 0 #4b3b29;
+}
+#game .r4-mini.r4-flag-exhibit>.r4-feedback{
+ grid-column:1/-1;
+ margin:0!important;padding:0!important;
+ min-height:1.3em;
+ text-align:center;
+ color:#f6caab!important;
+ font-size:clamp(11px,1.35cqw,15px);
+}
+#game .r4-mini.r4-flag-exhibit>.r4-solved-answer{
+ grid-column:1/-1;
+ margin:0 auto!important;
+ min-height:clamp(51px,8.3cqh,75px);
+ border-color:#b79a63!important;
+}
+@container game-viewport (max-height:465px) or (max-width:900px){
+ #game .r4-mini.r4-flag-exhibit{
+  padding:clamp(10px,1.6cqw,18px)!important;
+  gap:clamp(5px,1.2cqh,9px) clamp(6px,1.2cqw,10px);
+ }
+ #game .r4-mini.r4-flag-exhibit .r4-flag-gallery{
+  height:clamp(125px,34cqh,168px);
+  padding:clamp(6px,1.1cqw,12px);
+  gap:clamp(3px,.7cqw,7px);
+ }
+ #game .r4-mini.r4-flag-exhibit .r4-flag-specimen{
+  padding:clamp(3px,.65cqw,5px);
+  gap:clamp(3px,.7cqh,6px);
+ }
+ #game .r4-mini.r4-flag-exhibit .r4-flag-mount{padding:clamp(3px,.5cqw,5px)}
+ #game .r4-mini.r4-flag-exhibit .r4-flag-specimen figcaption{
+  min-height:clamp(34px,8cqh,42px);
+ }
+ #game .r4-mini.r4-flag-exhibit .r4-flag-specimen figcaption b{
+  font-size:clamp(22px,3.45cqw,32px);
+ }
+ #game .r4-mini.r4-flag-exhibit>label input{
+  height:clamp(35px,8cqh,45px);
+  font-size:clamp(19px,3.15cqw,29px);
+  letter-spacing:.15em;
+ }
+ #game .r4-mini.r4-flag-exhibit>.r4-answer{
+  min-height:clamp(35px,8cqh,45px);
+  min-width:clamp(65px,10cqw,90px);
+  font-size:clamp(14px,1.65cqw,17px)!important;
+ }
+}

@@ -249,3 +249,16 @@
 @media (prefers-reduced-motion:reduce){
   #game .room2-immersive-board .room2-palette-token.is-held{transform:none;}
 }
+
+/* Explicitly place the workbench's five physical layers. Older global
+   challenge selectors otherwise try to arrange them as panel-level cells. */
+#game .room2-immersive-board .room2-wood-workbench>.room2-bench-caption{grid-column:1!important;grid-row:1!important;}
+#game .room2-immersive-board .room2-wood-workbench>.room2-answer-slots{grid-column:1!important;grid-row:2!important;}
+#game .room2-immersive-board .room2-wood-workbench>.room2-bench-ridge{grid-column:1!important;grid-row:3!important;}
+#game .room2-immersive-board .room2-wood-workbench>.room2-palette{grid-column:1!important;grid-row:4!important;}
+#game .room2-immersive-board .room2-wood-workbench>.room2-puzzle-actions{grid-column:1!important;grid-row:5!important;}
+#game .room2-puzzle.room2-immersive-board .room2-sidebar .room2-attempt-counter{
+  margin:0!important;
+  padding:5px 8px!important;
+  min-width:0!important;
+}

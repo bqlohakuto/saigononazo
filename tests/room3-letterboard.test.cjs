@@ -13,3 +13,11 @@ test('User letterboard remains exact and yields only the intended seven central 
  assert.equal(hits.length,7);assert.equal(hits.map(h=>h.letter).join(''),'イツモトナリニ');
  assert.deepEqual(hits.map(h=>[h.r+1,h.c+1]),[[2,2],[3,7],[4,4],[5,9],[6,3],[8,7],[9,4]]);
 });
+
+test('Smartphone receives an actual 800px SVG with the approved 10x10 board',()=>{
+ const svg=fs.readFileSync(path.join(__dirname,'../images/items/room03-chat-letterboard.svg'),'utf8');
+ assert.match(svg,/<svg[^>]*viewBox="0 0 800 800"/);
+ const text=[...svg.matchAll(/<text\b[^>]*>([^<]+)<\/text>/g)].map(x=>x[1]);
+ assert.equal(text.length,100,'The received image must contain exactly 100 cells');
+ assert.deepEqual(Array.from({length:10},(_,row)=>text.slice(row*10,row*10+10).join('')),rows);
+});

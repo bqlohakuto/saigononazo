@@ -110,23 +110,23 @@ function r4WordPuzzle(kind){
  if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
  const solved=kind==="STAR"?room4State.star:room4State.lightPuzzle;
  const o=document.createElement("div");o.className="device-overlay r4-mini-overlay";
- const body=kind==="STAR"?`<div class="r4-color-samples" role="group" aria-label="四色の数字の展示"><div class="r4-color-plaque silver" aria-label="銀色、1"><b>1</b></div><div class="r4-color-plaque white" aria-label="白色、4"><b>4</b></div><div class="r4-color-plaque black" aria-label="黒色、3"><b>3</b></div><div class="r4-color-plaque green" aria-label="緑色、2"><b>2</b></div></div>`:`<div class="r4-flags"><span>⬜⬜⬜<br>🟥🟥🟥　<b>3</b></span><span>🟥<br>🟨🟨🟨<br>🟥　<b>4</b></span><span>⬛⬛｜🟨🟨🟨｜🟥🟥　<b>4</b></span><span>🟥<br>⬜<br>🟦🟦🟦🟦<br>⬜<br>🟥　<b>2</b></span><span>🟩🟩｜⬜｜🟥🟥　<b>2</b></span></div><p class="r4-moon">月の模様の展示：国旗と英語国名 POLAND / SPAIN / BELGIUM / THAILAND / ITALY など。見え方には地域・時代・伝承によって諸説があります。</p>`;
+ const body=kind==="STAR"?`<div class="r4-color-samples" role="group" aria-label="四色の数字の展示"><div class="r4-color-plaque silver" aria-label="銀色、1"><b>1</b></div><div class="r4-color-plaque white" aria-label="白色、4"><b>4</b></div><div class="r4-color-plaque black" aria-label="黒色、3"><b>3</b></div><div class="r4-color-plaque green" aria-label="緑色、2"><b>2</b></div></div>`:`<div class="r4-flag-gallery" role="group" aria-label="五枚の国旗の展示"><figure class="r4-flag-specimen"><div class="r4-flag-mount"><div class="r4-flag-art r4-flag-poland" role="img" aria-label="上が白、下が赤の国旗"></div></div><figcaption><b>3</b></figcaption></figure><figure class="r4-flag-specimen"><div class="r4-flag-mount"><div class="r4-flag-art r4-flag-spain" role="img" aria-label="赤、黄、赤の横じまの国旗"><i class="r4-flag-spain-crest" aria-hidden="true"></i></div></div><figcaption><b>4</b></figcaption></figure><figure class="r4-flag-specimen"><div class="r4-flag-mount"><div class="r4-flag-art r4-flag-belgium" role="img" aria-label="黒、黄、赤の縦じまの国旗"></div></div><figcaption><b>4</b></figcaption></figure><figure class="r4-flag-specimen"><div class="r4-flag-mount"><div class="r4-flag-art r4-flag-thailand" role="img" aria-label="赤、白、紺、白、赤の横じまの国旗"></div></div><figcaption><b>2</b></figcaption></figure><figure class="r4-flag-specimen"><div class="r4-flag-mount"><div class="r4-flag-art r4-flag-italy" role="img" aria-label="緑、白、赤の縦じまの国旗"></div></div><figcaption><b>2</b></figcaption></figure></div>`;
  const answerView=solved?'<div class="r4-solved-answer" role="status" aria-label="解答済み"><span>'+kind+'</span></div>':'<label>答え<input autocomplete="off"></label><button class="r4-answer">答える</button><p class="r4-feedback"></p>';
- const exhibitClass=kind==="STAR"?" r4-color-exhibit":"";
- o.innerHTML=`<section class="r4-mini ${solved?"r4-mini-inspected":""}${exhibitClass}"><button class="device-close" aria-label="閉じる">×</button><h2>${kind==="STAR"?"色と数字":"謎2"}</h2>${body}${answerView}</section>`;
+ const exhibitClass=kind==="STAR"?" r4-color-exhibit":" r4-flag-exhibit";
+ o.innerHTML=`<section class="r4-mini ${solved?"r4-mini-inspected":""}${exhibitClass}"><button class="device-close" aria-label="閉じる">×</button><h2>${kind==="STAR"?"色と数字":"国旗と数字"}</h2>${body}${answerView}</section>`;
  game.appendChild(o);
  const input=o.querySelector("input"),fb=o.querySelector(".r4-feedback");
  const close=activateDeviceModal(o,kind==="STAR"?"r4P1":"r4P2",solved?o.querySelector(".device-close"):input);
  // Reinspection is deliberately read-only: no validation, reward, or duplicate log.
  if(solved)return;
- if(kind==="STAR"){
+ if(kind==="STAR"||kind==="LIGHT"){
   input.placeholder="・・・・";input.maxLength=12;input.autocapitalize="characters";
   input.setAttribute("aria-label","英字で答えを入力");
   o.querySelector(".r4-answer").textContent="解錠";
  }
  input.addEventListener("input",()=>{fb.textContent=""});
  input.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.isComposing&&!event.repeat){event.preventDefault();o.querySelector(".r4-answer").click()}});
- o.querySelector(".r4-answer").onclick=()=>{const answer=input.value.normalize("NFKC").trim().toUpperCase();if(!answer){fb.textContent="答えを入力してください。";return}if(answer!==kind){fb.textContent=kind==="STAR"?"鍵は開かない。":"色の並びを国旗として見て、英語国名から数字の位置を読もう。";return}if(kind==="STAR")room4State.star=true;else room4State.lightPuzzle=true;saveGame();close();showRoomDialog([{logId:"r4"+kind+"ok1",logType:"dialogue",speaker:"主人公",text:`${kind}……${kind==="STAR"?"星":"光"}、か`},{logId:"r4"+kind+"ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースのロックが外れた。中から透明なパネルを取り出す。"}],()=>r4Refresh(kind==="STAR"?"star":"lightPuzzle"))};
+ o.querySelector(".r4-answer").onclick=()=>{const answer=input.value.normalize("NFKC").trim().toUpperCase();if(!answer){fb.textContent="答えを入力してください。";return}if(answer!==kind){fb.textContent="鍵は開かない。";return}if(kind==="STAR")room4State.star=true;else room4State.lightPuzzle=true;saveGame();close();showRoomDialog([{logId:"r4"+kind+"ok1",logType:"dialogue",speaker:"主人公",text:`${kind}……${kind==="STAR"?"星":"光"}、か`},{logId:"r4"+kind+"ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースのロックが外れた。中から透明なパネルを取り出す。"}],()=>r4Refresh(kind==="STAR"?"star":"lightPuzzle"))};
 }
 function r4P1(){r4WordPuzzle("STAR")} function r4P2(){r4WordPuzzle("LIGHT")}
 function r4P3(){

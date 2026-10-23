@@ -1,0 +1,42 @@
+name: Optional decor inspection review
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'exploration-scenario.js'
+      - 'room-exploration.js'
+      - 'room-exploration.css'
+      - 'images/items/optional-room0*.svg'
+      - 'tests/exploration.browser.cjs'
+      - '.github/workflows/optional-decor-review.yml'
+permissions:
+  contents: read
+jobs:
+  optional-decor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser for both layouts
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check exploration JavaScript
+        run: |
+          node --check exploration-scenario.js
+          node --check room-exploration.js
+          node --check tests/exploration.browser.cjs
+      - name: Test visible optional objects on desktop and landscape
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/optional-review-server.log 2>&1 &
+          BASE_URL=http://127.0.0.1:8765 ARTIFACT_DIR=artifacts/optional-decor node tests/exploration.browser.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: optional-decor-review
+          path: artifacts/optional-decor/
+          retention-days: 7

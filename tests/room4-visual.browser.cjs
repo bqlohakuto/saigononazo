@@ -4,6 +4,7 @@ const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),local=process.env.ROOM4_REVIEW_LOCAL==='1';
 const url=process.env.PUBLIC_BASE_URL||(local?'https://room4.local/':'https://bqlohakuto.github.io/saigononazo/');
 const version=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8').match(/room4.js\?v=([^"']+)/)[1];
+const cssVersion=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8').match(/design-ui.css\?v=([^"']+)/)[1];
 async function gazeDimensions(page){
  return page.locator('#r4Hana').evaluate(async el=>{
   // Include container layout and ResizeObserver delivery, not an arbitrary delay.
@@ -54,11 +55,24 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
   if(!file.startsWith(root+path.sep)||!fs.existsSync(file))return route.fulfill({status:404,body:''});
   await route.fulfill({path:file});
  });
- let deployed=false;for(let i=0;i<24;i++){await page.goto(url+'?room4_review='+Date.now());if((await page.locator('script[src*="room4.js"]').getAttribute('src')).includes(version)){deployed=true;break}await page.waitForTimeout(8000)}assert(deployed,'Expected deployed version');
+ let deployed=false;for(let i=0;i<24;i++){await page.goto(url+'?room4_review='+Date.now());if((await page.locator('script[src*="room4.js"]').getAttribute('src')).includes(version)
+  &&(await page.locator('link[href*="design-ui.css"]').getAttribute('href')).includes(cssVersion)){deployed=true;break}await page.waitForTimeout(8000)}assert(deployed,'Expected deployed version');
  const dir=path.join(process.env.UI_SCREENSHOT_DIR||'artifacts/room04',spec.name);fs.mkdirSync(dir,{recursive:true});
  await page.waitForSelector('#game.hana-v2-full-ready');
  // The original introduction must trigger the ceiling-gaze pose on its confirmed narration.
  await page.evaluate(()=>{settings.instantText=true;showFourthRoom()});
+ // Validate a settled, *rendered* first frame rather than a pre-layout style value.
+ await page.waitForFunction(()=>{
+  const stage=document.querySelector('.room4-stage'),hana=document.getElementById('r4Hana');
+  const container=document.getElementById('game-container');
+  if(!stage||!hana||!container)return false;
+  const width=stage.getBoundingClientRect().width,canvas=container.getBoundingClientRect().width;
+  const idle=getComputedStyle(hana,'::before'),gaze=getComputedStyle(hana.querySelector('.r4-hana-look-pose'));
+  return Math.abs(width-canvas)<1
+   &&Math.abs(parseFloat(idle.height)-width*.31)<1
+   &&Math.abs(parseFloat(idle.width)-width*.199)<1
+   &&['height','width','bottom'].every(key=>Math.abs(parseFloat(idle[key])-parseFloat(gaze[key]))<1);
+ },null,{timeout:4000});
  const hanaScale=await page.locator('#r4Hana').evaluate(el=>{
   const sprite=getComputedStyle(el,'::before'),head=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
   return {width:parseFloat(sprite.width),height:parseFloat(sprite.height),headHeight:parseFloat(head.height),visible:!el.hidden};

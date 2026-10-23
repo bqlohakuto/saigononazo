@@ -178,27 +178,133 @@ function inspectThirdRoomDesk(){
  room3State.deskInspected=true;saveGame();document.getElementById("r3Phone").disabled=false;document.getElementById("r3Board").disabled=false;
  showRoomDialog([{logId:"room3_desk_01",logType:"investigation",speaker:"ト書き",text:"黒い天板の机だ。一人で組み立てるのに2時間かかったことを思い出す。"},{logId:"room3_desk_02",logType:"narration",speaker:"主人公",thought:true,text:"どうして、そんなことを覚えているんだろう。"},{logId:"room3_desk_03",logType:"investigation",speaker:"ト書き",text:"机の上にはスマートフォンが置かれている。"}]);
 }
+function room3ReplyIsCorrect(text,stage){
+ const answer=(text||"").normalize("NFKC").trim().replace(/[\s　、。・]/gu,"");
+ if(stage==="morse"){
+  const letters=answer.toUpperCase();
+  return letters==="ONAJIMOJINOAIDA"||["同じ文字の間","同じ文字のあいだ","オナジモジノアイダ","おなじもじのあいだ"].includes(answer);
+ }
+ const kana=answer.replace(/[ぁ-ゖ]/gu,char=>String.fromCharCode(char.charCodeAt(0)+0x60));
+ return kana==="イツモトナリニ"||kana==="イツモ隣ニ";
+}
 function showThirdRoomChat(){
  if(!room3State.deskInspected||game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
+ if(!Array.isArray(room3State.phoneReplies))room3State.phoneReplies=[];
  const overlay=document.createElement("div");overlay.className="device-overlay room3-chat-overlay";
- overlay.innerHTML=`<section class="room3-chat-panel r3-handset" role="dialog" aria-modal="true" aria-label="先輩とのトーク"><div class="r3-phone-speaker" aria-hidden="true"></div><div class="r3-phone-lcd"><div class="r3-phone-status" aria-hidden="true"><span>▮▮▮</span><span>▰</span></div><header class="r3-app-header"><button type="button" class="device-close" aria-label="トークを閉じる">◀</button><h2>先輩</h2><span class="r3-header-spacer" aria-hidden="true"></span></header><div class="r3-chat-scroll" tabindex="0" role="region" aria-label="先輩との会話をスクロール"></div></div><div class="r3-phone-home" aria-hidden="true"></div></section>`;
+ overlay.innerHTML='<section class="r3-chat-workspace" role="dialog" aria-modal="true" aria-label="先輩とのトークと資料">'+
+  '<div class="room3-chat-panel r3-handset"><div class="r3-phone-speaker" aria-hidden="true"></div>'+
+   '<div class="r3-phone-lcd"><div class="r3-phone-status" aria-hidden="true"><span>▮▮▮</span><span>▰</span></div>'+
+    '<header class="r3-app-header"><button type="button" class="device-close" aria-label="トークを閉じる">◀</button><h2>先輩</h2><span class="r3-header-spacer" aria-hidden="true"></span></header>'+
+    '<div class="r3-chat-scroll" tabindex="0" role="region" aria-label="先輩との会話をスクロール"></div>'+
+    '<form class="r3-reply-form" aria-label="先輩に返信する"><input class="r3-reply-input" type="text" aria-label="返信の本文" placeholder="返信を入力" autocomplete="off" enterkeyhint="send"><button class="r3-reply-send" type="submit" aria-label="返信を送る">送信</button></form>'+
+   '</div><div class="r3-phone-home" aria-hidden="true"></div></div>'+
+  '<aside class="r3-companion-sheet" aria-label="トークと一緒に見る資料">'+
+   '<div class="r3-companion-tabs"><button type="button" class="r3-show-morse">モールス対応表</button><button type="button" class="r3-show-letterboard">届いた画像</button></div>'+
+   '<div class="r3-companion-content"><div class="r3-inline-morse r3-morse-chart" hidden><div class="r3-morse-grid" role="list" aria-label="AからZのモールス信号対応表"></div><p class="r3-morse-legend">・ 短点　　－ 長点</p></div>'+
+   '<div class="r3-large-letterboard" hidden><img src="images/items/room03-chat-letterboard.svg" alt="先輩から送られた10行10列の文字盤"></div>'+
+   '<div class="r3-no-attachment" aria-hidden="true"></div></div>'+
+  '</aside></section>';
  game.appendChild(overlay);
- const stream=overlay.querySelector(".r3-chat-scroll");
- const appendMessage=(sender,text,index)=>{
+ const stream=overlay.querySelector(".r3-chat-scroll"),form=overlay.querySelector(".r3-reply-form"),
+  input=overlay.querySelector(".r3-reply-input"),send=overlay.querySelector(".r3-reply-send"),
+  chart=overlay.querySelector(".r3-inline-morse"),grid=chart.querySelector(".r3-morse-grid"),
+  largeBoard=overlay.querySelector(".r3-large-letterboard"),empty=overlay.querySelector(".r3-no-attachment"),
+  chartTab=overlay.querySelector(".r3-show-morse"),boardTab=overlay.querySelector(".r3-show-letterboard");
+ // Preserve the same A-Z reference from the shelf and keep it beside the phone.
+ for(const [letter,code] of Object.entries(ROOM3_MORSE)){
+  const cell=document.createElement("div");cell.className="r3-morse-cell";
+  cell.setAttribute("role","listitem");cell.setAttribute("aria-label",letter+" "+code);
+  const label=document.createElement("strong");label.textContent=letter;label.setAttribute("aria-hidden","true");
+  const signals=document.createElement("span");signals.className="r3-morse-code";
+  for(const mark of code){const signal=document.createElement("i");signal.className=mark==="・"?"morse-dot":"morse-dash";signals.appendChild(signal)}
+  cell.append(label,signals);grid.appendChild(cell);
+ }
+ let referenceMode=room3State.morseSolved?"letterboard":"morse";
+ const showReference=mode=>{
+  referenceMode=mode;
+  const canChart=room3State.shelfInspected,canBoard=room3State.morseSolved;
+  chartTab.disabled=!canChart;boardTab.disabled=!canBoard;
+  if(referenceMode==="morse"&&!canChart)referenceMode=canBoard?"letterboard":"none";
+  if(referenceMode==="letterboard"&&!canBoard)referenceMode=canChart?"morse":"none";
+  chart.hidden=referenceMode!=="morse";
+  largeBoard.hidden=referenceMode!=="letterboard";
+  empty.hidden=referenceMode!=="none";
+  chartTab.setAttribute("aria-pressed",String(referenceMode==="morse"));
+  boardTab.setAttribute("aria-pressed",String(referenceMode==="letterboard"));
+ };
+ chartTab.addEventListener("click",()=>showReference("morse"));
+ boardTab.addEventListener("click",()=>showReference("letterboard"));
+ const scrollToBottom=()=>{stream.scrollTop=stream.scrollHeight};
+ const appendMessage=(sender,message,index)=>{
   const article=document.createElement("article");
   article.className=(index===undefined?"r3-text-message":"room3-chat-message")+" "+(sender==="先輩"?"senpai":"player");
-  article.setAttribute("aria-label",index===undefined?sender:`${index+1}通目、${sender}`);
+  article.setAttribute("aria-label",index===undefined?sender:(index+1)+"通目、"+sender);
   const name=document.createElement("small");name.textContent=sender;
-  const bubble=document.createElement("p");bubble.textContent=text;
-  article.append(name,bubble);stream.appendChild(article);
+  const bubble=document.createElement("p");bubble.textContent=message;
+  article.append(name,bubble);stream.appendChild(article);return article;
  };
- [["先輩","ねえ、暇だから変なことしよ"],["主人公","今講義中なんですけど"],["先輩","今から顔文字だけで会話する！"],["主人公","今はスタンプもあるのにですか？絶対会話にならないですよw"]].forEach(([sender,text])=>appendMessage(sender,text));
+ const appendPhoto=()=>{
+  const article=document.createElement("article");article.className="r3-photo-message senpai";
+  const name=document.createElement("small");name.textContent="先輩";
+  const button=document.createElement("button");button.type="button";button.className="r3-board-preview";button.setAttribute("aria-label","届いた文字盤画像を拡大して見る");
+  const img=document.createElement("img");img.src="images/items/room03-chat-letterboard.svg";img.alt="10行10列の文字盤画像";
+  button.appendChild(img);button.addEventListener("click",()=>showReference("letterboard"));
+  article.append(name,button);stream.appendChild(article);
+ };
+ [["先輩","ねえ、暇だから変なことしよ"],["主人公","今講義中なんですけど"],["先輩","今から顔文字だけで会話する！"],["主人公","今はスタンプもあるのにですか？絶対会話にならないですよw"]].forEach(([sender,message])=>appendMessage(sender,message));
  const divider=document.createElement("p");divider.className="room3-chat-context";divider.textContent="顔文字のやり取り";stream.appendChild(divider);
  ROOM3_CHAT_MESSAGES.forEach((item,index)=>appendMessage(item.sender,item.face,index));
- [["主人公","やっぱり何言ってるのかわかりません"],["先輩","はい負け〜！"],["主人公","勝負だったんですか！？どんなルール！？"]].forEach(([sender,text])=>appendMessage(sender,text));
- activateDeviceModal(overlay,"r3Phone",stream,()=>{
-  if(!room3State.chatRead){room3State.chatRead=true;room3State.phoneInspected=true;saveGame();showRoomNotice("顔文字のやり取りを確認した。","room3_chat_read")}
+ [["主人公","やっぱり何言ってるのかわかりません"],["先輩","はい負け〜！"],["主人公","勝負だったんですか！？どんなルール！？"]].forEach(([sender,message])=>appendMessage(sender,message));
+ let boardAlreadyReceived=false;
+ const receiveBoard=()=>{
+  if(boardAlreadyReceived)return;boardAlreadyReceived=true;
+  appendMessage("先輩","じゃあ、これはどう？");
+  appendPhoto();
+ };
+ for(const reply of room3State.phoneReplies){
+  if(!reply||typeof reply.text!=="string")continue;
+  appendMessage("主人公",reply.text);
+  if(reply.stage==="morse"&&reply.correct){receiveBoard()}
+  else if(!reply.correct)appendMessage("先輩","んー、もう一度考えてみて");
+ }
+ if(room3State.morseSolved)receiveBoard();
+ showReference(referenceMode);
+ scrollToBottom();
+ let solvedTransition=false;
+ const close=activateDeviceModal(overlay,"r3Phone",overlay.querySelector(".device-close"),()=>{
+  if(!room3State.chatRead){room3State.chatRead=true;room3State.phoneInspected=true}
+  saveGame();
+  if(room3State.unlocked&&!room3State.memorySeen&&!solvedTransition){
+   solvedTransition=true;playThirdRoomMemory();
+  }
  });
+ form.addEventListener("submit",event=>{
+  event.preventDefault();
+  if(room3State.unlocked)return;
+  const reply=input.value.trim();if(!reply)return;
+  const stage=room3State.morseSolved?"final":"morse";
+  const correct=room3ReplyIsCorrect(reply,stage);
+  room3State.phoneReplies.push({stage,text:reply,correct});
+  room3State.chatRead=true;room3State.phoneInspected=true;
+  appendMessage("主人公",reply);input.value="";
+  if(correct&&stage==="morse"){
+   room3State.morseSolved=true;receiveBoard();
+   showReference("letterboard");
+  }else if(correct&&stage==="final"){
+   room3State.unlocked=true;
+   send.disabled=true;input.disabled=true;
+   const room=game.querySelector(".room-three");room?.classList.add("is-restored");
+   const status=room?.querySelector(".room-color-status");if(status)status.textContent="記憶を取り戻した部屋";
+   saveGame();scrollToBottom();
+   // Keep the final sent reply visible before the memory starts.
+   window.setTimeout(()=>{if(overlay.isConnected)close()},650);
+   return;
+  }else{
+   appendMessage("先輩","んー、もう一度考えてみて");
+  }
+  saveGame();scrollToBottom();
+ });
+ if(room3State.unlocked){form.hidden=true}
 }
 function inspectThirdRoomBed(){
  if(room3State.bedInspected){showRoomNotice("ベッドには、特に変わったところはない。","room3_bed_repeat","investigation");return}
@@ -226,22 +332,9 @@ function showThirdRoomMorseChart(){
  if(!room3State.morseChartLogged){recordLog({logId:"room3_shelf_03",logType:"narration",speaker:"システム",text:`対応表：${Object.entries(ROOM3_MORSE).map(([letter,code])=>`${letter}=${code}`).join("　")}`,logGroup:"room3_shelf",logTarget:"小さな棚"});room3State.morseChartLogged=true;saveGame()}
  activateDeviceModal(overlay,"r3Shelf",overlay.querySelector(".device-close"),()=>{if(room3State.morseChartNoticeSeen)return;room3State.morseChartNoticeSeen=true;saveGame();showRoomNotice("モールス信号の対応表を記録した。","room3_morse_chart")});
 }
+// The answer is now typed as a reply in the chat, never into a separate puzzle dialog.
 function showThirdRoomPuzzle(){
- if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
- if(!room3State.doorInspected){showRoomNotice("先に扉の問題文を確認しよう。","room3_puzzle_door_gate");return}
- if(!room3State.chatRead){showRoomNotice("机のスマートフォンに、顔文字の手がかりがありそうだ。","room3_puzzle_chat_gate");return}
- if(!room3State.shelfInspected){showRoomNotice("モールス信号の対応表を探そう。","room3_puzzle_chart_gate");return}
- const overlay=document.createElement("div");overlay.className="device-overlay room3-puzzle-overlay";
- overlay.innerHTML=`<section class="room3-puzzle-panel" role="dialog" aria-modal="true" aria-label="顔文字と文字盤の謎"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>顔に隠された合図</h2><p class="room3-puzzle-instruction"></p><div class="room3-morse-entry"><label>モールス信号の答え<input class="room3-answer-input" type="text" autocomplete="off" placeholder="アルファベットまたは日本語"></label><button type="button" class="room3-answer-submit">確認</button></div><div class="room3-letterboard" role="grid" aria-label="10行10列文字盤"></div><div class="room3-final-entry" hidden><label>隠された想い<input class="room3-final-input" type="text" autocomplete="off" placeholder="ひらがなで入力"></label><button type="button" class="room3-final-submit">答える</button></div><p class="room3-puzzle-feedback" role="status" aria-live="polite"></p></section>`;game.appendChild(overlay);
- const close=activateDeviceModal(overlay,"r3Board",overlay.querySelector(room3State.unlocked?".device-close":room3State.morseSolved?".room3-final-input":".room3-answer-input"));const instruction=overlay.querySelector(".room3-puzzle-instruction"),entry=overlay.querySelector(".room3-morse-entry"),board=overlay.querySelector(".room3-letterboard"),finalEntry=overlay.querySelector(".room3-final-entry"),feedback=overlay.querySelector(".room3-puzzle-feedback");
- const render=()=>{overlay.querySelector(".room3-puzzle-panel").classList.toggle("r3-board-ready",room3State.morseSolved);entry.hidden=room3State.morseSolved;board.hidden=!room3State.morseSolved;finalEntry.hidden=!room3State.morseSolved||room3State.unlocked;instruction.textContent=room3State.morseSolved?"『同じ文字の間』":"";board.innerHTML=ROOM3_BOARD.map((row,rowIndex)=>`<div class="room3-board-row" role="row">${row.map((value,columnIndex)=>`<span role="gridcell" aria-label="${rowIndex+1}行${columnIndex+1}列 ${value}">${value}</span>`).join("")}</div>`).join("");if(room3State.unlocked)feedback.textContent="正解！『いつも隣に』という想いが伝わった。"};
- overlay.querySelector(".room3-answer-input").addEventListener("input",()=>{feedback.textContent=""});
- overlay.querySelector(".room3-answer-input").addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.isComposing&&!event.repeat){event.preventDefault();overlay.querySelector(".room3-answer-submit").click()}});
- overlay.querySelector(".room3-answer-submit").addEventListener("click",()=>{if(room3State.morseSolved)return;const answer=overlay.querySelector(".room3-answer-input").value.normalize("NFKC").trim().toUpperCase().replace(/[\s　、。・]/gu,"");if(!answer){feedback.textContent="答えを入力してください。";return}room3State.puzzleAttempts++;if(answer==="ONAJIMOJINOAIDA"||answer==="同じ文字の間"||answer==="同じ文字のあいだ"||answer==="オナジモジノアイダ"||answer==="おなじもじのあいだ"){room3State.morseSolved=true;feedback.textContent="";saveGame();render();overlay.querySelector(".room3-answer-input").blur?.()}else{feedback.textContent="顔文字とモールス対応表を、もう一度見比べてみよう。";saveGame()}});
- overlay.querySelector(".room3-final-input").addEventListener("input",()=>{feedback.textContent=""});
- overlay.querySelector(".room3-final-input").addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.isComposing&&!event.repeat){event.preventDefault();overlay.querySelector(".room3-final-submit").click()}});
- overlay.querySelector(".room3-final-submit").addEventListener("click",()=>{if(room3State.unlocked)return;const answer=overlay.querySelector(".room3-final-input").value.normalize("NFKC").trim().replace(/[\s　、。・]/gu,"").replace(/[ぁ-ゖ]/gu,char=>String.fromCharCode(char.charCodeAt(0)+0x60));if(!answer){feedback.textContent="言葉を入力してください。";return}room3State.puzzleAttempts++;if(answer==="イツモトナリニ"||answer==="イツモ隣ニ"){room3State.unlocked=true;saveGame();render();close();const room=game.querySelector(".room-three");room?.classList.add("is-restored");const status=room?.querySelector(".room-color-status");if(status)status.textContent="記憶を取り戻した部屋";playThirdRoomMemory()}else{feedback.textContent="文字盤から読み取った言葉を入力しよう。";saveGame()}});
- render();
+ showThirdRoomChat();
 }
 function playThirdRoomMemory(){
  if(room3State.memorySeen)return;

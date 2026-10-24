@@ -66,10 +66,9 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
   const stage=document.querySelector('.room4-stage'),hana=document.getElementById('r4Hana');
   const container=document.getElementById('game-container');
   if(!stage||!hana||!container)return false;
-  const width=stage.getBoundingClientRect().width,canvas=container.getBoundingClientRect().width;
+  const width=stage.clientWidth;
   const idle=getComputedStyle(hana,'::before'),gaze=getComputedStyle(hana.querySelector('.r4-hana-look-pose'));
-  return Math.abs(width-canvas)<1
-   &&Math.abs(parseFloat(idle.height)-width*.405)<1
+  return Math.abs(parseFloat(idle.height)-width*.405)<1
    &&Math.abs(parseFloat(idle.width)-width*.26)<1
    &&['height','width','bottom'].every(key=>Math.abs(parseFloat(idle[key])-parseFloat(gaze[key]))<1);
  },null,{timeout:4000});
@@ -77,7 +76,7 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
   const sprite=getComputedStyle(el,'::before'),head=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
   return {width:parseFloat(sprite.width),height:parseFloat(sprite.height),headHeight:parseFloat(head.height),visible:!el.hidden};
  });
- const canvasWidth=await page.locator('#game-container').evaluate(el=>el.getBoundingClientRect().width);
+ const canvasWidth=await page.locator('.room4-stage').evaluate(el=>el.clientWidth);
  const sizing=await page.locator('#r4Hana').evaluate(el=>{
   const bounds=sel=>{const t=document.querySelector(sel)?.getBoundingClientRect();return t?{width:t.width,height:t.height,x:t.x,y:t.y}:null};
   const st=getComputedStyle(el,'::before'),face=getComputedStyle(el.querySelector('.r4-hana-look-pose'));

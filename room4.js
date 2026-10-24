@@ -61,10 +61,11 @@ function r4SyncHanaGazePose(){
  const hana=game.querySelector(".room4-stage #r4Hana"),pose=hana?.querySelector(".r4-hana-look-pose");
  const stage=hana?.closest(".room4-stage");
  if(!pose||!stage)return;
- // cqw resolves to an unrelated fixed reference width in some nested stage
- // layouts. Calculate against the *rendered room*, not the device viewport.
+ // Sprite sizes are local CSS pixels: the viewport scaler applies the
+ // screen scale to the whole game afterwards. A bounding rectangle already
+ // includes that scale and would enlarge or shrink Hana a second time.
  // Both idle and gaze receive exactly the same canvas and foot anchor.
- const width=stage.getBoundingClientRect().width;
+ const width=stage.clientWidth;
  if(!Number.isFinite(width)||width<=0)return;
  hana.style.setProperty("--r4-hana-width",(width*.26)+"px");
  hana.style.setProperty("--r4-hana-height",(width*.405)+"px");

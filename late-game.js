@@ -2173,8 +2173,7 @@
   }
   function r8EndScreen(){
     Dialogue.stop();
-    game.innerHTML='<div class="late-ending"><p>最後の謎が解けても</p><h1>END</h1><p>脱出成功</p><button id="r8Title">タイトルへ</button></div>';
-    document.getElementById("r8Title").onclick=()=>showTitle();
+    EndingCredits.start(game,()=>showTitle());
   }
 })();
 

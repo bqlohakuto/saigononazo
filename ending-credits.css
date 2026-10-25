@@ -1,0 +1,15 @@
+/* Local to the 960 x 540 game canvas; existing scenes keep their own styling. */
+#game .ending-credits{position:absolute;inset:0;z-index:1000;background:#000;color:#f6f3ed;display:grid;place-items:center;font-family:"DotGothic16",sans-serif;text-align:center;overflow:hidden;animation:ending-black-in 1.6s ease both}
+#game .ending-card{width:92%;margin:0;transform:translateY(-8px)}
+#game .ending-role{font-size:19px;letter-spacing:.18em;line-height:1.6;min-height:31px;margin:0 0 28px;color:#c8c6c2}
+#game .ending-name{font-size:38px;letter-spacing:.16em;line-height:1.6;min-height:61px;margin:0;font-weight:400;white-space:pre-wrap}
+#game .ending-card.is-title .ending-role{display:none}
+#game .ending-card.is-title .ending-name{font-size:39px;letter-spacing:.08em}
+#game .ending-card.is-thanks .ending-name{font-size:30px;letter-spacing:.15em}
+#game .ending-audio-prompt{position:absolute;inset:0;background:#000e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:2;font-size:20px;line-height:1.8}
+#game .ending-audio-prompt[hidden]{display:none}
+#game .ending-audio-prompt p{margin:0;max-width:85%}
+#game .ending-audio-prompt button{font:inherit;color:#f6f3ed;border:1px solid #a8a6a2;background:#151515;padding:10px 28px;cursor:pointer}
+#game .ending-audio-prompt button:focus-visible{outline:3px solid #fff;outline-offset:5px}
+@keyframes ending-black-in{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){#game .ending-credits{animation:none}}

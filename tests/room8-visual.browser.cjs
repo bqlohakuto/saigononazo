@@ -40,7 +40,7 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
    await p.locator('#roomNextButton').waitFor({state:'visible'});
    await finish();
    assert.equal((await saved()).epilogueSeen,true);
-   assert.equal(await p.locator('.late-ending h1').textContent(),'END');
+   assert.equal(await p.locator('.ending-credits').count(),1);
    assert.deepEqual(errors,[],spec.name+' has no runtime errors');
    console.log('PASS room8 '+spec.name+': seated dialogue, reload, paper scrolling, wrong/right answer and END');
   }finally{await browser.close()}

@@ -27,6 +27,30 @@
   let categoryVolumes={bgm:1,se:1};
   const category=id=>sounds[id]?.category||(id==="memoryBand"?"bgm":"se");
   let desiredMusic=null;
+  let endingTrack=null;
+  function syncEndingVolume(){
+    if(endingTrack){
+      endingTrack.volume=Math.min(1,Math.max(0,volume*categoryVolumes.bgm));
+      endingTrack.muted=volume===0||categoryVolumes.bgm===0;
+    }
+  }
+  function createEndingTrack(){
+    if(endingTrack){endingTrack.pause();endingTrack.removeAttribute("src");endingTrack.load();}
+    endingTrack=new global.Audio("audio/bgm/kotaeawase.mp3");
+    endingTrack.preload="auto";
+    endingTrack.loop=false;
+    endingTrack.setAttribute("playsinline","");
+    syncEndingVolume();
+    return endingTrack;
+  }
+  function releaseEndingTrack(track){
+    if(track!==endingTrack)return;
+    track.pause();track.removeAttribute("src");track.load();endingTrack=null;
+  }
+  function fadeForEnding(durationMs=1600){
+    desiredMusic=null;
+    Array.from(playing.keys()).forEach(id=>fadeOut(id,durationMs));
+  }
 
   function loadFile(id) {
     if (!files.has(id)) {
@@ -57,6 +81,7 @@
   function stopPlaying(){Array.from(playing.keys()).forEach(stop);}
   function stopAll() {
     desiredMusic=null;
+    if(endingTrack)releaseEndingTrack(endingTrack);
     stopPlaying();
   }
 
@@ -231,10 +256,12 @@
     if (!Number.isFinite(value)) return;
     volume = Math.min(1, Math.max(0, value));
     if (master) master.gain.value = volume;
+    syncEndingVolume();
   }
 
   function setCategoryVolumes(bgm,se){
     categoryVolumes={bgm:Number.isFinite(bgm)?Math.min(1,Math.max(0,bgm)):1,se:Number.isFinite(se)?Math.min(1,Math.max(0,se)):1};
+    syncEndingVolume();
     playing.forEach((entry,id)=>{if(entry.gain&&!entry.fading){if(sounds[id].loop)entry.gain.gain.cancelScheduledValues(context.currentTime);entry.gain.gain.value=sounds[id].gain*categoryVolumes[category(id)]}});
   }
   function pausePage() {
@@ -245,5 +272,5 @@
   document.addEventListener("visibilitychange", () => { if (document.hidden) pausePage(); });
   global.addEventListener("pagehide", pausePage);
   if (typeof global.fetch === "function") Object.keys(sounds).forEach(loadFile);
-  global.GameAudio = { unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes,syncMemoryAmbience,stopMemoryAmbience,setMusic,syncSceneMusic,resumeMusic };
+  global.GameAudio = { createEndingTrack, releaseEndingTrack, fadeForEnding, unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes,syncMemoryAmbience,stopMemoryAmbience,setMusic,syncSceneMusic,resumeMusic };
 })(window);

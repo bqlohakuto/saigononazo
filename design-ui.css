@@ -2267,8 +2267,8 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r5-handdrawn-panel button:focus-visible{outline:3px solid #f5d68a;outline-offset:2px}
 #game .r5-handdrawn-panel .r5-inventory-tile:focus-visible{outline-color:#694521}
 /* The small wall board shows the same handwritten combinations, also after load. */
-#game .r5-board-wall-grid,#game .r5-board-wall-grid.is-complete{background:none;gap:3px;padding:2px;box-sizing:border-box}
-#game .r5-board-wall-grid>.r5-wall-tile,#game .r5-board-wall-grid.is-complete>.r5-wall-tile{visibility:visible;border-radius:50%;border:2px solid #b58e5d;background:#70492e;color:#dfb789;box-shadow:inset 0 2px 3px #2b170c88}
+#game .r5-board-wall-grid,#game .r5-board-wall-grid.is-complete{background:none;gap:3px;padding:2px;box-sizing:border-box;pointer-events:none}
+#game .r5-board-wall-grid>.r5-wall-tile,#game .r5-board-wall-grid.is-complete>.r5-wall-tile{visibility:inherit;border-radius:50%;border:2px solid #b58e5d;background:#70492e;color:#dfb789;box-shadow:inset 0 2px 3px #2b170c88}
 #game .r5-board-wall-grid>.r5-wall-tile.is-placed,#game .r5-board-wall-grid>.r5-wall-tile.fixed{background:#fff5df}
 #game .r5-board-wall-grid>.r5-wall-tile img{width:90%;height:90%;image-rendering:auto}
 #game .r5-board-wall-grid>.r5-wall-tile svg{width:62%;height:62%}

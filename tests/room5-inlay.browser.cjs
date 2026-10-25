@@ -31,6 +31,12 @@ async function assertFits(page){
    });
    await page.goto(base,{waitUntil:'load'});
    await page.evaluate(()=>{settings.instantText=true;showFifthRoom({introSeen:true,boardIntroSeen:true,collected:['mirror','fish','butterfly','flower','squid','chair','cannon']});});
+   // Hidden miniature board children must not intercept other directions.
+   await page.locator('#r5TurnRight').click();
+   await page.locator('#r5FridgeUpper').click();
+   assert.equal((await saved(page)).fridgeUpperOpen,true);
+   await page.locator('#r5FridgeUpper').click();
+   for(let i=0;i<3;i++)await page.locator('#r5TurnRight').click();
    await page.locator('#r5Board').click();
    await page.waitForTimeout(250);await assertFits(page);
    assert.equal(await page.locator('.r5-counter-slot').count(),8);

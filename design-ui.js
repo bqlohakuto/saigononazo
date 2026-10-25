@@ -70,25 +70,38 @@
   const hanaV2Base='images/characters/hana-current/';
   const pixelPortraitNames={gentle:'neutral',happy:'joy',thought:'thinking',surprise:'surprise',concern:'sadness',serious:'serious',sleepy:'sleepy',neutral:'neutral',excited:'laughter'};
   const hanaV2Ready=new Set();
+  // Retain decoded images for the lifetime of the presentation. A load event
+  // alone does not mean a new background/frame is ready to paint.
+  const hanaImageCache=new Map();
+  function loadHanaImage(url){
+    if(hanaImageCache.has(url))return hanaImageCache.get(url).ready;
+    const image=new Image();
+    const entry={image,ready:null};
+    entry.ready=new Promise(resolve=>{
+      image.onload=async()=>{
+        try{if(typeof image.decode==='function')await image.decode();resolve(image)}catch{resolve(null)}
+      };
+      image.onerror=()=>resolve(null);
+    });
+    hanaImageCache.set(url,entry);image.src=url;
+    return entry.ready;
+  }
   const hanaV2Url=name=>{if(name==='full')return 'images/characters/hana-hires/idle/01.webp';const face=pixelPortraitNames[name]||'neutral';return (face==='neutral'?'images/characters/hana-hires/portrait-neutral.webp':hanaV2Base+'portraits/'+face+'.webp')+'?v=20261015-hana-hires-sleep-01'};
   for(const name of ['full',...hanaV2Names]){
-    const img=new Image();
-    img.onload=()=>{
-      hanaV2Ready.add(name);
+    loadHanaImage(hanaV2Url(name)).then(image=>{
+      if(image){
+        hanaV2Ready.add(name);
+        if(name==='full'){game.classList.add('hana-v2-full-ready');syncHud()}
+        const portrait=game.querySelector('.hana-portrait');
+        if(portrait)setExpression(portrait);
+      }
       if(name==='neutral')neutralReadyResolve();
-      if(name==='full'){game.classList.add('hana-v2-full-ready');fullReadyResolve();syncHud()}
-      const portrait=game.querySelector('.hana-portrait');
-      if(portrait)setExpression(portrait);
-    };
-    img.onerror=()=>{if(name==='neutral')neutralReadyResolve();if(name==='full')fullReadyResolve()};
-    img.src=hanaV2Url(name);
+      if(name==='full')fullReadyResolve();
+    });
   }
-  // Start only once every idle frame has loaded; failed assets keep the static fallback.
-  Promise.all([1,2,3,4].map(frame=>new Promise(resolve=>{
-    const image=new Image();
-    image.onload=()=>resolve(true);image.onerror=()=>resolve(false);
-    image.src='images/characters/hana-hires/idle/0'+frame+'.webp';
-  }))).then(loaded=>{if(loaded.every(Boolean))game.classList.add('hana-idle-ready')});
+  // Blink only after all retained frames are decoded; failure keeps the still image.
+  Promise.all([1,2,3,4].map(frame=>loadHanaImage('images/characters/hana-hires/idle/0'+frame+'.webp')))
+    .then(loaded=>{if(loaded.every(Boolean))game.classList.add('hana-idle-ready')});
   // Keep the approved high-resolution body stable. Dialogue expressions remain
   // in the portrait; independent full-body renders introduced shape and alpha noise.
   function syncWorldExpression(clear=false){
@@ -264,9 +277,10 @@
       let world=late.querySelector('.hana-v2-world');
       const endingGone=currentScene==='room08'&&
         (late.matches('.r8-empty')||roomStates.room08?.ended);
-      if(!endingGone&&hanaV2Ready.has('full')){
-        if(!world){world=document.createElement('div');world.className='hana-v2-world';world.setAttribute('role','img');world.setAttribute('aria-label','ハナ');late.append(world)}
-      }else world?.remove();
+      if(endingGone)world?.remove();
+      else if(!world&&hanaV2Ready.has('full')){
+        world=document.createElement('div');world.className='hana-v2-world';world.setAttribute('role','img');world.setAttribute('aria-label','ハナ');late.append(world);
+      }
     }
     game.querySelectorAll('.object,.late-object,#r5Board,.r7-target').forEach(el=>{const key=currentScene+':'+(el.id||el.dataset.item||el.textContent.trim());const seen=state().investigated[key];el.classList.toggle('is-investigated',seen===true||seen===investigationRevision(el));if(hooked.has(el))return;hooked.add(el);el.addEventListener('click',event=>{if(pendingUse){if(el.id!==pendingUse.target){event.preventDefault();event.stopImmediatePropagation();const p=game.querySelector('.design-use-prompt p');if(p)p.textContent='ここでは使えません。使う場所を選ぶか、キャンセルしてください。';return}const item=pendingUse;cancelUse();setTimeout(()=>game.querySelector(`[data-tile="${item.id}"]`)?.click(),0)}inspectionTarget=el.querySelector('span,strong')?.textContent||el.getAttribute('aria-label')||el.textContent.trim();state().investigated[key]=investigationRevision(el);el.classList.add('is-investigated');saveGame()},{capture:true})});
     game.querySelectorAll('.hana-choice-button,[data-choice]').forEach(el=>{if(choiceHooked.has(el))return;choiceHooked.add(el);const born=performance.now();el.addEventListener('click',e=>{if(performance.now()-born<250){e.preventDefault();e.stopImmediatePropagation()}},{capture:true})});
@@ -288,13 +302,18 @@
   }
   function setExpression(p){
     const name=hanaV2Names[expression]||portraitExpressions[0];
-    // Never return to the old six-face sheet while a pixel portrait loads.
-    const displayed=hanaV2Ready.has(name)?name:'neutral';
+    // Keep the last painted expression until the requested one can be painted.
+    // Reading the cache here also keeps the decoded idle/portrait images alive.
+    const ready=kind=>hanaV2Ready.has(kind)&&hanaImageCache.has(hanaV2Url(kind));
+    const previous=p.dataset.displayedExpression;
+    const displayed=ready(name)?name:ready(previous)?previous:'neutral';
     p.classList.add('hana-v2-portrait');
-    p.style.backgroundImage='url("'+hanaV2Url(displayed)+'")';
+    const background='url("'+hanaV2Url(displayed)+'")';
+    if(p.style.backgroundImage!==background)p.style.backgroundImage=background;
     p.style.backgroundSize='contain';
     p.style.backgroundPosition='center bottom';
     p.dataset.expression=name;
+    p.dataset.displayedExpression=displayed;
   }
   function displayLine(line,kind){
     const memoryVisual=window.MemoryVisuals?.get(currentScene,line);

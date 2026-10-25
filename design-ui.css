@@ -63,7 +63,7 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 #game .hana-portrait{position:absolute;pointer-events:none;left:1%;bottom:21%;height:66%;aspect-ratio:1;max-width:38%;background-image:url(images/characters/hana-hires/portrait-neutral.webp);background-size:contain;background-position:center bottom;z-index:-1;animation:none}
 #game .hana-portrait[hidden]{display:none}
 #game .room-dialog-overlay[data-memory-stage] .hana-portrait{display:none!important}
-#game .room-dialog.dialog-hidden{background:transparent!important;border:0!important;box-shadow:none;pointer-events:none}
+#game .room-dialog.dialog-hidden{background:transparent!important;border:0!important;box-shadow:none!important;transition:none!important;pointer-events:none}
 #game .room-dialog.dialog-hidden .dialog-message-area,#game .room-dialog.dialog-hidden .dialog-controls,#game .room-dialog.dialog-hidden .design-controls{visibility:hidden}
 #game .dialogue-restore{position:absolute;inset:0;border:0;background:transparent;pointer-events:auto;z-index:0}
 #game .dialogue-restore[hidden]{display:none}

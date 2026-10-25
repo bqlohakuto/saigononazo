@@ -49,6 +49,7 @@ async function fit(page){
   await page.locator('[data-design-log]').click();assert.equal(await page.locator('.memory-window-portrait:visible').count(),0,'portrait leaves the log readable');
   await page.locator('[data-design-log]').click();assert.equal(await page.locator('.memory-window-portrait:visible').count(),1);
   await page.getByRole('button',{name:'非表示',exact:true}).click();assert.equal(await page.locator('.memory-window-portrait:visible').count(),1);
+  assert.equal(await page.locator('.room-dialog').evaluate(el=>getComputedStyle(el).boxShadow),'none','hide removes the translucent window outline');
   await page.locator('.dialogue-restore').click({position:{x:500,y:100}});
   await reach(page,'r5m038');await page.locator('.memory-girl').evaluate(i=>i.decode());await fit(page);
   await page.screenshot({path:path.join(out,spec.name+'-pout.png')});

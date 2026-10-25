@@ -45,19 +45,31 @@ click('#r5Board');finish();
 assert.ok(q('.r5-board-panel'));
 assert.match(q('.r5-problem').textContent,/描かれたものを正しく数え/);
 
+// A wrong attempt shows its own combination and never locks or closes the board.
+const board=q('.r5-board-panel');
+click('[data-tile="mirror"]');click('[data-counter="尾"]');
+assert.match(q('[data-counter="尾"] img').src,/mirror-tail\.png$/);
+assert.equal(Object.keys(save().rooms.room05.placed).length,0);
+assert.equal(q('.room-dialog-overlay'),null);
+assert.equal(q('[data-tile="mirror"]').getAttribute('aria-pressed'),'true');
+
 const placements=[
  ['mirror','面'],['fish','尾'],['flower','輪'],['squid','杯'],['chair','脚'],['cannon','門'],['butterfly','頭']
 ];
 for(let i=0;i<placements.length;i++){
   if(!q('.r5-board-panel'))click('#r5Board');
   const [id,counter]=placements[i];
-  click('[data-tile="'+id+'"]');
+  if(q('[data-tile="'+id+'"]').getAttribute('aria-pressed')!=='true')click('[data-tile="'+id+'"]');
   click('[data-counter="'+counter+'"]');
   finish();
+  assert.equal(q('.r5-board-panel'),board,'judgement must leave the same board open');
   assert.equal(qa('#r5Scene .r5-board-wall-grid .r5-wall-tile.is-placed img').length,i+1,'fitted artwork also appears on the wall');
 }
 assert.equal(save().rooms.room05.codeRevealed,true);
 assert.equal(Object.keys(save().rooms.room05.placed).length,7);
+assert.equal(q('.r5-inlay-code').hidden,false);
+assert.equal(q('.r5-inlay-code').textContent,'8194');
+click('.r5-board-panel .device-close');
 assert.ok(q('#r5Keypad'));
 
 click('#r5Keypad');

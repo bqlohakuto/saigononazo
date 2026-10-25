@@ -847,7 +847,9 @@ showTitle();
 
 let lastTouchEnd=0;
 document.addEventListener("touchend",event=>{
- if(event.target.closest?.(".dialog-log-area,.log-button")){lastTouchEnd=0;return}
+ // The inlay board requires consecutive taps on a tile and its destination.
+ // Its controls already use touch-action to suppress browser double-tap zoom.
+ if(event.target.closest?.(".dialog-log-area,.log-button,.r5-handdrawn-panel")){lastTouchEnd=0;return}
  const now=Date.now();
  if(now-lastTouchEnd<=300)event.preventDefault();
  lastTouchEnd=now;

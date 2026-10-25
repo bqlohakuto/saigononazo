@@ -2215,3 +2215,64 @@ body{background:#0b1322!important;display:grid;place-items:center}
  padding:0;
 }
 
+/* Room 5: the user's black pen combinations live on a physical inlay board.
+   Keep the entire work surface inside the uniformly scaled 960 x 540 game. */
+#game .device-overlay.r5-board-overlay{padding:52px 38px 12px!important;display:grid;place-items:stretch;grid-template-rows:minmax(0,1fr);background:#201a14b8!important}
+#game .r5-board-overlay .r5-handdrawn-panel{
+ --r5-paper:#fff8e7;--r5-ink:#352d25;--r5-wood:#b67d4c;--r5-rim:#d0a472;--r5-hole:#73492f;--r5-glow:#fce2a3;
+ position:relative;box-sizing:border-box;width:100%;height:100%;max-height:none;min-height:0;margin:0;padding:10px 18px 12px;
+ display:grid;grid-template-rows:32px minmax(0,1fr) 76px 50px;gap:8px;overflow:visible;
+ background:#f6efdf;color:var(--r5-ink);border:2px solid #a98a56;box-shadow:0 10px 32px #120d0a80;
+}
+#game .r5-handdrawn-panel .r5-board-header{display:flex;align-items:center;gap:8px;min-width:0}
+#game .r5-handdrawn-panel .r5-problem{flex:1;padding:0;margin:0;border:0;background:none;text-align:left;font-size:15px;line-height:1.4;letter-spacing:.025em}
+#game .r5-handdrawn-panel .r5-board-header button{position:static;flex:0 0 auto;min-width:32px;min-height:30px;height:30px;padding:2px 10px;font:inherit;font-size:13px!important;background:var(--r5-paper);border:1px solid #b99a6b;color:var(--r5-ink);cursor:pointer}
+#game .r5-handdrawn-panel .r5-inlay-board{
+ position:relative;justify-self:center;align-self:stretch;width:min(100%,640px);min-height:0;
+ background:repeating-linear-gradient(1deg,#ffffff06 0 2px,#00000004 2px 4px,transparent 4px 22px),linear-gradient(90deg,#a87040,#bc8956 25%,#b47c49 70%,#9e673a);
+ border:7px solid #825334;box-shadow:inset 0 0 0 2px #e1b887,inset 0 5px 0 #ffffff20,0 3px 0 #61402b;
+}
+#game .r5-handdrawn-panel .r5-counter-grid{display:grid;position:absolute;inset:0;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:10px 24px;margin:0;padding:10px 22px}
+#game .r5-handdrawn-panel .r5-counter-slot{
+ position:relative;inset:auto;transform:none;align-self:center;justify-self:center;display:grid;place-items:center;
+ width:auto;height:100%;max-width:100%;aspect-ratio:1;min-width:0;min-height:0;overflow:hidden;
+ padding:10px;border:5px solid var(--r5-rim);background:var(--r5-hole);
+ box-shadow:inset 0 3px 7px 2px #23140db0,0 1px 0 #efc79a;color:#e0ba89;cursor:pointer;
+}
+#game .r5-board-overlay .r5-handdrawn-panel .r5-counter-grid .r5-counter-slot{border-radius:50%!important}
+#game .r5-handdrawn-panel .r5-counter-slot>svg{display:block;width:68%;height:68%;stroke:currentColor;pointer-events:none}
+#game .r5-handdrawn-panel .r5-counter-slot.filled,#game .r5-handdrawn-panel .r5-counter-slot.is-preview{background:var(--r5-paper);padding:7px;box-shadow:inset 0 0 0 1px #87613c,0 2px 0 #67412c;color:var(--r5-ink);opacity:1}
+#game .r5-handdrawn-panel .r5-counter-slot.filled{cursor:default}
+#game .r5-handdrawn-panel .r5-counter-slot.is-preview{border-color:#cfaa79}
+#game .r5-handdrawn-panel .r5-combination-picture{width:100%;height:100%;min-width:0;min-height:0;object-fit:contain;pointer-events:none;image-rendering:auto}
+#game .r5-handdrawn-panel .r5-counter-slot.available:hover,#game .r5-handdrawn-panel .r5-counter-slot.is-over{outline:3px solid var(--r5-glow);outline-offset:1px;background:#855637}
+#game .r5-handdrawn-panel .r5-counter-grid.has-selection .r5-counter-slot:not(:disabled){border-color:#e1b77c}
+#game .r5-handdrawn-panel .r5-inventory{display:grid;grid-template-columns:repeat(7,68px);justify-content:center;align-items:center;gap:12px;min-height:0;margin:0;padding:3px 8px;border:0;border-bottom:2px solid #bb9c72;background:linear-gradient(transparent,#d9c7a366)}
+#game .r5-handdrawn-panel .r5-inventory-tile,#game .r5-handdrawn-panel .r5-tile-rest{position:relative;box-sizing:border-box;display:block;width:68px;height:68px;min-width:0;min-height:0;margin:0;padding:3px;touch-action:none;border:1px solid #997b55;background:#fff8e8;box-shadow:0 3px 0 #947249;color:var(--r5-ink);cursor:grab}
+#game .r5-handdrawn-panel .r5-inventory-tile img{position:static;display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
+#game .r5-board-overlay .r5-handdrawn-panel button.r5-inventory-tile{touch-action:none;user-select:none;-webkit-user-select:none}
+#game .r5-handdrawn-panel .r5-inventory-tile.selected{outline:3px solid #8e6133;outline-offset:2px;transform:translateY(-3px);background:#ffe6b6}
+#game .r5-handdrawn-panel .r5-inventory-tile.is-dragging{opacity:.3}
+#game .r5-handdrawn-panel .r5-tile-rest{background:#d5c5a84d;border:1px dashed #c5b18e;box-shadow:none;cursor:default}
+#game .r5-handdrawn-panel .r5-tile-rest.is-used{border-style:solid;background:#cab49330}
+#game .r5-handdrawn-panel .r5-drag-ghost{position:absolute;width:68px;height:68px;padding:0;border:0;background:var(--r5-paper);transform:translate(-50%,-50%);box-shadow:0 6px 12px #37231266;pointer-events:none;z-index:8}
+#game .r5-handdrawn-panel .r5-drag-ghost img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+#game .r5-handdrawn-panel .r5-board-feedback{box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:3px;min-height:0;margin:0;padding:4px 16px;text-align:left;background:#293d43;border:1px solid #bd9c5c;color:#fff7de;font-size:14px;line-height:1.35;overflow:auto}
+#game .r5-handdrawn-panel .r5-board-feedback:empty{background:#e8dfcc;border-color:#c9b68f}
+#game .r5-handdrawn-panel .r5-board-feedback p{margin:0;font-size:inherit;line-height:inherit}
+#game .r5-handdrawn-panel .r5-board-feedback b{display:inline-block;min-width:4em;margin-right:14px;color:#e6c78b;font-weight:400}
+#game .r5-handdrawn-panel .r5-help-note{position:absolute;z-index:10;top:47px;right:16px;max-width:440px;padding:16px;background:#fff8e8;border:2px solid #a98a56;box-shadow:0 6px 15px #261b1255;font-size:14px;line-height:1.8}
+#game .r5-handdrawn-panel .r5-help-note[hidden],#game .r5-handdrawn-panel .r5-inlay-code[hidden]{display:none}
+#game .r5-handdrawn-panel .r5-inlay-code{position:absolute;inset:50% 28% auto;transform:translateY(-50%);z-index:2;background:#302a24;border:2px solid #d8b56f;box-shadow:0 0 12px #ffdf9380;color:#fff0b3;text-align:center;font:700 25px/1.15 'DotGothic16',monospace;letter-spacing:.3em;padding:2px 0 2px .3em;pointer-events:none}
+#game .r5-handdrawn-panel button:focus-visible{outline:3px solid #f5d68a;outline-offset:2px}
+#game .r5-handdrawn-panel .r5-inventory-tile:focus-visible{outline-color:#694521}
+/* The small wall board shows the same handwritten combinations, also after load. */
+#game .r5-board-wall-grid,#game .r5-board-wall-grid.is-complete{background:none;gap:3px;padding:2px;box-sizing:border-box}
+#game .r5-board-wall-grid>.r5-wall-tile,#game .r5-board-wall-grid.is-complete>.r5-wall-tile{visibility:visible;border-radius:50%;border:2px solid #b58e5d;background:#70492e;color:#dfb789;box-shadow:inset 0 2px 3px #2b170c88}
+#game .r5-board-wall-grid>.r5-wall-tile.is-placed,#game .r5-board-wall-grid>.r5-wall-tile.fixed{background:#fff5df}
+#game .r5-board-wall-grid>.r5-wall-tile img{width:90%;height:90%;image-rendering:auto}
+#game .r5-board-wall-grid>.r5-wall-tile svg{width:62%;height:62%}
+@media(prefers-reduced-motion:no-preference){
+ #game .r5-handdrawn-panel .r5-inventory-tile{transition:transform .15s ease,outline-color .15s ease}
+ #game .r5-handdrawn-panel .r5-combination-picture{animation:r5-ink-appear .24s ease-out}
+ @keyframes r5-ink-appear{from{opacity:.25;transform:scale(.9)}to{opacity:1;transform:scale(1)}}

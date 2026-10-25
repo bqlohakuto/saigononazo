@@ -6,10 +6,15 @@ on:
     paths:
       - 'room5.js'
       - 'room5.css'
+      - 'design-ui.css'
+      - 'design-ui.js'
+      - 'images/background/room05/combinations/**'
       - 'late-game.js'
       - 'late-game.css'
       - 'script.js'
       - 'tests/room5-mirror.test.cjs'
+      - 'tests/room5-crayon-board.test.cjs'
+      - 'tests/room5-inlay.browser.cjs'
       - '.github/workflows/room05-regression.yml'
 permissions:
   contents: read
@@ -23,10 +28,23 @@ jobs:
         with:
           node-version: '22'
       - name: Install DOM test dependency
-        run: npm install --no-save --no-package-lock jsdom@26
+        run: |
+          npm install --no-save --no-package-lock jsdom@26 playwright@1.56.1
+          npx playwright install --with-deps chromium
       - name: Syntax check
         run: |
           node --check room5.js
           node --check late-game.js
       - name: Test seventh-panel completion, 8194, flashback and save
-        run: node tests/room5-mirror.test.cjs
+        run: |
+          node --test tests/room5-crayon-board.test.cjs tests/cache-version.test.cjs
+          node tests/room5-mirror.test.cjs
+      - name: Test all combinations and desktop/mobile operations
+        env:
+          LOCAL_REVIEW: '1'
+        run: node tests/room5-inlay.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: room05-handdrawn-inlay
+          path: artifacts/room05-inlay/

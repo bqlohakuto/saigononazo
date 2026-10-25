@@ -26,6 +26,29 @@
     ["ring","輪","花"],["cup","杯","イカ"],["leg","脚","椅子"],["gate","門","大砲"]
   ];
   const R5_TARGET={mirror:"面",fish:"尾",butterfly:"頭",flower:"輪",squid:"杯",chair:"脚",cannon:"門"};
+  const R5_ART_COUNTER={"面":"mask","尾":"tail","頭":"head","輪":"wheel","杯":"cup","脚":"legs","門":"gate"};
+  const r5CombinedImage=(id,counter)=>"images/background/room05/combinations/"+(id==="rabbit"?"rabbit-feather":id+"-"+R5_ART_COUNTER[counter])+".png";
+  const r5CounterSketch=slot=>'<svg viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">'+({
+    feather:'<path d="M14 52 Q8 18 49 10 Q61 39 14 52 Z M14 52 L47 15 M25 39 L23 26 M34 30 L49 31"/>',
+    face:'<path d="M16 27 L17 8 L27 20 L38 20 L48 10 L49 33 Q45 49 32 57 Q19 49 16 27 Z M22 29 Q24 38 29 36 Z M42 29 Q40 38 35 36 Z"/><circle cx="32" cy="46" r="2" fill="currentColor"/>',
+    tail:'<path d="M10 30 L48 11 Q42 31 49 52 L10 34 Z M15 32 L40 20 M16 32 L40 32 M16 33 L41 44"/>',
+    head:'<circle cx="32" cy="31" r="23"/><path d="M9 27 Q2 23 3 32 Q3 39 9 36 M55 27 Q62 24 61 33 Q61 39 55 36 M23 39 Q32 48 41 39"/><circle cx="24" cy="29" r="1.5" fill="currentColor"/><circle cx="40" cy="29" r="1.5" fill="currentColor"/><circle cx="32" cy="35" r=".8" fill="currentColor"/>',
+    ring:'<circle cx="32" cy="32" r="23"/><circle cx="32" cy="32" r="4"/><path d="M32 9 V28 M32 36 V55 M12 20 L29 30 M35 34 L52 44 M12 44 L29 34 M35 30 L52 20"/>',
+    cup:'<ellipse cx="32" cy="17" rx="22" ry="6"/><path d="M10 17 Q10 35 28 38 L28 50 Q12 54 22 56 H42 Q52 54 36 50 L36 38 Q54 35 54 17"/>',
+    leg:'<path d="M23 9 L38 9 L37 40 L45 49 Q52 56 43 56 H20 Q16 52 24 48 L25 38 Z"/>',
+    gate:'<path d="M10 55 V29 Q10 6 32 6 Q54 6 54 29 V55 Z M18 55 V30 Q18 15 32 15 Q46 15 46 30 V55 M32 15 V55"/><path d="M26 36 V40 M38 36 V40"/>'
+  }[slot]||'')+'</svg>';
+  function r5WallTiles(){
+    return R5_COUNTERS.map(([slot,counter])=>{
+      const id=slot==="feather"?"rabbit":R5_ITEMS.find(([id])=>room5State.placed[id]===counter)?.[0];
+      return '<span class="r5-wall-tile'+(id==='rabbit'?' fixed':id?' is-placed':'')+'">'+(id?'<img src="'+r5CombinedImage(id,counter)+'" alt="">':r5CounterSketch(slot))+'</span>';
+    }).join('');
+  }
+  function r5RefreshWall(){
+    const wall=game.querySelector('.r5-board-wall-grid');
+    if(wall){wall.innerHTML=r5WallTiles();wall.classList.toggle('is-complete',room5State.codeRevealed);}
+    window.GameplayUI?.updateObjective();
+  }
 
   function normalizeR5(saved){
     const s=saved&&typeof saved==="object"?saved:{};
@@ -87,12 +110,7 @@
     const hotspot=(id,name)=>'<button type="button" class="r5-scene-target r5-target-'+id+(got(id)?' is-gone':'')+'" data-item="'+id+'" aria-label="'+name+'" '+(got(id)?'disabled':'')+'><span class="r5-visually-hidden">'+name+'</span></button>';
     // The wall board is a miniature of the actual puzzle: collected and fitted
     // approved panel art must appear here too, not leave seven empty frames.
-    const wallTiles=R5_COUNTERS.map(([slot,counter])=>{
-      if(slot==="feather")return '<span class="r5-wall-tile fixed">'+r5Drawing('rabbit','うさぎ')+'</span>';
-      const placed=R5_ITEMS.find(([id])=>room5State.placed[id]===counter);
-      if(!placed)return '<span class="r5-wall-tile"></span>';
-      return '<span class="r5-wall-tile is-placed"><img src="images/background/room05/panels/'+placed[0]+'.webp" alt=""></span>';
-    }).join('');
+    const wallTiles=r5WallTiles();
     game.innerHTML='<main class="room late-room r5-full" aria-label="第五の部屋">'+
       '<div class="r5-room-wrap"><section class="r5-living-scene" id="r5Scene" data-view="'+view+'" data-fridge="'+fridgeState+'" aria-label="リビング">'+
       '<div class="r5-living-wall r5-wall-front" aria-hidden="true"></div>'+
@@ -250,7 +268,7 @@
   }
 
   function r5Board(){
-    if(room5State.completed){showRoomNotice("完成したパネルが残っている。","r5_board_done");return}
+    if(game.querySelector('.device-overlay,.room-dialog-overlay,.design-overlay'))return;
     if(!room5State.boardIntroSeen&&room5State.collected.length===7){
       room5State.boardIntroSeen=true;saveGame();
       showRoomDialog([
@@ -266,112 +284,169 @@
       ],r5Board);
       return;
     }
-    const o=document.createElement("div");o.className="device-overlay late-overlay r5-board-overlay";
-    const available=R5_ITEMS.filter(([id])=>room5State.collected.includes(id)&&!room5State.placed[id]);
-    const r5ItemIcon={mirror:"mirror",fish:"tail",butterfly:"head",flower:"wreath",squid:"cup",chair:"leg",cannon:"gate"};
-    // The children's crayon combined pictures belong to the board, not the item inventory.
-    // These reliefs cover only *unplaced* sockets. As each correct piece is fitted,
-    // the corresponding combined drawing underneath becomes visible.
-    const relief={
-      face:'<path d="M15 14 Q32 9 49 14 L47 37 Q42 49 32 54 Q20 49 17 37 Z"/><path d="M20 28 Q26 24 30 28 M34 28 Q40 24 45 28 M28 41 Q32 44 36 41"/>',
-      tail:'<path d="M12 25 Q20 32 30 31 L54 13 Q46 32 54 51 L30 35 Q20 34 12 41 Z"/><path d="M30 31 L53 13 M30 35 L53 51"/>',
-      head:'<path d="M22 53 L22 44 Q13 37 16 27 Q18 12 35 12 Q45 13 46 24 L53 31 L45 34 L44 43 L51 53 Z"/><path d="M25 20 Q33 15 40 22 M44 28 L46 28 M37 35 Q42 38 45 35"/>',
-      ring:'<circle cx="32" cy="32" r="22"/><circle cx="32" cy="32" r="5"/><path d="M32 10 V27 M32 37 V54 M10 32 H27 M37 32 H54 M16 16 L28 28 M36 36 L48 48 M48 16 L36 28 M28 36 L16 48"/>',
-      cup:'<path d="M17 14 H47 V28 Q47 39 34 42 L34 50 H43 V55 H21 V50 H30 V42 Q17 39 17 28 Z"/><path d="M13 17 H51"/>',
-      leg:'<path d="M25 10 Q29 10 33 12 L39 28 L36 40 L46 49 Q51 52 48 55 L27 55 Q22 51 28 47 L30 36 L23 23 Z"/>',
-      gate:'<path d="M12 52 V16 L20 12 H51 V52"/><path d="M21 52 V17 H48 V52 M21 34 L48 20 M22 26 L47 45 M15 52 H52"/>'
-    };
-    const counterSketch=slot=>'<svg viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">'+(relief[slot]||'')+'</svg>';
-    // Preserve the already-approved seven collectible panels; this is a temporary
-    // combined-picture pass and does not change their save IDs or puzzle answers.
-    const picture=id=>'<span class="r5-art-fallback">'+r5Drawing(r5ItemIcon[id],"")+'</span><img class="r5-item-picture" src="images/background/room05/panels/'+id+'.webp" alt="" loading="lazy">';
-    const xs=[14.5,37.5,60.5,83.5],ys=[29.5,76.2];
-    const slots=R5_COUNTERS.map(([slot,counter],index)=>{
-      const style=' style="--slot-x:'+xs[index%4]+'%;--slot-y:'+ys[Math.floor(index/4)]+'%"';
-      if(slot==="feather")return '<button class="r5-counter-slot fixed"'+style+' disabled aria-label="うさぎと羽の完成したパネル"></button>';
-      const placedId=Object.keys(room5State.placed).find(id=>room5State.placed[id]===counter);
-      return '<button class="r5-counter-slot '+(placedId?"filled":"available")+'"'+style+' data-counter="'+counter+'" aria-label="'+counter+'の絵の枠'+(placedId?' 配置済み':'')+'" '+(placedId?"disabled":"")+'>'+(placedId?'':counterSketch(slot))+'</button>';
-    }).join("");
-    const inventory=available.length?available.map(([id,name])=>'<button class="r5-inventory-tile" data-tile="'+id+'" aria-label="'+name+'のパネルを選ぶ">'+picture(id)+'<span class="r5-visually-hidden">'+name+'</span></button>').join(""):'<p class="r5-empty-inventory">配置できるパネルはありません。</p>';
-    o.innerHTML='<section class="late-panel r5-board-panel"><button class="device-close" aria-label="閉じる">×</button><h2>壁のパネル</h2>'+
-      '<p class="r5-problem">描かれたものを正しく数え、あるべき場所へ導け。</p>'+
-      ''+
-      '<div class="r5-doodle-board" aria-label="助数詞の木製はめ込み盤"><div class="r5-counter-grid">'+slots+'</div></div>'+
-      '<h3>手に入れたパネル</h3><div class="r5-inventory">'+inventory+'</div>'+
-      '<p class="r5-board-feedback" id="r5BoardFeedback"></p>'+
-      (room5State.codeRevealed?'<div class="r5-code-reveal"><small>完成した線が示した数字</small><strong>8194</strong></div>':'')+
-      '</section>';
+    const boardState=room5State;
+    const o=document.createElement('div');o.className='device-overlay r5-board-overlay';
+    o.innerHTML='<section class="r5-board-panel r5-handdrawn-panel" aria-label="助数詞のはめ込み盤">'+
+      '<header class="r5-board-header"><p class="r5-problem">描かれたものを正しく数え、あるべき場所へ導け。</p><button type="button" class="r5-board-help" aria-label="パネルの操作方法" aria-expanded="false">？</button><button type="button" class="device-close" aria-label="盤を閉じる">閉じる</button></header>'+
+      '<div class="r5-inlay-board" role="group" aria-label="丸枠が八つ並ぶ木の盤"><div class="r5-counter-grid"></div><output class="r5-inlay-code" aria-label="盤に現れた暗証番号" hidden>8194</output></div>'+
+      '<div class="r5-inventory" role="group" aria-label="手元のパネル"></div>'+
+      '<div class="r5-board-feedback" id="r5BoardFeedback" role="status" aria-live="polite" aria-atomic="true"></div>'+
+      '<div class="r5-help-note" hidden>手元のパネルを選び、丸い枠を押してはめ込む。ドラッグでも動かせる。合わない組み合わせは手元に戻る。<br>キーボードでは Tab で移動、Enter または Space で選択・配置。Esc で盤を閉じる。</div></section>';
     game.appendChild(o);
-    o.querySelectorAll(".r5-item-picture").forEach(img=>{
-      img.onload=()=>{if(img.previousElementSibling)img.previousElementSibling.hidden=true;};
-      img.onerror=()=>img.remove();
-    });
-    activateDeviceModal(o,"r5Board",o.querySelector(".r5-inventory-tile")||o.querySelector(".device-close"));
-    let selected=null;
-    const feedback=o.querySelector("#r5BoardFeedback");
-    const tiles=[...o.querySelectorAll("[data-tile]")];
-    const slotsEls=[...o.querySelectorAll("[data-counter]")];
-    tiles.forEach(b=>b.onclick=()=>{
-      selected=b.dataset.tile;
-      tiles.forEach(x=>x.classList.toggle("selected",x===b));
-      const name=R5_ITEMS.find(x=>x[0]===selected)?.[1]||selected;
-      feedback.textContent=name+"のパネルを選んだ。置く場所を選ぼう。";
-    });
-    slotsEls.forEach(b=>b.onclick=()=>{
-      if(!selected){feedback.textContent="先に、置くパネルを選ぼう。";return}
-      const counter=b.dataset.counter;
-      const expected=R5_TARGET[selected];
-      if(counter!==expected){
-        feedback.textContent="違いますね。";
-        showRoomNotice("違いますね。","r5_wrong_"+selected+"_"+counter,"dialogue","主人公");
+    const panel=o.querySelector('section'),grid=o.querySelector('.r5-counter-grid'),tray=o.querySelector('.r5-inventory'),feedback=o.querySelector('#r5BoardFeedback');
+    let selected=null,preview=null,previewTimer=null,drag=null,ignoreClick=null,disposed=false;
+    const valid=()=>!disposed&&o.isConnected&&currentScene==='room05'&&room5State===boardState;
+    const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const stopDrag=()=>{drag?.ghost?.remove();drag?.button.classList.remove('is-dragging');drag=null;grid.querySelectorAll('.is-over').forEach(b=>b.classList.remove('is-over'));};
+    const cleanup=()=>{disposed=true;clearTimeout(previewTimer);stopDrag();observer.disconnect();};
+    const observer=new MutationObserver(()=>{if(!o.isConnected)cleanup();});
+    observer.observe(game,{childList:true});
+    function say(lines,log=true){
+      feedback.replaceChildren();
+      lines.forEach(entry=>{
+        const p=document.createElement('p');
+        if(entry.speaker!=='ト書き'&&entry.speaker!=='システム'){
+          const name=document.createElement('b');name.textContent=entry.speaker;p.append(name);
+        }
+        p.append(document.createTextNode(entry.text));feedback.append(p);if(log)recordLog(entry);
+      });
+    }
+    function clearPreview(){clearTimeout(previewTimer);previewTimer=null;preview=null;}
+    function select(id){
+      if(!valid())return;
+      selected=selected===id?null:id;
+      tray.querySelectorAll('[data-tile]').forEach(b=>{
+        b.classList.toggle('selected',b.dataset.tile===selected);b.setAttribute('aria-pressed',String(b.dataset.tile===selected));
+      });
+      grid.classList.toggle('has-selection',!!selected);
+      // Warm only this object's seven combinations, rather than loading all 49 on entry.
+      if(selected&&typeof Image!=='undefined')Object.keys(R5_ART_COUNTER).forEach(counter=>{const image=new Image();image.src=r5CombinedImage(selected,counter);});
+    }
+    function drawSlots(){
+      grid.innerHTML=R5_COUNTERS.map(([slot,counter])=>{
+        const id=slot==='feather'?'rabbit':R5_ITEMS.find(([id])=>boardState.placed[id]===counter)?.[0];
+        const trying=preview?.counter===counter&&!id;
+        const imageId=id||(trying?preview.id:null);
+        const name=id==='rabbit'?'ウサギ':R5_ITEMS.find(([item])=>item===imageId)?.[1];
+        return '<button type="button" class="r5-counter-slot '+(id?'filled':trying?'is-preview':'available')+'" '+(slot==='feather'?'disabled':'data-counter="'+counter+'"')+' aria-label="'+(imageId?name+'と'+counter+'の合体絵'+(id?' 配置済み':' お試し'):counter+'の絵の枠')+'" '+(id?'disabled':'')+'>'+(imageId?'<img class="r5-combination-picture" src="'+r5CombinedImage(imageId,counter)+'" alt="" draggable="false">':r5CounterSketch(slot))+'</button>';
+      }).join('');
+      grid.classList.toggle('has-selection',!!selected);
+      grid.querySelectorAll('[data-counter]').forEach(b=>b.onclick=()=>place(b.dataset.counter));
+      o.querySelector('.r5-inlay-code').hidden=!boardState.codeRevealed;
+      panel.classList.toggle('is-complete',boardState.codeRevealed);
+    }
+    function drawTray(){
+      tray.innerHTML=R5_ITEMS.map(([id,name])=>{
+        if(!boardState.collected.includes(id))return '<span class="r5-tile-rest" aria-hidden="true"></span>';
+        if(boardState.placed[id])return '<span class="r5-tile-rest is-used" aria-hidden="true"></span>';
+        return '<button type="button" class="r5-inventory-tile" data-tile="'+id+'" aria-label="'+name+'のパネルを選ぶ" aria-pressed="false"><img class="r5-item-picture" src="images/background/room05/panels/'+id+'.webp" alt="" draggable="false"></button>';
+      }).join('');
+      tray.querySelectorAll('[data-tile]').forEach(b=>{
+        const id=b.dataset.tile;
+        b.onclick=()=>{if(ignoreClick===id){ignoreClick=null;return;}select(id);};
+        b.onpointerdown=e=>{
+          if(e.button!==0||drag)return;
+          drag={button:b,id,pointerId:e.pointerId,x:e.clientX,y:e.clientY,moving:false,ghost:null};
+          b.setPointerCapture?.(e.pointerId);
+        };
+        b.onpointermove=e=>{
+          if(!drag||drag.pointerId!==e.pointerId)return;
+          if(!drag.moving&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>8){
+            drag.moving=true;
+            if(selected!==id)select(id);
+            drag.ghost=b.cloneNode(true);drag.ghost.removeAttribute('data-tile');drag.ghost.removeAttribute('aria-pressed');
+            drag.ghost.setAttribute('aria-hidden','true');drag.ghost.tabIndex=-1;drag.ghost.className='r5-drag-ghost';panel.append(drag.ghost);b.classList.add('is-dragging');
+          }
+          if(drag.ghost){
+            // Pointer coordinates are physical; the game's fixed 960x540 canvas is scaled.
+            const bounds=panel.getBoundingClientRect(),scale=panel.offsetWidth/bounds.width;
+            drag.ghost.style.left=(e.clientX-bounds.left)*scale+'px';drag.ghost.style.top=(e.clientY-bounds.top)*scale+'px';
+            const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-counter]');
+            grid.querySelectorAll('[data-counter]').forEach(s=>s.classList.toggle('is-over',s===target&&!s.disabled));
+          }
+        };
+        b.onpointerup=e=>{
+          if(!drag||drag.pointerId!==e.pointerId)return;
+          const moved=drag.moving;stopDrag();
+          if(!moved)return;
+          ignoreClick=id;setTimeout(()=>{if(ignoreClick===id)ignoreClick=null;},0);
+          const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-counter]');
+          if(target&&grid.contains(target)&&!target.disabled)place(target.dataset.counter);
+        };
+        b.onpointercancel=()=>stopDrag();
+        b.onlostpointercapture=()=>{if(drag?.button===b)stopDrag();};
+      });
+    }
+    function place(counter){
+      if(!valid()||!R5_ART_COUNTER[counter]||Object.values(boardState.placed).includes(counter))return;
+      if(!selected){
+        feedback.textContent='手元のパネルを選んでください。';return;
+      }
+      const id=selected;
+      if(!boardState.collected.includes(id)||boardState.placed[id])return;
+      clearPreview();
+      if(R5_TARGET[id]!==counter){
+        preview={id,counter};drawSlots();
+        say([line('r5_wrong_'+id+'_'+counter,'主人公','……違いますね。')]);
+        previewTimer=setTimeout(()=>{if(!valid())return;preview=null;drawSlots();},1800);
+        grid.querySelector('[data-counter="'+counter+'"]')?.focus({preventScroll:true});
         return;
       }
-      const before=r5PlacedCount();
-      const placedId=selected;
-      const butterflyLast=placedId==="butterfly"&&before===6;
-      room5State.placed[placedId]=counter;saveGame();
-      const isFirst=before===0;
-      selected=null;
-      if(butterflyLast){
-        o.remove();
-        showRoomDialog([
-          line("r5_butterfly_hint_06","ト書き","蝶のパネルを置く。正解。"),
-          line("r5_butterfly_hint_07","主人公","……本当に一頭なんですね。"),
-          line("r5_butterfly_hint_08","ハナ","覚えたね。")
-        ],r5CompleteBoard);
-        return;
+      const before=r5PlacedCount(),butterflyLast=id==='butterfly'&&before===6;
+      if(!reduced()){
+        const tile=tray.querySelector('[data-tile="'+id+'"]'),slot=grid.querySelector('[data-counter="'+counter+'"]');
+        if(tile&&slot&&tile.animate){
+          const base=panel.getBoundingClientRect(),from=tile.getBoundingClientRect(),to=slot.getBoundingClientRect(),scale=panel.offsetWidth/base.width;
+          const ghost=document.createElement('span');ghost.className='r5-drag-ghost';ghost.setAttribute('aria-hidden','true');ghost.append(tile.querySelector('img').cloneNode());panel.append(ghost);
+          const animation=ghost.animate([
+            {left:(from.x+from.width/2-base.x)*scale+'px',top:(from.y+from.height/2-base.y)*scale+'px',width:from.width*scale+'px',height:from.height*scale+'px'},
+            {left:(to.x+to.width/2-base.x)*scale+'px',top:(to.y+to.height/2-base.y)*scale+'px',width:to.width*scale+'px',height:to.height*scale+'px',opacity:0}
+          ],{duration:300,easing:'cubic-bezier(.2,.7,.2,1)',fill:'forwards'});
+          animation.finished.then(()=>ghost.remove(),()=>ghost.remove());
+        }
       }
-      if(isFirst){
-        o.remove();
-        showRoomDialog([
-          line("r5_place_first_01","ト書き","パネルが淡く光る。丸枠へ吸い込まれるように重なり、二つの絵が一つの合体絵へ切り替わる。"),
-          line("r5_place_first_02","主人公","……合ってる。"),
-          line("r5_place_first_03","ハナ","みたいだね。")
-        ],()=>{if(r5PlacedCount()===7)r5CompleteBoard();else{renderR5();r5ButterflyHintIfNeeded()}});
-        return;
+      boardState.placed[id]=counter;selected=null;saveGame();
+      drawSlots();drawTray();r5RefreshWall();
+      const fitted=grid.querySelector('[data-counter="'+counter+'"]');
+      if(!reduced())fitted?.animate?.([{filter:'brightness(1)',transform:'scale(.88)'},{filter:'brightness(1.25)',transform:'scale(1.03)'},{filter:'brightness(1)',transform:'scale(1)'}],{duration:380,easing:'ease-out'});
+      if(r5PlacedCount()===7){
+        if(butterflyLast)[line('r5_butterfly_hint_07','主人公','……本当に一頭なんですね。'),line('r5_butterfly_hint_08','ハナ','覚えたね。')].forEach(recordLog);
+        r5CompleteBoard(say);drawSlots();r5RefreshWall();
+      }else if(before===0){
+        recordLog(line('r5_place_first_01','ト書き','パネルが淡く光る。丸枠へ吸い込まれるように重なり、二つの絵が一つの合体絵へ切り替わる。'));
+        say([line('r5_place_first_02','主人公','……合ってる。'),line('r5_place_first_03','ハナ','みたいだね。')]);
+      }else{
+        say([line('r5_fit_'+id,'ト書き','――カチッ。')]);
       }
-      if(r5PlacedCount()===7){o.remove();r5CompleteBoard();return}
-      o.remove();renderR5();r5ButterflyHintIfNeeded();
+      r5ButterflyHintIfNeeded(say);
+      const next=tray.querySelector('[data-tile]')||panel.querySelector('.device-close');next?.focus({preventScroll:true});
+    }
+    const help=panel.querySelector('.r5-board-help'),note=panel.querySelector('.r5-help-note');
+    help.onclick=()=>{note.hidden=!note.hidden;help.setAttribute('aria-expanded',String(!note.hidden));};
+    drawSlots();drawTray();
+    activateDeviceModal(o,'r5Board',tray.querySelector('[data-tile]')||panel.querySelector('.device-close'),()=>{
+      cleanup();if(currentScene==='room05'&&room5State===boardState){renderR5();document.getElementById('r5Board')?.focus({preventScroll:true});}
     });
   }
 
-  function r5ButterflyHintIfNeeded(){
+  function r5ButterflyHintIfNeeded(inline){
     if(room5State.butterflyHintSeen||r5PlacedCount()!==6||room5State.placed.butterfly)return;
     const remaining=R5_ITEMS.filter(([id])=>room5State.collected.includes(id)&&!room5State.placed[id]);
     if(remaining.length!==1||remaining[0][0]!=="butterfly")return;
     room5State.butterflyHintSeen=true;saveGame();
-    showRoomDialog([
+    const lines=[
       line("r5_butterfly_hint_01","主人公","……残っているのは、これだけ。"),
       line("r5_butterfly_hint_02","ト書き","蝶のパネルを見る。"),
       line("r5_butterfly_hint_03","主人公","蝶って……一頭って数えるんでしょうか。"),
       line("r5_butterfly_hint_04","ト書き","少し迷う。"),
       line("r5_butterfly_hint_05","主人公","試してみます。")
-    ]);
+    ];
+    if(inline){lines.forEach(recordLog);inline([lines[2],lines[4]],false);}else showRoomDialog(lines);
   }
 
-  function r5CompleteBoard(){
+  function r5CompleteBoard(inline){
     room5State.codeRevealed=true;saveGame();
-    showRoomDialog([
+    const lines=[
       line("r5_board_complete_01","ト書き","――カチッ。"),
       line("r5_board_complete_02","ト書き","八つの完成した絵が、一斉に淡く光る。"),
       line("r5_board_complete_03","主人公","……？"),
@@ -382,7 +457,8 @@
       line("r5_board_complete_07","ト書き","正面の扉へ細い光の筋が走る。何もなかった扉の表面がゆっくりと変化し、四桁のテンキーが浮かび上がる。"),
       line("r5_board_complete_08","主人公","入力しろ、ということですね。"),
       line("r5_board_complete_09","ハナ","そうみたい。")
-    ],renderR5);
+    ];
+    if(inline){lines.forEach(recordLog);inline([lines[6],lines[9]],false);}else showRoomDialog(lines,renderR5);
   }
 
   function r5Keypad(){

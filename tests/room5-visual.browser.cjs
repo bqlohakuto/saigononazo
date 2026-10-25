@@ -55,6 +55,11 @@ const expected=[
         assert(hana.x>bounds.x+bounds.width*.65,'Hana stands to the right, clear of the mirror');
         assert.equal(await page.locator('#r5Hana').evaluate(el=>getComputedStyle(el).pointerEvents),'auto','Hana remains clickable');
         await page.locator('#r5Hana').click();
+        await page.locator('.hana-choice-menu').waitFor();
+        // Hints now open a topic chooser before any dialogue. Let the existing
+        // anti-accidental-click guard expire before requesting the first hint.
+        await page.waitForTimeout(280);
+        await page.locator('.hana-choice-menu .hana-choice-button').first().click();
         await page.waitForSelector('.room-dialog-overlay');
         await page.evaluate(()=>{for(let i=0;i<100&&document.querySelector('#roomNextButton');i++)document.querySelector('#roomNextButton').click()});
         assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Hana investigation can be closed');

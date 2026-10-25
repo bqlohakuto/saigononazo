@@ -106,7 +106,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.ok(q('#roomNextButton'),'epilogue follows the final door');
   finish();
   assert.equal(save().rooms.room08.epilogueSeen,true);
-  assert.ok(q('.ending-credits'),'epilogue connects to credits');
+  assert.ok(q('.ending-pc-transition'),'epilogue connects to credits');
 
   console.log('PASS: Room 6 live-map/legal-Othello -> Room 7 zodiac -> Room 8 final puzzle -> END.');
   await wait(30);dom.window.close();

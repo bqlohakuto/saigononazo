@@ -116,5 +116,39 @@
     const fadeTimer=setTimeout(()=>{if(!dead){ready=true;play();}},1600);
     active=cleanup;render(0);raf=requestAnimationFrame(tick);
   }
-  global.EndingCredits={start,frameAt};
+  // The screen corners are measured against epilogue-bedroom-v4.webp (1672 x 941).
+  // Move the whole photograph and its screen overlay together on the fixed canvas.
+  function fromEpilogue(host,onComplete){
+    if(active)active();
+    const stage=document.createElement("section");
+    stage.className="ending-pc-transition";
+    stage.setAttribute("aria-label","ノートPCの画面へ");
+    stage.innerHTML='<div class="ending-pc-camera"><img src="images/background/room08/epilogue-bedroom-v4.webp" alt=""><div class="ending-pc-screen"><span>最後の謎が解けるまで</span></div></div><div class="ending-pc-black"></div>';
+    host.replaceChildren(stage);
+    const camera=stage.querySelector(".ending-pc-camera"),screen=stage.querySelector(".ending-pc-screen"),title=screen.querySelector("span"),black=stage.querySelector(".ending-pc-black");
+    const reduced=global.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    let raf=0,dead=false,elapsed=0,last=0;
+    function cleanup(){dead=true;cancelAnimationFrame(raf);document.removeEventListener("visibilitychange",pause);if(active===cleanup)active=null;}
+    function pause(){last=0;}
+    const clamp=x=>Math.min(1,Math.max(0,x));
+    function tick(now){
+      if(dead)return;
+      if(!stage.isConnected){cleanup();return;}
+      if(!document.hidden){
+        if(last)elapsed+=(now-last)/1000;
+        const zoom=clamp((elapsed-2.4)/5);
+        const ease=zoom*zoom*(3-2*zoom);
+        camera.style.transform=reduced?"none":"translate("+(72*ease)+"px,"+(106*ease)+"px) scale("+(1+4.2*ease)+")";
+        screen.style.opacity=String(clamp(elapsed/1.3));
+        title.style.opacity=String(clamp((elapsed-.5)/1.2)*(1-clamp((elapsed-6.2)/.8)));
+        black.style.opacity=String(clamp((elapsed-6.6)/.8));
+        if(elapsed>=7.5){cleanup();start(host,onComplete);return;}
+        last=now;
+      }else last=0;
+      raf=requestAnimationFrame(tick);
+    }
+    document.addEventListener("visibilitychange",pause);
+    active=cleanup;raf=requestAnimationFrame(tick);
+  }
+  global.EndingCredits={start,fromEpilogue,frameAt};
 })(window);

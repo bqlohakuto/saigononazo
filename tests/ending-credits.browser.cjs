@@ -8,6 +8,9 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  await page.goto(process.env.BASE_URL||'http://127.0.0.1:8765/');
  await page.evaluate(()=>{settings.instantText=true;showEighthRoom({ended:true,epilogueSeen:false,epilogueLogId:'r8_epilogue_09'});});
  await page.locator('#roomNextButton').click();
+ await page.locator('.ending-pc-transition').waitFor();
+ assert.equal(await page.locator('.ending-pc-screen span').textContent(),'最後の謎が解けるまで');
+ assert.equal(await page.locator('.ending-credits audio').count(),0,'song waits for zoom');
  await page.waitForFunction(()=>{const a=document.querySelector('.ending-credits audio');return a&&!a.paused&&a.currentTime>0;},null,{timeout:20000});
  assert.equal(await page.locator('.ending-credits audio').evaluate(a=>a.loop),false);
  await page.evaluate(()=>GameAudio.setCategoryVolumes(0,1));
@@ -23,6 +26,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  assert.equal(await page.locator('.ending-credits').count(),0);assert.deepEqual(errors,[]);
  await page.setViewportSize({width:852,height:393});
  await page.evaluate(()=>showEighthRoom({ended:true,epilogueSeen:true}));
+ await page.locator('.ending-credits').waitFor({timeout:15000});
  const box=await page.locator('.ending-credits').boundingBox();assert(Math.abs(box.width/box.height-16/9)<.01);
  await page.screenshot({path:'/tmp/ending-landscape.png'});
  // Missing-file recovery must offer an explicit silent continuation.

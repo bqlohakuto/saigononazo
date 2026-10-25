@@ -59,7 +59,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  await new Promise(r=>setTimeout(r,700));
  assert.ok(q('#roomNextButton'),'epilogue should play before END');
  finish();assert.equal(saved().rooms.room08.epilogueSeen,true);
- assert.ok(q('.ending-credits'),'epilogue connects to credits');
+ assert.ok(q('.ending-pc-transition'),'epilogue connects to credits');
  // Completed old room-seven saves should not require another door click.
  run('roomStates.room08={};showSeventhRoom({introSeen:true,booksSolved:true,completed:true,doorIndex:6})');
  assert.equal(run('currentScene'),'room08');assert.ok(q('#roomNextButton'));assert.equal(q('#r7Next'),null);finish();

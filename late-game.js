@@ -2173,7 +2173,7 @@
   }
   function r8EndScreen(){
     Dialogue.stop();
-    EndingCredits.start(game,()=>showTitle());
+    EndingCredits.fromEpilogue(game,()=>showTitle());
   }
 })();
 

@@ -13,3 +13,11 @@
 #game .ending-audio-prompt button:focus-visible{outline:3px solid #fff;outline-offset:5px}
 @keyframes ending-black-in{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){#game .ending-credits{animation:none}}
+
+/* Epilogue photograph and perspective screen share one camera transform. */
+#game .ending-pc-transition{position:absolute;inset:0;z-index:1000;overflow:hidden;background:#000}
+#game .ending-pc-camera{position:absolute;width:960px;height:540px;transform-origin:408px 164px;will-change:transform}
+#game .ending-pc-camera>img{display:block;width:100%;height:100%;object-fit:cover}
+#game .ending-pc-screen{position:absolute;left:29.6%;top:19.1%;width:25.9%;height:22.4%;clip-path:polygon(1.6% 0,97.5% 0,100% 100%,0 100%);background:#000;display:grid;place-items:center;opacity:0}
+#game .ending-pc-screen span{font-family:"DotGothic16",sans-serif;color:#f6f3ed;font-size:12px;letter-spacing:.06em;white-space:nowrap;opacity:0}
+#game .ending-pc-black{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}

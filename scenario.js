@@ -54,6 +54,11 @@ const openingScenario = [
 // アップロード原稿の重複する導入は hanaFirst に統合。吹奏楽音源の再生タイミングは script.js で管理する。
 const firstRoomScenario = {
     melody: ["ソ", "ラ", "ファ", "ミ", "ド", "レ", "ド", "シ"],
+    introduction: [
+        { logId: "room1_entry_01", logType: "narration", speaker: "ト書き", text: "まばゆい光が、ゆっくりと薄れていく。" },
+        { logId: "room1_entry_02", logType: "narration", speaker: "ト書き", text: "気がつくと、さっきまでとは違う部屋に立っていた。" },
+        { logId: "room1_entry_03", logType: "narration", speaker: "ト書き", text: "正面の扉のそばには、先ほどの女性が立っている。" }
+    ],
     hanaFirst: [
         { logId: "room1_hana_first_01", logType: "dialogue", speaker: "主人公", text: "あの……結局、あなたは一体……？" },
         { logId: "room1_hana_first_02", logType: "dialogue", speaker: "ハナ", text: "ごめんね。何も話せなくて" },

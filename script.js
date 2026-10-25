@@ -288,6 +288,8 @@ function endOpening(){
  GameAudio.stop("tinnitus");
  setTimeout(()=>{
   showFirstRoom();
+  // Keep the room-entry narration paused behind the transition veil.
+  queueMicrotask(()=>{if(currentScene==="room01")Dialogue.suspend()});
   const room=game.querySelector(".first-room");
   const veil=document.createElement("div");veil.className="first-room-entry-fade";
   veil.setAttribute("aria-hidden","true");game.append(veil);
@@ -297,7 +299,10 @@ function endOpening(){
   function finish(){
    if(finished)return;finished=true;
    veil.remove();game.classList.remove("is-entering-first-room");
-   if(room?.isConnected)room.inert=false;
+   if(room?.isConnected&&currentScene==="room01"){
+    if(!game.querySelector(".room-dialog-overlay"))room.inert=false;
+    Dialogue.resume();
+   }
   }
   veil.addEventListener("animationend",finish,{once:true});
   const reduced=typeof matchMedia==="function"&&matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -322,7 +327,7 @@ function showFirstRoom(savedState){
  firstRoomArtworkObserver?.disconnect();
  Dialogue.stop();
  GameAudio.stop("tinnitus");
- firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,hintLevel:0,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,phoneReflectionSeen:false,posterInspected:false,pianoIntroductionSeen:false,nextRoomTransitionSeen:false,viewedWall:"front",highlightEnabled:true,...savedState,hanaIntroduced:savedState?.hanaIntroduced??Number(savedState?.hanaVisits||0)>0,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
+ firstRoomState={doorInspected:false,doorUnlocked:false,questionSeen:false,hanaVisits:0,mailHintGiven:false,hintLevel:0,pianoAttempted:false,melodySolved:false,phoneIntroductionSeen:false,phoneReflectionSeen:false,posterInspected:false,pianoIntroductionSeen:false,nextRoomTransitionSeen:false,viewedWall:"front",highlightEnabled:true,...savedState,introductionSeen:savedState?.introductionSeen??Boolean(savedState),hanaIntroduced:savedState?.hanaIntroduced??Number(savedState?.hanaVisits||0)>0,openedInbox:new Set(savedState?.openedInbox||[]),openedSent:new Set(savedState?.openedSent||[])};
  if(!canExploreFirstRoom()||!firstRoomWalls.some(wall=>wall.id===firstRoomState.viewedWall))firstRoomState.viewedWall="front";
  game.innerHTML=`
   <main class="room first-room ${firstRoomState.doorUnlocked?"is-restored":""}" aria-label="第一の部屋">
@@ -363,6 +368,21 @@ function showFirstRoom(savedState){
   else if(firstRoomState.nextRoomTransitionSeen)showNextRoomBoundary();
  }
  saveGame();
+ if(!firstRoomState.introductionSeen){
+  // Wait until gameplay HUD wrappers finish mounting. On reload an unfinished
+  // introduction plays again; existing saves without this flag are not interrupted.
+  queueMicrotask(()=>{
+   if(currentScene==="room01"&&game.querySelector(".first-room")&&!firstRoomState?.introductionSeen)showFirstRoomIntroduction();
+  });
+ }
+}
+
+function showFirstRoomIntroduction(){
+ if(currentScene!=="room01"||!firstRoomState||firstRoomState.introductionSeen)return;
+ showRoomDialog(firstRoomScenario.introduction,()=>{
+  firstRoomState.introductionSeen=true;
+  saveGame();
+ });
 }
 
 function positionFirstRoomKeyboard(){

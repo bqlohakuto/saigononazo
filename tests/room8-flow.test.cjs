@@ -14,7 +14,12 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  const tick=()=>new Promise(r=>setTimeout(r,0));
  const finish=()=>{for(let i=0;i<1000&&q('#roomNextButton');i++)click('#roomNextButton');assert.equal(q('#roomNextButton'),null)};
  const advanceTo=id=>{for(let i=0;i<1000&&saved().rooms.room08.introLogId!==id;i++)click('#roomNextButton');assert.equal(saved().rooms.room08.introLogId,id)};
+ // Capture a real player-entered name, rather than injecting a value in the ending.
+ run('showNameInput()');
+ q('#playerName').value='白兎';click('#decideButton');
+ assert.equal(run('playerName'),'白兎','title input sets the protagonist name');
  run('settings.instantText=true;showEighthRoom({introSeen:true})');
+ assert.equal(saved().playerName,'白兎','the protagonist name is saved with the story');
  assert.ok(q('#roomNextButton'),'legacy introSeen save is playable');
  assert.equal(q('.r8-living').dataset.hanaPose,'seated');
  advanceTo('r8_reunion_13');
@@ -45,7 +50,12 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
    q('#r8Answer').value=answer;click('#r8Submit');finish();
    assert.equal(saved().rooms.room08.finalTalkSeen,true);assert.ok(q('#r8FinalDoor'));
  }
+ // Confirm the name survives autosave/continue before the final goodbye.
+ run('resumeGame()');
+ assert.equal(saved().playerName,'白兎','continuing does not replace the entered name');
+ assert.ok(q('#r8FinalDoor'));
  click('#r8FinalDoor');finish();assert.equal(saved().rooms.room08.ended,true);
+ assert.equal(run("GameLog.list().find(e=>e.logId.startsWith('r8_end_03'))?.text"),'じゃあね、白兎','Kanon says the player-entered name at farewell');
  await new Promise(r=>setTimeout(r,700));
  assert.ok(q('#roomNextButton'),'epilogue should play before END');
  finish();assert.equal(saved().rooms.room08.epilogueSeen,true);
@@ -53,6 +63,13 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  // Completed old room-seven saves should not require another door click.
  run('roomStates.room08={};showSeventhRoom({introSeen:true,booksSolved:true,completed:true,doorIndex:6})');
  assert.equal(run('currentScene'),'room08');assert.ok(q('#roomNextButton'));assert.equal(q('#r7Next'),null);finish();
- console.log('PASS room8: legacy/mid-dialogue saves, seating, hidden name, paper, retry, LOG pulse, three answer forms, END and room7 migration.');
+ // A different new-game name must lead to a different goodbye, not a fixed string.
+ run('showNameInput()');q('#playerName').value='みずき';click('#decideButton');
+ run('showEighthRoom({solved:true,finalTalkSeen:true})');
+ assert.equal(saved().playerName,'みずき');
+ click('#r8FinalDoor');finish();
+ assert.equal(run("GameLog.list().find(e=>e.logId.startsWith('r8_end_03'))?.text"),'じゃあね、みずき','a second player name changes the farewell');
+
+ console.log('PASS room8: player name input/save/continue/farewell, legacy/mid-dialogue saves, seating, hidden name, paper, retry, LOG pulse, three answer forms, END and room7 migration.');
  await new Promise(r=>setTimeout(r,30));dom.window.close();
 })().catch(e=>{console.error(e);process.exitCode=1});

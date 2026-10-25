@@ -11,7 +11,7 @@ const openingScenario = [
     { logId: "opening_05", logType: "narration", speaker: "ト書き", text: "閉じた瞼の向こうに、強い光を感じる。" },
     { logId: "opening_06", logType: "narration", speaker: "ト書き", text: "ゆっくりと瞼を開ける。" },
     { logId: "opening_07", logType: "narration", speaker: "ト書き", text: "真っ白だった視界が、少しずつ輪郭を取り戻していく。" },
-    { logId: "opening_08", logType: "narration", speaker: "ト書き", text: "真っ白な壁だった。" },
+    { logId: "opening_08", logType: "narration", speaker: "ト書き", text: "目に映ったのは、白い壁だった。" },
     { logId: "opening_09", logType: "narration", speaker: "ト書き", text: "天井の照明が、痛いほど白く部屋を照らしている。" },
     { logId: "opening_10", logType: "narration", speaker: "主人公", thought: true, text: "ここは……？" },
     { logId: "opening_11", logType: "narration", speaker: "ト書き", text: "目に映るのは白い壁だけだった。" },

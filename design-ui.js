@@ -140,7 +140,17 @@
     const width=Math.max(100,area.clientWidth);
     const w=game.clientWidth,large=document.documentElement.dataset.gameTextSize==='large';
     const size=large?Math.max(16,Math.min(32,w*.022)):Math.max(11,Math.min(26,w*.018));
-    return lines.flatMap((line,index)=>splitText(line.text,width,`${size}px "DotGothic16", "Yu Gothic", Meiryo, sans-serif`,Math.max(1,Math.min(3,Math.floor((area.clientHeight-(line.speaker==='ハナ'||line.speaker==='花音'?size:0))/(size*1.55))))).map((text,uiPage)=>({...line,text,logSource:line,uiPage,sourceIndex:index,uiWasRead:!!isRead?.(line)})));
+    const dialog=area.closest('.room-dialog'),css=getComputedStyle(dialog);
+    const fullWidth=dialog.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight);
+    const portraitGutter=parseFloat(css.getPropertyValue('--memory-portrait-gutter'))||260;
+    return lines.flatMap((line,index)=>{
+      const visual=window.MemoryVisuals?.get(currentScene,line);
+      const onWindow=visual?.presentation==='dialogue',hasPortrait=onWindow&&!!visual.sprite;
+      const lineWidth=onWindow?Math.max(100,fullWidth-(hasPortrait?portraitGutter:0)):width;
+      const hasSpeaker=onWindow?!['ト書き','システム'].includes(line.speaker):line.speaker==='ハナ'||line.speaker==='花音';
+      const maxLines=Math.max(1,Math.min(3,Math.floor((area.clientHeight-(hasSpeaker?size:0))/(size*1.55))));
+      return splitText(line.text,lineWidth,`${size}px "DotGothic16", "Yu Gothic", Meiryo, sans-serif`,maxLines).map((text,uiPage)=>({...line,text,logSource:line,uiPage,sourceIndex:index,uiWasRead:!!isRead?.(line)}));
+    });
   }
   function recordTextPages(entries,maxWidth,font,maxLines){
     const pages=[];let page='';

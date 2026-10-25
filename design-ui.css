@@ -2276,3 +2276,19 @@ body{background:#0b1322!important;display:grid;place-items:center}
  #game .r5-handdrawn-panel .r5-inventory-tile{transition:transform .15s ease,outline-color .15s ease}
  #game .r5-handdrawn-panel .r5-combination-picture{animation:r5-ink-appear .24s ease-out}
  @keyframes r5-ink-appear{from{opacity:.25;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+}
+/* Room 5 memories: the heroine belongs to the dialogue window, leaving the
+   room and the drawing on the table unobstructed. Original art is unchanged. */
+#game .room-dialog{--memory-portrait-gutter:260px}
+#game .room-dialog .memory-window-portrait{position:absolute;left:2px;bottom:0;width:270px;height:285px;overflow:hidden;pointer-events:none;z-index:2}
+#game .room-dialog .memory-window-portrait[hidden]{display:none}
+#game .room-dialog .memory-window-portrait .memory-girl{position:static;display:block;width:100%;height:auto;max-width:none;transform:none;clip-path:none;object-fit:contain;image-rendering:auto}
+#game .room-dialog.has-memory-portrait .dialog-message-area{margin-left:var(--memory-portrait-gutter)}
+#game .room-dialog.has-memory-portrait{overflow:visible}
+#game .room-dialog.is-log-open .memory-window-portrait{display:none}
+#game .room-dialog.dialog-hidden .memory-window-portrait{visibility:visible}
+#game .memory-scene[data-presentation=dialogue][data-layout=dining]{background:#b38964}
+#game .memory-scene[data-presentation=dialogue][data-layout=dining] .memory-background{transform:translateY(-20%)}
+#game .memory-scene[data-presentation=dialogue][data-layout=dining] .memory-prop{left:36%;top:54%;width:28%;height:17%}
+#game .memory-scene[data-presentation=dialogue] .memory-prop[data-kind=rabbit]{background:transparent;transform:none;box-shadow:none}
+#game .memory-scene[data-presentation=dialogue] .memory-prop[data-kind=cards]{left:35%;width:30%;gap:3px;align-items:center}

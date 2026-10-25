@@ -50,6 +50,7 @@
     }
     if(scene.layout==='red'){visual.effect='red';visual.layout='cg'}
     if(sprite)visual.sprite=sprite;
+    if(sceneId==='room05')visual.presentation='dialogue';
     return visual;
   }
   const prepared=new Set();
@@ -63,15 +64,19 @@
     }
   }
   function propPaths(prop){
-    if(prop==='rabbit')return ['images/items/memories/rabbit-existing.svg'];
-    if(prop==='cards')return ['images/items/memories/rabbit-existing.svg',...['mirror','fish','butterfly','flower','squid','chair','cannon'].map(n=>'images/items/memories/cards/'+n+'.webp')];
+    if(prop==='rabbit')return ['images/background/room05/combinations/rabbit-feather.png'];
+    if(prop==='cards')return ['images/background/room05/combinations/rabbit-feather.png',...['mirror','fish','butterfly','flower','squid','chair','cannon'].map(n=>'images/items/memories/cards/'+n+'.webp')];
     return [];
   }
   function picture(cls,path){const im=document.createElement('img');im.className=cls;im.alt='';im.draggable=false;if(path)im.src=path;return im}
   function sync(visual){
     const root=document.getElementById('game');if(!root)return;
     let stage=root.querySelector('.memory-scene');
-    if(!visual){delete root.dataset.memoryStage;stage?.remove();return}
+    if(!visual){
+      delete root.dataset.memoryStage;stage?.remove();
+      root.querySelectorAll('.memory-window-portrait').forEach(el=>el.remove());
+      root.querySelector('.room-dialog')?.classList.remove('has-memory-portrait');return;
+    }
     root.dataset.memoryStage=visual.reveal;
     if(!visual.background){stage?.remove();return}
     if(!stage){
@@ -80,11 +85,25 @@
       const prop=document.createElement('div');prop.className='memory-prop';stage.append(prop);
       const effect=document.createElement('div');effect.className='memory-effect';stage.append(effect);root.append(stage);
     }
-    stage.dataset.location=visual.location;stage.dataset.layout=visual.layout||'standing';stage.dataset.effect=visual.effect||'';
+    stage.dataset.location=visual.location;stage.dataset.layout=visual.layout||'standing';stage.dataset.effect=visual.effect||'';stage.dataset.presentation=visual.presentation||'scene';
     const bg=stage.querySelector('.memory-background');if(bg.getAttribute('src')!==visual.background)bg.src=visual.background;
-    const sprite=stage.querySelector('.memory-girl');if(visual.sprite&&sprite.getAttribute('src')!==visual.sprite)sprite.src=visual.sprite;sprite.hidden=!visual.sprite;
+    let sprite=root.querySelector('.memory-girl');
+    if(!sprite){sprite=picture('memory-girl');stage.append(sprite);}
+    if(visual.sprite&&sprite.getAttribute('src')!==visual.sprite)sprite.src=visual.sprite;sprite.hidden=!visual.sprite;
+    const dialog=root.querySelector('.room-dialog');
+    let portrait=dialog?.querySelector('.memory-window-portrait');
+    const onWindow=visual.presentation==='dialogue'&&!!dialog;
+    if(onWindow){
+      if(!portrait){portrait=document.createElement('div');portrait.className='memory-window-portrait';portrait.setAttribute('aria-hidden','true');dialog.append(portrait);}
+      if(sprite.parentElement!==portrait)portrait.append(sprite);
+      portrait.hidden=!visual.sprite;
+    }else{
+      if(sprite.parentElement!==stage)stage.append(sprite);
+      portrait?.remove();
+    }
+    dialog?.classList.toggle('has-memory-portrait',onWindow&&!!visual.sprite);
     const foreground=stage.querySelector('.memory-foreground');
-    foreground.hidden=!['dining','desk','sofa','cooking'].includes(visual.layout);
+    foreground.hidden=onWindow||!['dining','desk','sofa','cooking'].includes(visual.layout);
     if(!foreground.hidden&&foreground.getAttribute('src')!==visual.background)foreground.src=visual.background;
     const prop=stage.querySelector('.memory-prop');
     if(prop.dataset.kind!==(visual.prop||'')){

@@ -74,6 +74,11 @@ jobs:
           UI_SCREENSHOT_DIR: artifacts/memory-novel/all-rooms
           PUBLIC_BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://bqlohakuto.github.io/saigononazo/' || '' }}
         run: node tests/memory-all-novel.browser.cjs
+      - name: Review Room 5 window portraits, drawing and revised dialogue
+        env:
+          UI_SCREENSHOT_DIR: artifacts/memory-novel/room05-window
+          PUBLIC_BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://bqlohakuto.github.io/saigononazo/' || '' }}
+        run: node tests/memory05-window.browser.cjs
       - name: Review Room 6 scale, travel and map in the integrated game
         env:
           PUBLIC_BASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://bqlohakuto.github.io/saigononazo/' || '' }}

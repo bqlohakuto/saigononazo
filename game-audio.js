@@ -2,6 +2,10 @@
   "use strict";
 
   const sounds = {
+    highSchool: { url: "audio/se/high_school.mp3", gain: 0.30, loop: true },
+    naturePark: { url: "audio/se/nature_park.mp3", gain: 0.25, loop: true },
+    cityRoad: { url: "audio/se/city_road.mp3", gain: 0.25, loop: true },
+    intersection: { url: "audio/se/intersection.mp3", gain: 0.30, loop: true },
     titleMusic: { url: "audio/bgm/title.mp3", gain: 0.35, loop: true, category: "bgm" },
     explorationMusic: { url: "audio/bgm/exploration.mp3", gain: 0.35, loop: true, category: "bgm" },
     cherryWind: { url: "audio/se/cherry_wind.wav", gain: 0.25, loop: true },
@@ -206,13 +210,19 @@
     setMusic(/^room0[1-7]$/.test(scene)?"explorationMusic":null);
   }
 
-  const memoryAmbienceIds=["cherryWind","quietClassroom"];
+  const memoryAmbienceIds=["cherryWind","quietClassroom","highSchool","naturePark","cityRoad","intersection"];
   function stopMemoryAmbience(){memoryAmbienceIds.forEach(stop);}
   function syncMemoryAmbience(logId){
     const room2=/^room2_memory_(\d{3})(?:_|$)/.exec(logId||"");
     const room3=/^room3_flashback_(\d{2})(?:_|$)/.exec(logId||"");
-    const id=(room2&&Number(room2[1])>=54&&Number(room2[1])<=95)||/^room2_final_hanamaru(?:_|$)/.test(logId||"")?"quietClassroom":
-      room3&&Number(room3[1])>=34&&Number(room3[1])<=71?"cherryWind":null;
+    const room6=/^r6_memory_full_(\d{3})(?:_|$)/.exec(logId||"");
+    const room7=/^r7_mem_(\d{2})(?:_|$)/.exec(logId||"");
+    const id=room2&&Number(room2[1])>=16&&Number(room2[1])<=53?"highSchool":
+      (room2&&Number(room2[1])>=54&&Number(room2[1])<=95)||/^room2_final_hanamaru(?:_|$)/.test(logId||"")?"quietClassroom":
+      room3&&Number(room3[1])>=34&&Number(room3[1])<=71?"cherryWind":
+      (room6&&Number(room6[1])>=51&&Number(room6[1])<=85)||/^r6_memory_0[1-7](?:_|$)/.test(logId||"")||/^r6_final_signal(?:_|$)/.test(logId||"")?"naturePark":
+      room7&&Number(room7[1])>=1&&Number(room7[1])<=25?"cityRoad":
+      room7&&Number(room7[1])>=26&&Number(room7[1])<=34?"intersection":null;
     memoryAmbienceIds.forEach(other=>{if(other!==id)stop(other)});
     if(id&&!playing.has(id))play(id);
   }

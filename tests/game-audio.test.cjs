@@ -227,7 +227,7 @@ test("new effects decode, play once, and follow the SE category volume", async (
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 test('memory ambience loops without restarting on pages and follows scene boundaries', async()=>{
  const {audio,contexts}=harness();
- audio.syncMemoryAmbience('room2_memory_053');await tick();assert.equal(contexts.length,0);
+ audio.syncMemoryAmbience('room2_memory_015');await tick();assert.equal(contexts.length,0);
  audio.syncMemoryAmbience('room2_memory_054');await tick();const c=contexts[0],first=c.sources[0];
  assert.equal(first.loop,true);assert.equal(first.starts,1);
  assert.deepEqual(c.gains.at(-1).gain.events,[['set',0,12],['ramp',0.30,12.4]]);
@@ -275,4 +275,26 @@ test('switching scenes while music is loading prevents a stale title from starti
  const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});
  audio.syncSceneMusic('title');audio.syncSceneMusic('opening');file.resolve(response());await tick();assert.equal(contexts[0].sources.length,0);
  audio.resumeMusic();await tick();assert.equal(contexts[0].sources.length,0);
+});
+
+test('after-school ambience switches to the quiet classroom when helping the senior',async()=>{
+ const {audio,contexts}=harness();
+ audio.syncMemoryAmbience('room2_memory_016_01');await tick();const c=contexts[0],busy=c.sources[0];assert.equal(busy.loop,true);
+ audio.syncMemoryAmbience('room2_memory_053_flower_02_01');await tick();assert.equal(c.sources.length,1);
+ audio.syncMemoryAmbience('room2_memory_054_01');await tick();assert.equal(busy.disconnected,true);assert.equal(c.sources.length,2);
+ audio.syncMemoryAmbience('room2_memory_096');assert.equal(c.sources[1].disconnected,true);
+});
+test('nature ambience continues across all walk source IDs and stops on whiteout',async()=>{
+ const {audio,contexts}=harness();audio.syncMemoryAmbience('r6_memory_full_050');await tick();assert.equal(contexts.length,0);
+ for(const id of ['r6_memory_full_051_01','r6_final_signal_01','r6_memory_full_064','r6_memory_01','r6_memory_07_01','r6_memory_full_072','r6_memory_full_085'])audio.syncMemoryAmbience(id);
+ await tick();const c=contexts[0];assert.equal(c.sources.length,1);assert.equal(c.sources[0].loop,true);
+ audio.syncMemoryAmbience('r6_memory_full_086_01');assert.equal(c.sources[0].disconnected,true);
+});
+test('room seven changes from city road to intersection before impact, then goes silent',async()=>{
+ const {audio,contexts}=harness();audio.syncMemoryAmbience('r7_mem_01');await tick();const c=contexts[0],street=c.sources[0];
+ audio.syncMemoryAmbience('r7_mem_25_01');await tick();assert.equal(c.sources.length,1);
+ audio.syncMemoryAmbience('r7_mem_26_01');await tick();assert.equal(street.disconnected,true);assert.equal(c.sources.length,2);
+ audio.syncMemoryAmbience('r7_mem_34');await tick();assert.equal(c.sources.length,2);
+ audio.syncMemoryAmbience('r7_mem_35_01');assert.equal(c.sources[1].disconnected,true);
+ audio.syncMemoryAmbience('r7_mem_37');await tick();assert.equal(c.sources.length,2);
 });

@@ -10,6 +10,7 @@
     });
   };
   const transition=(label,next)=>{
+    GameAudio.play("doorOpen");
     Dialogue.stop();
     game.innerHTML='<div class="late-transition"><div><p>'+label+'</p><span>……</span></div></div>';
     setTimeout(next,650);
@@ -79,7 +80,7 @@
   }
 
   showFifthRoom=function(savedState){
-    Dialogue.stop();currentScene="room05";room5State=normalizeR5(savedState);
+    Dialogue.stop();currentScene="room05";GameAudio.syncSceneMusic?.(currentScene);room5State=normalizeR5(savedState);
     renderR5();saveGame();
     if(!room5State.introSeen){
       room5State.introSeen=true;saveGame();
@@ -165,8 +166,8 @@
       if(room5State.codeRevealed&&!room5State.doorUnlocked){r5Keypad();return;}
       r5Notice(room5State.doorUnlocked?"扉は開いた。中央パネルのウサギが気になる。":"扉はまだ開かない。","r5_door_status");
     };
-    document.getElementById("r5FridgeUpper").onclick=()=>{room5State.fridgeUpperOpen=!room5State.fridgeUpperOpen;saveGame();renderR5();};
-    document.getElementById("r5FridgeLower").onclick=()=>{room5State.fridgeLowerOpen=!room5State.fridgeLowerOpen;saveGame();renderR5();};
+    document.getElementById("r5FridgeUpper").onclick=()=>{room5State.fridgeUpperOpen=!room5State.fridgeUpperOpen;GameAudio.stop(room5State.fridgeUpperOpen?"fridgeClose":"fridgeOpen");GameAudio.play(room5State.fridgeUpperOpen?"fridgeOpen":"fridgeClose");saveGame();renderR5();};
+    document.getElementById("r5FridgeLower").onclick=()=>{room5State.fridgeLowerOpen=!room5State.fridgeLowerOpen;GameAudio.stop(room5State.fridgeLowerOpen?"fridgeClose":"fridgeOpen");GameAudio.play(room5State.fridgeLowerOpen?"fridgeOpen":"fridgeClose");saveGame();renderR5();};
     document.getElementById("r5Keypad")?.addEventListener("click",r5Keypad);
     document.getElementById("r5Rabbit")?.addEventListener("click",r5RabbitMemoryStart);
     document.getElementById("r5Next")?.addEventListener("click",()=>transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06)));
@@ -907,8 +908,9 @@
     game.appendChild(overlay);activateDeviceModal(overlay,'r6TestGuide',overlay.querySelector('.device-close'));
   }
   window.showSixthRoom=function(savedState){
+    GameAudio.stop("footsteps");
     r6TravelGeneration++;r6Moving=false;game.classList.remove('r6-map-revealing');
-    Dialogue.stop();currentScene="room06";room6State=normalizeR6(savedState);renderR6();saveGame();
+    Dialogue.stop();currentScene="room06";GameAudio.syncSceneMusic?.(currentScene);room6State=normalizeR6(savedState);renderR6();saveGame();
     if(!room6State.introSeen){room6State.introSeen=true;saveGame();showRoomDialog([
       line("r6_intro_entry_01","ト書き","白い光が薄れ、足元に床の輪郭が戻ってきた。"),
       line("r6_intro_entry_02","ト書き","小さな部屋だった。床も壁も明るい色で、四方には隣の部屋へ続く扉がある。"),
@@ -977,6 +979,7 @@
     setTimeout(()=>{notice.remove();cell?.classList.remove('just-arrived')},1500);
   }
   function r6Travel(change,arrived,trip){
+    GameAudio.play("footsteps");
     if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){change();arrived();r6Arrival(trip);return}
     r6Moving=true;const generation=++r6TravelGeneration;
     const valid=()=>generation===r6TravelGeneration&&currentScene==='room06';
@@ -1550,7 +1553,7 @@
     ]);
   }
   window.showSeventhRoom=function(savedState){
-    Dialogue.stop();currentScene='room07';room7State=normalizeR7(savedState);
+    Dialogue.stop();currentScene='room07';GameAudio.syncSceneMusic?.(currentScene);room7State=normalizeR7(savedState);
     // Completed legacy saves also continue directly into the living room.
     if(room7State.completed){showEighthRoom(roomStates.room08);return;}
     renderR7();saveGame();
@@ -1792,7 +1795,7 @@
     return {introSeen:!!s.introSeen,introLogId:typeof s.introLogId==="string"?s.introLogId:null,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,ended:!!s.ended,epilogueSeen:!!s.epilogueSeen,epilogueLogId:typeof s.epilogueLogId==="string"?s.epilogueLogId:null};
   }
   window.showEighthRoom=function(savedState){
-    Dialogue.stop();currentScene="room08";room8State=normalizeR8(savedState);saveGame();
+    Dialogue.stop();currentScene="room08";GameAudio.syncSceneMusic?.(currentScene);room8State=normalizeR8(savedState);saveGame();
     if(room8State.ended){if(room8State.epilogueSeen)r8EndScreen();else r8Epilogue();return}
     if(room8State.solved&&room8State.finalTalkSeen){r8AfterSolved();return}
     if(room8State.solved&&!room8State.finalTalkSeen){r8PuzzleRoom();setTimeout(r8SolvedDialogue,80);return}

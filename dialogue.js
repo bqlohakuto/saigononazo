@@ -10,7 +10,7 @@ const Dialogue=(()=>{
  const emitSkipChange=(enabled,available)=>{
   if(typeof document?.dispatchEvent==="function"&&typeof CustomEvent==="function")document.dispatchEvent(new CustomEvent("dialogue:skipchange",{detail:{enabled,available}}));
  };
- const stop=()=>{if(active)active.dispose()};
+ const stop=()=>{if(active)active.dispose();if(typeof window!=="undefined")window.GameAudio?.stopMemoryAmbience?.()};
  function start({lines,messageArea,nextButton,autoButton,skipButton,logButton,logArea,dialog,startIndex=0,startPage=0,getTextSpeed,isRead,onDisplay,onComplete}){
   stop();
   if(typeof window!=="undefined"&&window.DesignUI)lines=window.DesignUI.paginateDialogue(lines,isRead);

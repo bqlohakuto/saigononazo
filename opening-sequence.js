@@ -95,6 +95,7 @@ function updatePixelOpening(line) {
   if(previousPhase==='black'&&v.phase==='white')opening.dataset.eyeOpening='true';
   opening.dataset.phase=v.phase;opening.dataset.hanaVisible=String(v.hana&&!v.whiteout);opening.dataset.view=v.view;
   world.querySelector('.pixel-opening-door').classList.toggle('visible',v.door);
+  if(v.open&&!world.querySelector('.pixel-opening-door').classList.contains('open'))GameAudio.play("doorOpen");
   world.querySelector('.pixel-opening-door').classList.toggle('open',v.open);
   world.querySelector('.pixel-opening-whiteout').classList.toggle('visible',v.whiteout);
   document.getElementById('character-area').hidden=!v.hana||v.whiteout;

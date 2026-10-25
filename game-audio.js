@@ -2,6 +2,15 @@
   "use strict";
 
   const sounds = {
+    titleMusic: { url: "audio/bgm/title.mp3", gain: 0.35, loop: true, category: "bgm" },
+    explorationMusic: { url: "audio/bgm/exploration.mp3", gain: 0.35, loop: true, category: "bgm" },
+    cherryWind: { url: "audio/se/cherry_wind.wav", gain: 0.25, loop: true },
+    quietClassroom: { url: "audio/se/quiet_classroom.wav", gain: 0.30, loop: true },
+    footsteps: { url: "audio/se/othello_footsteps_3.wav", gain: 0.65 },
+    doorUnlock: { url: "audio/se/unlock.wav", gain: 0.65 },
+    doorOpen: { url: "audio/se/door_open.wav", gain: 0.65 },
+    fridgeOpen: { url: "audio/se/fridge_open.wav", gain: 0.65 },
+    fridgeClose: { url: "audio/se/fridge_close.wav", gain: 0.65 },
     tinnitus: { url: "audio/se/tinnitus.mp3", gain: 0.5 },
     memoryMelody: { url: "audio/memory_melody_piano.wav", gain: 0.7 },
     memoryBand: { url: "audio/memory_band.mp3", gain: 0.65 }
@@ -12,7 +21,8 @@
   let context, master;
   let volume = 1;
   let categoryVolumes={bgm:1,se:1};
-  const category=id=>id==="memoryBand"?"bgm":"se";
+  const category=id=>sounds[id]?.category||(id==="memoryBand"?"bgm":"se");
+  let desiredMusic=null;
 
   function loadFile(id) {
     if (!files.has(id)) {
@@ -40,8 +50,10 @@
     if (entry) disconnect(entry);
   }
 
+  function stopPlaying(){Array.from(playing.keys()).forEach(stop);}
   function stopAll() {
-    Array.from(playing.keys()).forEach(stop);
+    desiredMusic=null;
+    stopPlaying();
   }
 
   function fadeOut(id, durationMs = 1000) {
@@ -91,7 +103,7 @@
         master.connect(context.destination);
         context.addEventListener("statechange", () => {
           // An interrupted one-shot must not continue when the next gesture resumes audio.
-          if (context.state !== "running") stopAll();
+          if (context.state !== "running") stopPlaying();
         });
       }
       if (context.state === "running") return Promise.resolve(true);
@@ -133,8 +145,12 @@
       entry.source = context.createBufferSource();
       entry.gain = context.createGain();
       entry.source.buffer = buffer;
-      entry.source.loop = false;
+      entry.source.loop = !!sounds[id].loop;
       entry.gain.gain.value = sounds[id].gain*categoryVolumes[category(id)];
+      if(sounds[id].loop){
+        entry.gain.gain.setValueAtTime(0,context.currentTime);
+        entry.gain.gain.linearRampToValueAtTime(sounds[id].gain*categoryVolumes[category(id)],context.currentTime+0.4);
+      }
       entry.source.connect(entry.gain);
       entry.gain.connect(master);
       entry.source.onended = () => {
@@ -174,6 +190,33 @@
     } catch (_) {return false;}
   }
 
+  const musicIds=["titleMusic","explorationMusic"];
+  function setMusic(id){
+    desiredMusic=musicIds.includes(id)?id:null;
+    musicIds.forEach(other=>{if(other!==desiredMusic)stop(other)});
+    resumeMusic();
+  }
+  function resumeMusic(){if(desiredMusic&&!playing.has(desiredMusic))play(desiredMusic);}
+  // Scene music selection lives here so title/room/load and source-line resume agree.
+  function syncSceneMusic(scene,logId=""){
+    if(scene==="title"){setMusic("titleMusic");return;}
+    if(scene==="opening"){setMusic(null);return;}
+    const memory=/^(?:room1_memory_|room1_piano_correct(?:_|$)|room2_memory_|room2_final_|room3_flashback_|r4f\d|r5m|r5_memory_|r6_memory_|r7_mem_)/.test(logId);
+    if(memory){setMusic(null);return;}
+    setMusic(/^room0[1-7]$/.test(scene)?"explorationMusic":null);
+  }
+
+  const memoryAmbienceIds=["cherryWind","quietClassroom"];
+  function stopMemoryAmbience(){memoryAmbienceIds.forEach(stop);}
+  function syncMemoryAmbience(logId){
+    const room2=/^room2_memory_(\d{3})(?:_|$)/.exec(logId||"");
+    const room3=/^room3_flashback_(\d{2})(?:_|$)/.exec(logId||"");
+    const id=(room2&&Number(room2[1])>=54&&Number(room2[1])<=95)||/^room2_final_hanamaru(?:_|$)/.test(logId||"")?"quietClassroom":
+      room3&&Number(room3[1])>=34&&Number(room3[1])<=71?"cherryWind":null;
+    memoryAmbienceIds.forEach(other=>{if(other!==id)stop(other)});
+    if(id&&!playing.has(id))play(id);
+  }
+
   function setVolume(value) {
     if (!Number.isFinite(value)) return;
     volume = Math.min(1, Math.max(0, value));
@@ -182,15 +225,15 @@
 
   function setCategoryVolumes(bgm,se){
     categoryVolumes={bgm:Number.isFinite(bgm)?Math.min(1,Math.max(0,bgm)):1,se:Number.isFinite(se)?Math.min(1,Math.max(0,se)):1};
-    playing.forEach((entry,id)=>{if(entry.gain&&!entry.fading)entry.gain.gain.value=sounds[id].gain*categoryVolumes[category(id)]});
+    playing.forEach((entry,id)=>{if(entry.gain&&!entry.fading){if(sounds[id].loop)entry.gain.gain.cancelScheduledValues(context.currentTime);entry.gain.gain.value=sounds[id].gain*categoryVolumes[category(id)]}});
   }
   function pausePage() {
-    stopAll();
+    stopPlaying();
     try { if (context && context.state !== "closed") context.suspend().catch(() => {}); } catch (_) {}
   }
 
   document.addEventListener("visibilitychange", () => { if (document.hidden) pausePage(); });
   global.addEventListener("pagehide", pausePage);
   if (typeof global.fetch === "function") Object.keys(sounds).forEach(loadFile);
-  global.GameAudio = { unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes };
+  global.GameAudio = { unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes,syncMemoryAmbience,stopMemoryAmbience,setMusic,syncSceneMusic,resumeMusic };
 })(window);

@@ -162,6 +162,11 @@ function harness(saved) {
   }
   // The game-flow harness records sound requests; Web Audio lifecycle has its own small test.
   const audio = [
+    { id: "footsteps", source: "audio/se/othello_footsteps_3.wav", playCount: 0 },
+    { id: "doorUnlock", source: "audio/se/unlock.wav", playCount: 0 },
+    { id: "doorOpen", source: "audio/se/door_open.wav", playCount: 0 },
+    { id: "fridgeOpen", source: "audio/se/fridge_open.wav", playCount: 0 },
+    { id: "fridgeClose", source: "audio/se/fridge_close.wav", playCount: 0 },
     { id: "tinnitus", source: "audio/se/tinnitus.mp3", playCount: 0 },
     { id: "memoryMelody", source: "audio/memory_melody_piano.wav", playCount: 0 },
     { id: "memoryBand", source: "audio/memory_band.mp3", playCount: 0 }

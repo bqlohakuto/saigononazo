@@ -113,7 +113,7 @@ const room3NextRoomLines=[
  {logId:"room3_exit_04",logType:"narration",speaker:"ト書き",text:"視界が、まばゆい光に包まれていく。"}
 ];
 function showThirdRoom(savedState){
- Dialogue.stop();firstRoomState=undefined;room2State=undefined;currentScene="room03";
+ Dialogue.stop();firstRoomState=undefined;room2State=undefined;currentScene="room03";GameAudio.syncSceneMusic?.(currentScene);
  room3State={view:"front",doorInspected:false,deskInspected:false,bedInspected:false,shelfInspected:false,trumpetInspected:false,phoneInspected:false,chatRead:false,morseSolved:false,puzzleAttempts:0,hanaVisits:0,hintLevel:0,unlocked:false,highlightEnabled:true,memorySeen:false,morseChartNoticeSeen:false,morseChartLogged:false,nextRoomTransitionSeen:false,...savedState};
  if(room3State.unlocked)room3State.morseSolved=true;
  game.innerHTML=`<main class="room room-three room3-arriving ${room3State.unlocked?"is-restored":""}" aria-label="第三の部屋">
@@ -297,6 +297,7 @@ function showThirdRoomChat(){
    room3State.morseSolved=true;receiveBoard();
    showReference("letterboard");
   }else if(correct&&stage==="final"){
+   GameAudio.play("doorUnlock");
    room3State.unlocked=true;
    send.disabled=true;input.disabled=true;
    const room=game.querySelector(".room-three");room?.classList.add("is-restored");
@@ -397,6 +398,7 @@ function showThirdRoomHana(){
  }
  showRoomDialog(lines);
 }function showThirdRoomBoundary(){
+ GameAudio.play("doorOpen");
  room2State.nextRoomTransitionSeen=true;saveGame();Dialogue.stop();game.innerHTML=`<div class="room-transition room3-transition" aria-label="第三の部屋へ移動"><img src="images/background/room01/room01_door_halfopen.png" alt="扉を通って次の部屋へ"></div>`;
  setTimeout(()=>{if(game.querySelector(".room3-transition"))showThirdRoom(roomStates.room03)},1100);
 }

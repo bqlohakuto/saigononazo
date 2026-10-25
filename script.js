@@ -162,7 +162,12 @@ function clearSave(){
  roomStates={};
 }
 
+// Sound cues follow source lines, so pagination and LOG viewing do not replay them.
+const dialogueSoundCues={room2_after_memory_003:"doorUnlock",r5_keypad_ok_02:"doorUnlock",r4x2:"doorOpen",r7_last_01:"doorOpen",r8_end_01:"doorOpen"};
 function recordLog(line){
+ GameAudio.syncSceneMusic?.(currentScene,line.logId);
+ const cue=dialogueSoundCues[line.logId];
+ if(cue)GameAudio.play(cue);
  GameLog.record({...line,logRoom:line.logRoom||currentScene,logGroup:line.logGroup||window.DesignUI?.dialogueGroup||null,logTarget:line.logTarget||window.DesignUI?.inspectionTarget||null});
  saveGame();
 }
@@ -189,6 +194,7 @@ function expandScenario(lines){
 function showTitle(notice=""){
  Dialogue.stop();
  GameAudio.stopAll();
+ GameAudio.syncSceneMusic?.("title");
  const hasSave=!!readSavedGame();
  game.innerHTML=`<div class="title-screen title-home title-art-loading"><h1 class="title-logo"><img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span></h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button><button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button><button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-art-status" role="status">画像を読み込み中…</p><p class="title-notice" aria-live="polite">${notice}</p></div>`;
  const title=game.querySelector('.title-home'),background=new Image();
@@ -312,7 +318,7 @@ const firstRoomWalls=[
 ];
 
 function showFirstRoom(savedState){
- currentScene="room01";
+ currentScene="room01";GameAudio.syncSceneMusic?.(currentScene);
  firstRoomArtworkObserver?.disconnect();
  Dialogue.stop();
  GameAudio.stop("tinnitus");
@@ -765,6 +771,7 @@ function showFirstRoomMemory(){
 }
 
 function unlockFirstRoomDoor(){
+ GameAudio.play("doorUnlock");
  firstRoomState.doorUnlocked=true;
  saveGame();
  document.getElementById("doorButton").classList.add("is-unlocked");
@@ -794,6 +801,7 @@ function showUnlockedDoorChoices(){
 }
 
 function showNextRoomBoundary(){
+ GameAudio.play("doorOpen");
  // Use the half-open door as a brief transition image, never as a clickable inspection frame.
  Dialogue.stop();
  game.innerHTML=`<div class="room-transition" aria-label="扉を通って次の部屋へ"><img src="images/background/room01/pixel/room01_door_halfopen.png" alt="半開きの扉"></div>`;
@@ -827,11 +835,15 @@ function showRoomDialog(lines,onComplete,onDisplay,options={}){
  const expanded=expandScenario(lines);
  const startIndex=Math.max(0,expanded.findIndex(line=>line.logId===options.resume?.logId));
  Dialogue.start({lines:expanded,startIndex,startPage:options.resume?.uiPage||0,messageArea:overlay.querySelector("#roomMessage"),nextButton:next,autoButton:auto,skipButton:skip,logButton:log,logArea,dialog:overlay.querySelector(".room-dialog"),isRead:line=>GameLog.has(line.logId),onDisplay:(line,index)=>{
+  GameAudio.syncSceneMusic?.(currentScene,(line.logSource||line).logId);
+  GameAudio.syncMemoryAmbience?.((line.logSource||line).logId);
   options.onProgress?.({logId:(line.logSource||line).logId,uiPage:line.uiPage||0});
   if(!line.logSource||line.uiPage===0)recordLog(line.logSource||line);
   else if(options.onProgress)saveGame();
   if(!line.logSource||line.uiPage===0){if(onDisplay)onDisplay(line.logSource||line,line.sourceIndex??index);}
  },getTextSpeed:()=>settings.instantText?0:settings.textSpeed,onComplete:()=>{
+  GameAudio.stopMemoryAmbience?.();
+  GameAudio.syncSceneMusic?.(currentScene);
   overlay.remove();
   if(room)room.inert=false;
   if(opener?.isConnected&&!opener.disabled)opener.focus({preventScroll:true});
@@ -841,8 +853,8 @@ function showRoomDialog(lines,onComplete,onDisplay,options={}){
  return true;
 }
 // Resume Web Audio inside a trusted tap/key gesture, including after app switching.
-document.addEventListener("click",()=>{GameAudio.unlock()},{capture:true});
-document.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" ")GameAudio.unlock()},{capture:true});
+document.addEventListener("click",()=>{GameAudio.unlock().then(()=>GameAudio.resumeMusic?.())},{capture:true});
+document.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" ")GameAudio.unlock().then(()=>GameAudio.resumeMusic?.())},{capture:true});
 showTitle();
 
 let lastTouchEnd=0;

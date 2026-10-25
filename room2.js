@@ -15,7 +15,7 @@ function room2RandomAnswer(){
  return symbols.map(symbol=>({symbol,color:ROOM2_COLORS[Math.floor(Math.random()*2)]}));
 }
 function showSecondRoom(savedState){
- Dialogue.stop();firstRoomState=undefined;currentScene="room02";
+ Dialogue.stop();firstRoomState=undefined;currentScene="room02";GameAudio.syncSceneMusic?.(currentScene);
  room2State={doorInspected:false,deskInspected:false,hanaHints:0,answer:room2RandomAnswer(),guess:[],attempts:0,run:1,history:[],unlocked:false,flashbackSeen:false,challengeActive:false,challengeCleared:false,challengeBest:null,highlightEnabled:true,leftmostHintRevealed:false,secretHerbFound:false,...savedState};
  if(!Array.isArray(room2State.answer)||room2State.answer.length!==5||!Array.isArray(room2State.guess))room2State={...room2State,answer:room2RandomAnswer(),guess:[]};
  if(!Array.isArray(room2State.history))room2State.history=[];

@@ -209,3 +209,70 @@ test("a failed fetch or decode is retried on the next play", async () => {
     assert.equal(fetches, 2, failure);
   }
 });
+
+
+test("new effects decode, play once, and follow the SE category volume", async () => {
+  const { audio, contexts } = harness();
+  audio.setCategoryVolumes(1, 0.25);
+  for (const id of ["footsteps", "doorUnlock", "doorOpen", "fridgeOpen", "fridgeClose"]) {
+    assert.equal(await audio.play(id), true, id);
+    const ctx = contexts[0], node = ctx.sources.at(-1);
+    assert.equal(node.loop, false);
+    assert.equal(node.starts, 1);
+    assert.equal(ctx.gains.at(-1).gain.value, 0.65 * 0.25);
+    audio.stopAll();
+    assert.equal(node.disconnected, true);
+  }
+});
+const tick=()=>new Promise(resolve=>setImmediate(resolve));
+test('memory ambience loops without restarting on pages and follows scene boundaries', async()=>{
+ const {audio,contexts}=harness();
+ audio.syncMemoryAmbience('room2_memory_053');await tick();assert.equal(contexts.length,0);
+ audio.syncMemoryAmbience('room2_memory_054');await tick();const c=contexts[0],first=c.sources[0];
+ assert.equal(first.loop,true);assert.equal(first.starts,1);
+ assert.deepEqual(c.gains.at(-1).gain.events,[['set',0,12],['ramp',0.30,12.4]]);
+ audio.syncMemoryAmbience('room2_memory_054_02');audio.syncMemoryAmbience('room2_final_hanamaru_01');await tick();assert.equal(c.sources.length,1);
+ audio.syncMemoryAmbience('room2_memory_096');assert.equal(first.disconnected,true);
+ audio.syncMemoryAmbience('room3_flashback_34_02');await tick();assert.equal(c.sources.length,2);assert.equal(c.sources[1].loop,true);
+ audio.syncMemoryAmbience('room3_flashback_71');await tick();assert.equal(c.sources.length,2);
+ audio.syncMemoryAmbience('room3_flashback_72');assert.equal(c.sources[1].disconnected,true);
+});
+test('stopping or leaving during ambience decoding cancels playback and permits later resume',async()=>{
+ const load=deferred();const {audio,contexts}=harness({fetch:()=>load.promise});
+ audio.syncMemoryAmbience('room3_flashback_50');audio.stopMemoryAmbience();load.resolve(response());await tick();assert.equal(contexts[0].sources.length,0);
+ audio.syncMemoryAmbience('room3_flashback_50');await tick();assert.equal(contexts[0].sources.length,1);
+ audio.stopAll();audio.syncMemoryAmbience('room3_flashback_51');await tick();assert.equal(contexts[0].sources.length,2);
+});
+
+test('title and exploration music switch once, stay continuous across rooms, and stop in memories',async()=>{
+ const {audio,contexts}=harness();
+ audio.syncSceneMusic('title');await tick();const c=contexts[0];assert.equal(c.sources[0].loop,true);
+ audio.syncSceneMusic('title');await tick();assert.equal(c.sources.length,1);
+ audio.syncSceneMusic('opening');assert.equal(c.sources[0].disconnected,true);
+ audio.syncSceneMusic('room01');await tick();assert.equal(c.sources.length,2);
+ audio.syncSceneMusic('room07','r7_book_01');await tick();assert.equal(c.sources.length,2);
+ audio.syncSceneMusic('room01','room1_piano_correct_04');assert.equal(c.sources[1].disconnected,true);
+ audio.syncSceneMusic('room03','room3_flashback_34');await tick();assert.equal(c.sources.length,2);
+ audio.syncSceneMusic('room03','room3_after_01');await tick();assert.equal(c.sources.length,3);
+ audio.syncSceneMusic('room08');assert.equal(c.sources[2].disconnected,true);
+});
+test('BGM and ambience obey separate categories, including mute during fade-in',async()=>{
+ const {audio,contexts}=harness();audio.setCategoryVolumes(0.2,0.4);
+ audio.syncSceneMusic('title');await tick();const c=contexts[0],music=c.gains.at(-1);
+ assert.deepEqual(music.gain.events.at(-1),['ramp',0.35*0.2,12.4]);
+ audio.syncMemoryAmbience('room3_flashback_34');await tick();const ambient=c.gains.at(-1);
+ assert.deepEqual(ambient.gain.events.at(-1),['ramp',0.25*0.4,12.4]);
+ audio.setCategoryVolumes(0,0.5);assert.equal(music.gain.value,0);assert.equal(ambient.gain.value,0.125);
+ assert.deepEqual(music.gain.events.at(-1),['cancel',12]);
+});
+test('music retry after interruption respects the desired scene and stopAll clears it',async()=>{
+ const {audio,contexts}=harness();audio.syncSceneMusic('title');await tick();const c=contexts[0];
+ c.state='interrupted';c.emit('statechange');assert.equal(c.sources[0].disconnected,true);
+ audio.resumeMusic();await tick();assert.equal(c.sources.length,2);
+ audio.stopAll();audio.resumeMusic();await tick();assert.equal(c.sources.length,2);
+});
+test('switching scenes while music is loading prevents a stale title from starting',async()=>{
+ const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});
+ audio.syncSceneMusic('title');audio.syncSceneMusic('opening');file.resolve(response());await tick();assert.equal(contexts[0].sources.length,0);
+ audio.resumeMusic();await tick();assert.equal(contexts[0].sources.length,0);
+});

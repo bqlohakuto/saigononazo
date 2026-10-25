@@ -9,7 +9,7 @@ function r4AllMounted(){return R4_PANEL_KEYS.every((_,i)=>r4Mounted(i))}
 function r4Correct(){return r4AllMounted()&&room4State.angles.every((v,i)=>v===R4_ANGLES[i])}
 function showFourthRoom(savedState){
  r4HanaGazeObserver?.disconnect();r4HanaGazeObserver=null;
- Dialogue.stop();firstRoomState=undefined;room2State=undefined;room3State=undefined;currentScene="room04";
+ Dialogue.stop();firstRoomState=undefined;room2State=undefined;room3State=undefined;currentScene="room04";GameAudio.syncSceneMusic?.(currentScene);
  room4State={door:false,wall:false,box:false,star:false,lightPuzzle:false,meteors:false,angles:[...R4_INITIAL],panelRotationVersion:1,rainbow:[...R4_RAINBOW],lightOn:false,completed:false,memorySeen:false,nextRoomTransitionSeen:false,hanaSleepSeen:false,standInspected:false,highlightEnabled:true,view:"front",...savedState};
  if(!Array.isArray(room4State.angles)||room4State.angles.length!==5)room4State.angles=[...R4_INITIAL];
  if(savedState&&savedState.panelRotationVersion!==1){
@@ -485,7 +485,7 @@ function r4Exit(){
  if(room4State.nextRoomTransitionSeen||game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;const o=document.createElement("div");o.className="device-overlay";o.innerHTML=`<section class="menu-panel room-exit-menu"><button class="device-close">×</button><h2>扉の先へ</h2><button id="r4Next">次の部屋へ向かう</button><button id="r4Stay">もう少し部屋を調べる</button></section>`;game.appendChild(o);const close=activateDeviceModal(o,"r4Door",o.querySelector("#r4Next"));o.querySelector("#r4Stay").onclick=close;let moving=false;o.querySelector("#r4Next").onclick=()=>{if(moving||room4State.nextRoomTransitionSeen)return;moving=true;close();showRoomDialog([{logId:"r4x1",logType:"narration",speaker:"ト書き",text:"ドアノブに手をかける。"},{logId:"r4x2",logType:"narration",speaker:"ト書き",text:"扉が開くのを待つことすら、もどかしく感じる。"},{logId:"r4x3",logType:"narration",speaker:"ト書き",text:"扉の向こうへ足を踏み出す。背後から、ハナがついてくる気配がした。"},{logId:"r4x4",logType:"narration",speaker:"ト書き",text:"振り返ることなく、そのまま先へ進んだ。"},{logId:"r4x5",logType:"narration",speaker:"ト書き",text:"視界が、まばゆい光に包まれていく。"}],()=>{room4State.nextRoomTransitionSeen=true;saveGame();r4NextPlaceholder()})};
 }
 function r4NextPlaceholder(){showFifthRoom(roomStates.room05)}
-function showFourthRoomBoundary(){if(room3State){room3State.nextRoomTransitionSeen=true;saveGame()}Dialogue.stop();game.innerHTML=`<div class="room-transition room4-transition"><img src="images/background/room01/room01_door_halfopen.png" alt="次の部屋へ"></div>`;setTimeout(()=>{if(game.querySelector(".room4-transition"))showFourthRoom(roomStates.room04)},1100)}
+function showFourthRoomBoundary(){GameAudio.play("doorOpen");if(room3State){room3State.nextRoomTransitionSeen=true;saveGame()}Dialogue.stop();game.innerHTML=`<div class="room-transition room4-transition"><img src="images/background/room01/room01_door_halfopen.png" alt="次の部屋へ"></div>`;setTimeout(()=>{if(game.querySelector(".room4-transition"))showFourthRoom(roomStates.room04)},1100)}
 
 
 function r4FlowerNotice(){showRoomDialog([{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"}],r4OpenFlowerExhibit)}

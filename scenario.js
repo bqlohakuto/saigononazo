@@ -94,7 +94,7 @@ const firstRoomScenario = {
     hanaRoom: [
         { logId: "room1_hana_room_01", logType: "dialogue", speaker: "主人公", text: "この部屋って……一体" },
         { logId: "room1_hana_room_02", logType: "dialogue", speaker: "ハナ", text: "何か、見覚えのあるものはない？" },
-        { logId: "room1_hana_room_03", logType: "dialogue", speaker: "主人公", text: "見覚えのあるものですか？……ない、ですね……" },
+        { logId: "room1_hana_room_03", logType: "dialogue", speaker: "主人公", text: "見覚えのあるものですか？……ない、と思います……" },
         { logId: "room1_hana_room_04", logType: "dialogue", speaker: "ハナ", text: "この部屋は、君の記憶でできているの" },
         { logId: "room1_hana_room_05", logType: "dialogue", speaker: "ハナ", text: "君が忘れているだけで、きっとどこかに記憶を取り戻す手がかりがあるよ" }
     ],

@@ -55,7 +55,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  assert.equal(saved().playerName,'白兎','continuing does not replace the entered name');
  assert.ok(q('#r8FinalDoor'));
  click('#r8FinalDoor');finish();assert.equal(saved().rooms.room08.ended,true);
- assert.equal(run("GameLog.list().find(e=>e.logId.startsWith('r8_end_03'))?.text"),'じゃあね、白兎','Kanon says the player-entered name at farewell');
+ assert.equal(run("GameLog.list().find(e=>e.id?.startsWith('r8_end_03'))?.text"),'じゃあね、白兎','Kanon says the player-entered name at farewell');
  await new Promise(r=>setTimeout(r,700));
  assert.ok(q('#roomNextButton'),'epilogue should play before END');
  finish();assert.equal(saved().rooms.room08.epilogueSeen,true);
@@ -68,7 +68,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  run('showEighthRoom({solved:true,finalTalkSeen:true})');
  assert.equal(saved().playerName,'みずき');
  click('#r8FinalDoor');finish();
- assert.equal(run("GameLog.list().find(e=>e.logId.startsWith('r8_end_03'))?.text"),'じゃあね、みずき','a second player name changes the farewell');
+ assert.equal(run("GameLog.list().find(e=>e.id?.startsWith('r8_end_03'))?.text"),'じゃあね、みずき','a second player name changes the farewell');
 
  console.log('PASS room8: player name input/save/continue/farewell, legacy/mid-dialogue saves, seating, hidden name, paper, retry, LOG pulse, three answer forms, END and room7 migration.');
  await new Promise(r=>setTimeout(r,30));dom.window.close();

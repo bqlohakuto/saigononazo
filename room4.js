@@ -67,10 +67,13 @@ function r4SyncHanaGazePose(){
  // Both idle and gaze receive exactly the same canvas and foot anchor.
  const width=stage.clientWidth;
  if(!Number.isFinite(width)||width<=0)return;
- hana.style.setProperty("--r4-hana-width",(width*.26)+"px");
- hana.style.setProperty("--r4-hana-height",(width*.405)+"px");
- hana.style.setProperty("--r4-hana-bottom",(-width*.050625)+"px");
- hana.style.setProperty("--r4-hana-head-offset",(width*.332227)+"px");
+ // At 70% of the former scale, the visible figure is about 90% of the door height.
+ // Compensate for the sprite's transparent shoe margin to keep the feet anchored.
+ const spriteHeight=width*.2835,footInset=width*.04777734375;
+ hana.style.setProperty("--r4-hana-width",(width*.182)+"px");
+ hana.style.setProperty("--r4-hana-height",spriteHeight+"px");
+ hana.style.setProperty("--r4-hana-bottom",(-footInset)+"px");
+ hana.style.setProperty("--r4-hana-head-offset",(spriteHeight-footInset-spriteHeight*112/2048)+"px");
  const idle=getComputedStyle(hana,"::before");
  pose.style.width=idle.width;
  pose.style.height=idle.height;

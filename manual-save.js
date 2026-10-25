@@ -74,6 +74,7 @@
     }
     if (saved.currentScene === "room03") {
       const state = saved.rooms?.room03 || {};
+      if (state.memoryProgress&&!state.memorySeen) return state.memoryProgress.logId?.startsWith("room3_after_") ? "第三の部屋・回想後の会話" : "第三の部屋・回想中";
       if (state.unlocked) return "第三の部屋・謎解きクリア後";
       if (state.chatRead) return "第三の部屋・顔文字を確認済み";
       return "第三の部屋";

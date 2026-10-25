@@ -342,9 +342,25 @@ function showThirdRoomMorseChart(){
 function showThirdRoomPuzzle(){
  showThirdRoomChat();
 }
+function room3SavedMemoryProgress(){
+ if(!room3State.unlocked||room3State.memorySeen)return null;
+ const ids=new Set(expandScenario([...room3FlashbackLines,...room3AfterMemoryLines]).map(line=>line.logId));
+ const progress=room3State.memoryProgress;
+ if(progress&&ids.has(progress.logId))return {logId:progress.logId,uiPage:Number.isInteger(progress.uiPage)&&progress.uiPage>=0?progress.uiPage:0};
+ // Legacy saves have no cursor. Resume their last displayed memory/aftermath
+ // sentence; notices added during loading must not reset that position.
+ const logs=typeof GameLog!=="undefined"?GameLog.list():[];
+ const last=[...logs].reverse().find(entry=>ids.has(entry.id));
+ return last?{logId:last.id,uiPage:0}:null;
+}
 function playThirdRoomMemory(){
  if(room3State.memorySeen)return;
- showRoomDialog([...room3FlashbackLines,...room3AfterMemoryLines],()=>{room3State.memorySeen=true;saveGame()});
+ showRoomDialog([...room3FlashbackLines,...room3AfterMemoryLines],()=>{
+  room3State.memorySeen=true;delete room3State.memoryProgress;saveGame();
+ },undefined,{
+  resume:room3SavedMemoryProgress(),
+  onProgress:position=>{room3State.memoryProgress={...position}}
+ });
 }
 function showThirdRoomExitChoice(){
  if(game.querySelector(".device-overlay,.room-dialog-overlay"))return;

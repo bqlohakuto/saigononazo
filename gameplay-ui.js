@@ -245,11 +245,8 @@
     overlay.innerHTML = `<section class="gameplay-panel" role="dialog" aria-modal="true" aria-label="ゲームメニュー"><button type="button" class="gameplay-panel-close" aria-label="閉じる">×</button><h2>メニュー</h2><div class="gameplay-menu-list"><button type="button" class="gameplay-menu-item" data-menu="settings">設定</button><button type="button" class="gameplay-menu-item" data-menu="save">セーブ</button><button type="button" class="gameplay-menu-item" data-menu="load">ロード</button><button type="button" class="gameplay-menu-item danger" data-menu="title">タイトルへ戻る</button></div><p class="gameplay-menu-hint" role="status" aria-live="polite"></p></section>`;
     game.appendChild(overlay);
     const hint = overlay.querySelector(".gameplay-menu-hint");
-    let titleConfirm = false;
-    let confirmTimer = null;
     const closeButton = overlay.querySelector(".gameplay-panel-close");
     const close = () => {
-      clearTimeout(confirmTimer);
       document.removeEventListener("keydown", onKeyDown, true);
       overlay.remove();
       opener?.focus({preventScroll:true});
@@ -266,20 +263,29 @@
       if (action === "settings") { close(); showSettings(); return; }
       if (action === "save" || action === "load") { close(); openSaveLoad(action); return; }
       if (action === "title") {
-        if (!titleConfirm) {
-          titleConfirm = true;
-          button.textContent = "もう一度押してタイトルへ";
-          hint.textContent = "現在の進行をオートセーブしてタイトルへ戻ります。";
-          confirmTimer = setTimeout(() => {
-            titleConfirm = false;
-            button.textContent = "タイトルへ戻る";
-            hint.textContent = "";
-          }, 3500);
-          return;
-        }
-        saveGame();
-        close();
-        showTitle();
+        const list = overlay.querySelector(".gameplay-menu-list");
+        list.replaceChildren();
+        hint.textContent = "セーブせずに戻る場合、ここでは新しく保存しません。これまでのオートセーブや手動セーブは残ります。";
+        const returnButton = (label, onClick) => {
+          const choice = document.createElement("button");
+          choice.type = "button";
+          choice.className = "gameplay-menu-item";
+          choice.textContent = label;
+          choice.addEventListener("click", onClick);
+          return choice;
+        };
+        const leave = save => {
+          if (save) saveGame();
+          close();
+          Dialogue.stop();
+          showTitle();
+        };
+        list.append(
+          returnButton("セーブして戻る", () => leave(true)),
+          returnButton("セーブせず戻る", () => leave(false)),
+          returnButton("キャンセル", () => { close(); openMenu(); })
+        );
+        list.querySelector("button")?.focus({ preventScroll: true });
       }
     }));
     closeButton.focus({preventScroll:true});

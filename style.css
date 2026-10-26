@@ -371,3 +371,27 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 #game .room2-choice-panel .room2-choice-options>[data-choice]:focus-visible{outline:3px solid #3476a4;outline-offset:2px}
 #game .room2-choice-panel>.device-close{top:5px;right:7px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:44px;height:44px;min-width:44px;min-height:44px;margin:0;padding:0;border-radius:0;font-size:20px;line-height:1;touch-action:manipulation}
 @container game-viewport (max-height:500px){#game .room2-choice-overlay .room2-choice-panel{max-height:507.6px;padding:35px 12px 10px!important}#game .room2-choice-panel .room2-choice-options{gap:6px}#game .room2-choice-panel .room2-choice-options>[data-choice]{min-height:37px;padding:6px 10px;font-size:14px}}
+
+/* Room 03: the same dialogue-synchronized glow/whiteout structure as room 02.
+   Stays above scenery and memory artwork, below the dialogue overlay. */
+#game .room3-memory-light{
+ position:absolute;inset:0;z-index:60;pointer-events:none;
+ --r3-glow:0;--r3-white:0;
+}
+#game .room3-memory-light::before,
+#game .room3-memory-light::after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ transition:opacity .85s ease-in-out;
+}
+#game .room3-memory-light::before{
+ background:radial-gradient(ellipse 38% 35% at 50% 45%,#fff9d9 2%,#fff0bc88 40%,transparent 100%);
+ opacity:var(--r3-glow);
+}
+#game .room3-memory-light::after{background:#fff;opacity:var(--r3-white)}
+#game .room3-memory-light[data-beat="device"]{--r3-glow:.66}
+#game .room3-memory-light[data-beat="spread"]{--r3-glow:1;--r3-white:.3}
+#game .room3-memory-light[data-beat="flash"]{--r3-glow:1;--r3-white:1}
+#game .room3-memory-light[data-beat="memory"]{--r3-glow:0;--r3-white:0}
+@media(prefers-reduced-motion:reduce){
+ #game .room3-memory-light::before,#game .room3-memory-light::after{transition:none}
+}

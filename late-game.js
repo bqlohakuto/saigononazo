@@ -2091,7 +2091,7 @@
     const btn=document.getElementById("gameplayLogButton")||[...game.querySelectorAll(".gameplay-hud-actions button")].find(button=>button.textContent==="記録");
     if(!btn)return;
     btn.classList.add("late-log-pulse");
-    btn.title="過去のLOGに変化がある";
+    btn.title="過去の記録に変化がある";
   }
   function r8SolvedDialogue(){
     showRoomDialog([

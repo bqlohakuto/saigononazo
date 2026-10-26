@@ -2,9 +2,9 @@
 const ROOM2_SYMBOLS=["〇","△","□","×","＋"];
 const ROOM2_COLORS=["赤","青"];
 const ROOM2_DIALOGUES={
- "0H":[["見事に全部違うね！","嬉しそうに言わないでください……"],["おっ、ちょっと反応したね！","……この結果、覚えておきます"],["おっ、何かわかりそう？","うーん、もう少し考えてみます"],["ふふっ、どう？　手応えはある？","まだ何とも言えません。少し整理してみます"],["わっ、こんな判定もあるんだ！","……ちょっと悩ましいですね"],["えーっ！　これはこれですごくない？","……褒められてる気がしないんですけど"]],
- "1H":[["おっ、1つHITだね！","……この結果も手がかりになりそうです"],["おっ、これはどうかな？","……次の手を考えてみます"],["ふふっ、次はどうする？","……もう少し慎重に考えてみます"],["ん？　これは気になる結果だね！","……もう一度、判定を見てみます"],["おおっ！　なんだか惜しそう！","もう一度、考えてみます"]],
- "2H":[["あれ、考え込んじゃった？","……ちょっと、考えに夢中になってました"],["ふふっ、こういうのって楽しいよね","はい、ちょっと楽しくなってきました"],["おっ、考えがいのある結果だね！","……簡単にはいかないですね"],["おっ、いい感じじゃない？","……少し、わかってきた気がします"]],
+ "0H":[["見事に全部違うね！","嬉しそうに言わないでください……"],["おっ、ちょっと反応したね！","……この結果、覚えておきます"],["おっ、何かわかりそう？","うーん、もう少し考えてみます"],["どう？　手応えはある？","まだ何とも言えません。少し整理してみます"],["わっ、こんな判定もあるんだ！","……ちょっと悩ましいですね"],["えーっ！　これはこれですごくない？","……褒められてる気がしないんですけど"]],
+ "1H":[["おっ、1つHITだね！","……この結果も手がかりになりそうです"],["おっ、これはどうかな？","……次の手を考えてみます"],["次はどうする？","……もう少し慎重に考えてみます"],["ん？　これは気になる結果だね！","……もう一度、判定を見てみます"],["おおっ！　なんだか惜しそう！","もう一度、考えてみます"]],
+ "2H":[["あれ、考え込んじゃった？","……ちょっと、考えに夢中になってました"],["こういうのって楽しいよね","はい、ちょっと楽しくなってきました"],["おっ、考えがいのある結果だね！","……簡単にはいかないですね"],["おっ、いい感じじゃない？","……少し、わかってきた気がします"]],
  "3H":[["おっ、3つHITだね！","……これは、じっくり考えたいですね"],["3つHIT！　いい感じだね！","もう少しでわかりそうな気がします"],["3つHIT！　かなり近づいたね！","もう一度、判定を見直してみます"]],
  "4H":[["4つHIT！　あと少しだね！","ここまで来たなら、もう一度考えてみます"]]
 };
@@ -19,6 +19,13 @@ function showSecondRoom(savedState){
  room2State={doorInspected:false,deskInspected:false,hanaHints:0,answer:room2RandomAnswer(),guess:[],attempts:0,run:1,history:[],unlocked:false,flashbackSeen:false,challengeActive:false,challengeCleared:false,challengeBest:null,highlightEnabled:true,leftmostHintRevealed:false,secretHerbFound:false,...savedState};
  if(!Array.isArray(room2State.answer)||room2State.answer.length!==5||!Array.isArray(room2State.guess))room2State={...room2State,answer:room2RandomAnswer(),guess:[]};
  if(!Array.isArray(room2State.history))room2State.history=[];
+ // Keep a spoken judgement from repeating when a different arrangement gives the same HIT/BLOW.
+ // Restore the record from older save files, whose conversation log predates this flag.
+ const loggedJudgements=GameLog.list().flatMap(entry=>{
+  const match=entry.id?.match(/^room2_judge_\d+_(\d+)_(\d+)_0$/);
+  return match?[`${match[1]}H${match[2]}B`]:[];
+ });
+ room2State.judgeReactionSeen=[...new Set([...(Array.isArray(room2State.judgeReactionSeen)?room2State.judgeReactionSeen:[]),...loggedJudgements])];
  room2State.leftmostHintRevealed=room2State.leftmostHintRevealed===true;
  room2State.challengeActive=room2State.unlocked===true&&room2State.challengeActive===true;
  room2State.challengeCleared=room2State.challengeCleared===true;
@@ -462,9 +469,14 @@ function showSecondRoomPuzzle(){
     },850);
     return;
    }
-   const reaction=room2JudgeReactionLines(result,room2State.attempts,isChallenge);
-   if(reaction.length)showReaction(reaction,challengeFailed?finishPendingResolution:null);
-   else if(challengeFailed)finishPendingResolution();
+   const reactionKey=`${result.hit}H${result.blow}B`;
+   const alreadyShown=room2State.judgeReactionSeen.includes(reactionKey);
+   const reaction=alreadyShown?[]:room2JudgeReactionLines(result,room2State.attempts,isChallenge);
+   if(reaction.length){
+    room2State.judgeReactionSeen.push(reactionKey);
+    showReaction(reaction,challengeFailed?finishPendingResolution:null);
+    saveGame();
+   }else if(challengeFailed)finishPendingResolution();
   },1250);
  });
  render();

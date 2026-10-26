@@ -254,7 +254,6 @@ function showThirdRoomChat(){
   article.append(name,button);stream.appendChild(article);
  };
  [["先輩","ねえ、暇だから変なことしよ"],["主人公","今講義中なんですけど"],["先輩","今から顔文字だけで会話する！"],["主人公","今はスタンプもあるのにですか？絶対会話にならないですよw"]].forEach(([sender,message])=>appendMessage(sender,message));
- const divider=document.createElement("p");divider.className="room3-chat-context";divider.textContent="顔文字のやり取り";stream.appendChild(divider);
  ROOM3_CHAT_MESSAGES.forEach((item,index)=>appendMessage(item.sender,item.face,index));
  [["主人公","やっぱり何言ってるのかわかりません"],["先輩","はい負け〜！"],["主人公","勝負だったんですか！？どんなルール！？"]].forEach(([sender,message])=>appendMessage(sender,message));
  let boardAlreadyReceived=false;

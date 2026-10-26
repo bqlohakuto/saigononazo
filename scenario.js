@@ -216,7 +216,7 @@ const firstRoomScenario = {
         { logId: "room1_piano_correct_04", logType: "narration", speaker: "ト書き", text: "どこからか、音楽が聴こえてきた。" },
         { logId: "room1_piano_correct_05", logType: "dialogue", speaker: "主人公", text: "この曲は……" },
         { logId: "room1_piano_correct_06", logType: "narration", speaker: "ト書き", text: "視界が、ゆっくりと揺らぐ。" },
-        { logId: "room1_piano_correct_07", logType: "narration", speaker: "ト書き", text: "懐かしい音に引かれるように、意識が遠のいていく。" }
+        { logId: "room1_piano_correct_07", logType: "narration", speaker: "ト書き", text: "懐かしい音に包まれ、意識が遠のいていく。" }
     ],
     memory: [
         { logId: "room1_memory_music_room_01", logType: "narration", speaker: "ト書き", text: "放課後の音楽室。" },

@@ -5,7 +5,7 @@ const ROOM2_DIALOGUES={
  "0H":[["見事に全部違うね！","嬉しそうに言わないでください……"],["おっ、ちょっと反応したね！","……この結果、覚えておきます"],["おっ、何かわかりそう？","うーん、もう少し考えてみます"],["どう？　手応えはある？","まだ何とも言えません。少し整理してみます"],["わっ、こんな判定もあるんだ！","……ちょっと悩ましいですね"],["えーっ！　これはこれですごくない？","……褒められてる気がしないんですけど"]],
  "1H":[["おっ、1つHITだね！","……この結果も手がかりになりそうです"],["おっ、これはどうかな？","……次の手を考えてみます"],["次はどうする？","……もう少し慎重に考えてみます"],["ん？　これは気になる結果だね！","……もう一度、判定を見てみます"],["おおっ！　なんだか惜しそう！","もう一度、考えてみます"]],
  "2H":[["あれ、考え込んじゃった？","……ちょっと、考えに夢中になってました"],["こういうのって楽しいよね","はい、ちょっと楽しくなってきました"],["おっ、考えがいのある結果だね！","……簡単にはいかないですね"],["おっ、いい感じじゃない？","……少し、わかってきた気がします"]],
- "3H":[["おっ、3つHITだね！","……これは、じっくり考えたいですね"],["3つHIT！　いい感じだね！","もう少しでわかりそうな気がします"],["3つHIT！　かなり近づいたね！","もう一度、判定を見直してみます"]],
+ "3H":[["3つも位置が合ってるんだね！","……これは、じっくり考えたいですね"],["残りも絞れてきたんじゃない？","もう少しでわかりそうな気がします"],["あと一歩って感じだね！","もう一度、判定を見直してみます"]],
  "4H":[["4つHIT！　あと少しだね！","ここまで来たなら、もう一度考えてみます"]]
 };
 
@@ -471,9 +471,12 @@ function showSecondRoomPuzzle(){
    }
    const reactionKey=`${result.hit}H${result.blow}B`;
    const alreadyShown=room2State.judgeReactionSeen.includes(reactionKey);
-   const reaction=alreadyShown?[]:room2JudgeReactionLines(result,room2State.attempts,isChallenge);
+   // The 4th, 6th and 7th challenge turns have a one-time-per-turn special
+   // exchange, regardless of whether this HIT/BLOW result was seen before.
+   const specialTurn=isChallenge&&[4,6,7].includes(room2State.attempts);
+   const reaction=(specialTurn||!alreadyShown)?room2JudgeReactionLines(result,room2State.attempts,isChallenge):[];
    if(reaction.length){
-    room2State.judgeReactionSeen.push(reactionKey);
+    if(!alreadyShown)room2State.judgeReactionSeen.push(reactionKey);
     showReaction(reaction,challengeFailed?finishPendingResolution:null);
     saveGame();
    }else if(challengeFailed)finishPendingResolution();

@@ -13,6 +13,14 @@ const ROOM3_BOARD=[["ラ","ヘ","ヨ","ソ","ヒ","ロ","コ","モ","ノ","チ"]
  {logId:"room3_intro_05",logType:"dialogue",speaker:"主人公",text:"大学で一人暮らしを始めたときの部屋に、似てるような……"}
 ];
 
+// Short, dialogue-paced transition from the solved phone puzzle into the unchanged memory.
+const room3MemoryTransitionLines=[
+ {logId:"room3_memory_transition_01",logType:"narration",speaker:"ト書き",text:"スマートフォンを閉じると、扉のある方から淡い光が差し込んだ。"},
+ {logId:"room3_memory_transition_02",logType:"dialogue",speaker:"主人公",text:"……また、あの光だ"},
+ {logId:"room3_memory_transition_03",logType:"narration",speaker:"ト書き",text:"光は部屋の隅々に広がり、見覚えのある景色の輪郭が静かに滲んでいく。"},
+ {logId:"room3_memory_transition_04",logType:"narration",speaker:"主人公",thought:true,text:"……何か、思い出しそうだ"},
+ {logId:"room3_memory_transition_05",logType:"narration",speaker:"ト書き",text:"白く染まる視界の向こうで、忘れていた時間が動き始めた。"}
+];
 const room3FlashbackLines=[
  {logId:"room3_flashback_01",logType:"narration",speaker:"ト書き",text:"引っ越しを終えて、ようやく部屋の片付けも落ち着いた。段ボールもほとんど片付き、殺風景だった部屋も少しだけ生活感が出てきた。"},
  {logId:"room3_flashback_02",logType:"narration",speaker:"ト書き",text:"主人公は部屋を見回すと、スマートフォンを取り出して一枚写真を撮った。その写真を、先輩に送る。【トーク画面】"},
@@ -355,7 +363,7 @@ function showThirdRoomPuzzle(){
 }
 function room3SavedMemoryProgress(){
  if(!room3State.unlocked||room3State.memorySeen)return null;
- const ids=new Set(expandScenario([...room3FlashbackLines,...room3AfterMemoryLines]).map(line=>line.logId));
+ const ids=new Set(expandScenario([...room3MemoryTransitionLines,...room3FlashbackLines,...room3AfterMemoryLines]).map(line=>line.logId));
  const progress=room3State.memoryProgress;
  if(progress&&ids.has(progress.logId))return {logId:progress.logId,uiPage:Number.isInteger(progress.uiPage)&&progress.uiPage>=0?progress.uiPage:0};
  // Legacy saves have no cursor. Resume their last displayed memory/aftermath
@@ -364,13 +372,33 @@ function room3SavedMemoryProgress(){
  const last=[...logs].reverse().find(entry=>ids.has(entry.id));
  return last?{logId:last.id,uiPage:0}:null;
 }
+// Follow the authored text as it advances, rather than a timed animation that
+// would desynchronize under AUTO, SKIP, slow reading or save/load.
+function room3SyncMemoryLight(logId){
+ const beat=/^room3_memory_transition_(0[1-5])(?:_|$)/.exec(logId||"");
+ const inMemory=/^room3_(?:flashback_|after_)/.test(logId||"");
+ if(!beat&&!inMemory)return;
+ let light=game.querySelector(".room3-memory-light");
+ if(!light){
+  light=document.createElement("div");
+  light.className="room3-memory-light";
+  light.setAttribute("aria-hidden","true");
+  game.appendChild(light);
+ }
+ const step=beat?Number(beat[1]):0;
+ light.dataset.beat=inMemory?"memory":step<=2?"device":step<=4?"spread":"flash";
+}
 function playThirdRoomMemory(){
  if(room3State.memorySeen)return;
- showRoomDialog([...room3FlashbackLines,...room3AfterMemoryLines],()=>{
+ showRoomDialog([...room3MemoryTransitionLines,...room3FlashbackLines,...room3AfterMemoryLines],()=>{
+  game.querySelector(".room3-memory-light")?.remove();
   room3State.memorySeen=true;delete room3State.memoryProgress;saveGame();
  },undefined,{
   resume:room3SavedMemoryProgress(),
-  onProgress:position=>{room3State.memoryProgress={...position}}
+  onProgress:position=>{
+   room3State.memoryProgress={...position};
+   room3SyncMemoryLight(position.logId);
+  }
  });
 }
 function showThirdRoomExitChoice(){

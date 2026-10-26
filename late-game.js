@@ -1279,7 +1279,7 @@
       line("r6_complete_03","ト書き","地図の上でも、最後の黒が白へと変わっていく。"),
       line("r6_complete_04","ト書き","その瞬間、地図の中心から淡い光が広がる。"),
       line("r6_complete_05","主人公","……っ"),
-      line("r6_final_lavender","ト書き","光の中に、ほのかなラベンダーのアロマの香りが重なる。"),
+      line("r6_final_lavender","ト書き","光に包まれる中、ほのかにラベンダーの香りがした。"),
       ...R6_MEMORY_AND_AFTER
     ],()=>{room6State.memorySeen=true;room6State.completed=true;saveGame();renderR6()});
   }

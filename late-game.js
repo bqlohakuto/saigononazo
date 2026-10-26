@@ -1608,7 +1608,7 @@
     if(view==='left')objects=r7Hotspot('r7Drawer','机の引き出しを開ける',[35,52,15,25])+r7Hotspot('r7Curtain','窓辺とカーテン',[3,8,29,53])+r7Hotspot('r7Diary','机の日記',[47,42,18,10])+r7Hotspot('r7Photo','写真立て',[74,34,12,14])+r7Hotspot('r7Letters','手紙',[66,42,8,8]);
     if(view==='right')objects=r7Hotspot('r7Stack','床に積まれた本',[38.4,62,7.5,15])+r7Hotspot('r7Box','本棚の収納箱',[28.7,62,9.5,10])+r7Hotspot('r7Cups','二つのコップと一脚の椅子',[54,41,30,10])+r7Hotspot('r7Clock','時計',[78,7,12,18])+r7Hotspot('r7Lamp','ランプ',[88,20,9,12])+r7Hotspot('r7Frame','壁の四角い跡',[59,14,18,20]);
     if(view==='back')objects=r7Hotspot('r7Shelf','本棚の中央段',[35,22,30,22]);
-    game.innerHTML='<main class="room late-room r7-full" aria-label="図書室"><div class="r7-room-wrap"><section class="r7-scene" data-view="'+view+'" aria-label="'+({front:'正面の扉',left:'記録のある書斎',right:'欠けたものがある書斎',back:'大きな本棚'})[view]+'">'+objects+
+    game.innerHTML='<main class="room late-room r7-full" aria-label="図書室"><div class="r7-room-wrap"><section class="r7-scene" data-view="'+view+'" aria-label="'+({front:'正面の扉',left:'記録のある書斎',right:'右側の書斎',back:'大きな本棚'})[view]+'">'+objects+
       (view==='front'?'<button type="button" class="r7-dial-target" id="r7Dial" aria-label="十二支操作盤を拡大">'+r7DialMarkup(false)+'</button>':'')+
       (view==='back'?'<div class="r7-shelf-row" aria-hidden="true">'+r7ShelfArt()+'</div>':'')+
       '<button type="button" class="r7-hana hana-v2-world" id="r7Hana" aria-label="ハナに話しかける"></button></section></div><nav class="r7-nav" aria-label="部屋を見回す"><button type="button" id="r7TurnLeft" aria-label="左を向く">◀</button><button type="button" id="r7TurnRight" aria-label="右を向く">▶</button></nav></main>';

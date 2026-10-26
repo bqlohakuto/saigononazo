@@ -365,13 +365,14 @@ function room3SavedMemoryProgress(){
  const ids=new Set(expandScenario([...room3MemoryTransitionLines,...room3FlashbackLines,...room3AfterMemoryLines]).map(line=>line.logId));
  const progress=room3State.memoryProgress;
  // A save from an older build can still point to the removed end marker.
- if(progress?.logId==="room3_flashback_72")return {logId:"room3_after_01",uiPage:0};
+ if(/^room3_flashback_72(?:_\\d+)?$/.test(progress?.logId||""))return {logId:"room3_after_01_01",uiPage:0};
  if(progress&&ids.has(progress.logId))return {logId:progress.logId,uiPage:Number.isInteger(progress.uiPage)&&progress.uiPage>=0?progress.uiPage:0};
  // Legacy saves have no cursor. Resume their last displayed memory/aftermath
  // sentence; notices added during loading must not reset that position.
  const logs=typeof GameLog!=="undefined"?GameLog.list():[];
- const last=[...logs].reverse().find(entry=>ids.has(entry.id)||entry.id==="room3_flashback_72");
- return last?{logId:last.id==="room3_flashback_72"?"room3_after_01":last.id,uiPage:0}:null;
+ const legacyEnd=/^room3_flashback_72(?:_\\d+)?$/;
+ const last=[...logs].reverse().find(entry=>ids.has(entry.id)||legacyEnd.test(entry.id));
+ return last?{logId:legacyEnd.test(last.id)?"room3_after_01_01":last.id,uiPage:0}:null;
 }
 // Follow the authored text as it advances, rather than a timed animation that
 // would desynchronize under AUTO, SKIP, slow reading or save/load.

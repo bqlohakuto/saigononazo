@@ -1681,7 +1681,7 @@
       }).join('');
       const available=R7_BOOKS.filter(b=>room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id));
       held.innerHTML=available.map(b=>'<button type="button" data-held="'+b.id+'" aria-pressed="'+(selected===b.id)+'">'+b.title+'</button>').join('');
-      status.textContent=selected?'『'+r7Book(selected).title+'』を戻す場所を選ぶ。':room7State.booksSolved?'本が並んでいる。':room7State.placed.length===6?'本は開かない。':available.length?'手元の本を選んで、棚の空きに戻そう。':'棚には、本が抜けた空きがある。';
+      status.textContent=selected?'『'+r7Book(selected).title+'』を戻す場所を選ぶ。':room7State.booksSolved?'本が並んでいる。':room7State.placed.length===6?'本は開かない。':available.length?'手元の本を選んで、棚の空きに戻そう。':'棚には、本が抜けた隙間がある。';
       row.querySelectorAll('[data-slot]').forEach(button=>button.onclick=()=>{
         const slot=Number(button.dataset.slot),fixed=R7_FIXED.find(b=>b.slot===slot),placed=r7PlacedAt(slot);
         if(fixed){status.textContent='背表紙に『'+fixed.title+'』と書かれている。';return}

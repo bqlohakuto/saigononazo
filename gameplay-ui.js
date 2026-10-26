@@ -290,7 +290,7 @@
     const hud = document.createElement("div");
     hud.id = "gameplayHud";
     hud.className = "gameplay-hud";
-    hud.innerHTML = `<div class="gameplay-hud-left"><p class="gameplay-room-title"></p><div class="gameplay-goal-row"><p class="gameplay-objective"><strong>目的</strong><span id="gameplayObjectiveText"></span></p><button type="button" class="gameplay-highlight-toggle" id="gameplayHighlightButton" aria-pressed="false">調査表示</button></div></div><div class="gameplay-hud-actions"><button type="button" class="gameplay-top-button" data-gameplay="save">SAVE</button><button type="button" class="gameplay-top-button" data-gameplay="load">LOAD</button><button type="button" class="gameplay-top-button menu" id="gameplayMenuButton" aria-label="メニュー">☰</button></div>`;
+    hud.innerHTML = `<div class="gameplay-hud-left"><p class="gameplay-room-title"></p><div class="gameplay-goal-row"><button type="button" class="gameplay-highlight-toggle" id="gameplayHighlightButton" aria-pressed="false">調査表示</button></div></div><div class="gameplay-hud-actions"><button type="button" class="gameplay-top-button" data-gameplay="save">SAVE</button><button type="button" class="gameplay-top-button" data-gameplay="load">LOAD</button><button type="button" class="gameplay-top-button menu" id="gameplayMenuButton" aria-label="メニュー">☰</button></div>`;
     hud.querySelector(".gameplay-room-title").textContent = config.title;
     game.appendChild(hud);
     hud.querySelector('[data-gameplay="save"]').addEventListener("click", () => openSaveLoad("save"));

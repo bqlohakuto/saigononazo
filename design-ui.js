@@ -228,7 +228,25 @@
       const imageNote=paragraph('拡大時は部屋の背景をスワイプして見渡せます。');imageNote.className='design-display-note';m.content.append(imageNote);
     }
     const actions=document.createElement('div');actions.className='design-actions';actions.append(button('セーブ',()=>{m.close();GameplayUI.openDataMenu('save')}),button('ロード',()=>{m.close();GameplayUI.openDataMenu('load')}),button('操作説明',()=>{m.close();help()}),fullscreenButton());m.content.append(actions);syncDisplayButtons();
-    const title=button('タイトルへ戻る',()=>{title.textContent='セーブしてタイトルへ戻りますか？';title.onclick=()=>{saveGame();m.close();Dialogue.stop();showTitle()}});m.content.append(title);
+    m.content.append(button('タイトルへ戻る',confirmReturnToTitle));
+  }
+  function confirmReturnToTitle(){
+    const m=panel('タイトルへ戻る');
+    m.content.append(paragraph('タイトルへ戻る方法を選んでください。'));
+    m.content.append(paragraph('セーブせずに戻る場合、ここでは新しく保存しません。これまでのオートセーブや手動セーブは残ります。'));
+    const actions=document.createElement('div');actions.className='design-actions';
+    const leave=save=>{
+      if(save)saveGame();
+      m.close();
+      Dialogue.stop();
+      showTitle();
+    };
+    actions.append(
+      button('セーブして戻る',()=>leave(true)),
+      button('セーブせず戻る',()=>leave(false)),
+      button('キャンセル',()=>{m.close();options()})
+    );
+    m.content.append(actions);
   }
   const r5Items=[['mirror','鏡','◇'],['fish','魚','魚'],['butterfly','蝶','蝶'],['flower','花','花'],['squid','イカ','イカ'],['chair','椅子','椅子'],['cannon','大砲','大砲']];
   function items(){

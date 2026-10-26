@@ -145,7 +145,7 @@
         <button type="button" class="device-close" aria-label="閉じる">×</button>
         <p class="hana-choice-speaker">${speakerName}</p>
         <h2>どうしたの？</h2>
-        <p class="hana-choice-lead">聞きたいことを選んでください。</p>
+        
         <div class="hana-choice-list${introduced ? "" : " is-introduction"}"></div>
       </section>`;
     game.appendChild(overlay);

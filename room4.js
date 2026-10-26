@@ -331,7 +331,7 @@ function r4WordPuzzle(kind){
  const body=kind==="STAR"?`<div class="r4-color-samples" role="group" aria-label="四色の数字の展示"><div class="r4-color-plaque silver" aria-label="銀色、1"><b>1</b></div><div class="r4-color-plaque white" aria-label="白色、4"><b>4</b></div><div class="r4-color-plaque black" aria-label="黒色、3"><b>3</b></div><div class="r4-color-plaque green" aria-label="緑色、2"><b>2</b></div></div>`:r4ColorRatioPuzzle();
  const answerView=solved?'<div class="r4-solved-answer" role="status" aria-label="解答済み"><span>'+kind+'</span></div>':'<label>答え<input autocomplete="off"></label><button class="r4-answer">答える</button><p class="r4-feedback"></p>';
  const exhibitClass=kind==="STAR"?" r4-color-exhibit":" r4-color-exhibit r4-ratio-exhibit";
- o.innerHTML=`<section class="r4-mini ${solved?"r4-mini-inspected":""}${exhibitClass}" aria-label="${kind==="STAR"?"色と数字":"色の割合"}"><button class="device-close" aria-label="閉じる">×</button>${kind==="STAR"?"<h2>色と数字</h2>":""}${body}${answerView}</section>`;
+ o.innerHTML=`<section class="r4-mini ${solved?"r4-mini-inspected":""}${exhibitClass}" aria-label="${kind==="STAR"?"色と数字":"色の割合"}"><button class="device-close" aria-label="閉じる">×</button>${body}${answerView}</section>`;
  game.appendChild(o);
  const input=o.querySelector("input"),fb=o.querySelector(".r4-feedback");
  const close=activateDeviceModal(o,kind==="STAR"?"r4P1":"r4P2",solved?o.querySelector(".device-close"):input);

@@ -1,11 +1,11 @@
 // Correspondence follows Interflora, Zodiac Flowers, 2026-02-02.
 // These are cultural zodiac flowers, not a universal official birth-flower standard.
 const R4_FLOWERS=[
- {id:'Ari',star:'おひつじ座',flower:'ハニーサックル',english:'Honeysuckle',description:'細長い花の先から、おしべが伸びる。ここでは、白と淡い黄色のスイカズラ類を描いている。'},
- {id:'Tau',star:'おうし座',flower:'ポピー',english:'Poppy',description:'薄い花びらが大きく開く花。ここでは、赤い花びらと暗い中心を持つヒナゲシを描いている。'},
- {id:'Gem',star:'ふたご座',flower:'ラベンダー',english:'Lavender',description:'細い茎の先に、小さな紫色の花が穂のように集まる。細長い葉と花の形が特徴。'},
- {id:'Cnc',star:'かに座',flower:'白いバラ',english:'White Rose',description:'幾重にも重なった白い花びらを持つバラ。花のまわりには、縁にギザギザのある葉がつく。'},
- {id:'Leo',star:'しし座',flower:'ヒマワリ',english:'Sunflower',description:'暗い色の中心を、黄色い花びらのような花が囲む。大きな葉とまっすぐ伸びる茎を持つ。'},
+ {id:'Ari',star:'おひつじ座',flower:'ハニーサックル',english:'Honeysuckle',description:'筒のように細長い花の奥には蜜があり、先端から長いおしべが突き出している。甘い香りに誘われ、虫たちが蜜を求めてやってくる。'},
+ {id:'Tau',star:'おうし座',flower:'ポピー',english:'Poppy',description:'薄い花びらが開くと、中心には黒っぽいおしべが輪のように並ぶ。その真ん中には、花が散ったあとに種を包む実へ育つ部分がある。'},
+ {id:'Gem',star:'ふたご座',flower:'ラベンダー',english:'Lavender',description:'小さな紫色の花は筒状で、奥には蜜がある。花にも葉にも香りのもとが含まれていて、そっと触れると独特の香りが立つ。'},
+ {id:'Cnc',star:'かに座',flower:'白いバラ',english:'White Rose',description:'何枚も重なる白い花びらの奥には、おしべとめしべがある。花びらの多い品種では、おしべの一部が花びらのような形に変わることもある。'},
+ {id:'Leo',star:'しし座',flower:'ヒマワリ',english:'Sunflower',description:'一輪の大きな花に見えるが、暗い中心には小さな花がぎっしり集まっている。周囲の黄色い花びらのような部分も、実は別の小さな花だ。'},
  {id:'Vir',star:'おとめ座',flower:'キク',english:'Chrysanthemum',description:'細い花びらが中心から何層にも重なる花。ここでは、黄色い花をつけた園芸のキクを描いている。'},
  {id:'Lib',star:'てんびん座',flower:'バラ',english:'Rose',description:'花びらが中心を包むように幾重にも重なる。ここでは赤いバラを描いている。'},
  {id:'Sco',star:'さそり座',flower:'ゼラニウム',english:'Geranium',description:'小さな花が集まって咲く。ここでは、丸みのある葉を持つ園芸のゼラニウムを描いている。'},

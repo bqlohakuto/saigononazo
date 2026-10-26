@@ -1635,7 +1635,7 @@
     drawer:{name:'机の引き出し',action:'引き出しを開ける',before:"机の引き出しを開けた。",after:"奥に、一冊の本が入っている。",opener:'r7Drawer'},
     curtain:{name:'窓辺',action:'カーテンを動かす',before:"窓は曇りガラスになっていて、外の景色は見えない。",after:"カーテンを少し動かすと、窓辺に一冊の本が置かれていた。",opener:'r7Curtain'},
     diary:{name:'机上の日記',action:'日記を閉じる',before:"開いた日記が置かれている。\n文章は途中で途切れ、その先は白紙だった。",after:"日記を閉じると、下に別の本が重なっていた。",opener:'r7Diary'},
-    stack:{name:'床の積み本',action:'積まれた本を調べる',before:"床に、何冊もの本が積まれている。",after:"背表紙を見ていくと、一冊だけ逆さまに重なっていた。",opener:'r7Stack'},
+    stack:{name:'床に積まれた本',action:'積まれた本を調べる',before:"床に、何冊もの本が積まれている。",after:"背表紙を見ていくと、一冊だけ逆さまに重なっていた。",opener:'r7Stack'},
     box:{name:'本棚の収納箱',action:'収納箱を開ける',before:"棚の下段に、収納箱がある。",after:"ふたを開けると、中に一冊の本が入っていた。",opener:'r7Box'},
     cabinet:{name:'正面の収納棚',action:'棚の扉を開ける',before:"低い収納棚がある。",after:"扉を開けると、中に一冊の本がしまわれていた。",opener:'r7Cabinet'}
   };

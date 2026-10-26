@@ -678,3 +678,40 @@
     animation:none!important;
   }
 }
+
+/* Room 02: synchronize the correct-answer glow, whiteout and memory reveal
+   with the corresponding LOG line. Keep effects below the dialogue (z-index 78)
+   and above the memory artwork (z-index 50). */
+#game .room2-correct-light{
+  position:absolute;inset:0;z-index:60;pointer-events:none;
+  --r2-device-light:0;--r2-white-light:0;
+}
+#game .room2-correct-light::before,
+#game .room2-correct-light::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  transition:opacity .85s ease-in-out;
+}
+#game .room2-correct-light::before{
+  background:radial-gradient(ellipse 32% 25% at 50% 70%,#fff8c9 2%,#ffedac99 35%,transparent 100%);
+  opacity:var(--r2-device-light);
+}
+#game .room2-correct-light::after{
+  background:#fff;
+  opacity:var(--r2-white-light);
+}
+#game .room2-correct-light[data-beat="device"]{
+  --r2-device-light:.66;
+}
+#game .room2-correct-light[data-beat="spread"]{
+  --r2-device-light:1;--r2-white-light:.3;
+}
+#game .room2-correct-light[data-beat="flash"]{
+  --r2-device-light:1;--r2-white-light:1;
+}
+#game .room2-correct-light[data-beat="memory"]{
+  --r2-device-light:0;--r2-white-light:0;
+}
+@media(prefers-reduced-motion:reduce){
+  #game .room2-correct-light::before,
+  #game .room2-correct-light::after{transition:none}
+}

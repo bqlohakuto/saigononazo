@@ -2072,7 +2072,7 @@
       const value=o.querySelector("#r8Answer").value.trim();
       if(!value){o.querySelector("#r8Feedback").textContent="……名前を、思い出そう。";return}
       if(!["花音","かのん","カノン"].includes(value)){
-        o.querySelector("#r8Feedback").textContent="……違う。僕が呼びたいのは、この名前じゃない。\nもう一度、ここまでの出来事を思い返した。";return
+        o.querySelector("#r8Feedback").textContent="……違う。僕が呼びたいのは、この名前じゃない。\nもう一度、ここまでの出来事を思い返そう。";return
       }
       o.remove();room8State.solved=true;saveGame();r8SolvedDialogue();
     };

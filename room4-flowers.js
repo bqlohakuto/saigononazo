@@ -6,13 +6,13 @@ const R4_FLOWERS=[
  {id:'Gem',star:'ふたご座',flower:'ラベンダー',english:'Lavender',description:'小さな紫色の花は筒状で、奥には蜜がある。花にも葉にも香りのもとが含まれていて、そっと触れると独特の香りが立つ。'},
  {id:'Cnc',star:'かに座',flower:'白いバラ',english:'White Rose',description:'何枚も重なる白い花びらの奥には、おしべとめしべがある。花びらの多い品種では、おしべの一部が花びらのような形に変わることもある。'},
  {id:'Leo',star:'しし座',flower:'ヒマワリ',english:'Sunflower',description:'一輪の大きな花に見えるが、暗い中心には小さな花がぎっしり集まっている。周囲の黄色い花びらのような部分も、実は別の小さな花だ。'},
- {id:'Vir',star:'おとめ座',flower:'キク',english:'Chrysanthemum',description:'細い花びらが中心から何層にも重なる花。ここでは、黄色い花をつけた園芸のキクを描いている。'},
- {id:'Lib',star:'てんびん座',flower:'バラ',english:'Rose',description:'花びらが中心を包むように幾重にも重なる。ここでは赤いバラを描いている。'},
- {id:'Sco',star:'さそり座',flower:'ゼラニウム',english:'Geranium',description:'小さな花が集まって咲く。ここでは、丸みのある葉を持つ園芸のゼラニウムを描いている。'},
- {id:'Sgr',star:'いて座',flower:'カーネーション',english:'Carnation',description:'花びらの縁が細かく波打ち、重なり合う花。細い葉と、すらりとした茎を持つ。'},
- {id:'Cap',star:'やぎ座',flower:'パンジー',english:'Pansy',description:'五枚の花びらに、顔のような模様が見える。ここでは、紫と黄色の花を描いている。'},
- {id:'Aqr',star:'みずがめ座',flower:'ラン',english:'Orchid',description:'種類によって、さまざまな姿を見せる花。ここでは、白と淡いピンクのコチョウランを描いている。'},
- {id:'Psc',star:'うお座',flower:'スイレン',english:'Water Lily',description:'水面に浮かぶ丸い葉の間で、花が開く。葉の切れ込みと、重なり合う花びらが特徴。'}
+ {id:'Vir',star:'おとめ座',flower:'キク',english:'Chrysanthemum',description:'キクの一輪に見える部分は、実は小さな花の集まり。花びらのように見える外側の花や、中心に集まる花がひとつになって咲いている。'},
+ {id:'Lib',star:'てんびん座',flower:'バラ',english:'Rose',description:'幾重にも重なる花びらは、品種によって枚数も開き方も違う。バラの香りは主に花びらから放たれ、香りの強さにもさまざまな違いがある。'},
+ {id:'Sco',star:'さそり座',flower:'ゼラニウム',english:'Geranium',description:'ゼラニウムは、小さな花がまとまって咲く植物。葉に香りを持つ種類もあり、そっとこするとバラやレモンを思わせる香りが広がることがある。'},
+ {id:'Sgr',star:'いて座',flower:'カーネーション',english:'Carnation',description:'花びらの縁が細かく切れ込み、幾重にも重なる品種が多い。昔ながらのカーネーションには、香辛料のクローブに似た香りを持つものもある。'},
+ {id:'Cap',star:'やぎ座',flower:'パンジー',english:'Pansy',description:'五枚の花びらにある筋や濃い模様は、虫を蜜へ導く目印にもなる。下側の花びらの奥には蜜がたまる場所があり、訪れた虫が花粉を運ぶ。'},
+ {id:'Aqr',star:'みずがめ座',flower:'ラン',english:'Orchid',description:'コチョウランには、ほかの花びらとは形の違う「唇弁（しんべん）」があり、虫が止まる足場にもなる。花の中心では、おしべとめしべが「ずい柱」というひとつの構造にまとまっている。'},
+ {id:'Psc',star:'うお座',flower:'スイレン',english:'Water Lily',description:'スイレンには、昼に花を開き、夜になると閉じる種類がある。花の中心にはたくさんのおしべが並び、受粉すると花が水中に沈んで実を育てる種類もある。'}
 ];
 function r4FlowerSprite(index){return `<span class="r4-flower-sprite" role="img" aria-label="${R4_FLOWERS[index].flower}のイラスト" style="background-position:${(index%4)*100/3}% ${Math.floor(index/4)*50}%"></span>`}
 function r4FlowerBoard(){return `<div class="r4-flower-board" aria-hidden="true">${R4_FLOWERS.map((_,i)=>`<i>${r4FlowerSprite(i)}</i>`).join('')}</div>`}

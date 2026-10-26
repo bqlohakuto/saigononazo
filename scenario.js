@@ -149,7 +149,7 @@ const firstRoomScenario = {
         { note: "レ", example: "レモン" },
         { note: "ミ", example: "みんな" },
         { note: "ファ", example: "ファイト" },
-        { note: "ソ", example: "青い空" },
+        { note: "ソ", example: "青い空(空)" },
         { note: "ラ", example: "ラッパ（トランペットなど）" },
         { note: "シ", example: "幸せ" }
     ],

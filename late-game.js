@@ -193,7 +193,6 @@
     if(room5State.collected.includes(id)){showRoomNotice("ここから回収できるものは、もうない。","r5_repeat_"+id);return}
     const item=R5_ITEMS.find(x=>x[0]===id);if(!item)return;
     const [,name]=item;
-    const first=room5State.collected.length===0;
     let lines=[];
     if(id==="mirror"){
       lines=[
@@ -257,9 +256,6 @@
         line("r5_cannon_03","ト書き","リビングには少し似つかわしくない。模型に触れる。淡い光とともに、その姿が一枚のパネルへ変わった。"),
         line("r5_get_cannon","システム","【大砲のパネルを手に入れた】")
       ];
-    }
-    if(first&&!["mirror","fish","squid","butterfly","flower"].includes(id)){
-      lines.unshift(line("r5_first_transform","ト書き","手で触れる。一瞬、周囲の音が消える。対象の輪郭が淡く光り、厚みが失われていく。立体だった物体が、手の中に収まる一枚のパネルへ変化する。"));
     }
     showRoomDialog(lines,()=>{
       room5State.collected.push(id);saveGame();renderR5();

@@ -223,8 +223,10 @@
     function checkbox(label,key){const l=document.createElement('label'),input=document.createElement('input');input.type='checkbox';input.checked=!!settings[key];input.onchange=()=>{settings[key]=input.checked;saveSettings()};l.append(input,document.createTextNode(label));grid.append(l)}
     range('BGM', 'bgmVolume',0,100);range('効果音','seVolume',0,100);range('文字速度（小さいほど速い）','textSpeed',15,100);checkbox('文字を一度に表示','instantText');checkbox('音の情景描写を表示','soundCaptions');
     const size=document.createElement('label');size.append(document.createTextNode('文字サイズ'));const select=document.createElement('select');[['medium','標準'],['large','大']].forEach(([value,text])=>{const o=document.createElement('option');o.value=value;o.textContent=text;select.append(o)});select.value=document.documentElement.dataset.gameTextSize||'medium';select.onchange=()=>{document.documentElement.dataset.gameTextSize=select.value;localStorage.setItem('saigononazo-gameplay-ui-v1',JSON.stringify({textSize:select.value}));GameplayUI.setTextSize?.(select.value)};size.append(select);grid.append(size);
-    const imageSize=document.createElement('label'),imageSelect=document.createElement('select');imageSize.append(document.createTextNode('部屋画像（第七の部屋）'));imageSelect.id='roomImageSize';[['fit','全体を表示'],['large','拡大（120%）']].forEach(([value,text])=>{const o=document.createElement('option');o.value=value;o.textContent=text;imageSelect.append(o)});imageSelect.value=roomImageSize;imageSelect.onchange=()=>{roomImageSize=imageSelect.value;localStorage.setItem('saigononazo-room-image-size',roomImageSize);syncRoomImage()};imageSize.append(imageSelect);grid.append(imageSize);
-    const imageNote=paragraph('拡大時は部屋の背景をスワイプして見渡せます。');imageNote.className='design-display-note';m.content.append(imageNote);
+    if(currentScene==='room07'){
+      const imageSize=document.createElement('label'),imageSelect=document.createElement('select');imageSize.append(document.createTextNode('部屋画像（第七の部屋）'));imageSelect.id='roomImageSize';[['fit','全体を表示'],['large','拡大（120%）']].forEach(([value,text])=>{const o=document.createElement('option');o.value=value;o.textContent=text;imageSelect.append(o)});imageSelect.value=roomImageSize;imageSelect.onchange=()=>{roomImageSize=imageSelect.value;localStorage.setItem('saigononazo-room-image-size',roomImageSize);syncRoomImage()};imageSize.append(imageSelect);grid.append(imageSize);
+      const imageNote=paragraph('拡大時は部屋の背景をスワイプして見渡せます。');imageNote.className='design-display-note';m.content.append(imageNote);
+    }
     const actions=document.createElement('div');actions.className='design-actions';actions.append(button('セーブ',()=>{m.close();GameplayUI.openDataMenu('save')}),button('ロード',()=>{m.close();GameplayUI.openDataMenu('load')}),button('操作説明',()=>{m.close();help()}),fullscreenButton());m.content.append(actions);syncDisplayButtons();
     const title=button('タイトルへ戻る',()=>{title.textContent='セーブしてタイトルへ戻りますか？';title.onclick=()=>{saveGame();m.close();Dialogue.stop();showTitle()}});m.content.append(title);
   }
@@ -272,7 +274,9 @@
     if(currentScene!=='opening')text='黄色の輪は未調査、緑の輪は調査済みです。輪のある場所をクリック / タップして調べます。\n\n'+text;
     if(currentScene==='room02')text+='\n\nいろしるパズル：候補を押した順に１〜５へ入ります。同じ候補で取り消し、同じ記号の別の色で入れ替え。入力済みの枠を２つ押すと交換できます。「解答」で判定します。';
     if(game.querySelector('.device-overlay input,.device-overlay textarea,.room input,.late-room input'))text+='\n\n入力欄では解答ボタンを押して送信します。';
-    text+='\n\nスマホは横向きでプレイしてください。右上の「全画面」で表示を広げられます。対応していないブラウザでは、ホーム画面からの起動方法を案内します。第七の部屋は設定から画像を拡大でき、背景をスワイプして見渡せます。';pageText(m.content,text);
+    text+='\n\nスマホは横向きでプレイしてください。右上の「全画面」で表示を広げられます。対応していないブラウザでは、ホーム画面からの起動方法を案内します。';
+    if(currentScene==='room07')text+='\n\n第七の部屋は設定から画像を拡大でき、背景をスワイプして見渡せます。';
+    pageText(m.content,text);
   }
   function investigationRevision(el){const s=roomStates[currentScene]||{};const base=['doorUnlocked','unlocked','completed','memorySeen'].map(k=>String(!!s[k])).join(':');return el?.id==='hanaButton'?base+'|topics:'+window.HanaChoiceUI.getAvailableChoiceIds().join(','):base}
   function syncHud(){

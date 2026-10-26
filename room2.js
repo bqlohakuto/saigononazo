@@ -31,7 +31,6 @@ function showSecondRoom(savedState){
  room2State.challengeCleared=room2State.challengeCleared===true;
  room2State.challengeBest=Number.isInteger(room2State.challengeBest)&&room2State.challengeBest>=1&&room2State.challengeBest<=8?room2State.challengeBest:null;
  game.innerHTML=`<main class="room room-two room2-arriving ${room2State.unlocked?"is-restored":""}" aria-label="第二の部屋">
-  <header class="room-header"><p class="room-label">第二の部屋</p><p class="room-color-status">${room2State.unlocked?"色を取り戻した部屋":"淡い記憶の部屋"}</p></header>
   <div class="room-stage-wrap"><section class="room-stage room2-stage" aria-label="第二の部屋">
    <img class="room2-background-art" src="images/background/room02/room02_bg_nodesk.png?v=20261013-room02-clean-alpha-01" alt="" aria-hidden="true" draggable="false" decoding="async">
    <button class="room2-secret-dresser" id="r2Dresser" type="button" aria-label="左のタンスを調べる"></button>

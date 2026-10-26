@@ -61,7 +61,7 @@ const room4FlashbackLines=[
 {logId:"r4f38",logType:"dialogue",speaker:"主人公",text:"いきなり呼び捨ては無理ですって！"},
 {logId:"r4f39",logType:"dialogue",speaker:"先輩",text:"また敬語"},
 {logId:"r4f40",logType:"dialogue",speaker:"主人公",text:"……無理"},
-{logId:"r4f41",logType:"dialogue",speaker:"先輩",text:"ふふっ、まあ今日はそれで許してあげる"},
+{logId:"r4f41",logType:"dialogue",speaker:"先輩",text:"まあ、今日はそれで許してあげる"},
 {logId:"r4f42",logType:"narration",speaker:"ト書き",text:"先輩が楽しそうに笑う。"},
 {logId:"r4f43",logType:"dialogue",speaker:"先輩",text:"じゃあ、今度は私の番ね"},
 {logId:"r4f44",logType:"narration",speaker:"ト書き",text:"先輩が僕の名前を呼ぶ。"},

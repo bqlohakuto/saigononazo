@@ -258,7 +258,7 @@
         line("r5_get_cannon","システム","【大砲のパネルを手に入れた】")
       ];
     }
-    if(first&&!["mirror","fish","squid"].includes(id)){
+    if(first&&!["mirror","fish","squid","butterfly","flower"].includes(id)){
       lines.unshift(line("r5_first_transform","ト書き","手で触れる。一瞬、周囲の音が消える。対象の輪郭が淡く光り、厚みが失われていく。立体だった物体が、手の中に収まる一枚のパネルへ変化する。"));
     }
     showRoomDialog(lines,()=>{

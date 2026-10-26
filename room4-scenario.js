@@ -77,8 +77,8 @@ const room4FlashbackLines=[
 {logId:"r4f54",logType:"narration",speaker:"主人公",thought:true,text:"先輩の名前……思い出せない……？"},
 {logId:"r4f55",logType:"narration",speaker:"ト書き",text:"胸の奥が、ざわつく。そして、もう一つ。先輩も、確かに僕の名前を呼んだ。それなのに――"},
 {logId:"r4f56",logType:"narration",speaker:"主人公",thought:true,text:"……聞こえなかった"},
-{logId:"r4f57",logType:"narration",speaker:"主人公",thought:true,text:"記憶の中でも……僕の名前だけが抜け落ちてる……？"},
-{logId:"r4f58",logType:"narration",speaker:"ト書き",text:"その瞬間。視界が白く染まった。――回想終了。"}
+{logId:"r4f57",logType:"narration",speaker:"主人公",thought:true,text:"記憶の中でも……僕たちの名前だけが抜け落ちてる……？"},
+{logId:"r4f58",logType:"narration",speaker:"ト書き",text:"その瞬間。視界が白く染まった。"}
 ];
 const room4AfterMemoryLines=[
 {logId:"r4a01",logType:"narration",speaker:"ト書き",text:"視界が、元の部屋に戻る。"},

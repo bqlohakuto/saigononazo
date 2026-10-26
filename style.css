@@ -392,6 +392,29 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 #game .room3-memory-light[data-beat="spread"]{--r3-glow:1;--r3-white:.3}
 #game .room3-memory-light[data-beat="flash"]{--r3-glow:1;--r3-white:1}
 #game .room3-memory-light[data-beat="memory"]{--r3-glow:0;--r3-white:0}
+/* Keep the last hand-holding CG visible until the white covers it;
+   then reveal the present room beneath the same effect layer. */
+#game .room3-memory-light[data-beat="return"]::before{
+ background:url("images/cg/memories/room03/right-hand-warmth-v4.png") center/cover no-repeat;
+ animation:room3ReturnMemoryPicture 1.6s linear both;
+}
+#game .room3-memory-light[data-beat="return"]::after{
+ background:#fff;
+ animation:room3ReturnWhite 1.6s ease-in-out both;
+}
+@keyframes room3ReturnMemoryPicture{
+ 0%,50%{opacity:1}
+ 60%,100%{opacity:0}
+}
+@keyframes room3ReturnWhite{
+ 0%{opacity:0}
+ 36%,56%{opacity:1}
+ 100%{opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+ #game .room3-memory-light[data-beat="return"]::before,
+ #game .room3-memory-light[data-beat="return"]::after{animation:none!important;opacity:0}
+}
 @media(prefers-reduced-motion:reduce){
  #game .room3-memory-light::before,#game .room3-memory-light::after{transition:none}
 }

@@ -106,7 +106,7 @@
     }
     function pagehide(){track.pause();last=0;}
     track.addEventListener("ended",()=>{ended=true;});
-    track.addEventListener("error",()=>ask("楽曲を読み込めませんでした。再試行するか、音声なしで続けられます。"));
+    track.addEventListener("error",()=>ask("楽曲を読み込めませんでした。再試行するか、音声なしで続けることができます。"));
     retry.onclick=()=>{clearTimeout(fadeTimer);play();};
     silent.onclick=()=>{clearTimeout(fadeTimer);attempt++;clearTimeout(loadTimer);track.pause();silentMode=true;elapsed=lastTime;started=true;prompt.hidden=true;last=0;};
     document.addEventListener("visibilitychange",visibility);

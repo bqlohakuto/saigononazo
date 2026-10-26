@@ -2264,6 +2264,28 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r5-handdrawn-panel .r5-help-note{position:absolute;z-index:10;top:47px;right:16px;max-width:440px;padding:16px;background:#fff8e8;border:2px solid #a98a56;box-shadow:0 6px 15px #261b1255;font-size:14px;line-height:1.8}
 #game .r5-handdrawn-panel .r5-help-note[hidden],#game .r5-handdrawn-panel .r5-inlay-code[hidden]{display:none}
 #game .r5-handdrawn-panel .r5-inlay-code{position:absolute;inset:50% 28% auto;transform:translateY(-50%);z-index:2;background:#302a24;border:2px solid #d8b56f;box-shadow:0 0 12px #ffdf9380;color:#fff0b3;text-align:center;font:700 25px/1.15 'DotGothic16',monospace;letter-spacing:.3em;padding:2px 0 2px .3em;pointer-events:none}
+/* Full completion only: readable narration floats over the completed wooden board. */
+#game .r5-handdrawn-panel .r5-completion-caption{
+ position:absolute;z-index:6;left:16px;right:16px;bottom:12px;
+ box-sizing:border-box;min-height:54px;max-height:112px;overflow:auto;
+ display:flex;flex-direction:column;justify-content:center;gap:5px;
+ padding:9px 15px;border:2px solid #dbb978;
+ background:#263439ef;box-shadow:0 4px 18px #20120fc9;
+ color:#fff5dc;font-size:16px;line-height:1.45;text-align:center;
+ pointer-events:none;
+}
+#game .r5-handdrawn-panel .r5-completion-caption p{margin:0}
+#game .r5-handdrawn-panel .r5-completion-caption b{margin-right:12px;color:#f7d9a4;font-weight:600}
+#game .r5-handdrawn-panel.r5-completing .r5-counter-slot.filled{
+ animation:r5-complete-glow 1.6s ease-in-out infinite;
+}
+@keyframes r5-complete-glow{
+ 0%,100%{filter:brightness(1);box-shadow:inset 0 0 0 1px #87613c,0 2px 0 #67412c}
+ 50%{filter:brightness(1.12);box-shadow:inset 0 0 0 1px #c7953e,0 0 18px #ffdc8f}
+}
+@media (prefers-reduced-motion:reduce){
+ #game .r5-handdrawn-panel.r5-completing .r5-counter-slot.filled{animation:none}
+}
 #game .r5-handdrawn-panel button:focus-visible{outline:3px solid #f5d68a;outline-offset:2px}
 #game .r5-handdrawn-panel .r5-inventory-tile:focus-visible{outline-color:#694521}
 /* The small wall board shows the same handwritten combinations, also after load. */

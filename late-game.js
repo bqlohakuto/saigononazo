@@ -1122,14 +1122,14 @@
   }
   function r6RevealMap(before=[]){
     showRoomDialog([...before,
-      line('r6_fullmap_01','主人公','って言うことは64部屋もあるのか…'),
+      line('r6_fullmap_01','主人公','ってことは、64部屋もあるのか……'),
       line('r6_fullmap_02','主人公','全部調べるのは大変だな'),
       line('r6_fullmap_03','ハナ','……はい！'),
       line('r6_fullmap_draw','ト書き','ハナが地図にスラスラと部屋を描いていく。'),
       line('r6_fullmap_done','ハナ','完成！'),
       line('r6_fullmap_04','ト書き','いつのまにか全ての部屋が描かれていた。'),
-      line('r6_fullmap_05','主人公','最初から描いて下さいよ…'),
-      line('r6_fullmap_06','ハナ','それじゃあ面白くないでしょ？？')
+      line('r6_fullmap_05','主人公','最初から描いてくださいよ……'),
+      line('r6_fullmap_06','ハナ','それじゃあ面白くないでしょ？')
     ],()=>{
       room6State.mapComplete=true;room6State.mapEvent=true;saveGame();game.classList.remove('r6-map-revealing');renderR6();
     },entry=>{

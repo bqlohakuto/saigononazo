@@ -276,7 +276,7 @@
         line("r5_board_intro_05","主人公","一羽……。"),
         line("r5_board_intro_06","ハナ","何か分かった？"),
         line("r5_board_intro_07","主人公","たぶん、この絵が見本なんだと思います。"),
-        line("r5_board_intro_08","ト書き","七つの丸枠を見る。"),
+        line("r5_board_intro_08","ト書き","残る七つの丸枠を見る。"),
         line("r5_board_intro_09","主人公","数え方を合わせればいいんですね。")
       ],r5Board);
       return;

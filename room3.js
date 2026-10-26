@@ -94,7 +94,6 @@ const room3FlashbackLines=[
  {logId:"room3_flashback_69",logType:"dialogue",speaker:"先輩",text:"こちらこそ。私と付き合ってください"},
  {logId:"room3_flashback_70",logType:"dialogue",speaker:"主人公",text:"！……はい！ お願いします！"},
  {logId:"room3_flashback_71",logType:"narration",speaker:"ト書き",text:"僕は右手で、差し出された先輩の左手を握る。そのまま二人で、桜並木を歩き続けた。四月の夜は、肌寒かったはずなのに。繋いだ右手のぬくもりだけは、いつまでもはっきりと感じていた。"},
- {logId:"room3_flashback_72",logType:"narration",speaker:"ト書き",text:"――回想終了。"}
 ];
 const room3AfterMemoryLines=[
  {logId:"room3_after_01",logType:"narration",speaker:"ト書き",text:"視界が、元の部屋に戻る。"},
@@ -365,19 +364,26 @@ function room3SavedMemoryProgress(){
  if(!room3State.unlocked||room3State.memorySeen)return null;
  const ids=new Set(expandScenario([...room3MemoryTransitionLines,...room3FlashbackLines,...room3AfterMemoryLines]).map(line=>line.logId));
  const progress=room3State.memoryProgress;
+ // A save from an older build can still point to the removed end marker.
+ if(progress?.logId==="room3_flashback_72")return {logId:"room3_after_01",uiPage:0};
  if(progress&&ids.has(progress.logId))return {logId:progress.logId,uiPage:Number.isInteger(progress.uiPage)&&progress.uiPage>=0?progress.uiPage:0};
  // Legacy saves have no cursor. Resume their last displayed memory/aftermath
  // sentence; notices added during loading must not reset that position.
  const logs=typeof GameLog!=="undefined"?GameLog.list():[];
- const last=[...logs].reverse().find(entry=>ids.has(entry.id));
- return last?{logId:last.id,uiPage:0}:null;
+ const last=[...logs].reverse().find(entry=>ids.has(entry.id)||entry.id==="room3_flashback_72");
+ return last?{logId:last.id==="room3_flashback_72"?"room3_after_01":last.id,uiPage:0}:null;
 }
 // Follow the authored text as it advances, rather than a timed animation that
 // would desynchronize under AUTO, SKIP, slow reading or save/load.
 function room3SyncMemoryLight(logId){
  const beat=/^room3_memory_transition_(0[1-5])(?:_|$)/.exec(logId||"");
- const inMemory=/^room3_(?:flashback_|after_)/.test(logId||"");
- if(!beat&&!inMemory)return;
+ const flashback=/^room3_flashback_/.test(logId||"");
+ const returning=/^room3_after_01(?:_|$)/.test(logId||"");
+ if(/^room3_after_(?!01)/.test(logId||"")){
+  game.querySelector(".room3-memory-light")?.remove();
+  return;
+ }
+ if(!beat&&!flashback&&!returning)return;
  let light=game.querySelector(".room3-memory-light");
  if(!light){
   light=document.createElement("div");
@@ -386,7 +392,9 @@ function room3SyncMemoryLight(logId){
   game.appendChild(light);
  }
  const step=beat?Number(beat[1]):0;
- light.dataset.beat=inMemory?"memory":step<=2?"device":step<=4?"spread":"flash";
+ // Fade the final hand-holding illustration to white and reveal the present
+ // on the first line after memory, without adding an empty dialogue page.
+ light.dataset.beat=returning?"return":flashback?"memory":step<=2?"device":step<=4?"spread":"flash";
 }
 function playThirdRoomMemory(){
  if(room3State.memorySeen)return;

@@ -10,10 +10,7 @@ const ROOM3_BOARD=[["ラ","ヘ","ヨ","ソ","ヒ","ロ","コ","モ","ノ","チ"]
  {logId:"room3_intro_02",logType:"dialogue",speaker:"主人公",text:"……殺風景な部屋だな"},
  {logId:"room3_intro_03",logType:"narration",speaker:"ト書き",text:"部屋の中を見回す。"},
  {logId:"room3_intro_04",logType:"dialogue",speaker:"主人公",text:"ん……？ どこか、見覚えがある。"},
- {logId:"room3_intro_05",logType:"dialogue",speaker:"主人公",text:"大学で一人暮らしを始めたときの部屋に、似てるような……"},
- {logId:"room3_intro_06",logType:"dialogue",speaker:"ハナ",text:"これ、君のじゃない？"},
- {logId:"room3_intro_07",logType:"dialogue",speaker:"主人公",text:"……本当だ。記憶の中で使っていたトランペットと同じだ。じゃあ、やっぱりここは……僕の部屋だ。"},
- {logId:"room3_intro_08",logType:"narration",speaker:"主人公",thought:true,text:"ハナさんは、どうしてこれが僕のものだって分かったんだ？ やっぱり、僕のことを知っているのか……？"}
+ {logId:"room3_intro_05",logType:"dialogue",speaker:"主人公",text:"大学で一人暮らしを始めたときの部屋に、似てるような……"}
 ];
 
 const room3FlashbackLines=[
@@ -114,7 +111,7 @@ const room3NextRoomLines=[
 ];
 function showThirdRoom(savedState){
  Dialogue.stop();firstRoomState=undefined;room2State=undefined;currentScene="room03";GameAudio.syncSceneMusic?.(currentScene);
- room3State={view:"front",doorInspected:false,deskInspected:false,bedInspected:false,shelfInspected:false,trumpetInspected:false,phoneInspected:false,chatRead:false,morseSolved:false,puzzleAttempts:0,hanaVisits:0,hintLevel:0,unlocked:false,highlightEnabled:true,memorySeen:false,morseChartNoticeSeen:false,morseChartLogged:false,nextRoomTransitionSeen:false,...savedState};
+ room3State={view:"front",doorInspected:false,deskInspected:false,bedInspected:false,shelfInspected:false,trumpetInspected:false,trumpetAwakeTalkSeen:false,phoneInspected:false,chatRead:false,morseSolved:false,puzzleAttempts:0,hanaVisits:0,hintLevel:0,unlocked:false,highlightEnabled:true,memorySeen:false,morseChartNoticeSeen:false,morseChartLogged:false,nextRoomTransitionSeen:false,...savedState};
  if(room3State.unlocked)room3State.morseSolved=true;
  game.innerHTML=`<main class="room room-three room3-arriving ${room3State.unlocked?"is-restored":""}" aria-label="第三の部屋">
   <header class="room-header"><p class="room-label">第三の部屋</p><p class="room-color-status">${room3State.unlocked?"記憶を取り戻した部屋":"大学時代の自室"}</p></header>
@@ -315,8 +312,22 @@ function showThirdRoomChat(){
 }
 function inspectThirdRoomBed(){
  if(room3State.bedInspected){showRoomNotice("ベッドには、特に変わったところはない。","room3_bed_repeat","investigation");return}
- const lines=[{logId:"room3_bed_01",logType:"dialogue",speaker:"主人公",text:"ハナさん、何寝てるんですか。"},{logId:"room3_bed_02",logType:"dialogue",speaker:"ハナ",text:"スー、スー……"},{logId:"room3_bed_03",logType:"dialogue",speaker:"主人公",text:"ハナさん？？"},{logId:"room3_bed_04",logType:"dialogue",speaker:"ハナ",text:"あ、ごめんごめん。頭使ったら眠くなっちゃって。"},{logId:"room3_bed_05",logType:"dialogue",speaker:"主人公",text:"はあ……起きてください。手伝ってくれるんですよね。"},{logId:"room3_bed_06",logType:"investigation",speaker:"ト書き",text:"ハナにどいてもらい、ベッドを調べる。特に変わったところはない。"}];
- showRoomDialog(lines,()=>{room3State.bedInspected=true;renderThirdRoomView();saveGame()});
+ const lines=[
+  {logId:"room3_bed_01",logType:"dialogue",speaker:"主人公",text:"……ハナさん？　こんなところで寝てたんですか？"},
+  {logId:"room3_bed_02",logType:"narration",speaker:"ト書き",text:"返事はない。ハナは気持ちよさそうに寝息を立てている。"},
+  {logId:"room3_bed_03",logType:"dialogue",speaker:"主人公",text:"ハナさん、起きてください。"},
+  {logId:"room3_bed_04",logType:"dialogue",speaker:"ハナ",text:"あ、ごめんごめん。頭使ったら眠くなっちゃって。"},
+  {logId:"room3_bed_05",logType:"dialogue",speaker:"主人公",text:"はあ……手伝ってくれるんですよね。"},
+  {logId:"room3_bed_06",logType:"investigation",speaker:"ト書き",text:"ハナにどいてもらい、ベッドを調べる。特に変わったところはない。"}
+ ];
+ const markHanaAwake=()=>{
+  if(room3State.bedInspected)return;
+  room3State.bedInspected=true;renderThirdRoomView();saveGame();
+ };
+ // Remove the sleeping pose when the narrative says Hana leaves the bed.
+ showRoomDialog(lines,markHanaAwake,line=>{
+  if(line.logId==="room3_bed_06")markHanaAwake();
+ });
 }
 function inspectThirdRoomShelf(){
  if(room3State.shelfInspected){showThirdRoomMorseChart();return}
@@ -372,8 +383,33 @@ function showThirdRoomExitChoice(){
  overlay.querySelector("#room3NextButton").addEventListener("click",()=>{close();showRoomDialog(room3NextRoomLines,()=>{room3State.nextRoomTransitionSeen=true;saveGame();showFourthRoomBoundary()})});
 }
 function inspectThirdRoomTrumpet(){
- if(room3State.trumpetInspected){showRoomNotice("記憶の中で使っていたものと同じトランペットだ。","room3_trumpet_repeat","investigation");return}
- room3State.trumpetInspected=true;saveGame();showRoomDialog([{logId:"room3_trumpet_01",logType:"investigation",speaker:"ト書き",text:"大学生になった主人公の部屋に置かれたトランペット。"},{logId:"room3_trumpet_02",logType:"narration",speaker:"主人公",thought:true,text:"記憶の中で使っていたものと同じだ。"}]);
+ const seenBefore=room3State.trumpetInspected===true;
+ const awake=room3State.bedInspected===true;
+ if(awake&&!room3State.trumpetAwakeTalkSeen){
+  room3State.trumpetInspected=true;
+  room3State.trumpetAwakeTalkSeen=true;
+  saveGame();
+  // If the trumpet was examined before waking Hana, do not rediscover it.
+  const lines=[
+   ...(!seenBefore?[{logId:"room3_trumpet_01",logType:"investigation",speaker:"ト書き",text:"部屋の奥に、トランペットが置かれている。"}]:[]),
+   {logId:"room3_trumpet_hana_01",logType:"dialogue",speaker:"ハナ",text:"これ、君のじゃない？"},
+   {logId:"room3_trumpet_hana_02",logType:"dialogue",speaker:"主人公",text:seenBefore?"……はい。記憶の中で使っていたものと同じです。やっぱり、ここは僕の部屋なんですね。":"……本当だ。記憶の中で使っていたトランペットと同じだ。じゃあ、やっぱりここは……僕の部屋だ。"},
+   {logId:"room3_trumpet_hana_03",logType:"narration",speaker:"主人公",thought:true,text:"ハナさんは、どうしてこれが僕のものだって分かったんだ？ やっぱり、僕のことを知っているのか……？"}
+  ];
+  showRoomDialog(lines);
+  return;
+ }
+ if(seenBefore){
+  showRoomNotice("記憶の中で使っていたものと同じトランペットだ。","room3_trumpet_repeat","investigation");
+  return;
+ }
+ room3State.trumpetInspected=true;saveGame();
+ // Hana is still asleep in the other view; only the protagonist can react here.
+ showRoomDialog([
+  {logId:"room3_trumpet_01",logType:"investigation",speaker:"ト書き",text:"部屋の奥に、トランペットが置かれている。"},
+  {logId:"room3_trumpet_asleep_02",logType:"narration",speaker:"主人公",thought:true,text:"……このトランペット、記憶の中で使っていたものと同じだ。"},
+  {logId:"room3_trumpet_asleep_03",logType:"narration",speaker:"主人公",thought:true,text:"やっぱり、ここは僕の部屋なのか……？"}
+ ]);
 }
 function showThirdRoomHana(){
  if(game.querySelector(".inspection-overlay,.room-dialog-overlay,.device-overlay"))return;

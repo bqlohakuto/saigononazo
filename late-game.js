@@ -291,11 +291,11 @@
       '<div class="r5-help-note" hidden>手元のパネルを選び、丸い枠を押してはめ込む。ドラッグでも動かせる。合わない組み合わせは手元に戻る。<br>キーボードでは Tab で移動、Enter または Space で選択・配置。Esc で盤を閉じる。</div></section>';
     game.appendChild(o);
     const panel=o.querySelector('section'),grid=o.querySelector('.r5-counter-grid'),tray=o.querySelector('.r5-inventory'),feedback=o.querySelector('#r5BoardFeedback');
-    let selected=null,preview=null,previewTimer=null,drag=null,ignoreClick=null,disposed=false;
+    let selected=null,preview=null,previewTimer=null,completionTimer=null,completionPlaying=false,completionDigitVisible=false,drag=null,ignoreClick=null,disposed=false;
     const valid=()=>!disposed&&o.isConnected&&currentScene==='room05'&&room5State===boardState;
     const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const stopDrag=()=>{drag?.ghost?.remove();drag?.button.classList.remove('is-dragging');drag=null;grid.querySelectorAll('.is-over').forEach(b=>b.classList.remove('is-over'));};
-    const cleanup=()=>{disposed=true;clearTimeout(previewTimer);stopDrag();observer.disconnect();};
+    const cleanup=()=>{disposed=true;clearTimeout(previewTimer);clearTimeout(completionTimer);stopDrag();observer.disconnect();};
     const observer=new MutationObserver(()=>{if(!o.isConnected)cleanup();});
     observer.observe(game,{childList:true});
     function say(lines,log=true){
@@ -307,6 +307,50 @@
         }
         p.append(document.createTextNode(entry.text));feedback.append(p);if(log)recordLog(entry);
       });
+    }
+    // Only the finished board gets a cinematic sequence; ordinary fit feedback is unchanged.
+    // The existing scripted lines are logged once in r5CompleteBoard, then shown here automatically.
+    function playBoardCompletion(lines){
+      completionPlaying=true;completionDigitVisible=false;
+      panel.classList.add('r5-completing');
+      const caption=document.createElement('div');
+      caption.className='r5-completion-caption';
+      caption.setAttribute('role','status');
+      caption.setAttribute('aria-live','polite');
+      o.querySelector('.r5-inlay-board').append(caption);
+      const stages=[
+        {entries:[lines[0],lines[1]],ms:1800},
+        {entries:[lines[2],lines[3]],ms:2200},
+        {entries:[lines[4]],ms:1800},
+        {entries:[lines[5],lines[6]],ms:2100,reveal:true},
+        {entries:[lines[7]],ms:2800},
+        {entries:[lines[8],lines[9]],ms:2200}
+      ];
+      let step=0;
+      const advance=()=>{
+        if(!valid())return;
+        if(step===stages.length){
+          caption.remove();panel.classList.remove('r5-completing');
+          completionPlaying=false;
+          say([lines[8],lines[9]],false);
+          return;
+        }
+        const stage=stages[step++];
+        if(stage.reveal){
+          completionDigitVisible=true;
+          o.querySelector('.r5-inlay-code').hidden=false;
+        }
+        caption.replaceChildren();
+        stage.entries.forEach(entry=>{
+          const p=document.createElement('p');
+          if(entry.speaker!=='ト書き'&&entry.speaker!=='システム'){
+            const speaker=document.createElement('b');speaker.textContent=entry.speaker;p.append(speaker);
+          }
+          p.append(document.createTextNode(entry.text));caption.append(p);
+        });
+        completionTimer=setTimeout(advance,reduced()?1100:stage.ms);
+      };
+      advance();
     }
     function clearPreview(){clearTimeout(previewTimer);previewTimer=null;preview=null;}
     function select(id){
@@ -329,7 +373,7 @@
       }).join('');
       grid.classList.toggle('has-selection',!!selected);
       grid.querySelectorAll('[data-counter]').forEach(b=>b.onclick=()=>place(b.dataset.counter));
-      o.querySelector('.r5-inlay-code').hidden=!boardState.codeRevealed;
+      o.querySelector('.r5-inlay-code').hidden=!boardState.codeRevealed||(completionPlaying&&!completionDigitVisible);
       panel.classList.toggle('is-complete',boardState.codeRevealed);
     }
     function drawTray(){
@@ -408,7 +452,7 @@
       if(!reduced())fitted?.animate?.([{filter:'brightness(1)',transform:'scale(.88)'},{filter:'brightness(1.25)',transform:'scale(1.03)'},{filter:'brightness(1)',transform:'scale(1)'}],{duration:380,easing:'ease-out'});
       if(r5PlacedCount()===7){
         if(butterflyLast)[line('r5_butterfly_hint_07','主人公','……本当に一頭なんですね。'),line('r5_butterfly_hint_08','ハナ','覚えたね。')].forEach(recordLog);
-        r5CompleteBoard(say);drawSlots();r5RefreshWall();
+        r5CompleteBoard(playBoardCompletion);drawSlots();r5RefreshWall();
       }else if(before===0){
         recordLog(line('r5_place_first_01','ト書き','パネルが淡く光る。丸枠へ吸い込まれるように重なり、二つの絵が一つの合体絵へ切り替わる。'));
         say([line('r5_place_first_02','主人公','……合ってる。'),line('r5_place_first_03','ハナ','みたいだね。')]);
@@ -455,7 +499,7 @@
       line("r5_board_complete_08","主人公","入力しろ、ということですね。"),
       line("r5_board_complete_09","ハナ","そうみたい。")
     ];
-    if(inline){lines.forEach(recordLog);inline([lines[6],lines[9]],false);}else showRoomDialog(lines,renderR5);
+    if(inline){lines.forEach(recordLog);inline(lines);}else showRoomDialog(lines,renderR5);
   }
 
   function r5Keypad(){

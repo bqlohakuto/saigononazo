@@ -529,8 +529,26 @@ function room2SavedMemoryProgress(savedState){
  const phase=/^room2_correct_/.test(id)?"correct":/^room2_(?:after_correct|memory)_/.test(id)?"memory":/^room2_after_memory_/.test(id)?"after":null;
  return phase?{phase,logId:id,uiPage:0}:null;
 }
+// The light follows the dialogue's source LOG ID, including when a save resumes mid-line.
+function room2SyncCorrectLight(logId){
+ const beat=/^room2_after_correct_(0[1-8])(?:_|$)/.exec(logId||"");
+ const memory=/^room2_memory_/.test(logId||"");
+ if(!beat&&!memory)return;
+ let light=game.querySelector(".room2-correct-light");
+ if(!light){
+  light=document.createElement("div");
+  light.className="room2-correct-light";
+  light.setAttribute("aria-hidden","true");
+  game.appendChild(light);
+ }
+ const step=beat?Number(beat[1]):0;
+ light.dataset.beat=memory?"memory":step<=3?"device":step<=5?"spread":"flash";
+}
 function room2MemoryOptions(phase,resume){
- return {resume,onProgress:position=>{room2State.memoryProgress={phase,...position}}};
+ return {resume,onProgress:position=>{
+  room2State.memoryProgress={phase,...position};
+  if(phase==="memory")room2SyncCorrectLight(position.logId);
+ }};
 }
 function handleRoom2Correct(close,resume){
  close();
@@ -541,11 +559,12 @@ function completeRoom2(resume){
  room2State.unlocked=true;room2State.flashbackSeen=false;
  if(resume?.phase==="after"){showRoom2AfterMemory(resume);return}
  showRoomDialog([
-  {logId:"room2_after_correct_01",logType:"narration",speaker:"ト書き",text:"5つのブロックをはめ終わると、装置全体がうっすらと光り始めた。"},{logId:"room2_after_correct_02",logType:"dialogue",speaker:"主人公",text:"……光ってる？"},{logId:"room2_after_correct_03",logType:"dialogue",speaker:"ハナ",text:"わっ……！"},{logId:"room2_after_correct_04",logType:"narration",speaker:"ト書き",text:"光は次第に強くなり、机から部屋全体へと広がっていく。"},{logId:"room2_after_correct_05",logType:"dialogue",speaker:"主人公",text:"これで、扉が――"},{logId:"room2_after_correct_06",logType:"narration",speaker:"ト書き",text:"言い終わるより先に、まばゆい光が視界を覆った。部屋の輪郭が、光の中へ溶けていく。どこか遠くから、楽器の音が聞こえてきた。"},{logId:"room2_after_correct_07",logType:"narration",speaker:"主人公",thought:true,text:"この音……"},{logId:"room2_after_correct_08",logType:"narration",speaker:"ト書き",text:"聞き覚えのある音に引かれるように、意識がゆっくりと遠のいていく。"},
+  {logId:"room2_after_correct_01",logType:"narration",speaker:"ト書き",text:"正解の判定が表示されると、装置全体がうっすらと光り始めた。"},{logId:"room2_after_correct_02",logType:"dialogue",speaker:"主人公",text:"……光ってる？"},{logId:"room2_after_correct_03",logType:"dialogue",speaker:"ハナ",text:"わっ……！"},{logId:"room2_after_correct_04",logType:"narration",speaker:"ト書き",text:"光は次第に強くなり、机から部屋全体へと広がっていく。"},{logId:"room2_after_correct_05",logType:"dialogue",speaker:"主人公",text:"これで、扉が――"},{logId:"room2_after_correct_06",logType:"narration",speaker:"ト書き",text:"言い終わるより先に、まばゆい光が視界を覆った。部屋の輪郭が、光の中へ溶けていく。どこか遠くから、楽器の音が聞こえてきた。"},{logId:"room2_after_correct_07",logType:"narration",speaker:"主人公",thought:true,text:"この音……"},{logId:"room2_after_correct_08",logType:"narration",speaker:"ト書き",text:"聞き覚えのある音に引かれるように、意識がゆっくりと遠のいていく。"},
   ...room2FlashbackContent.map(line=>({...line,logType:line.thought||line.speaker==="ト書き"?"narration":"dialogue"}))
  ],()=>showRoom2AfterMemory(),undefined,room2MemoryOptions("memory",resume));
 }
 function showRoom2AfterMemory(resume){
+ game.querySelector(".room2-correct-light")?.remove();
  showRoomDialog([
   ...room2AfterFlashbackContent.map(line=>({...line,logType:line.thought||line.speaker==="ト書き"?"narration":"dialogue"}))
  ],()=>{

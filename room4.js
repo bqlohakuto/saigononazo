@@ -353,7 +353,6 @@ function r4P3(){
  const o=document.createElement("div");o.className="device-overlay r4-mini-overlay r4-plate-overlay"+(solvedOnOpen?" is-inspection":"");
  o.innerHTML='<section class="r4-mini r4-plate-exhibit" aria-label="七色のプレート">'+
   '<button type="button" class="device-close" aria-label="戻る">×</button>'+
-  '<div class="r4-plate-exhibit-header" aria-hidden="true"><span class="r4-plate-emblem">✧</span><h2>七色のプレート</h2><span class="r4-plate-emblem">✧</span></div>'+
   '<div class="r4-plate-rail" aria-label="七枚のプレートを並べ替える"><div class="r4-rainbow" role="group" aria-label="七色のプレート"></div></div>'+
   '<p class="r4-plate-status" role="status" aria-live="polite"></p>'+
   '</section>';

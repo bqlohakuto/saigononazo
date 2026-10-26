@@ -9,13 +9,23 @@
   const quiet=sceneId==='room03'&&!state.bedInspected&&item.quiet;
   const source=quiet||item.lines,variant=quiet?'quiet':'first';
   const prefix=`explore_${sceneId}_${id}_${variant}`;
-  const read=GameLog.has(`${prefix}_${source.length-1}_01`);
+  const readKey=`${id}_${variant}`;
+  // Retain the original LOG-based check for saves made before completion flags existed.
+  // expandScenario appends _01 to the first sentence of each source line.
+  const read=state?.optionalExplorationRead?.[readKey]===true||
+   GameLog.has(`${prefix}_${source.length-1}_01`);
   const lines=(read?[['ト書き',item.repeat]]:source).map(([speaker,text],i)=>({
    logId:read?`explore_${sceneId}_${id}_repeat`:`${prefix}_${i}`,
    logType:speaker==='ト書き'?'investigation':'dialogue',speaker,text,
    logRoom:sceneId,logTarget:item.label
   }));
-  showRoomDialog(lines);
+  showRoomDialog(lines,()=>{
+   if(read||!state)return;
+   // Explicit completion survives changes to pagination, sentence splitting and text.
+   state.optionalExplorationRead||={};
+   state.optionalExplorationRead[readKey]=true;
+   saveGame();
+  });
  }
  function mount(sceneId,stage,view,state,{image,imageAspect=1.5,cover=false}={}){
   if(!stage)return;

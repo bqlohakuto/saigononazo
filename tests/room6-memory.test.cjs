@@ -13,3 +13,17 @@ test('Room 6 recollection and connection reproduce the complete recorded script'
  const signal=entries.findIndex(e=>e.logId==='r6_final_signal');assert(entries[signal-1].text.startsWith('夜道。'));
  assert(!source.includes('pending("第6回想'));
 });
+
+test('Room 6 adopted first-person recollection text agrees with the manuscript',()=>{
+ const script=fs.readFileSync('SCENARIO.md','utf8').split('## 第6の部屋（2026-10-06 確定内容）')[1].split('## 第7の部屋')[0];
+ const runtime=fs.readFileSync('late-game.js','utf8');
+ for(const approved of [
+  '玄関の扉を開け、部屋に入る。',
+  '僕はそのままソファに腰を下ろす。',
+  '夜道の景色が、ゆっくりと遠ざかっていく。',
+  '確かな根拠はない。'
+ ]){
+  assert(script.includes(approved),'Approved manuscript keeps: '+approved);
+  assert(runtime.includes(approved),'Playable dialogue keeps: '+approved);
+ }
+});

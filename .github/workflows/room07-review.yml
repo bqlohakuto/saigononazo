@@ -21,7 +21,7 @@ jobs:
       - run: node tests/room8-flow.test.cjs
       - run: node tests/late-game-flow.test.cjs
       - run: node tests/room6-flow.test.cjs
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - run: node tests/room7-visual.browser.cjs
       - run: node tests/room8-visual.browser.cjs
       - run: node tests/mobile-display.browser.cjs

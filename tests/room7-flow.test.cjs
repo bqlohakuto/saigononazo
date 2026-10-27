@@ -113,9 +113,30 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
       assert.equal(saved().doorIndex,4);assert.equal(q('.memory-scene'),null);
       assert.equal(q('.memory-window-portrait'),null);
       assert.ok(run('GameLog.list()').some(x=>x.text.includes('家に帰って言葉を交わせること')),'the memory reaches its approved ending');
-    }
-    else await new Promise(resolve=>setTimeout(resolve,1200));}
-  else finish();
+    }else{
+      assert.equal(saved().shortMemory.zodiac,'亥','the fifth answer schedules the 2007 memory');
+      await new Promise(resolve=>setTimeout(resolve,1200));
+      assert.ok(q('#roomNextButton'),'the 2007 memory can be read after the door opens');
+      finish();assert.equal(saved().shortMemory,null,'the 2007 memory returns to the last door');
+      assert.equal(saved().doorIndex,5);
+    }}
+  else{
+    assert.equal(saved().shortMemory.zodiac,'酉','the last door schedules the departure memory before the accident');
+    assert.match(q('#roomMessage').textContent,/酉に合わせた扉が開く/);
+    const duringPrelude=saved();
+    run('showSeventhRoom('+JSON.stringify(duringPrelude)+')');
+    assert.equal(q('.memory-scene').dataset.location,'r7rooster','reloading during the last door enters the departure memory');
+    assert.equal(q('.memory-background').getAttribute('src'),'images/background/memories/room05/living-morning.png');
+    assert.equal(q('#game').dataset.memoryStage,'expressive');
+    for(let n=0;n<60&&!saved().shortMemory.progress?.logId.startsWith('r7_mem_rooster_17');n++)click('#roomNextButton');
+    assert.match(q('#roomMessage').textContent,/君と一緒に考えるの、好きだから/);
+    const halfway=saved();
+    run('showSeventhRoom('+JSON.stringify(halfway)+')');
+    assert.equal(saved().shortMemory.progress.logId,halfway.shortMemory.progress.logId,'reload resumes the departure before the accident');
+    assert.match(q('#roomMessage').textContent,/君と一緒に考えるの、好きだから/);
+    finish();
+    assert.ok(run('GameLog.list()').some(x=>x.text.includes('僕は鍵をかけて、その隣に並んだ')),'the peaceful memory reaches its final line');
+  }
  }
  assert.ok(!run('GameLog.list()').some(x=>x.text.includes('具体的な短い記憶')),'no pending intermediate memories');
  assert.ok(!run('GameLog.list()').some(x=>/^r7_mem_(tiger|rabbit|sheep|monkey)_/.test(x.id)&&x.type==='narration'&&x.text.includes('主人公')),'short recollections use first-person narration');

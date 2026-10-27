@@ -11,7 +11,7 @@ const read=name=>fs.readFileSync(path.join(root,name),"utf8");
 test("A03: changing mail folders resets scroll and transient selection without clearing messages",()=>{
   const source=read("script.js");
   const first=source.indexOf(" const switchFolder=target=>{");
-  const end=source.indexOf(" overlay.querySelectorAll('[data-folder]')",first);
+  const end=source.indexOf(' overlay.querySelectorAll("[data-folder]")',first);
   assert(first!==-1&&end>first,"Find actual mailbox switching implementation");
   let view=null,renders=0;
   const ctx={

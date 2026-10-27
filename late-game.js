@@ -506,9 +506,9 @@
     if(!room5State.codeRevealed||room5State.doorUnlocked)return;
     const o=document.createElement("div");o.className="device-overlay late-overlay";
     o.innerHTML='<section class="late-panel r5-keypad-panel"><button class="device-close" aria-label="閉じる">×</button><h2>扉のテンキー</h2>'+
-      '<div class="r5-keypad-display" id="r5KeypadDisplay">----</div><div class="r5-keypad-grid">'+
-      [1,2,3,4,5,6,7,8,9].map(n=>'<button data-digit="'+n+'">'+n+'</button>').join("")+
-      '<button data-key="clear">C</button><button data-digit="0">0</button><button data-key="enter">決定</button></div><p id="r5KeypadFeedback"></p></section>';
+      '<div class="r5-keypad-display" id="r5KeypadDisplay" role="status" aria-label="入力した数字">----</div><div class="r5-keypad-grid" role="group" aria-label="数字を入力する">'+
+      [1,2,3,4,5,6,7,8,9].map(n=>'<button type="button" data-digit="'+n+'">'+n+'</button>').join("")+
+      '<button type="button" data-key="clear" aria-label="入力を消去する">C</button><button type="button" data-digit="0">0</button><button type="button" data-key="enter">決定</button></div><p id="r5KeypadFeedback" role="status" aria-live="polite"></p></section>';
     game.appendChild(o);activateDeviceModal(o,"r5Keypad",o.querySelector('[data-digit="1"]'));
     let value="";
     const display=o.querySelector("#r5KeypadDisplay"),fb=o.querySelector("#r5KeypadFeedback");

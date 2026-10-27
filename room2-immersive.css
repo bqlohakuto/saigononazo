@@ -34,7 +34,8 @@
   overflow:hidden!important;clip:rect(0,0,0,0)!important;
   white-space:nowrap!important;border:0!important;
 }
-#game .room2-immersive-board>.room2-board-help{top:13px!important;right:62px!important;z-index:20;}
+/* DesignUI replaces the × glyph with 「閉じる」. Reserve its full text-button width. */
+#game .room2-immersive-board>.room2-board-help{top:13px!important;right:100px!important;z-index:20;}
 #game .room2-immersive-board:has(.room2-pause)>.room2-board-help{right:137px!important;}
 #game .room2-immersive-board>.device-close{top:12px!important;right:12px!important;z-index:20;}
 #game .room2-immersive-board .room2-wood-workbench{
@@ -248,7 +249,7 @@
   #game .room2-immersive-board .room2-puzzle-actions button{min-height:28px!important;padding:4px 8px!important;font-size:10px!important;}
   #game .room2-immersive-board .room2-puzzle-actions .room2-submit{min-width:120px!important;padding:5px 8px 5px 24px!important;font-size:12px!important;}
   #game .room2-immersive-board .room2-puzzle-actions .room2-submit::before{left:8px;width:6px;height:10px;}
-  #game .room2-immersive-board>.room2-board-help{top:7px!important;right:49px!important;}
+  #game .room2-immersive-board>.room2-board-help{top:7px!important;right:94px!important;}
   #game .room2-immersive-board:has(.room2-pause)>.room2-board-help{right:117px!important;}
   #game .room2-immersive-board>.device-close{top:7px!important;right:7px!important;}
   #game .room2-immersive-board>.room2-reaction{max-height:105px!important;padding:5px 8px!important;}

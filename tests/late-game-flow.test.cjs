@@ -79,7 +79,18 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   click('#r7Shelf');for(const slot of [1,2,3,5,7,8]){click('[data-slot="'+slot+'"]');finish();click('#r7BackShelf')}click('.r7-overlay .device-close');
   turn('front');click('#r7Door');finish();
   for(const zodiac of ['寅','卯','未','申','亥','酉']){
-    click('#r7Dial');for(let i=0;i<12&&save().rooms.room07.selectedZodiac!==zodiac;i++)click('#r7RotateLeft');click('#r7DialDone');finish();
+    const before=save().rooms.room07.doorIndex;
+    click('#r7Dial');
+    for(let i=0;i<12&&save().rooms.room07.selectedZodiac!==zodiac;i++)click('#r7RotateLeft');
+    click('#r7DialDone');
+    assert.equal(save().rooms.room07.doorIndex,before,'dial selection alone does not submit the answer');
+    click('#r7Door');
+    assert.equal(save().rooms.room07.doorIndex,before+1,'the matching door opens when touched');
+    if(zodiac!=='酉'){
+      assert.ok(q('.r7-scene.is-door-opening'),'correct answer gives visible door response');
+      await wait(1200);
+    }
+    finish();
   }
   assert.equal(save().rooms.room07.completed,true);
   assert.equal(q('#r7Next'),null,'accident continues directly into room 8');

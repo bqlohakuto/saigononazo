@@ -149,7 +149,8 @@ def main() -> None:
         guide_script = archive.read("puzzle-explanations.js").decode("utf-8")
         if '<button id="testRoomButton"' in title_script or 'getElementById("testRoomButton").addEventListener' in title_script:
             raise ValueError("Development room-jump button leaked into public release")
-        if "const TEST_MODE = false;" not in guide_script or "localStorage.getItem(UNLOCK_KEY)" not in guide_script:
+        if ("const TEST_MODE = false;" not in guide_script or "localStorage.getItem(UNLOCK_KEY)" not in guide_script
+                or 'game.querySelector(".ending-credits")' not in guide_script):
             raise ValueError("Puzzle explanation must be unlocked only after ending")
         print("Release UI validated: debug room picker hidden, puzzle guide requires completed ending.")
     size = OUTPUT.stat().st_size / (1024 * 1024)

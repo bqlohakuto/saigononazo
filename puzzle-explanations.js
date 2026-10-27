@@ -216,7 +216,16 @@
     }
   ];
   const esc = value => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const enabled = () => TEST_MODE || localStorage.getItem(UNLOCK_KEY) === "1";
+  // Release mode reveals the spoiler guide only after the completed epilogue.
+  // Also accept a finished save created before the local unlock flag existed.
+  const completedSave = () => {
+    try {
+      return typeof readSavedGame === "function" && !!readSavedGame()?.rooms?.room08?.epilogueSeen;
+    } catch (_) {
+      return false;
+    }
+  };
+  const enabled = () => TEST_MODE || localStorage.getItem(UNLOCK_KEY) === "1" || completedSave();
   let selected = 0;
   function titleLink(){
     const home = document.querySelector("#game .title-home");
@@ -262,7 +271,7 @@
     game.querySelector(".pguide-article")?.focus({preventScroll:true});
   }
   const observer=new MutationObserver(()=>{
-    if(game.querySelector(".late-ending"))try{localStorage.setItem(UNLOCK_KEY,"1")}catch{}
+    if(game.querySelector(".ending-credits"))try{localStorage.setItem(UNLOCK_KEY,"1")}catch{}
     titleLink();
   });
   observer.observe(game,{childList:true,subtree:true});

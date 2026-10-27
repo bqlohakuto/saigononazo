@@ -26,7 +26,7 @@ jobs:
         run: npm install --no-save --no-package-lock jsdom@26
       - name: Check first-to-final assets, save data, sound and credits
         run: |
-          node --test tests/critical-path.test.cjs tests/cache-version.test.cjs tests/room8-art.test.cjs tests/ending-credits.test.cjs tests/game-audio.test.cjs tests/save-data.test.cjs tests/hardening.test.cjs
+          node --test tests/critical-path.test.cjs tests/cache-version.test.cjs tests/room8-art.test.cjs tests/ending-credits.test.cjs tests/game-audio.test.cjs tests/save-data.test.cjs tests/hardening.test.cjs tests/puzzle-guide-unlock.test.cjs
           node tests/room8-flow.test.cjs
       - name: Build portable game-only ZIP with explicit asset audit
         run: python3 scripts/build_release.py dist/saigononazo-web.zip

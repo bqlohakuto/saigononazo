@@ -33,7 +33,9 @@ const specs = [
         if (!file.startsWith(root + path.sep) || !fs.existsSync(file)) return route.fulfill({ status: 404, body: '' });
         await route.fulfill({ path: file });
       });
-      await page.goto(base, { waitUntil: 'load' });
+      const previewUrl = new URL(base);
+      previewUrl.searchParams.set('preview', '1');
+      await page.goto(previewUrl.href, { waitUntil: 'load' });
       await page.locator('#testRoomButton').click();
       await page.locator('[data-room="room02"]').click();
       await page.evaluate(() => {

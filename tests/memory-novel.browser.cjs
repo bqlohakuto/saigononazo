@@ -27,7 +27,8 @@ const specs=[
     if(!file.startsWith(root+path.sep)||!fs.existsSync(file)){missing.push(file);await route.fulfill({status:404,body:''});return}
     await route.fulfill({path:file});
    });
-   await p.goto(base,{waitUntil:'load'});
+   const previewUrl=new URL(base);previewUrl.searchParams.set('preview','1');
+   await p.goto(previewUrl.href,{waitUntil:'load'});
    await p.locator('#testRoomButton').click();await p.locator('[data-room="room01"]').click();
    // Seed only the completed exploration prerequisites. Enter the answer through the actual piano UI.
    await p.evaluate(()=>showFirstRoom({hanaIntroduced:true,questionSeen:true,doorInspected:true,

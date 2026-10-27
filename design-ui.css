@@ -441,6 +441,53 @@ body{background:#0b1322!important;display:grid;place-items:center}
 }
 
 @container game-viewport (max-height:520px){#game .piano-keyboard{height:84px;margin-top:6px}#game .room1-piano-panel{padding-top:40px!important}#game .room1-piano-panel label{margin:6px 0}}
+/* Issue #25: Room 1 piano must keep its answer button visible without scrolling.
+   Only the controls/results above the button may scroll on cramped viewports. */
+#game .room1-piano-panel{
+  display:flex;
+  flex-direction:column;
+  height:min(452px,90%);
+  min-height:0;
+  overflow:hidden!important;
+  padding-bottom:clamp(10px,1.5cqw,16px)!important;
+}
+#game .room1-piano-panel .piano-main{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  gap:5px;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+#game .room1-piano-panel .piano-main>h2{flex:none;margin:0;font-size:clamp(18px,2cqw,24px)}
+#game .room1-piano-panel .piano-main>p:first-of-type{flex:none;line-height:1.35}
+#game .room1-piano-panel .piano-keyboard{flex:none;height:112px;margin:3px 0 0}
+#game .room1-piano-panel .piano-keyboard-tools{flex:none;margin-top:0}
+#game .room1-piano-panel label{flex:none;margin:2px 0 0;gap:3px}
+#game .room1-piano-panel #melodyInput{min-height:40px;padding:7px 10px;font-size:18px}
+#game .room1-piano-panel .piano-result{
+  flex:none;
+  min-height:1.3em;
+  margin:0;
+  font-size:clamp(12px,1.35cqw,17px);
+  line-height:1.45;
+  white-space:pre-line;
+}
+#game .room1-piano-panel .piano-submit-bar{
+  flex:0 0 auto;
+  padding-top:8px;
+  border-top:1px solid var(--paper-line);
+  background:var(--paper);
+}
+#game .room1-piano-panel .piano-submit-bar #playMelodyButton{
+  width:100%;
+  min-height:46px;
+  margin:0;
+  padding:8px;
+}
+
 /* Room 3 companion uses the existing independent idle/expression sprite. */
 #game.hana-v2-full-ready .room3-hana::before{width:21.5cqw;height:33.6cqw;bottom:-5.25cqw}
 #game.hana-v2-full-ready .room3-hana{--hana-head-offset:26.4cqw}

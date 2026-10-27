@@ -6,7 +6,10 @@ function harness(state={},logs=[]){
  const script=fs.readFileSync(path.join(root,'script.js'),'utf8');
  const split=script.slice(script.indexOf('function splitIntoSentences('),script.indexOf('function showTitle('));
  let dialog,saves=0;
- const context=vm.createContext({GameLog:{list:()=>logs},saveGame(){saves++},showRoomDialog(lines,complete,display,options){dialog={lines,complete,options}}});
+ // Memory progress updates a light overlay; give the unit harness a minimal DOM.
+ const stage={light:null,querySelector(){return this.light},appendChild(node){this.light=node}};
+ const document={createElement(){return {dataset:{},setAttribute(){},remove(){stage.light=null}}}};
+ const context=vm.createContext({game:stage,document,GameLog:{list:()=>logs},saveGame(){saves++},showRoomDialog(lines,complete,display,options){dialog={lines,complete,options}}});
  vm.runInContext(split+'\n'+fs.readFileSync(path.join(root,'room3.js'),'utf8'),context);
  context.room3State={unlocked:true,memorySeen:false,...state};
  return {context,get dialog(){return dialog},get saves(){return saves},run:code=>vm.runInContext(code,context)};

@@ -298,6 +298,29 @@ function within(inner,outer,tolerance=3){
    await page.evaluate(()=>{room2State.unlocked=true;beginRoom2Challenge()});
    await page.locator('.room2-puzzle').waitFor();
    assert.equal(await page.locator('.room2-hint-paper').count(),0,'Challenge also has no duplicate rules button');
+   // Issue #25 A01: the pause button and help icon must not cover one another
+   // or overlap the attempt counter, including on the landscape mobile viewport.
+   const challengeHeader=await page.evaluate(()=>{
+     const rect=selector=>{
+       const element=document.querySelector(selector);
+       const r=element?.getBoundingClientRect();
+       return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom}:null;
+     };
+     return {
+       pause:rect('.room2-challenge-board>.room2-pause'),
+       help:rect('.room2-challenge-board>.room2-board-help summary'),
+       counter:rect('.room2-challenge-board .room2-attempt-counter'),
+       sidebar:rect('.room2-challenge-board>.room2-sidebar')
+     };
+   });
+   for(const [name,rect] of Object.entries(challengeHeader))assert(rect,name+' exists in challenge layout');
+   const overlaps=(a,b)=>a.left<b.right&&b.left<a.right&&a.top<b.bottom&&b.top<a.bottom;
+   assert(!overlaps(challengeHeader.help,challengeHeader.pause),'Challenge help and pause buttons do not overlap');
+   assert(!overlaps(challengeHeader.help,challengeHeader.counter),'Challenge help does not cover remaining attempts');
+   assert(!overlaps(challengeHeader.pause,challengeHeader.counter),'Challenge pause does not cover remaining attempts');
+   assert(challengeHeader.sidebar.top>=Math.max(challengeHeader.help.bottom,challengeHeader.pause.bottom)+3,
+     'The challenge ledger starts below its header buttons');
+
    await page.locator('.room2-board-help summary').click();
    const challengeHelp=await page.locator('.room2-board-help .room2-rule').textContent();
    assert(challengeHelp.includes('8回以内に5枠すべてを一致させれば達成'),'Challenge condition is retained');

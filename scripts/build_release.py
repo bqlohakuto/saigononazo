@@ -105,6 +105,27 @@ def validate(files: dict[str, Path]) -> None:
     print(f"Validated {len(files)} release files and {len(refs)} literal local asset references.")
 
 
+
+def release_bytes(name: str, path: Path) -> bytes:
+    """Keep the public package spoiler-safe without disabling development QA."""
+    content = path.read_bytes()
+    if name not in {"script.js", "puzzle-explanations.js"}:
+        return content
+    source = content.decode("utf-8")
+    if name == "script.js":
+        changes = [
+            ('<button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button>', ""),
+            ('document.getElementById("testRoomButton").addEventListener("click",showTestRoomPicker);', ""),
+        ]
+    else:
+        changes = [('const TEST_MODE = true;', 'const TEST_MODE = false;')]
+    for original, replacement in changes:
+        if source.count(original) != 1:
+            raise ValueError(f"Release-only UI patch not found exactly once in {name}: {original}")
+        source = source.replace(original, replacement)
+    return source.encode("utf-8")
+
+
 def main() -> None:
     files = build_file_set()
     validate(files)
@@ -114,7 +135,7 @@ def main() -> None:
             info = zipfile.ZipInfo(name, date_time=(2026, 10, 27, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o644 << 16
-            archive.writestr(info, path.read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=6)
+            archive.writestr(info, release_bytes(name, path), compress_type=zipfile.ZIP_DEFLATED, compresslevel=6)
     with zipfile.ZipFile(OUTPUT) as archive:
         archive.verify = archive.testzip()
         if archive.verify:
@@ -124,6 +145,13 @@ def main() -> None:
             raise ValueError("ZIP members differ from release manifest")
         if not archive.read("index.html").startswith(b"<!DOCTYPE html>"):
             raise ValueError("index.html is not at the release ZIP root")
+        title_script = archive.read("script.js").decode("utf-8")
+        guide_script = archive.read("puzzle-explanations.js").decode("utf-8")
+        if '<button id="testRoomButton"' in title_script or 'getElementById("testRoomButton").addEventListener' in title_script:
+            raise ValueError("Development room-jump button leaked into public release")
+        if "const TEST_MODE = false;" not in guide_script or "localStorage.getItem(UNLOCK_KEY)" not in guide_script:
+            raise ValueError("Puzzle explanation must be unlocked only after ending")
+        print("Release UI validated: debug room picker hidden, puzzle guide requires completed ending.")
     size = OUTPUT.stat().st_size / (1024 * 1024)
     print(f"Release candidate ready: {OUTPUT} ({size:.1f} MiB, {len(files)} files)")
 

@@ -6,6 +6,9 @@ on:
   # working commit while polishing artwork and dialogue.
   push:
     tags: ['v*']
+    # Exercise changes to the release packager once before the final freeze.
+    branches: [main]
+    paths: ['scripts/build_release.py']
 
 permissions:
   contents: read

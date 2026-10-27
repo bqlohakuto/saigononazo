@@ -28,6 +28,7 @@ on:
       - 'browser-navigation.js'
       - 'browser-navigation.css'
       - 'tests/browser-navigation.test.cjs'
+      - 'tests/room-passage.test.cjs'
       - 'tests/screen-transition-state.test.cjs'
       - 'images/background/**'
       - 'images/exhibits/**'
@@ -56,7 +57,7 @@ jobs:
       - name: Check gameplay scripts and room entry/artwork completeness
         run: |
           for f in viewport-scaler.js browser-navigation.js script.js hana-choice.js inspection.js exploration-scenario.js room-exploration.js room2.js room3.js room4.js room8-visuals.js late-game.js design-ui.js; do node --check "$f"; done
-          node --test tests/browser-navigation.test.cjs tests/screen-transition-state.test.cjs tests/critical-path.test.cjs tests/release-gates.test.cjs tests/cache-version.test.cjs tests/room4-projection.test.cjs tests/room3-morse.test.cjs tests/room2-choice-keyboard-focus.test.cjs tests/room2-compact-choice-panel.test.cjs
+          node --test tests/room-passage.test.cjs tests/browser-navigation.test.cjs tests/screen-transition-state.test.cjs tests/critical-path.test.cjs tests/release-gates.test.cjs tests/cache-version.test.cjs tests/room4-projection.test.cjs tests/room3-morse.test.cjs tests/room2-choice-keyboard-focus.test.cjs tests/room2-compact-choice-panel.test.cjs
       - name: Test room five puzzle through its transition
         run: node tests/room5-mirror.test.cjs
       - name: Test room six navigation and its transition

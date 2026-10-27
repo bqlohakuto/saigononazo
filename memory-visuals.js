@@ -12,6 +12,11 @@
     background:'images/background/memories/room02/music-room-paperwork.png',
     sprite:null,layout:'standing',prop:null,
     ids:Array.from({length:18},(_,i)=>'r7_mem_rabbit_'+String(i+1).padStart(2,'0'))});
+  // Return to the Room 5 home and its portrait-in-dialogue presentation.
+  scenes.push({key:'r7sheep',room:'room07',reveal:'revealed',presentation:'dialogue',
+    background:'images/background/memories/room05/kitchen-evening.png',
+    sprite:'images/characters/memories/room05/girl-home.png',layout:'standing',prop:null,
+    ids:Array.from({length:26},(_,i)=>'r7_mem_sheep_'+String(i+1).padStart(2,'0'))});
   const byId = new Map();
   for (const scene of scenes) for (const id of scene.ids) byId.set(scene.room+':'+id,scene);
   function original(sceneId, line) {
@@ -60,7 +65,7 @@
     }
     if(scene.layout==='red'){visual.effect='red';visual.layout='cg'}
     if(sprite)visual.sprite=sprite;
-    if(sceneId==='room05')visual.presentation='dialogue';
+    if(sceneId==='room05'||scene.presentation==='dialogue')visual.presentation='dialogue';
     return visual;
   }
   const prepared=new Set();

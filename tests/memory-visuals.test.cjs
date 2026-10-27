@@ -96,7 +96,7 @@ test('Every authored Room 2-7 recollection ID and its paginated continuation res
     assert.equal(visuals.get(scene.room,{logId:logId+'_01_02'}).background,v.background,logId);
     assert.equal(visuals.get(scene.room,{logId:'page',logSource:{logId}}).sprite,v.sprite,logId);
   }
-  assert.equal(ids.size,665);
+  assert.equal(ids.size,691);
 });
 
 test('Tiger-door recollection keeps the earlier concealed-face presentation',()=>{
@@ -114,6 +114,16 @@ test('Rabbit-door phone conversation uses the school desk without the senior in 
     assert.equal(v.location,'r7rabbit');assert.equal(v.reveal,'concealed');
     assert.equal(v.background,'images/background/memories/room02/music-room-paperwork.png');
     assert.equal(v.sprite,undefined);
+  }
+});
+
+test('Sheep-door recollection returns to the Room 5 home and dialogue portrait',()=>{
+  for(let i=1;i<=26;i++){
+    const v=visuals.get('room07',{logId:'r7_mem_sheep_'+String(i).padStart(2,'0')+'_01'});
+    assert.equal(v.location,'r7sheep');assert.equal(v.reveal,'revealed');
+    assert.equal(v.presentation,'dialogue');
+    assert.equal(v.background,'images/background/memories/room05/kitchen-evening.png');
+    assert.equal(v.sprite,'images/characters/memories/room05/girl-home.png');
   }
 });
 

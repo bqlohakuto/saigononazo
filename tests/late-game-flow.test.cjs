@@ -92,6 +92,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
       if(zodiac==='寅')assert.equal(q('.memory-scene')?.dataset.location,'r7tiger','the first answer opens its approved recollection');
       if(zodiac==='卯')assert.equal(q('.memory-scene')?.dataset.location,'r7rabbit','the second answer opens its approved recollection');
       if(zodiac==='未')assert.equal(q('.memory-scene')?.dataset.location,'r7sheep','the third answer opens its approved recollection');
+      if(zodiac==='申')assert.equal(q('.memory-scene')?.dataset.location,'r7monkey','the fourth answer opens its approved recollection');
     }
     finish();
   }

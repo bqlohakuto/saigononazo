@@ -17,6 +17,10 @@
     background:'images/background/memories/room05/kitchen-evening.png',
     sprite:'images/characters/memories/room05/girl-home.png',layout:'standing',prop:null,
     ids:Array.from({length:26},(_,i)=>'r7_mem_sheep_'+String(i+1).padStart(2,'0'))});
+  scenes.push({key:'r7monkey',room:'room07',reveal:'expressive',presentation:'dialogue',
+    background:'images/background/memories/room05/dining-night.png',
+    sprite:'images/characters/memories/room05/girl-home.png',layout:'dining',prop:'notebook',
+    ids:Array.from({length:25},(_,i)=>'r7_mem_monkey_'+String(i+1).padStart(2,'0'))});
   const byId = new Map();
   for (const scene of scenes) for (const id of scene.ids) byId.set(scene.room+':'+id,scene);
   function original(sceneId, line) {
@@ -45,6 +49,11 @@
     if(!match)return null;
     const {id,scene}=match;
     const visual={sceneId,reveal:scene.reveal||revealByRoom[sceneId],logId:id,location:scene.key,layout:scene.layout,background:scene.background,prop:scene.prop};
+    if(scene.key==='r7monkey'){
+      const beat=Number(id.match(/_(\d{2})$/)?.[1]);
+      const closePage=Number(raw.match(/^r7_mem_monkey_22_(\d+)/)?.[1]||0);
+      if(beat>22||beat===22&&closePage>=2)visual.prop=null;
+    }
     let sprite=scene.sprite;
     const number=Number(id.match(/(?:memory_|flashback_|^r5m|^r4f)(\d+)/)?.[1]);
     if(scene.key==='r2visit'&&number<3 || scene.key==='r2leader'&&number<21 || scene.key==='r2flower'&&id==='room2_memory_053')sprite=null;

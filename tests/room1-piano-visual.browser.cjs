@@ -76,7 +76,10 @@ function inside(inner,outer){
    }
    assert.equal(await page.locator("#melodyInput").inputValue(),"ド".repeat(8));
    const first=await page.locator("#playMelodyButton").boundingBox();
-   assert(first&&first.width>50&&first.height>=40,"The answer button remains visible after eight notes");
+   // The game uses a 960x540 logical canvas scaled on mobile devices.
+   const canvasScale=await page.locator("#game").evaluate(el=>el.getBoundingClientRect().width/el.offsetWidth);
+   assert(first&&first.width>50*canvasScale&&first.height>=40*canvasScale-2,
+     "The answer button remains visible after eight notes at the device scale");
    // Mouse/touch by absolute coordinates, not locator.click() which can auto-scroll.
    if(spec.mobile) await page.touchscreen.tap(first.x+first.width/2,first.y+first.height/2);
    else await page.mouse.click(first.x+first.width/2,first.y+first.height/2);

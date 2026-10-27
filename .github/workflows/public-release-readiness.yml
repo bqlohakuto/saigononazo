@@ -1,0 +1,50 @@
+name: Public release readiness and portable ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'manifest.webmanifest'
+      - '*.js'
+      - '*.css'
+      - 'images/**'
+      - 'audio/**'
+      - 'fonts/**'
+      - 'scripts/build_release.py'
+      - 'tests/critical-path.test.cjs'
+      - 'tests/game-audio.test.cjs'
+      - 'tests/ending-credits.test.cjs'
+      - 'tests/room8-art.test.cjs'
+      - 'tests/room8-flow.test.cjs'
+      - '.github/workflows/public-release-readiness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install DOM dependency for story progression
+        run: npm install --no-save --no-package-lock jsdom@26
+      - name: Check first-to-final assets, save data, sound and credits
+        run: |
+          node --test tests/critical-path.test.cjs tests/cache-version.test.cjs tests/room8-art.test.cjs tests/ending-credits.test.cjs tests/game-audio.test.cjs tests/save-data.test.cjs tests/hardening.test.cjs
+          node tests/room8-flow.test.cjs
+      - name: Build portable game-only ZIP with explicit asset audit
+        run: python3 scripts/build_release.py dist/saigononazo-web.zip
+      - name: Preserve reviewed candidate package
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: saigononazo-release-candidate
+          path: dist/saigononazo-web.zip
+          retention-days: 14
+          if-no-files-found: error

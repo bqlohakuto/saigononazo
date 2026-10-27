@@ -2395,3 +2395,88 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .r7-scene.is-door-opening .r7-door-feedback{opacity:1}
 #game .r7-dial-instruction{margin:0!important;text-align:center;font-size:clamp(12px,1.3cqw,18px)!important}
 @media (prefers-reduced-motion:reduce){#game .r7-scene.is-door-opening .r7-door-reveal::before{animation:none;transform:scaleX(.8);opacity:.9}}
+
+
+/* Issue #25 A04: keypad is a single-screen device, never a scrollable sheet.
+   Keep all twelve keys, the readout, feedback and Close visible in 960x540. */
+#game .device-overlay.late-overlay:has(.r5-keypad-panel){
+  display:grid;
+  place-items:center;
+  box-sizing:border-box;
+  padding:16px 24px;
+}
+#game .late-panel.r5-keypad-panel{
+  box-sizing:border-box;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  width:min(390px,100%);
+  height:min(456px,100%);
+  max-height:100%;
+  min-height:0;
+  overflow:hidden!important;
+  padding:46px 18px 13px!important;
+  text-align:center;
+}
+#game .r5-keypad-panel>.device-close{
+  position:absolute;
+  top:7px;
+  right:9px;
+}
+#game .r5-keypad-panel>h2{
+  flex:0 0 auto;
+  margin:0 36px 7px 0;
+  padding:0;
+  font-size:clamp(18px,2cqw,23px);
+  line-height:1.25;
+}
+#game .r5-keypad-panel>.r5-keypad-display{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  min-height:50px;
+  margin:0 0 8px;
+  padding:6px;
+  font-size:30px;
+  line-height:1.2;
+  letter-spacing:.16em;
+}
+#game .r5-keypad-panel>.r5-keypad-grid{
+  flex:1 1 auto;
+  min-height:0;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-rows:repeat(4,minmax(0,1fr));
+  gap:7px;
+}
+#game .r5-keypad-panel .r5-keypad-grid button{
+  display:grid;
+  place-items:center;
+  min-width:0;
+  min-height:0;
+  width:100%;
+  height:100%;
+  padding:3px;
+  border:1px solid var(--gold);
+  background:#fffdf8;
+  color:var(--ink);
+  font:700 21px/1 "DotGothic16",sans-serif;
+  touch-action:manipulation;
+}
+#game .r5-keypad-panel .r5-keypad-grid [data-key="enter"]{
+  background:#59462c;
+  color:#fff5df;
+}
+#game .r5-keypad-panel .r5-keypad-grid [data-key="clear"]{
+  background:#eee6d5;
+}
+#game .r5-keypad-panel>#r5KeypadFeedback{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  min-height:23px;
+  margin:8px 0 0;
+  color:#8f2727;
+  font-size:14px;
+  line-height:1.3;
+}

@@ -668,7 +668,10 @@ function within(inner,outer,tolerance=3){
    await page.locator('.hana-choice-button[data-topic="hint"]').click();
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Opening the hint chooser never advances story dialogue');
    assert.equal(await page.locator('.hana-choice-overlay .hana-choice-button').first().textContent(),'ヒント1','Only the first hint is initially unlocked');
+   // The freshly opened nested hint chooser has the same accidental-double-tap guard.
+   await page.waitForTimeout(360);
    await page.locator('.hana-choice-overlay .hana-choice-button').first().click();
+   await page.locator('.room-dialog-overlay').waitFor({state:'visible'});
    const advicePages=[];
    for(let n=0;n<12&&await page.locator('.room-dialog-overlay').count();n++){
     advicePages.push(await page.locator('.room-dialog-overlay .message').textContent());

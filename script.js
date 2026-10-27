@@ -827,12 +827,44 @@ function showUnlockedDoorChoices(){
  });
 }
 
-function showNextRoomBoundary(){
- GameAudio.play("doorOpen");
- // Use the half-open door as a brief transition image, never as a clickable inspection frame.
+// Issue #25 A05: one transition for consecutive room changes.
+// The first room keeps its authored door image; other rooms never borrow that artwork.
+function showRoomTravel(next,{label="次の部屋へ",tone="dark",image=null,duration=650,sound=true}={}){
+ if(sound)GameAudio.play("doorOpen");
  Dialogue.stop();
- game.innerHTML=`<div class="room-transition" aria-label="扉を通って次の部屋へ"><img src="images/background/room01/pixel/room01_door_halfopen.png" alt="半開きの扉"></div>`;
- setTimeout(()=>{if(game.querySelector(".room-transition"))showSecondRoom(roomStates.room02)},1100);
+ const screen=document.createElement("div");
+ screen.className="room-transition "+(image?"room-transition-illustrated":"room-transition-abstract")+" room-transition-"+tone;
+ screen.setAttribute("role","status");
+ screen.setAttribute("aria-label",label);
+ if(image){
+  const picture=document.createElement("img");
+  picture.src=image;picture.alt="半開きの扉";
+  screen.appendChild(picture);
+ }else{
+  const light=document.createElement("span");
+  light.className="room-transition-glow";
+  light.setAttribute("aria-hidden","true");
+  screen.appendChild(light);
+ }
+ game.replaceChildren(screen);
+ window.setTimeout(()=>{
+  if(!screen.isConnected)return;
+  next();
+  const room=game.querySelector(".room");
+  if(room){
+   room.classList.add("room-entry-fade");
+   room.addEventListener("animationend",event=>{
+    if(event.target===room)room.classList.remove("room-entry-fade");
+   },{once:true});
+  }
+ },duration);
+}
+function showNextRoomBoundary(){
+ showRoomTravel(()=>showSecondRoom(roomStates.room02),{
+  label:"扉を通って第二の部屋へ",
+  image:"images/background/room01/pixel/room01_door_halfopen.png",
+  duration:1100
+ });
 }
 
 function showRoomNotice(text,logId,logType="investigation"){

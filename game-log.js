@@ -2,6 +2,8 @@
 const GameLog=(()=>{
  const types=new Set(["dialogue","investigation","narration"]);
  const kinds=new Set(["player","heroine","character","narration","system"]);
+ // Correct the six original Room 7 narration sentences when restoring old saves.
+ const r7FirstPersonIds=new Set(["r7_mem_tiger_17_02","r7_mem_tiger_20_01","r7_mem_rabbit_01_02","r7_mem_rabbit_07_01","r7_mem_rabbit_13_01","r7_mem_rabbit_18_01"]);
  let entries=[],seenIds=new Set();
  const kindOf=line=>line.speaker==="主人公"||line.thought?"player":["ハナ","花音"].includes(line.speaker)?"heroine":line.speaker==="ト書き"?"narration":line.logType==="dialogue"?"character":"system";
  function entryFor(line){
@@ -24,7 +26,8 @@ const GameLog=(()=>{
   // Array order is canonical. Preserve repeated IDs and normalize optional/malformed fields from older saves.
   for(const entry of saved){
    if(!entry||typeof entry!=="object")continue;
-   record({logId:entry.id,text:entry.text,logType:entry.type,speaker:typeof entry.speaker==="string"?entry.speaker:"",thought:entry.thought===true,logKind:entry.kind,logColor:entry.color,logRoom:entry.room,logGroup:entry.group,logTarget:entry.target});
+   const text=r7FirstPersonIds.has(entry.id)&&typeof entry.text==="string"?entry.text.replace("主人公","僕"):entry.text;
+   record({logId:entry.id,text,logType:entry.type,speaker:typeof entry.speaker==="string"?entry.speaker:"",thought:entry.thought===true,logKind:entry.kind,logColor:entry.color,logRoom:entry.room,logGroup:entry.group,logTarget:entry.target});
   }
  }
  return {record,restore,entryFor,has:id=>seenIds.has(id),list:()=>entries.map(entry=>({...entry}))};

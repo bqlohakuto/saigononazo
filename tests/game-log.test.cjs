@@ -76,3 +76,23 @@ test("memory characters retain their speaker and character kind through saved hi
   GameLog.restore(before);
   assert.deepEqual(JSON.parse(JSON.stringify(GameLog.list())), before);
 });
+
+test("restoring old Room 7 narration uses first person while preserving unrelated saved history", () => {
+  const GameLog = loadGameLog();
+  const saved = [
+    {id:"r7_mem_tiger_17_02",text:"主人公は、隣を歩く先輩を見た。",type:"narration",speaker:"ト書き"},
+    {id:"r7_mem_tiger_20_01",text:"その約束が嬉しくて、主人公は分かれ道までの時間を、いつもより長く感じていた。",type:"narration",speaker:"ト書き"},
+    {id:"r7_mem_rabbit_01_02",text:"主人公は机の上に進路希望の紙を広げたまま、先輩と電話をしていた。",type:"narration",speaker:"ト書き"},
+    {id:"r7_mem_rabbit_07_01",text:"電話越しの声に、主人公は少しだけ笑った。",type:"narration",speaker:"ト書き"},
+    {id:"r7_mem_rabbit_13_01",text:"主人公は、進路希望の紙に目を落とす。",type:"narration",speaker:"ト書き"},
+    {id:"r7_mem_rabbit_18_01",text:"主人公はペンを持ち直し、情報系の学部を進路希望の欄に書き込んだ。",type:"narration",speaker:"ト書き"},
+    {id:"unrelated",text:"主人公という言葉",type:"narration",speaker:"ト書き"}
+  ];
+  GameLog.restore([...saved,saved[0]]);
+  const restored=JSON.parse(JSON.stringify(GameLog.list()));
+  assert.deepEqual(restored.map(entry=>entry.id),[...saved.map(entry=>entry.id),saved[0].id]);
+  for(const entry of [...restored.slice(0,6),restored[7]])assert.ok(!entry.text.includes("主人公"));
+  assert.equal(restored[6].text,saved[6].text);
+  assert.equal(restored[7].text,"僕は、隣を歩く先輩を見た。");
+  assert.ok(restored.every((entry,index)=>entry.order===index));
+});

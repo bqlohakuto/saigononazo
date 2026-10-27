@@ -96,6 +96,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   else finish();
  }
  assert.ok(!run('GameLog.list()').some(x=>x.text.includes('具体的な短い記憶')),'no pending intermediate memories');
+ assert.ok(!run('GameLog.list()').some(x=>/^r7_mem_(tiger|rabbit|sheep)_/.test(x.id)&&x.type==='narration'&&x.text.includes('主人公')),'short recollections use first-person narration');
  assert.equal(saved().completed,true);assert.equal(q('#r7Next'),null,'no return to library after the accident');assert.equal(run('currentScene'),'room08');assert.ok(q('#r8Paper'));
  // Old saves preserve completed book sequence, including the retired pigs id.
  run('showSeventhRoom({introSeen:true,order:["ikkyu","rabbit","wolf","monkey","pigs","bremen"],booksSolved:true,doorIndex:3})');assert.equal(saved().placed.length,6);assert.ok(saved().collected.includes('mitten'));assert.equal(saved().doorIndex,3);

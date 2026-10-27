@@ -15,7 +15,7 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
     if(!file.startsWith(root+path.sep)||!fs.existsSync(file)){if(file.includes('/room08/dialogue/'))missing.push(file);await route.fulfill({status:404,body:''});return}
     await route.fulfill({path:file});
    });
-   await p.goto(base,{waitUntil:'load'});await p.locator('#testRoomButton').click();await p.locator('[data-room="room08"]').click();
+   await p.goto(new URL("?preview=1",base).toString(),{waitUntil:'load'});await p.locator('#testRoomButton').click();await p.locator('[data-room="room08"]').click();
    const saved=()=>p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1')).rooms.room08);
    const click=s=>p.locator(s).click();
    const finish=async()=>{for(let i=0;i<1000&&await p.locator('#roomNextButton').count();i++)await click('#roomNextButton');assert.equal(await p.locator('#roomNextButton').count(),0)};

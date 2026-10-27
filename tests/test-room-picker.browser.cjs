@@ -35,7 +35,7 @@ function inside(a, b, tolerance = 3) {
       page.setDefaultTimeout(12000);
       const errors = [];
       page.on('pageerror', e => errors.push(e.message));
-      const response = await page.goto(site + '?test_picker_ci=' + Date.now(), {waitUntil: 'load', timeout: 60000});
+      const response = await page.goto(site + '?preview=1&test_picker_ci=' + Date.now(), {waitUntil: 'load', timeout: 60000});
       assert.equal(response.status(), 200, spec.name + ': published game not available');
       const cssUrl = await page.locator('link[href*="style.css"]').first().getAttribute('href');
       assert(cssUrl.includes(expected), spec.name + ': stale published stylesheet ' + cssUrl);

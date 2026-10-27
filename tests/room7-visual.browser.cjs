@@ -12,7 +12,7 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
    const p=await context.newPage(),errors=[],missing=[];p.on('pageerror',e=>errors.push(e.message));p.setDefaultTimeout(10000);
    const base=process.env.PUBLIC_BASE_URL||'https://room7.local/';
    if(!process.env.PUBLIC_BASE_URL)await p.route('https://room7.local/**',async route=>{const rel=decodeURIComponent(new URL(route.request().url()).pathname).replace(/^\//,'')||'index.html',file=path.resolve(root,rel);if(!file.startsWith(root+path.sep)){await route.fulfill({status:403,body:''});return}if(!fs.existsSync(file)){missing.push(rel);await route.fulfill({status:404,body:''});return}await route.fulfill({path:file})});
-   await p.goto(base,{waitUntil:'load'});await p.locator('#testRoomButton').click();await p.locator('[data-room="room07"]').click();
+   await p.goto(new URL("?preview=1",base).toString(),{waitUntil:'load'});await p.locator('#testRoomButton').click();await p.locator('[data-room="room07"]').click();
    async function finish(){for(let i=0;i<500&&await p.locator('#roomNextButton').count();i++)await p.locator('#roomNextButton').click()}
    const state=()=>p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1')).rooms.room07);
    const click=s=>p.locator(s).click();

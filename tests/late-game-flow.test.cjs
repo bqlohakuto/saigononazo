@@ -5,7 +5,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 (async()=>{
   const root=path.join(__dirname,'..');
   const dom=new JSDOM('<div id="game-container"><div id="game"></div></div>',{
-    url:'https://game.test/',runScripts:'outside-only',pretendToBeVisual:true
+    url:'https://game.test/?preview=1',runScripts:'outside-only',pretendToBeVisual:true
   });
   const w=dom.window,ctx=dom.getInternalVMContext();
   w.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});

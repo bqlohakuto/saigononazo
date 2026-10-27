@@ -16,7 +16,7 @@ const root=path.resolve(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR;
   const shot=async name=>{if(out){fs.mkdirSync(out,{recursive:true});await p.screenshot({path:path.join(out,name+'.png')})}};
   const finish=async()=>{for(let i=0;i<500&&await p.locator('#roomNextButton').count();i++)await p.locator('#roomNextButton').click()};
   const fit=async()=>{const b=await p.locator('#game-container').boundingBox(),v=p.viewportSize();assert(b.x>=-.5&&b.y>=-.5&&b.x+b.width<=v.width+.5&&b.y+b.height<=v.height+.5);assert(Math.abs(b.width/b.height-16/9)<.01);return b};
-  await p.goto('https://display.local/');await p.locator('.design-title-fullscreen').click();
+  await p.goto('https://display.local/?preview=1');await p.locator('.design-title-fullscreen').click();
   await p.waitForFunction(()=>document.fullscreenElement===document.documentElement);await fit();
   await p.locator('.design-title-fullscreen').click();await p.waitForFunction(()=>!document.fullscreenElement);
   await p.locator('#testRoomButton').click();await p.locator('[data-room="room07"]').click();

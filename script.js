@@ -851,13 +851,11 @@ function showRoomTravel(next,{label="次の部屋へ",tone="dark",image=null,dur
  window.setTimeout(()=>{
   if(!screen.isConnected)return;
   next();
-  const room=game.querySelector(".room");
-  if(room){
-   room.classList.add("room-entry-fade");
-   room.addEventListener("animationend",event=>{
-    if(event.target===room)room.classList.remove("room-entry-fade");
-   },{once:true});
-  }
+  // Fade the entire scene, including the HUD or opening dialogue,
+  // so controls never appear to float ahead of the room background.
+  game.classList.remove("room-entry-fade");
+  game.classList.add("room-entry-fade");
+  window.setTimeout(()=>game.classList.remove("room-entry-fade"),700);
  },duration);
 }
 function showNextRoomBoundary(){

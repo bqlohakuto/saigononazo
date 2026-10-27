@@ -111,15 +111,16 @@ function within(inner,outer,tolerance=3){
    // The approved reference positions Hana left of the door, just behind the red tiles.
    // Use normalized stage geometry so the same artwork works on PC and landscape phones.
    const hanaPlacement=await page.evaluate(()=>{
-     const stage=document.querySelector('.room2-stage').getBoundingClientRect();
+     const stageElement=document.querySelector('.room2-stage');
+     const stage=stageElement.getBoundingClientRect();
      const actor=document.querySelector('#r2Hana');
      const rect=actor.getBoundingClientRect();
      const sprite=getComputedStyle(actor,'::before');
      return {
        centerX:(rect.x+rect.width/2-stage.x)/stage.width,
        top:(rect.y-stage.y)/stage.height,
-       spriteWidth:parseFloat(sprite.width)/stage.width,
-       spriteHeight:parseFloat(sprite.height)/stage.width
+       spriteWidth:parseFloat(sprite.width)/stageElement.clientWidth,
+       spriteHeight:parseFloat(sprite.height)/stageElement.clientWidth
      };
    });
    assert(Math.abs(hanaPlacement.centerX-.285)<.015,'Hana should stand left of the door in the reference position');

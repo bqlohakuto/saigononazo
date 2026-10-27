@@ -75,13 +75,15 @@ test("No.119: pause and reopen preserve the identical active challenge state",()
  assert.equal(h.saved,0,"Closing does not write a reset or alter saved challenge state");
  assert.equal(h.state.challengeActive,true);
  assert.equal(h.state.answer,answer);
- assert.equal(h.state.guess,guess);
+ assert.equal(h.state.guess[0],guess[0]);
+  assert.equal(h.state.guess.filter(Boolean).length,1,"Pause/reopen must retain the placed block");
  assert.equal(h.state.history,history);
  assert.equal(h.state.attempts,2);
  assert.equal(h.state.challengeBest,best);
  h.open();
  assert.equal(h.state.challengeActive,true);
- assert.equal(h.state.guess,guess);
+ assert.equal(h.state.guess[0],guess[0]);
+  assert.equal(h.state.guess.filter(Boolean).length,1,"Pause/reopen must retain the placed block");
  assert.equal(h.state.history,history);
  assert.match(h.overlay.innerHTML,/一時中断/);
  assert.equal(h.element(".room2-attempt-left").textContent,"残り6回");

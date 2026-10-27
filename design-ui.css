@@ -2329,3 +2329,16 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .memory-scene[data-presentation=dialogue][data-layout=dining] .memory-prop{left:36%;top:54%;width:28%;height:17%}
 #game .memory-scene[data-presentation=dialogue] .memory-prop[data-kind=rabbit]{background:transparent;transform:none;box-shadow:none}
 #game .memory-scene[data-presentation=dialogue] .memory-prop[data-kind=cards]{left:35%;width:30%;gap:3px;align-items:center}
+
+
+/* Room 7: a selected zodiac is applied by touching the actual door.
+   A correct intermediate answer shows one brief open-and-close reaction. */
+#game .r7-door-reveal{position:absolute;left:35.4%;top:4.1%;width:28.5%;height:75.2%;pointer-events:none;z-index:4;overflow:visible;opacity:0}
+#game .r7-door-reveal::before{content:"";position:absolute;inset:4% 28%;background:linear-gradient(90deg,#ead7a2,#fff9e8 50%,#a6b9c9);box-shadow:0 0 18px 8px #fff1ad99;transform:scaleX(.01);opacity:0;transform-origin:center}
+#game .r7-scene.is-door-opening .r7-door-reveal{opacity:1}
+#game .r7-scene.is-door-opening .r7-door-reveal::before{animation:r7-door-peek 1.1s ease-in-out both}
+@keyframes r7-door-peek{0%,100%{transform:scaleX(.01);opacity:0}28%,65%{transform:scaleX(.92);opacity:1}}
+#game .r7-door-feedback{position:absolute;z-index:6;left:24%;width:52%;bottom:3%;margin:0;padding:5px 8px;text-align:center;color:#f8ebd2;background:#20180bde;border:1px solid #e3c9889e;font-size:clamp(11px,1.5cqw,18px);pointer-events:none;opacity:0}
+#game .r7-scene.is-door-opening .r7-door-feedback{opacity:1}
+#game .r7-dial-instruction{margin:0!important;text-align:center;font-size:clamp(12px,1.3cqw,18px)!important}
+@media (prefers-reduced-motion:reduce){#game .r7-scene.is-door-opening .r7-door-reveal::before{animation:none;transform:scaleX(.8);opacity:.9}}

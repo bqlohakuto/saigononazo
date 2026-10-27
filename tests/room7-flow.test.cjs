@@ -41,8 +41,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  turn('front');click('#r7Dial');click('#r7RotateLeft');assert.equal(saved().selectedZodiac,'丑');assert.ok(q('.r7-fixed-pointer'));click('#r7DialDone');click('#r7Door');assert.equal(saved().doorIndex,0,'wrong zodiac does not advance');
  for(const [i,target]of ['寅','卯','未','申','亥','酉'].entries()){
   click('#r7Dial');for(let n=0;n<12&&saved().selectedZodiac!==target;n++)click('#r7RotateLeft');assert.equal(saved().selectedZodiac,target);click('#r7DialDone');
-  assert.equal(saved().doorIndex,i+1);
-  if(i<5){assert.equal(q('#roomNextButton'),null,'no intermediate memory or door-opening dialogue');assert.equal(saved().completed,false);if(i===2){const midway=saved();run('showSeventhRoom('+JSON.stringify(midway)+')');assert.deepEqual(saved(),midway,'partial zodiac sequence survives reload');}}
+  assert.equal(saved().doorIndex,i,'selecting a zodiac only adjusts the mechanism');
+  click('#r7Door');
+  assert.equal(saved().doorIndex,i+1,'touching the door commits the selected answer');
+  if(i<5){assert.ok(q('.r7-scene.is-door-opening'),'each intermediate correct door reacts visibly');assert.equal(q('.r7-door-feedback').textContent,'扉が開き、静かに閉じた。');assert.equal(q('#roomNextButton'),null,'no intermediate memory dialogue');assert.equal(saved().completed,false);if(i===2){const midway=saved();run('showSeventhRoom('+JSON.stringify(midway)+')');assert.deepEqual(saved(),midway,'partial zodiac sequence survives reload');}
+    else await new Promise(resolve=>setTimeout(resolve,1200));}
   else finish();
  }
  assert.ok(!run('GameLog.list()').some(x=>x.text.includes('具体的な短い記憶')),'no pending intermediate memories');

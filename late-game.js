@@ -1303,6 +1303,7 @@
   const R7_FIXED=[{id:'redhood',title:'赤ずきん',slot:0},{id:'kaguya',title:'かぐや姫',slot:4},{id:'crane',title:'鶴の恩返し',slot:6},{id:'rapunzel',title:'ラプンツェル',slot:9}];
   const R7_ZODIAC=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
   const R7_DOORS=['寅','卯','未','申','亥','酉'];
+  let r7DoorBusy=false,r7DoorTimer=null;
   const r7Book=id=>R7_BOOKS.find(b=>b.id===id);
   const r7Asset=(id,part)=>'images/items/room07/'+id+'-'+part+'.webp';
   const r7Escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1589,10 +1590,12 @@
     ]:[
       '並んだ六冊を開いて、栞のページを読んでみよう。そこに描かれている動物と、扉の文字を見比べてみて。',
       '扉の文字は十二支だよ。題名にいる動物とは限らないから、開いたページに登場する動物を確かめよう。',
-      '本棚の左から、栞のある六冊の動物を順に十二支へ置き換えるんだ。「一休さん」のとらなら「寅」。その順に扉を選んで進もう。'
+      '本棚の左から、栞のある六冊の動物を順に十二支へ置き換えるんだ。「一休さん」のとらなら「寅」。文字盤を合わせて、その順に扉を調べてみよう。'
     ]);
   }
   window.showSeventhRoom=function(savedState){
+    if(r7DoorTimer!==null)clearTimeout(r7DoorTimer);
+    r7DoorTimer=null;r7DoorBusy=false;
     Dialogue.stop();currentScene='room07';GameAudio.syncSceneMusic?.(currentScene);room7State=normalizeR7(savedState);
     // Completed legacy saves also continue directly into the living room.
     if(room7State.completed){showEighthRoom(roomStates.room08);return;}
@@ -1609,7 +1612,7 @@
     if(view==='right')objects=r7Hotspot('r7Stack','床に積まれた本',[38.4,62,7.5,15])+r7Hotspot('r7Box','本棚の収納箱',[28.7,62,9.5,10])+r7Hotspot('r7Cups','二つのコップと一脚の椅子',[54,41,30,10])+r7Hotspot('r7Clock','時計',[78,7,12,18])+r7Hotspot('r7Lamp','ランプ',[88,20,9,12])+r7Hotspot('r7Frame','壁の四角い跡',[59,14,18,20]);
     if(view==='back')objects=r7Hotspot('r7Shelf','本棚の中央段',[35,22,30,22]);
     game.innerHTML='<main class="room late-room r7-full" aria-label="図書室"><div class="r7-room-wrap"><section class="r7-scene" data-view="'+view+'" aria-label="'+({front:'正面の扉',left:'記録のある書斎',right:'右側の書斎',back:'大きな本棚'})[view]+'">'+objects+
-      (view==='front'?'<button type="button" class="r7-dial-target" id="r7Dial" aria-label="十二支操作盤を拡大">'+r7DialMarkup(false)+'</button>':'')+
+      (view==='front'?'<div class="r7-door-reveal" aria-hidden="true"></div><p class="r7-door-feedback" role="status" aria-live="polite"></p><button type="button" class="r7-dial-target" id="r7Dial" aria-label="十二支操作盤を拡大">'+r7DialMarkup(false)+'</button>':'')+
       (view==='back'?'<div class="r7-shelf-row" aria-hidden="true">'+r7ShelfArt()+'</div>':'')+
       '<button type="button" class="r7-hana hana-v2-world" id="r7Hana" aria-label="ハナに話しかける"></button></section></div><nav class="r7-nav" aria-label="部屋を見回す"><button type="button" id="r7TurnLeft" aria-label="左を向く">◀</button><button type="button" id="r7TurnRight" aria-label="右を向く">▶</button></nav></main>';
     const bind=(id,fn)=>game.querySelector('#'+id)?.addEventListener('click',fn);
@@ -1624,7 +1627,7 @@
     window.RoomExploration?.mount('room07',game.querySelector('.r7-scene'),view,room7State,{image:'images/background/room07/'+view+'.webp'});
     setHud('room07','第七の部屋',r7Objective,r7Hana);
   }
-  function r7Turn(delta){const order=['front','right','back','left'];room7State.view=order[(order.indexOf(room7State.view)+delta+4)%4];saveGame();renderR7()}
+  function r7Turn(delta){if(r7DoorBusy)return;const order=['front','right','back','left'];room7State.view=order[(order.indexOf(room7State.view)+delta+4)%4];saveGame();renderR7()}
   function r7Modal(name,content,openerId){
     const overlay=document.createElement('div');overlay.className='device-overlay r7-overlay';
     overlay.innerHTML='<section class="r7-panel" aria-label="'+r7Escape(name)+'"><button type="button" class="device-close" aria-label="閉じる">閉じる</button>'+content+'</section>';
@@ -1746,13 +1749,14 @@
     showRoomDialog(r7Lines('door'),onComplete);
   }
   function r7Dial(){
+    if(r7DoorBusy)return;
     if(!room7State.doorExamined){r7InspectDoor(r7Dial);return;}
-    const m=r7Modal('十二支操作盤','<div class="r7-dial-inspection">'+r7DialMarkup(true)+'<div class="r7-dial-actions"><button type="button" id="r7RotateLeft" aria-label="文字盤を左へ30度回す">↶</button><button type="button" id="r7DialDone">この干支を選択する</button><button type="button" id="r7RotateRight" aria-label="文字盤を右へ30度回す">↷</button></div></div>','r7Dial');
+    const m=r7Modal('十二支操作盤','<div class="r7-dial-inspection">'+r7DialMarkup(true)+'<p class="r7-dial-instruction">干支を合わせたら、扉を調べよう。</p><div class="r7-dial-actions"><button type="button" id="r7RotateLeft" aria-label="文字盤を左へ30度回す">↶</button><button type="button" id="r7DialDone">この干支に合わせる</button><button type="button" id="r7RotateRight" aria-label="文字盤を右へ30度回す">↷</button></div></div>','r7Dial');
     const wheel=m.panel.querySelector('.r7-dial-wheel'),value=m.panel.querySelector('.r7-dial-selection strong');
     let steps=-R7_ZODIAC.indexOf(room7State.selectedZodiac);
     const set=()=>{room7State.selectedZodiac=R7_ZODIAC[((-steps%12)+12)%12];wheel.style.transform='rotate('+steps*30+'deg)';value.textContent=room7State.selectedZodiac;saveGame()};
     m.panel.querySelector('#r7RotateLeft').onclick=()=>{steps--;set()};m.panel.querySelector('#r7RotateRight').onclick=()=>{steps++;set()};
-    m.panel.querySelector('#r7DialDone').onclick=()=>{m.close();renderR7();if(room7State.booksSolved)r7Door(room7State.selectedZodiac)};
+    m.panel.querySelector('#r7DialDone').onclick=()=>{m.close();renderR7()};
     // Native buttons provide keyboard/touch operation; dragging snaps at each 30-degree sector.
     const art=m.panel.querySelector('.r7-dial-art');let drag=null;
     const angle=e=>{const r=wheel.getBoundingClientRect();return Math.atan2(e.clientY-r.top-r.height/2,e.clientX-r.left-r.width/2)*180/Math.PI};
@@ -1762,12 +1766,25 @@
   }
   window.Room7LibraryUI={items:()=>currentScene==='room07'&&room7State?R7_BOOKS.filter(b=>room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id)).map(b=>({id:b.id,name:b.title,art:'本',description:'赤い栞の挟まれた本。',target:'r7Shelf'})):[],use:id=>r7Cover(id)};
   function r7Door(z){
+    if(r7DoorBusy)return;
     if(!room7State.doorExamined||!room7State.booksSolved){r7InspectDoor();return;}
     if(room7State.completed)return;
-    if(z!==R7_DOORS[room7State.doorIndex])return; // Preserve the existing wrong-selection behavior.
+    if(z!==R7_DOORS[room7State.doorIndex])return; // Wrong selections leave the puzzle unchanged.
     const isLast=room7State.doorIndex===R7_DOORS.length-1;
     room7State.doorIndex++;saveGame();
-    if(!isLast){renderR7();return;}
+    if(!isLast){
+      // Each correct door visibly opens and closes. A dial setting alone is never an answer.
+      const scene=game.querySelector('.r7-scene'),status=scene?.querySelector('.r7-door-feedback');
+      r7DoorBusy=true;
+      scene?.classList.add('is-door-opening');
+      if(status)status.textContent='扉が開き、静かに閉じた。';
+      r7DoorTimer=setTimeout(()=>{
+        r7DoorTimer=null;r7DoorBusy=false;
+        scene?.classList.remove('is-door-opening');
+        if(status)status.textContent='';
+      },1150);
+      return;
+    }
     showRoomDialog([
       line('r7_last_01','ト書き','酉に合わせた扉が開く。'),
       line('r7_last_02','主人公','……'),

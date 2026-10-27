@@ -175,7 +175,7 @@ function within(inner,outer,tolerance=3){
    const initialHelp=await page.locator('.room2-board-help .room2-rule').textContent();
    assert(initialHelp.includes('【駒の操作】')&&initialHelp.includes('【判定】'),'Help has operation and HIT/BLOW explanation');
    assert(initialHelp.includes('回数制限はない。'),'First play stays unlimited');
-   assert(initialHelp.includes('記号と色が一致し、位置だけが異なるとBLOW'),'BLOW rule is stated');
+   assert(initialHelp.includes('BLOWは記号と色が一致して位置が違うもの'),'BLOW rule is stated');
    assert.equal(await page.locator('.room2-puzzle').count(),1,'Opening help does not leave puzzle');
    await page.locator('.room2-board-help summary').click();
    assert.equal(await page.locator('.room2-board-help').evaluate(node=>node.open),false,'Help can be tucked away again');
@@ -287,7 +287,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-leftmost-request').isVisible(),true,'Any color-complete result within first five enables the clue');
    await page.locator('.room2-leftmost-request').click();
    assert.equal(await page.evaluate(()=>room2State.leftmostHintRevealed),true,'A requested clue is recorded in save state');
-   assert.match(await page.locator('.room2-leftmost-hint').textContent(),/開示された左端の記号/);
+   assert.match(await page.locator('.room2-leftmost-hint').textContent(),/左端の記号：/);
    await page.locator('.room2-puzzle .device-close').click();
    await page.locator('#r2Blocks').click();
    assert.equal(await page.locator('.room2-leftmost-hint').isVisible(),true,'Reopening restores the revealed clue');

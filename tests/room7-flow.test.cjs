@@ -58,6 +58,21 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
       assert.match(q('#roomMessage').textContent,/いえ、別に/);
       finish();assert.equal(saved().shortMemory,null,'finishing the memory returns to the puzzle');
       assert.equal(saved().doorIndex,1);assert.equal(q('.memory-scene'),null);
+    }else if(i===1){
+      assert.equal(saved().shortMemory.zodiac,'卯','the second answer persists its pending memory');
+      await new Promise(resolve=>setTimeout(resolve,1200));
+      assert.equal(q('.memory-scene').dataset.location,'r7rabbit','the door opens the 2011 memory');
+      assert.equal(q('.memory-background').getAttribute('src'),'images/background/memories/room02/music-room-paperwork.png');
+      assert.equal(q('.memory-girl').hidden,true,'the senior is speaking by phone, not in the room');
+      for(let n=0;n<50&&!saved().shortMemory.progress?.logId.startsWith('r7_mem_rabbit_09');n++)click('#roomNextButton');
+      const halfway=saved();assert.ok(halfway.shortMemory.progress.logId.startsWith('r7_mem_rabbit_09'));
+      assert.match(q('#roomMessage').textContent,/それが、まだ悩んでいて/);
+      run('showSeventhRoom('+JSON.stringify(halfway)+')');
+      assert.equal(saved().shortMemory.progress.logId,halfway.shortMemory.progress.logId,'the phone conversation resumes at the same line');
+      assert.match(q('#roomMessage').textContent,/それが、まだ悩んでいて/);
+      finish();assert.equal(saved().shortMemory,null,'finishing the phone conversation returns to the puzzle');
+      assert.equal(saved().doorIndex,2);assert.equal(q('.memory-scene'),null);
+      assert.ok(run('GameLog.list()').some(x=>x.text.includes('自分のために決めたかった')),'the approved independent choice reaches the log');
     }else if(i===2){const midway=saved();run('showSeventhRoom('+JSON.stringify(midway)+')');assert.deepEqual(saved(),midway,'partial zodiac sequence survives reload');}
     else await new Promise(resolve=>setTimeout(resolve,1200));}
   else finish();

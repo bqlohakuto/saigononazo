@@ -1056,5 +1056,34 @@
       "r7_mem_tiger_19",
       "r7_mem_tiger_20"
     ]
+  },
+  {
+    "key": "r7rabbit",
+    "room": "room07",
+    "reveal": "concealed",
+    "background": "images/background/memories/room02/music-room-paperwork.png",
+    "sprite": null,
+    "layout": "standing",
+    "prop": null,
+    "ids": [
+      "r7_mem_rabbit_01",
+      "r7_mem_rabbit_02",
+      "r7_mem_rabbit_03",
+      "r7_mem_rabbit_04",
+      "r7_mem_rabbit_05",
+      "r7_mem_rabbit_06",
+      "r7_mem_rabbit_07",
+      "r7_mem_rabbit_08",
+      "r7_mem_rabbit_09",
+      "r7_mem_rabbit_10",
+      "r7_mem_rabbit_11",
+      "r7_mem_rabbit_12",
+      "r7_mem_rabbit_13",
+      "r7_mem_rabbit_14",
+      "r7_mem_rabbit_15",
+      "r7_mem_rabbit_16",
+      "r7_mem_rabbit_17",
+      "r7_mem_rabbit_18"
+    ]
   }
 ]

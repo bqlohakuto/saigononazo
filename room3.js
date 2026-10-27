@@ -469,10 +469,12 @@ function showThirdRoomHana(){
   ];
  }
  showRoomDialog(lines);
-}function showThirdRoomBoundary(){
- GameAudio.play("doorOpen");
- room2State.nextRoomTransitionSeen=true;saveGame();Dialogue.stop();game.innerHTML=`<div class="room-transition room3-transition" aria-label="第三の部屋へ移動"><img src="images/background/room01/room01_door_halfopen.png" alt="扉を通って次の部屋へ"></div>`;
- setTimeout(()=>{if(game.querySelector(".room3-transition"))showThirdRoom(roomStates.room03)},1100);
+}
+function showThirdRoomBoundary(){
+ room2State.nextRoomTransitionSeen=true;saveGame();
+ showRoomTravel(()=>showThirdRoom(roomStates.room03),{
+  label:"第三の部屋へ移動",duration:1100
+ });
 }
 
 

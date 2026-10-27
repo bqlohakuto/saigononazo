@@ -643,11 +643,12 @@ function within(inner,outer,tolerance=3){
    assert(combinedRules.includes('BLOWは記号と色が合っていて、位置だけ違うものだよ'),'BLOW rule is preserved in the paginated dialogue');
    assert(combinedRules.includes('判定を比べながら、合っている組み合わせを絞っていくんですね'),'Protagonist response still follows the rules');
 
-   // No.113: only an unsuccessful judgement makes strategy advice meaningful.
+   // The adopted optional three-stage hint is available once the desk is inspected.
+   // Opening the topic only shows a hint selector; story dialogue begins by choice.
    await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:true,unlocked:false,attempts:0,history:[]}));
    await page.locator('#r2Hana').click();
-   assert.equal(await page.locator('.hana-choice-button[data-topic="hint"]').count(),0,'Strategy hint is hidden before the first answer');
-   assert.equal(await page.locator('.hana-choice-button[data-topic="rules"]').count(),1,'Rules remain available after desk inspection');
+   assert.equal(await page.locator('.hana-choice-button[data-topic="hint"]').count(),1,'Strategy hint is optional immediately after desk inspection');
+   assert.equal(await page.locator('.hana-choice-button[data-topic="rules"]').count(),1,'Rules remain available');
    await page.locator('.hana-choice-overlay .device-close').click();
 
    await page.evaluate(()=>showSecondRoom({
@@ -655,16 +656,19 @@ function within(inner,outer,tolerance=3){
     history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'})),hit:0,blow:1}]
    }));
    await page.locator('#r2Hana').click();
-   assert.equal(await page.locator('.hana-choice-button[data-topic="hint"]').count(),1,'First incorrect judgement enables strategy advice');
+   assert.equal(await page.locator('.hana-choice-button[data-topic="hint"]').count(),1,'The same hints remain available after an incorrect judgement');
    await page.waitForTimeout(360);
    await page.locator('.hana-choice-button[data-topic="hint"]').click();
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Opening the hint chooser never advances story dialogue');
+   assert.equal(await page.locator('.hana-choice-overlay .hana-choice-button').first().textContent(),'ヒント1','Only the first hint is initially unlocked');
+   await page.locator('.hana-choice-overlay .hana-choice-button').first().click();
    const advicePages=[];
    for(let n=0;n<12&&await page.locator('.room-dialog-overlay').count();n++){
     advicePages.push(await page.locator('.room-dialog-overlay .message').textContent());
     await page.locator('#roomNextButton').click();
    }
-   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Advice can be read and dismissed');
-   assert(advicePages.join('').includes('まずは一つずつ変えて、前の判定と比べてみよう'),'Existing Hana advice is unchanged');
+   assert.equal(await page.locator('.room-dialog-overlay').count(),0,'The chosen hint can be read and dismissed');
+   assert(advicePages.join('').includes('一度に全部変えず、前の結果と比べてみよう'),'The adopted first-stage Hana advice is unchanged');
 
    await page.evaluate(()=>showSecondRoom({doorInspected:false,deskInspected:true,unlocked:true,history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'青'})),hit:0,blow:1}]}));
    await page.locator('#r2Hana').click();
@@ -678,7 +682,7 @@ function within(inner,outer,tolerance=3){
    await page.waitForTimeout(360); // Avoid the design layer's deliberate accidental-tap guard.
    await page.locator('.hana-choice-button[data-topic="room"]').click();
    assert.equal(await page.locator('.room-dialog-overlay').count(),1,'Room-clear conversation opens normally');
-   assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'この部屋の仕掛け、解けたね！','Hana acknowledges that the room was solved');
+   assert.equal(await page.locator('.room-dialog-overlay .message').textContent(),'この部屋、少し雰囲気が変わったね','Hana comments on the restored room');
    const clearedRoomPages=[];
    for(let n=0;n<8&&await page.locator('.room-dialog-overlay').count();n++){
     clearedRoomPages.push(await page.locator('.room-dialog-overlay .message').textContent());
@@ -686,8 +690,8 @@ function within(inner,outer,tolerance=3){
    }
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Clear conversation closes normally');
    const clearText=clearedRoomPages.join('');
-   assert(clearText.includes('この部屋の仕掛け、解けたね！'),'Clear conversation retains Hana confirmation');
-   assert(clearText.includes('はい。次へ進めそうです'),'The protagonist acknowledges the unlocked door across dialogue pages');
+   assert(clearText.includes('この部屋、少し雰囲気が変わったね'),'Clear conversation retains the adopted Hana wording');
+   assert(clearText.includes('……はい。さっきまでとは違って見えます'),'The protagonist retains the adopted after-clear wording');
 
    // No.115: challenge milestone reactions replace, never append to, normal HIT/BLOW dialogue.
    const milestoneText=new Map([

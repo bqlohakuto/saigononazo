@@ -40,7 +40,7 @@ test('public visitors cannot jump rooms or read solutions before completing the 
   q('#puzzleGuideButton').click();assert.ok(q('.pguide'));
   run('clearSave();showTitle()');await new Promise(resolve=>setTimeout(resolve,0));
   assert.ok(q('#puzzleGuideButton'),'earned guide remains unlocked on a new run');
- }finally{dom.window.close()}
+ }finally{ /* Keep DOM intact while queued image promises and title observers settle. */ }
 });
 test('author preview preserves eight-room picker and full guide for QA',async()=>{
  const {dom,w,q}=await boot(true);
@@ -51,5 +51,5 @@ test('author preview preserves eight-room picker and full guide for QA',async()=
   assert.equal(w.PuzzleGuide.isTestMode(),true);
   q('#testRoomButton').click();
   assert.equal(q('.test-room-options').querySelectorAll('[data-room]').length,8);
- }finally{dom.window.close()}
+ }finally{ /* Keep DOM intact while queued image promises and title observers settle. */ }
 });

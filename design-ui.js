@@ -198,12 +198,14 @@
       // Rebuild when the room tab changes, retaining chronological text within each conversation.
       const groups=[];entries.filter(e=>inferRoom(e)===recordRoom).forEach(e=>{const category=e.type==='investigation'?'investigation':'conversation',last=groups.at(-1),group=e.group||legacyGroup(e.id);if(last&&category==='conversation'&&last.category===category&&last.group===group)last.entries.push(e);else groups.push({category,group,entries:[e]})});
       rows=groups.reverse().filter(g=>recordCategory==='all'||g.category===recordCategory);m.content.replaceChildren();
+      // A03: each newly selected room/category/page opens at its own beginning.
+      m.content.scrollTop=0;
       const perPage=game.clientHeight<500?3:6,total=Math.max(1,Math.ceil(rows.length/perPage));recordPage=Math.min(recordPage,total-1);
       if(!rows.length)m.content.append(paragraph('まだ記録がありません。'));
       rows.slice(recordPage*perPage,(recordPage+1)*perPage).forEach((row,i)=>{const first=row.entries[0],flag=row.entries.some(clue);const title=(row.category==='investigation'?(first.target?first.target+' — ':'調査 — '):'')+first.text.slice(0,42);const b=button((flag?'● ':'')+title,()=>detail(recordPage*perPage+i),'design-record');b.classList.toggle('final-clue',flag);m.content.append(b)});
       const nav=document.createElement('div');nav.className='design-pager';const prev=button('前の一覧',()=>{recordPage--;drawList()}),next=button('次の一覧',()=>{recordPage++;drawList()});prev.disabled=recordPage===0;next.disabled=recordPage===total-1;nav.append(prev,paragraph(`${recordPage+1} / ${total}`),next);m.content.append(nav);
     }
-    function detail(index){m.content.replaceChildren();const row=rows[index];const controls=document.createElement('div');controls.className='design-actions';const prev=button('前の記録',()=>detail(index-1)),next=button('次の記録',()=>detail(index+1));prev.disabled=index===0;next.disabled=index===rows.length-1;controls.append(button('一覧に戻る',drawList),prev,next);m.content.append(controls);const p=pageText(m.content,'',row.entries);p.classList.toggle('final-clue',row.entries.some(clue))}
+    function detail(index){m.content.replaceChildren();m.content.scrollTop=0;const row=rows[index];const controls=document.createElement('div');controls.className='design-actions';const prev=button('前の記録',()=>detail(index-1)),next=button('次の記録',()=>detail(index+1));prev.disabled=index===0;next.disabled=index===rows.length-1;controls.append(button('一覧に戻る',drawList),prev,next);m.content.append(controls);const p=pageText(m.content,'',row.entries);p.classList.toggle('final-clue',row.entries.some(clue))}
     drawList();
   }
   function inferRoom(e){if(e.room)return e.room;const n=e.id?.match(/^(?:room|r)([1-8])/);return n?'room0'+n[1]:'opening'}

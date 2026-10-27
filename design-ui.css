@@ -2513,7 +2513,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .room-transition-illustrated{
   --room-passage-ms:1100ms;
 }
-#game .room.room-entry-fade{
+#game.room-entry-fade{
   animation:roomArrivalFromPassage 650ms ease-out both;
 }
 #game.room-entry-from-dark{
@@ -2530,6 +2530,6 @@ body{background:#0b1322!important;display:grid;place-items:center}
 }
 @media(prefers-reduced-motion:reduce){
   #game .room-transition.room-transition-abstract,
-  #game .room.room-entry-fade,
+  #game.room-entry-fade,
   #game.room-entry-from-dark{animation:none!important}
 }

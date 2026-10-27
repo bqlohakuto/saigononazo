@@ -18,6 +18,7 @@ on:
       - 'room4-scenario.js'
       - 'room5.js'
       - 'late-game.js'
+      - 'room8-visuals.js'
       - 'design-ui.js'
       - 'design-ui.css'
       - 'style.css'
@@ -29,6 +30,7 @@ on:
       - 'tests/critical-path.test.cjs'
       - 'tests/room4-projection.test.cjs'
       - 'tests/room8-flow.test.cjs'
+      - 'tests/room8-art.test.cjs'
       - 'tests/late-game-flow.test.cjs'
       - '.github/workflows/eight-room-regression.yml'
 
@@ -48,7 +50,7 @@ jobs:
         run: npm install --no-save --no-package-lock jsdom@26
       - name: Check gameplay scripts and room entry/artwork completeness
         run: |
-          for f in viewport-scaler.js script.js hana-choice.js inspection.js exploration-scenario.js room-exploration.js room2.js room3.js room4.js late-game.js design-ui.js; do node --check "$f"; done
+          for f in viewport-scaler.js script.js hana-choice.js inspection.js exploration-scenario.js room-exploration.js room2.js room3.js room4.js room8-visuals.js late-game.js design-ui.js; do node --check "$f"; done
           node --test tests/critical-path.test.cjs tests/cache-version.test.cjs tests/room4-projection.test.cjs tests/room3-morse.test.cjs tests/room2-choice-keyboard-focus.test.cjs tests/room2-compact-choice-panel.test.cjs
       - name: Test room five puzzle through its transition
         run: node tests/room5-mirror.test.cjs
@@ -57,7 +59,9 @@ jobs:
       - name: Test room seven book puzzle and transition
         run: node tests/room7-flow.test.cjs
       - name: Test room eight, saved state, true name, and ending
-        run: node tests/room8-flow.test.cjs
+        run: |
+          node tests/room8-art.test.cjs
+          node tests/room8-flow.test.cjs
       - name: Test the room six through ending critical path
         run: node tests/late-game-flow.test.cjs
 

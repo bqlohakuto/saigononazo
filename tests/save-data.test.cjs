@@ -68,7 +68,7 @@ test("legacy opening saves migrate their opening index and keep an empty room ma
   assert.equal(saved.logs.length, 1);
 });
 
-test("v2 normalization preserves future room states even before their scene loader exists", () => {
+test("v2 normalization preserves room states and compatible legacy aliases", () => {
   const SaveData = loadSaveData();
   const saved = SaveData.normalize({
     saveVersion: 2,
@@ -89,8 +89,8 @@ test("v2 normalization preserves future room states even before their scene load
   const rewritten = SaveData.create(saved);
   assert.equal(rewritten.currentScene, "room02");
   assert.equal(rewritten.rooms.room02.puzzleStep, 3);
-  assert.equal("scene" in rewritten, false);
-  assert.equal("state" in rewritten, false);
+  assert.equal(rewritten.scene, "room2");
+  assert.equal(rewritten.state.puzzleStep, 3);
 });
 
 test("malformed or unknown legacy saves are rejected safely", () => {

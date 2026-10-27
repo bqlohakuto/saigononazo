@@ -1832,7 +1832,13 @@
   ];
   function normalizeR8(saved){
     const s=saved&&typeof saved==="object"?saved:{};
-    return {introSeen:!!s.introSeen,introLogId:typeof s.introLogId==="string"?s.introLogId:null,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,ended:!!s.ended,epilogueSeen:!!s.epilogueSeen,epilogueLogId:typeof s.epilogueLogId==="string"?s.epilogueLogId:null};
+    return {introSeen:!!s.introSeen,introLogId:typeof s.introLogId==="string"?s.introLogId:null,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,finalTalkLogId:typeof s.finalTalkLogId==="string"?s.finalTalkLogId:null,finalEndLogId:typeof s.finalEndLogId==="string"?s.finalEndLogId:null,ended:!!s.ended,epilogueSeen:!!s.epilogueSeen,epilogueLogId:typeof s.epilogueLogId==="string"?s.epilogueLogId:null};
+  }
+  function r8AuthoredIndex(lines,expandedId){
+    // Sentence splitting adds exactly one numeric suffix. Do not use a prefix
+    // match: r8_end_02_light and r8_solve_39_player have shorter sibling IDs.
+    const authored=String(expandedId||'').replace(/_\d+$/,'');
+    return lines.findIndex(source=>source.logId===authored);
   }
   window.showEighthRoom=function(savedState){
     Dialogue.stop();currentScene="room08";GameAudio.syncSceneMusic?.(currentScene);room8State=normalizeR8(savedState);saveGame();
@@ -2025,13 +2031,14 @@
     const goneIndex=lines.findIndex(entry=>entry.logId==='r8_049');
     // Resume directly at the saved visual frame without briefly showing earlier furniture.
     r8SetDissolveStage(r8DissolveStepForLog(start,lines),true);
+    Room8Visuals.apply(game.querySelector('.r8-dissolve-stage'),Room8Visuals.intro(lines,start),true);
     showRoomDialog(lines.slice(start),()=>{
       room8State.introSeen=true;room8State.introLogId=null;room8State.puzzleReady=true;
       saveGame();r8PuzzleRoom();
     },entry=>{
       // expandScenario adds sentence suffixes. Store the stable authored ID so
       // page wrapping on another screen cannot shift the saved position.
-      const index=lines.findIndex(source=>entry.logId.startsWith(source.logId+'_'));
+      const index=r8AuthoredIndex(lines,entry.logId);
       if(index<0)return;
       room8State.introLogId=lines[index].logId;
       const living=game.querySelector('.r8-living');
@@ -2039,6 +2046,7 @@
         const pose=index>=goneIndex?'gone':index>=standIndex?'standing':'seated';
         living.dataset.hanaPose=pose;
         r8SetDissolveStage(r8DissolveStepForLog(index,lines));
+        Room8Visuals.apply(living.querySelector('.r8-dissolve-stage'),Room8Visuals.intro(lines,index),index===start);
         const poseLabel=living.querySelector('.r8-table span:last-child');
         if(poseLabel)poseLabel.textContent=pose==='seated'?'ハナが椅子に座っている':pose==='standing'?'ハナが立っている':'一枚の紙';
       }
@@ -2094,7 +2102,7 @@
     btn.title="過去の記録に変化がある";
   }
   function r8SolvedDialogue(){
-    showRoomDialog([
+    const lines=[
       line("r8_solve_01","主人公","……花音"),
       line("r8_solve_02","ト書き","少しの沈黙。そして――"),
       line("r8_solve_03","花音","正解！",{logKind:"heroine"}),
@@ -2150,12 +2158,22 @@
       line("r8_solve_46","主人公","だから、これからも一緒に謎解きを続けよう"),
       line("r8_solve_47","花音","……うん",{logKind:"heroine"}),
       line("r8_solve_48","花音","楽しみだね",{logKind:"heroine"})
-    ],()=>{room8State.finalTalkSeen=true;saveGame();r8AfterSolved()});
+    ];
+    const found=lines.findIndex(entry=>entry.logId===room8State.finalTalkLogId);
+    const start=found<0?0:found;
+    Room8Visuals.apply(game.querySelector('.r8-final-stage'),Room8Visuals.solved(lines,start),true);
+    showRoomDialog(lines.slice(start),()=>{
+      room8State.finalTalkSeen=true;room8State.finalTalkLogId=null;saveGame();r8AfterSolved();
+    },entry=>{
+      const index=r8AuthoredIndex(lines,entry.logId);
+      if(index<0)return;
+      room8State.finalTalkLogId=lines[index].logId;
+      Room8Visuals.apply(game.querySelector('.r8-final-stage'),Room8Visuals.solved(lines,index),index===start);
+      saveGame();
+    });
   }
-  function r8AfterSolved(){
-    game.innerHTML='<main class="room late-room r8-exit"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">出口</p></header><section class="late-stage empty"><button class="r8-final-door" id="r8FinalDoor">最後の扉を開く</button></section></main>';
-    document.getElementById("r8FinalDoor").onclick=()=>{
-      showRoomDialog([
+  function r8Farewell(){
+    const lines=[
         line("r8_end_01","ト書き","僕は最後の扉を開いた。"),
         line("r8_end_02","ト書き","扉の向こうへ一歩踏み出し、振り返った。"),
         line("r8_end_02_light","ト書き","花音の姿が、光に包まれていく。"),
@@ -2164,9 +2182,27 @@
         line("r8_end_name_02","主人公・心の声","……そうだ。僕の名前だ。",{thought:true}),
         line("r8_end_04","主人公","……花音"),
         line("r8_end_05","ト書き","花音の姿は、光の中へ消えていった。")
-      ],()=>{room8State.ended=true;saveGame();r8EpilogueFade();});
-    };
+    ];
+    const found=lines.findIndex(entry=>entry.logId===room8State.finalEndLogId);
+    const start=found<0?0:found;
+    Room8Visuals.apply(game.querySelector('.r8-exit .late-stage'),Room8Visuals.ending(lines,start),true);
+    showRoomDialog(lines.slice(start),()=>{
+      room8State.ended=true;room8State.finalEndLogId=null;saveGame();r8EpilogueFade();
+    },entry=>{
+      const index=r8AuthoredIndex(lines,entry.logId);
+      if(index<0)return;
+      room8State.finalEndLogId=lines[index].logId;
+      Room8Visuals.apply(game.querySelector('.r8-exit .late-stage'),Room8Visuals.ending(lines,index),index===start);
+      saveGame();
+    });
+  }
+  function r8AfterSolved(){
+    game.innerHTML='<main class="room late-room r8-exit"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">出口</p></header><section class="late-stage empty"><button class="r8-final-door" id="r8FinalDoor">最後の扉を開く</button></section></main>';
+    document.getElementById("r8FinalDoor").onclick=r8Farewell;
     setHud("room08","第八の部屋",()=>"最後の扉を開く",()=>{});
+    if(room8State.finalEndLogId)queueMicrotask(()=>{
+      if(currentScene==='room08'&&game.querySelector('.r8-exit')&&!game.querySelector('.room-dialog-overlay'))r8Farewell();
+    });
   }
   // The epilogue begins only after the farewell has finished. Save the
   // stage before fading so resuming during the transition cannot skip it.

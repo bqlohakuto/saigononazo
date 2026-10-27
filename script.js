@@ -654,6 +654,8 @@ function showPhoneScreen(){
   folder=target;selectedMailId=null;cursorIndex=0;
   detail.innerHTML="<p>メールを選んで内容を確認する。</p>";
   setView(false);render();
+  // A03: a new mailbox starts from its first message, not the old scroll position.
+  list.scrollTop=0;detail.scrollTop=0;
  };
  overlay.querySelectorAll("[data-folder]").forEach(tab=>tab.addEventListener("click",()=>switchFolder(tab.dataset.folder)));
  back.addEventListener("click",()=>{setView(false);list.querySelector('.is-selected')?.focus({preventScroll:true})});

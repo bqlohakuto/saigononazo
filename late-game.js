@@ -1303,6 +1303,31 @@
   const R7_FIXED=[{id:'redhood',title:'赤ずきん',slot:0},{id:'kaguya',title:'かぐや姫',slot:4},{id:'crane',title:'鶴の恩返し',slot:6},{id:'rapunzel',title:'ラプンツェル',slot:9}];
   const R7_ZODIAC=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
   const R7_DOORS=['寅','卯','未','申','亥','酉'];
+  // Only approved recollections are populated; other answers retain their door response.
+  const R7_SHORT_MEMORIES={
+    寅:[
+      line('r7_mem_tiger_01','ト書き','先輩が高校を卒業してから、久しぶりに一緒に帰る夕方。'),
+      line('r7_mem_tiger_02','先輩','なんだか懐かしいね、この道'),
+      line('r7_mem_tiger_03','主人公','そうですね。先輩と歩くのも久しぶりですし'),
+      line('r7_mem_tiger_04','先輩','私がいなくなって、寂しかった？'),
+      line('r7_mem_tiger_05','主人公','いえ、別に。いつも通りでしたよ'),
+      line('r7_mem_tiger_06','先輩','ふーん。本当に？'),
+      line('r7_mem_tiger_07','主人公','……本当です'),
+      line('r7_mem_tiger_08','ト書き','先輩は、少しだけいたずらっぽく笑った。'),
+      line('r7_mem_tiger_09','主人公・心の声','一人で歩く帰り道は、前より少し長く感じていた。',{thought:true}),
+      line('r7_mem_tiger_10','主人公','それより、大学はどうですか？'),
+      line('r7_mem_tiger_11','先輩','うん。知らなかったことがいっぱいで、毎日あっという間だよ'),
+      line('r7_mem_tiger_12','先輩','君は？　高校を卒業したら、何かやりたいことある？'),
+      line('r7_mem_tiger_13','主人公','まだはっきりとは。でも、パソコンで何か作れたら、面白そうだなって思ってます'),
+      line('r7_mem_tiger_14','先輩','いいね。できたら、私にも見せてよ'),
+      line('r7_mem_tiger_15','主人公','まだ、何を作るかも決まってないですよ'),
+      line('r7_mem_tiger_16','先輩','ふふ。じゃあ、そのときのお楽しみ'),
+      line('r7_mem_tiger_17','ト書き','少し先の分かれ道が見えてくる。主人公は、隣を歩く先輩を見た。'),
+      line('r7_mem_tiger_18','主人公','……先輩。また、こうして一緒に帰れますか？'),
+      line('r7_mem_tiger_19','先輩','うん。時間が合うときは、一緒に帰ろう'),
+      line('r7_mem_tiger_20','ト書き','その約束が嬉しくて、主人公は分かれ道までの時間を、いつもより長く感じていた。')
+    ]
+  };
   let r7DoorBusy=false,r7DoorTimer=null;
   const r7Book=id=>R7_BOOKS.find(b=>b.id===id);
   const r7Asset=(id,part)=>'images/items/room07/'+id+'-'+part+'.webp';
@@ -1332,8 +1357,18 @@
     const placement=r7Placement(slots);
     const read=placement.booksSolved?(restored?[...placement.placed]:clean(s.read).filter(id=>placement.placed.includes(id))):[];
     const index=Number.isInteger(s.doorIndex)?Math.min(6,Math.max(0,s.doorIndex)):0;
+    const zodiac=s.shortMemory?.zodiac;
+    let shortMemory=null;
+    if(placement.booksSolved&&!s.completed&&R7_DOORS[index-1]===zodiac&&R7_SHORT_MEMORIES[zodiac]){
+      const progress=s.shortMemory.progress;
+      const ids=new Set(expandScenario(R7_SHORT_MEMORIES[zodiac]).map(entry=>entry.logId));
+      shortMemory={zodiac,progress:progress&&ids.has(progress.logId)?{
+        logId:progress.logId,uiPage:Number.isInteger(progress.uiPage)&&progress.uiPage>=0?progress.uiPage:0
+      }:null};
+    }
     return {libraryVersion:2,collected,slots,...placement,read,
       doorIndex:placement.booksSolved?index:0,completed:placement.booksSolved&&!!s.completed,
+      shortMemory,
       introSeen:!!s.introSeen,doorExamined:!!s.doorExamined,shelfExamined:!!s.shelfExamined,view:['front','right','back','left'].includes(s.view)?s.view:'front',
       selectedZodiac:R7_ZODIAC.includes(s.selectedZodiac)?s.selectedZodiac:'子',
       searched:Object.fromEntries(R7_BOOKS.map(b=>[b.source,!!s.searched?.[b.source]])),
@@ -1600,6 +1635,7 @@
     // Completed legacy saves also continue directly into the living room.
     if(room7State.completed){showEighthRoom(roomStates.room08);return;}
     renderR7();saveGame();
+    if(room7State.shortMemory){r7PlayShortMemory();return;}
     if(room7State.doorIndex===6&&!room7State.completed){r7Memory();return;}
     if(!room7State.introSeen){room7State.introSeen=true;saveGame();showRoomDialog(r7Lines('intro'));}
   };
@@ -1765,23 +1801,40 @@
     art.addEventListener('pointerup',()=>{drag=null});art.addEventListener('pointercancel',()=>{drag=null});
   }
   window.Room7LibraryUI={items:()=>currentScene==='room07'&&room7State?R7_BOOKS.filter(b=>room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id)).map(b=>({id:b.id,name:b.title,art:'本',description:'赤い栞の挟まれた本。',target:'r7Shelf'})):[],use:id=>r7Cover(id)};
+  function r7PlayShortMemory(){
+    const pending=room7State.shortMemory,lines=pending&&R7_SHORT_MEMORIES[pending.zodiac];
+    if(!lines)return;
+    const activeState=room7State;
+    showRoomDialog(lines,()=>{
+      if(room7State!==activeState)return;
+      room7State.shortMemory=null;saveGame();
+    },undefined,{
+      resume:pending.progress,
+      onProgress:position=>{
+        if(room7State===activeState&&room7State.shortMemory)room7State.shortMemory.progress={...position};
+      }
+    });
+  }
   function r7Door(z){
     if(r7DoorBusy)return;
     if(!room7State.doorExamined||!room7State.booksSolved){r7InspectDoor();return;}
     if(room7State.completed)return;
     if(z!==R7_DOORS[room7State.doorIndex])return; // Wrong selections leave the puzzle unchanged.
     const isLast=room7State.doorIndex===R7_DOORS.length-1;
-    room7State.doorIndex++;saveGame();
+    room7State.doorIndex++;
+    if(R7_SHORT_MEMORIES[z])room7State.shortMemory={zodiac:z,progress:null};
+    saveGame();
     if(!isLast){
       // Each correct door visibly opens and closes. A dial setting alone is never an answer.
       const scene=game.querySelector('.r7-scene'),status=scene?.querySelector('.r7-door-feedback');
-      r7DoorBusy=true;
+      const activeState=room7State;r7DoorBusy=true;
       scene?.classList.add('is-door-opening');
       if(status)status.textContent='扉が開き、静かに閉じた。';
       r7DoorTimer=setTimeout(()=>{
         r7DoorTimer=null;r7DoorBusy=false;
         scene?.classList.remove('is-door-opening');
         if(status)status.textContent='';
+        if(currentScene==='room07'&&room7State===activeState&&room7State.shortMemory)r7PlayShortMemory();
       },1150);
       return;
     }

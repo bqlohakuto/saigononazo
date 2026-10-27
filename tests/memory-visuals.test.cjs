@@ -96,7 +96,16 @@ test('Every authored Room 2-7 recollection ID and its paginated continuation res
     assert.equal(visuals.get(scene.room,{logId:logId+'_01_02'}).background,v.background,logId);
     assert.equal(visuals.get(scene.room,{logId:'page',logSource:{logId}}).sprite,v.sprite,logId);
   }
-  assert.equal(ids.size,627);
+  assert.equal(ids.size,647);
+});
+
+test('Tiger-door recollection keeps the earlier concealed-face presentation',()=>{
+  for(let i=1;i<=20;i++){
+    const v=visuals.get('room07',{logId:'r7_mem_tiger_'+String(i).padStart(2,'0')+'_01'});
+    assert.equal(v.location,'r7tiger');assert.equal(v.reveal,'concealed');
+    assert.equal(v.background,'images/background/memories/room01/walk-home.png');
+    assert.ok(fs.existsSync(path.resolve(__dirname,'..',v.sprite)));
+  }
 });
 
 test('Presence follows actual scene boundaries rather than narration or speaker classification',()=>{

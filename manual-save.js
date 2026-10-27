@@ -106,6 +106,7 @@
     if (saved.currentScene === "room07") {
       const state = saved.rooms?.room07 || {};
       if (state.completed) return "第七の部屋・事故の記憶後";
+      if (state.shortMemory) return "第七の部屋・回想中";
       if (state.booksSolved) return `第七の部屋・十二支 ${state.doorIndex||0}/6`;
       return `第七の部屋・本 ${state.collected?.length||0}/6・収納 ${state.placed?.length||0}/6`;
     }

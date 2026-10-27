@@ -39,7 +39,23 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
    await click('[data-slot="7"]');await finish();await p.locator('.r7-open-book').evaluate(im=>im.decode());await fit();await shot('open-book');await click('#r7Zoom');assert.ok(await p.locator('.r7-reader-panel.is-zoomed').count());await click('#r7Zoom');await click('#r7BackShelf');await click('.r7-overlay .device-close');await shelfFits();await shot('shelf-world-complete');
    const saved=await state();await p.reload({waitUntil:'load'});await p.locator('#continueButton').click();await p.locator('.save-slot-action:not([disabled])').last().click();await p.locator('.save-slot-action.is-confirm').click();await p.locator('.r7-scene').waitFor();assert.deepEqual(await state(),saved,spec.name+' actual saved-game resume');
    await turn('front');
-   for(const target of ['寅','卯','未','申','亥','酉']){await click('#r7Dial');for(let i=0;i<12&&(await state()).selectedZodiac!==target;i++)await click('#r7RotateLeft');await click('#r7DialDone');await click('#r7Door');if(target!=='酉'){await p.locator('.r7-scene.is-door-opening').waitFor();await p.locator('.r7-scene.is-door-opening').waitFor({state:'hidden'})}await finish()}
+   for(const target of ['寅','卯','未','申','亥','酉']){
+    await click('#r7Dial');for(let i=0;i<12&&(await state()).selectedZodiac!==target;i++)await click('#r7RotateLeft');await click('#r7DialDone');await click('#r7Door');
+    if(target!=='酉'){await p.locator('.r7-scene.is-door-opening').waitFor();await p.locator('.r7-scene.is-door-opening').waitFor({state:'hidden'})}
+    if(target==='寅'){
+     await p.locator('.memory-scene[data-location="r7tiger"]').waitFor();
+     await p.locator('.memory-background').evaluate(im=>im.decode());await p.locator('.memory-girl').evaluate(im=>im.decode());
+     await shot('tiger-memory');
+     for(let n=0;n<30&&!(await state()).shortMemory.progress?.logId.startsWith('r7_mem_tiger_05');n++)await click('#roomNextButton');
+     const duringMemory=await state();assert.match(await p.locator('#roomMessage').textContent(),/いえ、別に/);
+     await p.reload({waitUntil:'load'});await p.locator('#continueButton').click();await p.locator('.save-slot-action:not([disabled])').last().click();await p.locator('.save-slot-action.is-confirm').click();
+     await p.locator('.memory-scene[data-location="r7tiger"]').waitFor();
+     assert.equal((await state()).shortMemory.progress.logId,duringMemory.shortMemory.progress.logId,spec.name+' memory line resumes');
+     assert.match(await p.locator('#roomMessage').textContent(),/いえ、別に/);
+    }
+    await finish();
+    if(target==='寅'){assert.equal((await state()).shortMemory,null);assert.equal(await p.locator('.memory-scene').count(),0)}
+   }
    assert.equal((await state()).completed,true);assert.equal(await p.locator('#r7Next').count(),0,'accident returns directly to room8');await p.locator('.r8-paper-hit:visible,#r8Paper:visible,#roomNextButton:visible').first().waitFor();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1')).currentScene),'room08');
    assert.deepEqual(errors,[],spec.name+' no runtime errors');assert.deepEqual(missing,[],spec.name+' no missing assets');
    console.log('PASS '+spec.name+': pointer/touch-sized controls, all searches, inventory, shelf, reader, dial, reload and room8');

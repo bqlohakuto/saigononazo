@@ -89,6 +89,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
     if(zodiac!=='酉'){
       assert.ok(q('.r7-scene.is-door-opening'),'correct answer gives visible door response');
       await wait(1200);
+      if(zodiac==='寅')assert.equal(q('.memory-scene')?.dataset.location,'r7tiger','the first answer opens its approved recollection');
     }
     finish();
   }

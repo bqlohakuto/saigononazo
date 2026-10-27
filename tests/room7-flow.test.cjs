@@ -44,7 +44,21 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(saved().doorIndex,i,'selecting a zodiac only adjusts the mechanism');
   click('#r7Door');
   assert.equal(saved().doorIndex,i+1,'touching the door commits the selected answer');
-  if(i<5){assert.ok(q('.r7-scene.is-door-opening'),'each intermediate correct door reacts visibly');assert.equal(q('.r7-door-feedback').textContent,'扉が開き、静かに閉じた。');assert.equal(q('#roomNextButton'),null,'no intermediate memory dialogue');assert.equal(saved().completed,false);if(i===2){const midway=saved();run('showSeventhRoom('+JSON.stringify(midway)+')');assert.deepEqual(saved(),midway,'partial zodiac sequence survives reload');}
+  if(i<5){assert.ok(q('.r7-scene.is-door-opening'),'each intermediate correct door reacts visibly');assert.equal(q('.r7-door-feedback').textContent,'扉が開き、静かに閉じた。');assert.equal(q('#roomNextButton'),null,'memory waits for the door animation');assert.equal(saved().completed,false);
+    if(i===0){
+      assert.equal(saved().shortMemory.zodiac,'寅','the accepted answer persists the pending memory before animation completes');
+      const duringDoor=saved();run('showSeventhRoom('+JSON.stringify(duringDoor)+')');
+      assert.equal(q('.memory-scene').dataset.location,'r7tiger','reloading during the door starts the memory');
+      assert.equal(q('.memory-background').getAttribute('src'),'images/background/memories/room01/walk-home.png');
+      for(let n=0;n<30&&!saved().shortMemory.progress?.logId.startsWith('r7_mem_tiger_05');n++)click('#roomNextButton');
+      assert.match(q('#roomMessage').textContent,/いえ、別に/,'the approved answer conceals his feelings');
+      const halfway=saved();assert.ok(halfway.shortMemory.progress.logId.startsWith('r7_mem_tiger_05'));
+      run('showSeventhRoom('+JSON.stringify(halfway)+')');
+      assert.equal(saved().shortMemory.progress.logId,halfway.shortMemory.progress.logId,'reload resumes the displayed line');
+      assert.match(q('#roomMessage').textContent,/いえ、別に/);
+      finish();assert.equal(saved().shortMemory,null,'finishing the memory returns to the puzzle');
+      assert.equal(saved().doorIndex,1);assert.equal(q('.memory-scene'),null);
+    }else if(i===2){const midway=saved();run('showSeventhRoom('+JSON.stringify(midway)+')');assert.deepEqual(saved(),midway,'partial zodiac sequence survives reload');}
     else await new Promise(resolve=>setTimeout(resolve,1200));}
   else finish();
  }

@@ -138,7 +138,7 @@ test("No.118: confirming exit clears only challenge progress and logs abandonmen
 });
 
 test("No.118: source, focus handling and manuscripts agree on non-novel inline confirmation",()=>{
- assert.match(script,/showRoom2AbandonConfirm\(overlay,close,clearReactionTimer\)/);
+ assert.match(script,/showRoom2AbandonConfirm\(overlay,close,\(\)=>\{clearReactionTimer\(\);pendingResolution=null\}\)/);
  assert.match(script,/className="room2-abandon-confirm"/);
  assert.match(script,/room2-abandon-accept/);
  assert.match(script,/room2-abandon-continue/);

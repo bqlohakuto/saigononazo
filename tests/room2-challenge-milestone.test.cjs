@@ -44,12 +44,13 @@ test("No.115: ordinary turns and all main-story results retain their original tw
 });
 
 test("No.115: the success path takes precedence and the eighth unsuccessful attempt still finishes the challenge",()=>{
- const success=code.indexOf("if(result.hit===5){if(isChallenge)finishRoom2Challenge(close,true);else handleRoom2Correct(close);return}");
- const reactions=code.indexOf("const reaction=room2JudgeReactionLines(result,room2State.attempts,isChallenge)");
- assert.ok(success>=0&&reactions>success,"A correct fifth HIT must not display milestone text");
+ const success=code.indexOf("if(result.hit===5){");
+ const reactions=code.indexOf("const reaction=(specialTurn||!alreadyShown)?room2JudgeReactionLines");
+ assert.ok(success>=0&&reactions>success,"A correct fifth HIT bypasses milestone text");
+ assert.match(code,/pendingResolution=result.hit===5/);
  assert.match(code,/const challengeFailed=isChallenge&&room2State.attempts>=8;/);
- assert.match(code,/showReaction\(reaction,challengeFailed\?\(\)=>finishRoom2Challenge\(close,false\):null\)/);
- assert.equal(reaction(1,2,8,true).length,2,"Final failure still has its regular two-line reaction");
+ assert.match(code,/showReaction\(reaction,challengeFailed\?finishPendingResolution:null\)/);
+ assert.equal(reaction(1,2,8,true).length,2);
 });
 
 test("No.115: standalone and full manuscripts contain exact approved milestone lines",()=>{

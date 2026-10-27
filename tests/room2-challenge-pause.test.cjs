@@ -17,7 +17,7 @@ function makeHarness(challengeActive){
  const nodes=new Map();
  const element=(name)=>{
   if(!nodes.has(name))nodes.set(name,{name,innerHTML:"",textContent:"",hidden:false,disabled:false,style:{},
-   listeners:{},classList:{toggle(){}},focus(){},addEventListener(type,fn){this.listeners[type]=fn},
+   listeners:{},classList:{toggle(){},add(){},remove(){}},focus(){},addEventListener(type,fn){this.listeners[type]=fn},
    querySelector(sel){return element(sel)},querySelectorAll(){return []},replaceChildren(){},get scrollTop(){return 0},set scrollTop(value){},get scrollHeight(){return 0}
   });
   return nodes.get(name);

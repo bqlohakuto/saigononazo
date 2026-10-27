@@ -12,15 +12,15 @@ const whole=fs.readFileSync(path.join(root,"scenario","FULL_SCENARIO.md"),"utf8"
 
 function harness(){
  const span={textContent:""};
- const nodes=new Map(["r2Door","r2Desk","r2Blocks","r2Hana"].map(id=>[id,{
+ const nodes=new Map(["r2Dresser","r2Door","r2Desk","r2Blocks","r2Hana"].map(id=>[id,{
   id,disabled:false,addEventListener(){},querySelector(selector){return selector==="span"?span:null}
  }]));
- const room={innerHTML:""};
+ const room={innerHTML:"",querySelector(){return null}};
  const state={};
  const counters={saves:0,notices:0,dialogs:0,puzzleOpened:0,results:0,logs:0};
  const sandbox={
   document:{getElementById(id){return nodes.get(id)||null}},
-  Dialogue:{stop(){}},game:room,window:{GameplayUI:null},
+  Dialogue:{stop(){}},GameAudio:{syncSceneMusic(){}},GameLog:{list(){return []}},game:room,window:{GameplayUI:null},
   showRoomNotice(){counters.notices++},saveGame(){counters.saves++},
   recordLog(){counters.logs++},showRoomDialog(){counters.dialogs++}
  };

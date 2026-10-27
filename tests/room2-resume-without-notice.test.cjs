@@ -11,12 +11,12 @@ const chapter=fs.readFileSync(path.join(root,"scenario","02_room2.md"),"utf8");
 const full=fs.readFileSync(path.join(root,"scenario","FULL_SCENARIO.md"),"utf8");
 
 function harness(){
- const elements=new Map(["r2Door","r2Desk","r2Blocks","r2Hana"].map(id=>[id,{id,disabled:false,addEventListener(){}}]));
+ const elements=new Map(["r2Dresser","r2Door","r2Desk","r2Blocks","r2Hana"].map(id=>[id,{id,disabled:false,addEventListener(){}}]));
  const calls={notices:[],dialogues:[],transitions:0,saves:0,stops:0};
  const sandbox={
   document:{getElementById(id){return elements.get(id)||null}},
-  Dialogue:{stop(){calls.stops++}},
-  game:{innerHTML:""},
+  Dialogue:{stop(){calls.stops++}},GameAudio:{syncSceneMusic(){}},GameLog:{list(){return []}},
+  game:{innerHTML:"",querySelector(){return null}},
   window:{GameplayUI:null},
   showRoomNotice(text,id){calls.notices.push({text,id})},
   showRoomDialog(lines){calls.dialogues.push(Array.from(lines,line=>line.logId))},

@@ -22,7 +22,7 @@ function decorate(section){
 function fakeSection({door=false,choice=false,puzzle=false,already=false}={}){
  const section={
   added:[],
-  matches(selector){assert.equal(selector,".room-exit-menu");return door},
+  matches(selector){assert.equal(selector,".room-exit-menu,.r4-ratio-exhibit,.r5-handdrawn-panel");return door},
   querySelector(selector){
    if(selector===".design-op-button")return already||this.added.length>0?{}:null;
    if(selector==="[data-choice]")return choice?{}:null;

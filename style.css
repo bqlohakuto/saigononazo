@@ -370,6 +370,22 @@ body{background:#000;color:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",s
 #game .room2-choice-panel .room2-choice-options>[data-choice]:hover{background:#e9e0d1}
 #game .room2-choice-panel .room2-choice-options>[data-choice]:focus-visible{outline:3px solid #3476a4;outline-offset:2px}
 #game .room2-choice-panel>.device-close{top:5px;right:7px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:44px;height:44px;min-width:44px;min-height:44px;margin:0;padding:0;border-radius:0;font-size:20px;line-height:1;touch-action:manipulation}
+/* The game remains a 960x540 canvas and is uniformly scaled down on phones.
+   Keep the cleared-door close target at least 44 physical pixels tall in landscape. */
+@media (max-height:500px){
+ #game .room2-choice-overlay .room2-choice-panel{padding-top:74px!important}
+ #game .room2-choice-panel>.device-close{
+  width:68px!important;height:68px;min-width:68px;min-height:68px;
+  top:4px;right:6px;
+ }
+}
+@media (max-height:360px){
+ #game .room2-choice-overlay .room2-choice-panel{padding-top:84px!important}
+ #game .room2-choice-panel>.device-close{
+  width:78px!important;height:78px;min-width:78px;min-height:78px;
+ }
+}
+
 @container game-viewport (max-height:500px){#game .room2-choice-overlay .room2-choice-panel{max-height:507.6px;padding:35px 12px 10px!important}#game .room2-choice-panel .room2-choice-options{gap:6px}#game .room2-choice-panel .room2-choice-options>[data-choice]{min-height:37px;padding:6px 10px;font-size:14px}}
 
 /* Room 03: the same dialogue-synchronized glow/whiteout structure as room 02.

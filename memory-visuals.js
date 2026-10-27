@@ -21,6 +21,12 @@
     background:'images/background/memories/room05/dining-night.png',
     sprite:'images/characters/memories/room05/girl-home.png',layout:'dining',prop:'notebook',
     ids:Array.from({length:25},(_,i)=>'r7_mem_monkey_'+String(i+1).padStart(2,'0'))});
+  // On the final door, a warm recollection of leaving home precedes the accident.
+  // Reuse the existing home art and heroine portrait to match earlier Room 5 scenes.
+  scenes.push({key:'r7rooster',room:'room07',reveal:'expressive',presentation:'dialogue',
+    background:'images/background/memories/room05/living-morning.png',
+    sprite:'images/characters/memories/room05/girl-home.png',layout:'standing',prop:null,
+    ids:Array.from({length:22},(_,i)=>'r7_mem_rooster_'+String(i+1).padStart(2,'0'))});
   const byId = new Map();
   for (const scene of scenes) for (const id of scene.ids) byId.set(scene.room+':'+id,scene);
   function original(sceneId, line) {

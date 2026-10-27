@@ -243,7 +243,9 @@ function within(inner,outer,tolerance=3){
    await page.locator('.room2-answer-slot').first().click();
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),4,'A placed block can be lifted out during dialogue');
    assert.equal(await page.locator('.room2-reaction-line').count(),2,'Dialogue does not advance when player moves a block');
-   await page.locator('.room2-palette-token').first().click();
+   // The first judgement used the red circle. Reinsert a blue circle so
+   // the next submission is genuinely different rather than a duplicate.
+   await page.locator('.room2-palette-token[data-color="青"][data-symbol="〇"]').click();
    await page.locator('.room2-answer-slot').first().click();
    assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5,'Removed block can be reinserted without rebuilding the board');
    assert.equal(await page.locator('.room2-feedback').evaluate(node=>getComputedStyle(node).display),'none','Judgement is shown in history, not duplicate feedback');

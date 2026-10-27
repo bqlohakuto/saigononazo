@@ -31,6 +31,7 @@ function inside(a,b,tolerance=2){return a.left>=b.left-tolerance&&a.right<=b.rig
    const context=await browser.newContext({
     viewport:spec.viewport,isMobile:spec.mobile,hasTouch:spec.mobile,deviceScaleFactor:spec.mobile?2:1,reducedMotion:"reduce"
    });
+   await context.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
    const page=await context.newPage();
    page.setDefaultTimeout(12000);
    const errors=[];

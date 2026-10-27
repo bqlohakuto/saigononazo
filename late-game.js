@@ -1431,6 +1431,30 @@
       line('r7_mem_boar_26','先輩','ふふ、楽しみにしてる'),
       line('r7_mem_boar_27','ト書き','バスが来て、先輩は振り返って手を振った。僕も手を振り返した。'),
       line('r7_mem_boar_28','主人公・心の声','同じ部活で過ごす時間はなくなったけれど、先輩と話したいことは、まだたくさんあった。',{thought:true})
+    ],
+    酉:[
+      line('r7_mem_rooster_01','ト書き','休日の午後。僕は玄関で靴を履きながら、スマホに表示されたイベントの案内を確認していた。'),
+      line('r7_mem_rooster_02','彼女','ねえ、今日の謎解き、制限時間あるんだって'),
+      line('r7_mem_rooster_03','主人公','そうなの？　時間内に解けるかな'),
+      line('r7_mem_rooster_04','彼女','大丈夫でしょ。二人で挑戦するんだから'),
+      line('r7_mem_rooster_05','主人公','前みたいに、途中で詰まらなければいいけど'),
+      line('r7_mem_rooster_06','彼女','あのとき、最後の問題を解いたのは君だったじゃん'),
+      line('r7_mem_rooster_07','主人公','あれはたまたまだよ'),
+      line('r7_mem_rooster_08','彼女','ふふ。じゃあ、今日もたまたま解いてよ'),
+      line('r7_mem_rooster_09','ト書き','彼女は楽しそうに笑いながら、バッグを肩にかけた。'),
+      line('r7_mem_rooster_10','主人公','でも、先に分かっても全部答えを言わないでね'),
+      line('r7_mem_rooster_11','彼女','えー、どうしようかな'),
+      line('r7_mem_rooster_12','主人公','そこは約束してよ'),
+      line('r7_mem_rooster_13','彼女','分かった。じゃあ、ヒントだけにする'),
+      line('r7_mem_rooster_14','主人公','それなら助かる'),
+      line('r7_mem_rooster_15','彼女','でもさ、解けなかったとしても、きっと楽しいと思うんだ'),
+      line('r7_mem_rooster_16','主人公','どうして？'),
+      line('r7_mem_rooster_17','彼女','君と一緒に考えるの、好きだから'),
+      line('r7_mem_rooster_18','ト書き','不意にそんなことを言われて、僕は靴紐を結ぶ手を止めた。'),
+      line('r7_mem_rooster_19','主人公','……僕も、好きだよ'),
+      line('r7_mem_rooster_20','彼女','ふふ。じゃあ、行こっか！'),
+      line('r7_mem_rooster_21','主人公','うん。行こう'),
+      line('r7_mem_rooster_22','ト書き','先に玄関を出た彼女が、こちらを振り返る。僕は鍵をかけて、その隣に並んだ。')
     ]
   };
   let r7DoorBusy=false,r7DoorTimer=null;
@@ -1913,6 +1937,7 @@
     showRoomDialog(lines,()=>{
       if(room7State!==activeState)return;
       room7State.shortMemory=null;saveGame();
+      if(pending.zodiac==='酉')r7LastTransition();
     },undefined,{
       resume:pending.progress,
       onProgress:position=>{
@@ -1943,8 +1968,16 @@
       },1150);
       return;
     }
+    // The last correct door first shows a peaceful memory of the day they left home.
+    // Its completion triggers the existing accident recollection and Room 8.
     showRoomDialog([
       line('r7_last_01','ト書き','酉に合わせた扉が開く。'),
+      line('r7_last_before_memory','ト書き','扉の向こうに、見覚えのある景色が広がっていく。')
+    ],r7PlayShortMemory);
+  }
+  function r7LastTransition(){
+    showRoomDialog([
+      line('r7_last_return','ト書き','気がつくと、またあの扉の前に立っていた。'),
       line('r7_last_02','主人公','……'),
       line('r7_last_03','ト書き','扉の向こうを確かめようとした、その瞬間。'),
       line('r7_last_04','主人公','え――'),

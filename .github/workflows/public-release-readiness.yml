@@ -5,6 +5,8 @@ on:
   # Generate a large release artifact only for intentional releases, not every
   # working commit while polishing artwork and dialogue.
   push:
+    branches: [main]
+    paths: ['scripts/build_release.py', '.github/workflows/public-release-readiness.yml']
     tags: ['v*']
 
 permissions:

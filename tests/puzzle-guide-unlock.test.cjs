@@ -7,14 +7,14 @@ const vm=require("node:vm");
 const original=fs.readFileSync(path.join(__dirname,"..","puzzle-explanations.js"),"utf8");
 
 function createHarness(release=true) {
-  const source=release?original.replace("const TEST_MODE = true;", "const TEST_MODE = false;"):original;
-  if(release)assert.notEqual(source,original,"release mode must disable the test guide");
+  const source=original;
+  assert.match(source,/const TEST_MODE = window.GameBuild\?\.preview === true;/);
   let saved=null,creditsVisible=false,mutation=null;
   const store=new Map();
   const localStorage={getItem:key=>store.get(key)||null,setItem:(key,value)=>store.set(key,String(value))};
   const game={querySelector(selector){return selector===".ending-credits"&&creditsVisible?{}:null}};
   class MutationObserver{constructor(callback){mutation=callback}observe(){}}
-  const window={};
+  const window={GameBuild:{preview:!release}};
   const context={window,localStorage,game,document:{querySelector(){return null}},MutationObserver,readSavedGame(){return saved}};
   vm.runInNewContext(source,context,{filename:"puzzle-explanations.js"});
   return {guide:window.PuzzleGuide,store,setSaved(value){saved=value},showCredits(){creditsVisible=true;mutation()}};
@@ -39,6 +39,9 @@ test("public build restores guide for previously completed save",()=>{
 test("public build unlocks the guide on the real credits screen",()=>{
   const h=createHarness();
   assert.equal(h.guide.isUnlocked(),false);
+  h.showCredits();
+  assert.equal(h.store.get("saigononazo-guide-unlocked-v1"),undefined,"Incomplete epilogue must not unlock");
+  h.setSaved({rooms:{room08:{ended:true,epilogueSeen:true}}});
   h.showCredits();
   assert.equal(h.store.get("saigononazo-guide-unlocked-v1"),"1");
   assert.equal(h.guide.isUnlocked(),true);

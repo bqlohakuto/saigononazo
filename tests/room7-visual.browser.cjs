@@ -67,8 +67,24 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
      assert.equal(await p.locator('.memory-girl').isHidden(),true);
      assert.match(await p.locator('#roomMessage').textContent(),/それが、まだ悩んでいて/);
     }
+    if(target==='未'){
+     await p.locator('.memory-scene[data-location="r7sheep"]').waitFor();
+     await p.locator('.memory-background').evaluate(im=>im.decode());
+     await p.locator('.memory-window-portrait .memory-girl').evaluate(im=>im.decode());
+     assert.equal(await p.locator('#game').getAttribute('data-memory-stage'),'revealed');
+     assert.equal(await p.locator('.memory-scene').getAttribute('data-presentation'),'dialogue');
+     await p.waitForTimeout(700);await shot('sheep-memory');
+     for(let n=0;n<80&&!(await state()).shortMemory.progress?.logId.startsWith('r7_mem_sheep_16');n++)await click('#roomNextButton');
+     const duringMemory=await state();assert.match(await p.locator('#roomMessage').textContent(),/今まで別々の部屋/);
+     await shot('sheep-dialogue');
+     await p.reload({waitUntil:'load'});await p.locator('#continueButton').click();await p.locator('.save-slot-action:not([disabled])').last().click();await p.locator('.save-slot-action.is-confirm').click();
+     await p.locator('.memory-scene[data-location="r7sheep"]').waitFor();
+     assert.equal((await state()).shortMemory.progress.logId,duringMemory.shortMemory.progress.logId,spec.name+' 2015 memory resumes');
+     assert.equal(await p.locator('.memory-window-portrait .memory-girl').isVisible(),true);
+     assert.match(await p.locator('#roomMessage').textContent(),/今まで別々の部屋/);
+    }
     await finish();
-    if(target==='寅'||target==='卯'){assert.equal((await state()).shortMemory,null);assert.equal(await p.locator('.memory-scene').count(),0)}
+    if(['寅','卯','未'].includes(target)){assert.equal((await state()).shortMemory,null);assert.equal(await p.locator('.memory-scene').count(),0);assert.equal(await p.locator('.memory-window-portrait').count(),0)}
    }
    assert.equal((await state()).completed,true);assert.equal(await p.locator('#r7Next').count(),0,'accident returns directly to room8');await p.locator('.r8-paper-hit:visible,#r8Paper:visible,#roomNextButton:visible').first().waitFor();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1')).currentScene),'room08');
    assert.deepEqual(errors,[],spec.name+' no runtime errors');assert.deepEqual(missing,[],spec.name+' no missing assets');

@@ -73,7 +73,25 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
       finish();assert.equal(saved().shortMemory,null,'finishing the phone conversation returns to the puzzle');
       assert.equal(saved().doorIndex,2);assert.equal(q('.memory-scene'),null);
       assert.ok(run('GameLog.list()').some(x=>x.text.includes('自分のために決めたかった')),'the approved independent choice reaches the log');
-    }else if(i===2){const midway=saved();run('showSeventhRoom('+JSON.stringify(midway)+')');assert.deepEqual(saved(),midway,'partial zodiac sequence survives reload');}
+    }else if(i===2){
+      assert.equal(saved().shortMemory.zodiac,'未','the third answer persists its pending memory before the door animation ends');
+      const duringDoor=saved();run('showSeventhRoom('+JSON.stringify(duringDoor)+')');
+      assert.equal(q('.memory-scene').dataset.location,'r7sheep','reloading during the door opens the 2015 memory');
+      assert.equal(q('.memory-background').getAttribute('src'),'images/background/memories/room05/kitchen-evening.png');
+      assert.equal(q('#game').dataset.memoryStage,'revealed');
+      assert.ok(q('.room-dialog .memory-window-portrait .memory-girl'),'the heroine uses the Room 5 dialogue portrait');
+      for(let n=0;n<80&&!saved().shortMemory.progress?.logId.startsWith('r7_mem_sheep_16');n++)click('#roomNextButton');
+      const halfway=saved();assert.ok(halfway.shortMemory.progress.logId.startsWith('r7_mem_sheep_16'));
+      assert.match(q('#roomMessage').textContent,/今まで別々の部屋/);
+      run('showSeventhRoom('+JSON.stringify(halfway)+')');
+      assert.equal(saved().shortMemory.progress.logId,halfway.shortMemory.progress.logId,'the 2015 memory resumes at the same line');
+      assert.match(q('#roomMessage').textContent,/今まで別々の部屋/);
+      assert.ok(q('.room-dialog .memory-window-portrait .memory-girl'));
+      finish();assert.equal(saved().shortMemory,null,'finishing the memory returns to the puzzle');
+      assert.equal(saved().doorIndex,3);assert.equal(q('.memory-scene'),null);
+      assert.equal(q('.memory-window-portrait'),null);
+      assert.ok(run('GameLog.list()').some(x=>x.text.includes('少しだけ自分たちの場所に見えた')),'the memory reaches its approved ending');
+    }
     else await new Promise(resolve=>setTimeout(resolve,1200));}
   else finish();
  }

@@ -6,8 +6,10 @@ const fs=require('node:fs');
 const path=require('node:path');
 const url=process.env.PUBLIC_BASE_URL||'https://bqlohakuto.github.io/saigononazo/';
 const output=process.env.UI_SCREENSHOT_DIR||'artifacts/room02';
-const expectedVersion=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8').match(/room2[.]js[?]v=([^"']+)/)?.[1];
-if(!expectedVersion)throw new Error('Cannot find Room 2 JS cache revision');
+const indexHtml=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
+const expectedVersion=indexHtml.match(/room2[.]js[?]v=([^"']+)/)?.[1];
+const expectedCssVersion=indexHtml.match(/room2-immersive[.]css[?]v=([^"']+)/)?.[1];
+if(!expectedVersion||!expectedCssVersion)throw new Error('Cannot find Room 2 JS/CSS cache revisions');
 
 const views=[
  {name:'desktop-chromium',engine:chromium,viewport:{width:1366,height:768},isMobile:false},
@@ -19,7 +21,8 @@ async function readyPage(page){
   const response=await page.goto(url+'?room02_review='+Date.now(),{waitUntil:'load',timeout:60000});
   if(response.status()===200){
    const src=await page.locator('script[src*="room2.js"]').getAttribute('src');
-   if(src?.includes(expectedVersion))return;
+   const css=await page.locator('link[href*="room2-immersive.css"]').getAttribute('href');
+   if(src?.includes(expectedVersion)&&css?.includes(expectedCssVersion))return;
   }
   await page.waitForTimeout(8000);
  }

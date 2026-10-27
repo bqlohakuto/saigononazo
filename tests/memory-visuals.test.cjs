@@ -96,7 +96,7 @@ test('Every authored Room 2-7 recollection ID and its paginated continuation res
     assert.equal(visuals.get(scene.room,{logId:logId+'_01_02'}).background,v.background,logId);
     assert.equal(visuals.get(scene.room,{logId:'page',logSource:{logId}}).sprite,v.sprite,logId);
   }
-  assert.equal(ids.size,691);
+  assert.equal(ids.size,716);
 });
 
 test('Tiger-door recollection keeps the earlier concealed-face presentation',()=>{
@@ -125,6 +125,18 @@ test('Sheep-door recollection returns to the Room 5 home and dialogue portrait',
     assert.equal(v.background,'images/background/memories/room05/kitchen-evening.png');
     assert.equal(v.sprite,'images/characters/memories/room05/girl-home.png');
   }
+});
+
+test('Monkey-door recollection closes the notebook at the authored moment',()=>{
+  for(let i=1;i<=25;i++){
+    const v=visuals.get('room07',{logId:'r7_mem_monkey_'+String(i).padStart(2,'0')+'_01'});
+    assert.equal(v.location,'r7monkey');assert.equal(v.reveal,'expressive');
+    assert.equal(v.presentation,'dialogue');
+    assert.equal(v.background,'images/background/memories/room05/dining-night.png');
+    assert.equal(v.prop,i<=22?'notebook':null);
+  }
+  assert.equal(visuals.get('room07',{logId:'r7_mem_monkey_22_02'}).prop,null);
+  assert.equal(visuals.get('room07',{logId:'page',logSource:{logId:'r7_mem_monkey_22_02'}}).prop,null);
 });
 
 test('Presence follows actual scene boundaries rather than narration or speaker classification',()=>{

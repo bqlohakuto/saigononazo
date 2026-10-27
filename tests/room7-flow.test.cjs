@@ -91,12 +91,34 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
       assert.equal(saved().doorIndex,3);assert.equal(q('.memory-scene'),null);
       assert.equal(q('.memory-window-portrait'),null);
       assert.ok(run('GameLog.list()').some(x=>x.text.includes('少しだけ自分たちの場所に見えた')),'the memory reaches its approved ending');
+    }else if(i===3){
+      assert.equal(saved().shortMemory.zodiac,'申','the fourth answer persists its pending memory');
+      await new Promise(resolve=>setTimeout(resolve,1200));
+      assert.equal(q('.memory-scene').dataset.location,'r7monkey','the door opens the 2016 memory');
+      assert.equal(q('.memory-background').getAttribute('src'),'images/background/memories/room05/dining-night.png');
+      assert.equal(q('#game').dataset.memoryStage,'expressive');
+      assert.ok(q('.room-dialog .memory-window-portrait .memory-girl'));
+      assert.equal(q('.memory-prop').dataset.kind,'notebook');assert.equal(q('.memory-prop').hidden,false);
+      for(let n=0;n<80&&!saved().shortMemory.progress?.logId.startsWith('r7_mem_monkey_16');n++)click('#roomNextButton');
+      const halfway=saved();assert.ok(halfway.shortMemory.progress.logId.startsWith('r7_mem_monkey_16'));
+      assert.match(q('#roomMessage').textContent,/うん/);
+      run('showSeventhRoom('+JSON.stringify(halfway)+')');
+      assert.equal(saved().shortMemory.progress.logId,halfway.shortMemory.progress.logId,'the 2016 memory resumes at the same line');
+      assert.equal(q('.memory-prop').hidden,false,'the notebook remains open after resuming');
+      for(let n=0;n<60&&!saved().shortMemory.progress?.logId.startsWith('r7_mem_monkey_22_02');n++)click('#roomNextButton');
+      assert.ok(saved().shortMemory.progress.logId.startsWith('r7_mem_monkey_22_02'));
+      assert.match(q('#roomMessage').textContent,/彼女はノートを閉じ/);
+      assert.equal(q('.memory-prop').hidden,true,'the open notebook is removed when she closes it');
+      finish();assert.equal(saved().shortMemory,null,'finishing the memory returns to the puzzle');
+      assert.equal(saved().doorIndex,4);assert.equal(q('.memory-scene'),null);
+      assert.equal(q('.memory-window-portrait'),null);
+      assert.ok(run('GameLog.list()').some(x=>x.text.includes('家に帰って言葉を交わせること')),'the memory reaches its approved ending');
     }
     else await new Promise(resolve=>setTimeout(resolve,1200));}
   else finish();
  }
  assert.ok(!run('GameLog.list()').some(x=>x.text.includes('具体的な短い記憶')),'no pending intermediate memories');
- assert.ok(!run('GameLog.list()').some(x=>/^r7_mem_(tiger|rabbit|sheep)_/.test(x.id)&&x.type==='narration'&&x.text.includes('主人公')),'short recollections use first-person narration');
+ assert.ok(!run('GameLog.list()').some(x=>/^r7_mem_(tiger|rabbit|sheep|monkey)_/.test(x.id)&&x.type==='narration'&&x.text.includes('主人公')),'short recollections use first-person narration');
  assert.equal(saved().completed,true);assert.equal(q('#r7Next'),null,'no return to library after the accident');assert.equal(run('currentScene'),'room08');assert.ok(q('#r8Paper'));
  // Old saves preserve completed book sequence, including the retired pigs id.
  run('showSeventhRoom({introSeen:true,order:["ikkyu","rabbit","wolf","monkey","pigs","bremen"],booksSolved:true,doorIndex:3})');assert.equal(saved().placed.length,6);assert.ok(saved().collected.includes('mitten'));assert.equal(saved().doorIndex,3);

@@ -1,0 +1,50 @@
+name: Full ending song and credits playback review
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ending-credits.js'
+      - 'ending-credits.css'
+      - 'game-audio.js'
+      - 'late-game.js'
+      - 'audio/bgm/kotaeawase.mp3'
+      - 'tests/ending-credits.browser.cjs'
+      - '.github/workflows/ending-credits-browser.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  playback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check ending title and cast timing
+        run: node --test tests/ending-credits.test.cjs
+      - name: Serve actual game assets
+        run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/ending-http.log 2>&1 &
+      - name: Play full 166-second ending and verify audio, return to title and mobile presentation
+        env:
+          BASE_URL: http://127.0.0.1:8765/
+        run: node tests/ending-credits.browser.cjs
+      - name: Preserve final credits screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ending-credits-playback-review
+          path: |
+            /tmp/ending-credit.png
+            /tmp/ending-title.png
+            /tmp/ending-landscape.png
+          retention-days: 14
+          if-no-files-found: warn

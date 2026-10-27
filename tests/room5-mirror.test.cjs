@@ -67,7 +67,10 @@ for(let i=0;i<placements.length;i++){
 }
 assert.equal(save().rooms.room05.codeRevealed,true);
 assert.equal(Object.keys(save().rooms.room05.placed).length,7);
-assert.equal(q('.r5-inlay-code').hidden,false);
+// The adopted reveal is deliberately delayed until the fourth narration beat.
+assert.equal(q('.r5-inlay-code').hidden,true);
+for(let n=0;n<240&&q('.r5-inlay-code').hidden;n++)await new Promise(resolve=>setTimeout(resolve,50));
+assert.equal(q('.r5-inlay-code').hidden,false,'8194 appears during the approved completion sequence');
 assert.equal(q('.r5-inlay-code').textContent,'8194');
 click('.r5-board-panel .device-close');
 assert.ok(q('#r5Keypad'));

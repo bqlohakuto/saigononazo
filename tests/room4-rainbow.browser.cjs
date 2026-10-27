@@ -27,7 +27,7 @@ function tokens(values){
     const width=stage.getBoundingClientRect().width;
     const idle=getComputedStyle(el,'::before'),gaze=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
     return width>0&&['width','height','bottom'].every((name,i)=>{
-     const expected=width*[.26,.405,-.050625][i];
+     const expected=width*[.182,.2835,-.04777734375][i];
      return Math.abs(parseFloat(idle[name])-expected)<1
       &&Math.abs(parseFloat(idle[name])-parseFloat(gaze[name]))<1;
     });
@@ -44,8 +44,8 @@ function tokens(values){
    console.log('ROOM4_HANA_ENTRY '+viewport.width+' '+JSON.stringify(entry));
    assert(Math.abs(entry.stageWidth-entry.canvasWidth)<1,'Initial Room 4 stage must fill the game canvas');
    assert(Math.abs(entry.stageX-entry.canvasX)<1,'Initial Room 4 stage must not have side margins');
-   assert(Math.abs(entry.idleWidth-entry.canvasWidth*.26)<1,'Initial Hana width must match stage depth');
-   assert(Math.abs(entry.idleHeight-entry.canvasWidth*.405)<1,'Initial Hana height must match stage depth');
+   assert(Math.abs(entry.idleWidth-entry.canvasWidth*.182)<1,'Initial Hana width must match stage depth');
+   assert(Math.abs(entry.idleHeight-entry.canvasWidth*.2835)<1,'Initial Hana height must match stage depth');
    assert(Math.abs(entry.gazeWidth-entry.idleWidth)<1&&Math.abs(entry.gazeHeight-entry.idleHeight)<1,'Initial gaze canvas must match idle');
    await page.evaluate(()=>{
     Dialogue.stop();
@@ -59,7 +59,7 @@ function tokens(values){
    });
    console.log('ROOM4_HANA_FAST_DIAGNOSTIC '+viewport.width+' '+JSON.stringify(gazeSizing));
    const roomWidth=gazeSizing.stage.width;
-   for(const [key,scale] of [['width',.26],['height',.405],['bottom',-.050625]]){
+   for(const [key,scale] of [['width',.182],['height',.2835],['bottom',-.04777734375]]){
     const actual=parseFloat(gazeSizing.idle[key]);
     assert(Math.abs(actual-roomWidth*scale)<1,'Room 4 Hana idle '+key+' must track visible room width ('+viewport.width+'): '+JSON.stringify(gazeSizing));
     assert(Math.abs(actual-parseFloat(gazeSizing.gaze[key]))<1,'Hana gaze must match idle '+key);
@@ -68,13 +68,13 @@ function tokens(values){
    await page.waitForFunction(()=>{
     const stage=document.querySelector('.room4-stage').getBoundingClientRect();
     const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
-    return Math.abs(parseFloat(idle.height)-stage.width*.405)<1;
+    return Math.abs(parseFloat(idle.height)-stage.width*.2835)<1;
    },null,{timeout:4000});
    await page.locator('.room-stage-wrap').evaluate(el=>el.style.removeProperty('width'));
    await page.waitForFunction(()=>{
     const stage=document.querySelector('.room4-stage').getBoundingClientRect();
     const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
-    return Math.abs(parseFloat(idle.height)-stage.width*.405)<1;
+    return Math.abs(parseFloat(idle.height)-stage.width*.2835)<1;
    },null,{timeout:4000});
    const opener=page.locator("#r4P3");
    await opener.click();

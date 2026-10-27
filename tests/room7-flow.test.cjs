@@ -21,7 +21,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  take('left','#r7Drawer');take('left','#r7Curtain');take('left','#r7Diary');take('right','#r7Stack');take('right','#r7Box');take('front','#r7Cabinet');
  assert.deepEqual(saved().collected,['ikkyu','rabbit','wolf','monkey','mitten','bremen']);
  const before=saved();run('showSeventhRoom('+JSON.stringify(before)+')');assert.deepEqual(saved(),before,'exploration survives reload');
- const pickupLog=run('GameLog.list()');assert.ok(pickupLog.some(x=>x.text==='少し気になったので、ひとまず持っておくことにした。'));assert.ok(pickupLog.some(x=>x.text==='謎に関係しているのかもしれない。'));assert.equal(pickupLog.filter(x=>x.text==='中を開こうとしたが、開けない。').length,4);
+ const pickupLog=run('GameLog.list()');assert.ok(pickupLog.some(x=>x.text==='少し気になったので、ひとまず持っておくことにした。'));assert.ok(pickupLog.some(x=>x.text==='謎に関係しているのかもしれない。'));assert.equal(pickupLog.filter(x=>x.text==='中を開こうとしたが、開けない。').length,0,'Books are not automatically opened during pickup');
  turn('back');click('#r7Shelf');finish();assert.ok(run('GameLog.list()').some(x=>x.text==='持っている本も、ここに並んでいたのかな。'));assert.equal(w.document.querySelectorAll('.r7-slot.is-filled').length,4,'four fixed books initially');
  click('[data-slot="0"]');assert.match(q('.r7-shelf-status').textContent,/赤ずきん/);assert.equal(q('.r7-open-book'),null,'fixed books only show title');
  // Any empty slot accepts a book without revealing whether its position is correct.

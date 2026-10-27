@@ -34,7 +34,7 @@ function tokens(values){
    },null,{timeout:3000});
    const entry=await page.evaluate(()=>{
     const canvas=document.querySelector('#game-container').getBoundingClientRect();
-    const stage=document.querySelector('.room4-stage');
+    const stage=document.querySelector('.room4-stage').getBoundingClientRect();
     const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
     const gaze=getComputedStyle(document.querySelector('#r4Hana .r4-hana-look-pose'));
     return {canvasWidth:canvas.width,stageWidth:stage.width,localStageWidth:document.querySelector('.room4-stage').clientWidth,stageX:stage.x,canvasX:canvas.x,

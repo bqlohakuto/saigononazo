@@ -13,7 +13,7 @@ const mobileEngine=process.env.R6_MOBILE_ENGINE==='chromium'?chromium:webkit;
     const file=path.resolve(root,decodeURIComponent(new URL(route.request().url()).pathname).replace(/^\//,'')||'index.html');
     return route.fulfill(file.startsWith(root+path.sep)&&fs.existsSync(file)?{path:file}:{status:404,body:''});
    });
-   await page.goto(base+'?r6review='+Date.now(),{waitUntil:'load'});
+   await page.goto(base+'?preview=1&r6review='+Date.now(),{waitUntil:'load'});
    const assets=['white','black','green','clean-room-v2','walls','inner','lever-neutral','lever-white','lever-black','map-paper-v2'];
    await page.evaluate(async names=>{for(const n of names){const im=new Image();im.src='images/background/room06/'+n+'.webp';await im.decode();if(im.naturalWidth<100)throw new Error('bad asset '+n)}},assets);
    const finish=()=>page.evaluate(()=>{for(let i=0;i<800&&document.querySelector('#roomNextButton');i++)document.querySelector('#roomNextButton').click()});

@@ -103,8 +103,22 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
      assert.equal(await p.locator('.memory-prop').isHidden(),true);
      await shot('monkey-notebook-closed');
     }
+    if(target==='亥'){
+     await p.locator('.memory-scene[data-location="r7boar"]').waitFor();
+     await p.locator('.memory-background').evaluate(im=>im.decode());await p.locator('.memory-girl').evaluate(im=>im.decode());
+     assert.equal(await p.locator('#game').getAttribute('data-memory-stage'),'concealed');
+     assert.match(await p.locator('.memory-girl').getAttribute('src'),/room02\/girl-blazer\.png$/);
+     await p.waitForTimeout(700);await shot('boar-memory');
+     for(let n=0;n<100&&!(await state()).shortMemory.progress?.logId.startsWith('r7_mem_boar_18');n++)await click('#roomNextButton');
+     const duringMemory=await state();assert.match(await p.locator('#roomMessage').textContent(),/高校のパーカッション/);
+     await shot('boar-dialogue');
+     await p.reload({waitUntil:'load'});await p.locator('#continueButton').click();await p.locator('.save-slot-action:not([disabled])').last().click();await p.locator('.save-slot-action.is-confirm').click();
+     await p.locator('.memory-scene[data-location="r7boar"]').waitFor();
+     assert.equal((await state()).shortMemory.progress.logId,duringMemory.shortMemory.progress.logId,spec.name+' 2007 memory resumes');
+     assert.match(await p.locator('#roomMessage').textContent(),/高校のパーカッション/);
+    }
     await finish();
-    if(['寅','卯','未','申'].includes(target)){assert.equal((await state()).shortMemory,null);assert.equal(await p.locator('.memory-scene').count(),0);assert.equal(await p.locator('.memory-window-portrait').count(),0)}
+    if(['寅','卯','未','申','亥'].includes(target)){assert.equal((await state()).shortMemory,null);assert.equal(await p.locator('.memory-scene').count(),0);assert.equal(await p.locator('.memory-window-portrait').count(),0)}
    }
    assert.equal((await state()).completed,true);assert.equal(await p.locator('#r7Next').count(),0,'accident returns directly to room8');await p.locator('.r8-paper-hit:visible,#r8Paper:visible,#roomNextButton:visible').first().waitFor();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1')).currentScene),'room08');
    assert.deepEqual(errors,[],spec.name+' no runtime errors');assert.deepEqual(missing,[],spec.name+' no missing assets');

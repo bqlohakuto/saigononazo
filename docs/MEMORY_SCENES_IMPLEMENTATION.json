@@ -1160,5 +1160,46 @@
       "r7_mem_monkey_24",
       "r7_mem_monkey_25"
     ]
+  },
+  {
+    "key": "r7boar",
+    "room": "room07",
+    "reveal": "concealed",
+    "background": "images/background/memories/room01/walk-home.png",
+    "sprite": "images/characters/memories/room02/girl-blazer.png",
+    "layout": "standing",
+    "prop": null,
+    "ids": [
+      "r7_mem_boar_01",
+      "r7_mem_boar_02",
+      "r7_mem_boar_03",
+      "r7_mem_boar_04",
+      "r7_mem_boar_05",
+      "r7_mem_boar_06",
+      "r7_mem_boar_07",
+      "r7_mem_boar_08",
+      "r7_mem_boar_09",
+      "r7_mem_boar_10",
+      "r7_mem_boar_11",
+      "r7_mem_boar_12",
+      "r7_mem_boar_13",
+      "r7_mem_boar_14",
+      "r7_mem_boar_15",
+      "r7_mem_boar_16",
+      "r7_mem_boar_17",
+      "r7_mem_boar_18",
+      "r7_mem_boar_19",
+      "r7_mem_boar_20",
+      "r7_mem_boar_21",
+      "r7_mem_boar_22",
+      "r7_mem_boar_23",
+      "r7_mem_boar_24",
+      "r7_mem_boar_25",
+      "r7_mem_boar_26",
+      "r7_mem_boar_27",
+      "r7_mem_boar_28",
+      "r7_mem_boar_29",
+      "r7_mem_boar_30"
+    ]
   }
 ]

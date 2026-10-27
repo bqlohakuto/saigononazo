@@ -96,7 +96,7 @@ test('Every authored Room 2-7 recollection ID and its paginated continuation res
     assert.equal(visuals.get(scene.room,{logId:logId+'_01_02'}).background,v.background,logId);
     assert.equal(visuals.get(scene.room,{logId:'page',logSource:{logId}}).sprite,v.sprite,logId);
   }
-  assert.equal(ids.size,716);
+  assert.equal(ids.size,746);
 });
 
 test('Tiger-door recollection keeps the earlier concealed-face presentation',()=>{
@@ -137,6 +137,15 @@ test('Monkey-door recollection closes the notebook at the authored moment',()=>{
   }
   assert.equal(visuals.get('room07',{logId:'r7_mem_monkey_22_02'}).prop,null);
   assert.equal(visuals.get('room07',{logId:'page',logSource:{logId:'r7_mem_monkey_22_02'}}).prop,null);
+});
+
+test('Boar-door recollection shows the senior as a high school student without revealing her face',()=>{
+  for(let i=1;i<=30;i++){
+    const v=visuals.get('room07',{logId:'r7_mem_boar_'+String(i).padStart(2,'0')+'_01'});
+    assert.equal(v.location,'r7boar');assert.equal(v.reveal,'concealed');
+    assert.equal(v.background,'images/background/memories/room01/walk-home.png');
+    assert.equal(v.sprite,'images/characters/memories/room02/girl-blazer.png');
+  }
 });
 
 test('Presence follows actual scene boundaries rather than narration or speaker classification',()=>{

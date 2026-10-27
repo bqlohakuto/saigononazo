@@ -1025,5 +1025,36 @@
       "r7_mem_36",
       "r7_mem_37"
     ]
+  },
+  {
+    "key": "r7tiger",
+    "room": "room07",
+    "reveal": "concealed",
+    "background": "images/background/memories/room01/walk-home.png",
+    "sprite": "images/characters/memories/room03/girl-spring.png",
+    "layout": "standing",
+    "prop": null,
+    "ids": [
+      "r7_mem_tiger_01",
+      "r7_mem_tiger_02",
+      "r7_mem_tiger_03",
+      "r7_mem_tiger_04",
+      "r7_mem_tiger_05",
+      "r7_mem_tiger_06",
+      "r7_mem_tiger_07",
+      "r7_mem_tiger_08",
+      "r7_mem_tiger_09",
+      "r7_mem_tiger_10",
+      "r7_mem_tiger_11",
+      "r7_mem_tiger_12",
+      "r7_mem_tiger_13",
+      "r7_mem_tiger_14",
+      "r7_mem_tiger_15",
+      "r7_mem_tiger_16",
+      "r7_mem_tiger_17",
+      "r7_mem_tiger_18",
+      "r7_mem_tiger_19",
+      "r7_mem_tiger_20"
+    ]
   }
 ]

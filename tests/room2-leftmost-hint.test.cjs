@@ -87,7 +87,7 @@ test("No.138: persistent leftmost hint is concise for all symbols, including aft
     const hint=vm.runInNewContext(displaySource[1],{room2State:state});
     assert.equal(hint,`左端の記号：${symbol}`);
   }
-  assert.match(room2Source,/hint\\.hidden=!room2State\\.leftmostHintRevealed/);
+  assert.match(room2Source,/hint\.hidden=!room2State\.leftmostHintRevealed/);
   assert.ok(room2Source.includes("leftmostHintRevealed: false") || room2Source.includes("leftmostHintRevealed:false"));
   for(const file of ["02_room2.md","FULL_SCENARIO.md"]){
     const scenario=fs.readFileSync(path.join(__dirname,"..","scenario",file),"utf8");

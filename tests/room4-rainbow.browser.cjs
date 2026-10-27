@@ -24,7 +24,7 @@ function tokens(values){
    await page.waitForFunction(()=>{
     const el=document.getElementById('r4Hana'),stage=document.querySelector('.room4-stage');
     if(!el||!stage)return false;
-    const width=stage.getBoundingClientRect().width;
+    const width=stage.clientWidth;
     const idle=getComputedStyle(el,'::before'),gaze=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
     return width>0&&['width','height','bottom'].every((name,i)=>{
      const expected=width*[.182,.2835,-.04777734375][i];
@@ -34,18 +34,18 @@ function tokens(values){
    },null,{timeout:3000});
    const entry=await page.evaluate(()=>{
     const canvas=document.querySelector('#game-container').getBoundingClientRect();
-    const stage=document.querySelector('.room4-stage').getBoundingClientRect();
+    const stage=document.querySelector('.room4-stage');
     const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
     const gaze=getComputedStyle(document.querySelector('#r4Hana .r4-hana-look-pose'));
-    return {canvasWidth:canvas.width,stageWidth:stage.width,stageX:stage.x,canvasX:canvas.x,
+    return {canvasWidth:canvas.width,stageWidth:stage.width,localStageWidth:document.querySelector('.room4-stage').clientWidth,stageX:stage.x,canvasX:canvas.x,
       idleWidth:parseFloat(idle.width),idleHeight:parseFloat(idle.height),
       gazeWidth:parseFloat(gaze.width),gazeHeight:parseFloat(gaze.height)};
    });
    console.log('ROOM4_HANA_ENTRY '+viewport.width+' '+JSON.stringify(entry));
    assert(Math.abs(entry.stageWidth-entry.canvasWidth)<1,'Initial Room 4 stage must fill the game canvas');
    assert(Math.abs(entry.stageX-entry.canvasX)<1,'Initial Room 4 stage must not have side margins');
-   assert(Math.abs(entry.idleWidth-entry.canvasWidth*.182)<1,'Initial Hana width must match stage depth');
-   assert(Math.abs(entry.idleHeight-entry.canvasWidth*.2835)<1,'Initial Hana height must match stage depth');
+   assert(Math.abs(entry.idleWidth-entry.localStageWidth*.182)<1,'Initial Hana width must match stage depth');
+   assert(Math.abs(entry.idleHeight-entry.localStageWidth*.2835)<1,'Initial Hana height must match stage depth');
    assert(Math.abs(entry.gazeWidth-entry.idleWidth)<1&&Math.abs(entry.gazeHeight-entry.idleHeight)<1,'Initial gaze canvas must match idle');
    await page.evaluate(()=>{
     Dialogue.stop();
@@ -55,10 +55,10 @@ function tokens(values){
    const gazeSizing=await page.locator('#r4Hana').evaluate(el=>{
     const rect=sel=>{const b=document.querySelector(sel)?.getBoundingClientRect();return b?{width:b.width,height:b.height,x:b.x,y:b.y}:null};
     const idle=getComputedStyle(el,'::before'),gaze=getComputedStyle(el.querySelector('.r4-hana-look-pose'));
-    return {container:rect('#game-container'),game:rect('#game'),wrap:rect('.room-stage-wrap'),stage:rect('.room4-stage'),hana:rect('#r4Hana'),idle:{width:idle.width,height:idle.height,bottom:idle.bottom},gaze:{width:gaze.width,height:gaze.height,bottom:gaze.bottom},ready:document.querySelector('#game').className};
+    return {container:rect('#game-container'),game:rect('#game'),wrap:rect('.room-stage-wrap'),stage:rect('.room4-stage'),localStageWidth:document.querySelector('.room4-stage').clientWidth,hana:rect('#r4Hana'),idle:{width:idle.width,height:idle.height,bottom:idle.bottom},gaze:{width:gaze.width,height:gaze.height,bottom:gaze.bottom},ready:document.querySelector('#game').className};
    });
    console.log('ROOM4_HANA_FAST_DIAGNOSTIC '+viewport.width+' '+JSON.stringify(gazeSizing));
-   const roomWidth=gazeSizing.stage.width;
+   const roomWidth=gazeSizing.localStageWidth;
    for(const [key,scale] of [['width',.182],['height',.2835],['bottom',-.04777734375]]){
     const actual=parseFloat(gazeSizing.idle[key]);
     assert(Math.abs(actual-roomWidth*scale)<1,'Room 4 Hana idle '+key+' must track visible room width ('+viewport.width+'): '+JSON.stringify(gazeSizing));
@@ -66,15 +66,15 @@ function tokens(values){
    }
    await page.locator('.room-stage-wrap').evaluate(el=>el.style.width='calc(100% - 48px)');
    await page.waitForFunction(()=>{
-    const stage=document.querySelector('.room4-stage').getBoundingClientRect();
+    const stage=document.querySelector('.room4-stage');
     const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
-    return Math.abs(parseFloat(idle.height)-stage.width*.2835)<1;
+    return Math.abs(parseFloat(idle.height)-stage.clientWidth*.2835)<1;
    },null,{timeout:4000});
    await page.locator('.room-stage-wrap').evaluate(el=>el.style.removeProperty('width'));
    await page.waitForFunction(()=>{
-    const stage=document.querySelector('.room4-stage').getBoundingClientRect();
+    const stage=document.querySelector('.room4-stage');
     const idle=getComputedStyle(document.getElementById('r4Hana'),'::before');
-    return Math.abs(parseFloat(idle.height)-stage.width*.2835)<1;
+    return Math.abs(parseFloat(idle.height)-stage.clientWidth*.2835)<1;
    },null,{timeout:4000});
    const opener=page.locator("#r4P3");
    await opener.click();

@@ -84,8 +84,8 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  });
  console.log('ROOM4_HANA_DIAGNOSTIC '+spec.name+' '+JSON.stringify({sizing,hanaScale,canvasWidth}));
  assert(hanaScale.visible,'Hana must be visible in the fourth room front view');
- assert(Math.abs(hanaScale.height/canvasWidth-.405)<.01,'Room 4 Hana uses restored 28.35cqw sprite height');
- assert(Math.abs(hanaScale.width/canvasWidth-.26)<.01,'Room 4 Hana uses restored 18.2cqw sprite width');
+ assert(Math.abs(hanaScale.height/canvasWidth-.2835)<.01,'Room 4 Hana uses restored 28.35cqw sprite height');
+ assert(Math.abs(hanaScale.width/canvasWidth-.182)<.01,'Room 4 Hana uses restored 18.2cqw sprite width');
  await page.evaluate(()=>{
   for(let i=0;i<70&&!/^r4i06(?:_\d+)?$/.test(GameLog.list().at(-1)?.id||'');i++)Dialogue.advance();
  });

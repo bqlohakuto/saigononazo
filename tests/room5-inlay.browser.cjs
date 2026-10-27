@@ -107,6 +107,8 @@ async function assertFits(page){
     assert.equal((await saved(page)).placed[id],counter);
    }
    assert.equal((await saved(page)).codeRevealed,true);
+   // The code appears during the authored completion animation, not immediately upon the last fit.
+   await page.locator('.r5-inlay-code').waitFor({state:'visible',timeout:12000});
    assert.equal(await page.locator('.r5-inlay-code').isVisible(),true);
    assert.equal(await page.locator('.room-dialog-overlay').count(),0);
    await assertFits(page);await page.waitForTimeout(400);await page.screenshot({path:path.join(output,spec.name+'-complete.png')});

@@ -2480,3 +2480,56 @@ body{background:#0b1322!important;display:grid;place-items:center}
   font-size:14px;
   line-height:1.3;
 }
+
+
+/* Issue #25 A05: consistent passage across the eight rooms.
+   Room 1 retains the hand-authored half-open door. Other rooms get a neutral
+   light/dark passage instead of reusing art from the wrong room. */
+#game .room-transition.room-transition-abstract{
+  position:absolute;
+  inset:0;
+  z-index:90;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  animation:roomPassageFade var(--room-passage-ms,650ms) ease-in-out both;
+}
+#game .room-transition-abstract.room-transition-dark{
+  background:#17181a;
+}
+#game .room-transition-abstract.room-transition-light{
+  background:#f3f1e9;
+}
+#game .room-transition-glow{
+  display:block;
+  width:100%;
+  height:100%;
+  background:radial-gradient(ellipse at center,#fff8e41c 0,transparent 68%);
+  pointer-events:none;
+}
+#game .room-transition-light .room-transition-glow{
+  background:radial-gradient(ellipse at center,#fff 0,#f7f6f1 50%,#eae7e0 100%);
+}
+#game .room-transition-illustrated{
+  --room-passage-ms:1100ms;
+}
+#game .room.room-entry-fade{
+  animation:roomArrivalFromPassage 650ms ease-out both;
+}
+#game.room-entry-from-dark{
+  animation:roomArrivalFromPassage 850ms ease-out both;
+}
+@keyframes roomPassageFade{
+  0%{opacity:0}
+  18%,76%{opacity:1}
+  100%{opacity:0}
+}
+@keyframes roomArrivalFromPassage{
+  0%{opacity:0}
+  100%{opacity:1}
+}
+@media(prefers-reduced-motion:reduce){
+  #game .room-transition.room-transition-abstract,
+  #game .room.room-entry-fade,
+  #game.room-entry-from-dark{animation:none!important}
+}

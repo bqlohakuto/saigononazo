@@ -178,6 +178,9 @@ function r4Moon(){
   overlay.querySelector('output').textContent=(page+1)+' / 2';
   overlay.querySelector('[data-moon-step="-1"]').disabled=page===0;
   overlay.querySelector('[data-moon-step="1"]').disabled=page===1;
+  // A03: page changes must not retain the previous exhibit's scroll position.
+  overlay.querySelector('.r4-world-countries').scrollTop=0;
+  overlay.querySelector('.r4-world-exhibit').scrollTop=0;
  };
  overlay.querySelectorAll('[data-moon-step]').forEach(button=>button.addEventListener('click',()=>{page+=Number(button.dataset.moonStep);render()}));
  render();

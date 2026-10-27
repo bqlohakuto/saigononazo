@@ -1,5 +1,8 @@
 const game=document.getElementById("game");
 const SAVE_KEY="saigononazo-save-v1",SETTINGS_KEY="saigononazo-settings-v1";
+// Public play hides development shortcuts; opt in explicitly to review them.
+const AUTHOR_PREVIEW=new URLSearchParams(window.location.search).get("preview")==="1";
+window.GameBuild={preview:AUTHOR_PREVIEW};
 const defaultSettings={volume:70,bgmVolume:70,seVolume:70,textSpeed:45,instantText:false,soundCaptions:false};
 let playerName="";
 let openingIndex=0;
@@ -196,7 +199,7 @@ function showTitle(notice=""){
  GameAudio.stopAll();
  GameAudio.syncSceneMusic?.("title");
  const hasSave=!!readSavedGame();
- game.innerHTML=`<div class="title-screen title-home title-art-loading"><h1 class="title-logo"><img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span></h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button><button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button><button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-art-status" role="status">画像を読み込み中…</p><p class="title-notice" aria-live="polite">${notice}</p></div>`;
+ game.innerHTML=`<div class="title-screen title-home title-art-loading"><h1 class="title-logo"><img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span></h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button>${AUTHOR_PREVIEW?'<button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button>':""}<button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-art-status" role="status">画像を読み込み中…</p><p class="title-notice" aria-live="polite">${notice}</p></div>`;
  const title=game.querySelector('.title-home'),background=new Image();
  background.src='images/pixel-ui/title-background-pixel.png';
  const images=[background,...title.querySelectorAll('img')];
@@ -212,10 +215,11 @@ function showTitle(notice=""){
  });
  document.getElementById("startButton").addEventListener("click",showNameInput);
  document.getElementById("continueButton").addEventListener("click",resumeGame);
- document.getElementById("testRoomButton").addEventListener("click",showTestRoomPicker);
+ document.getElementById("testRoomButton")?.addEventListener("click",showTestRoomPicker);
  document.getElementById("settingsButton").addEventListener("click",showSettings);
 }
 function showTestRoomPicker(){
+ if(!AUTHOR_PREVIEW)return;
  const overlay=document.createElement("div");overlay.className="test-room-overlay";
  overlay.innerHTML=`<section class="test-room-panel" role="dialog" aria-modal="true" aria-label="開始する部屋を選択"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>テストする部屋を選択</h2><p>選択した部屋から直接開始します。オートセーブはその部屋の進行で置き換わります。手動セーブは残ります。</p><div class="test-room-options"><button type="button" data-room="room01">第一の部屋</button><button type="button" data-room="room02">第二の部屋</button><button type="button" data-room="room03">第三の部屋</button><button type="button" data-room="room04">第四の部屋</button><button type="button" data-room="room05">第五の部屋</button><button type="button" data-room="room06">第六の部屋</button><button type="button" data-room="room07">第七の部屋</button><button type="button" data-room="room08">第八の部屋</button></div></section>`;
  game.appendChild(overlay);const close=()=>overlay.remove();overlay.querySelector(".device-close").addEventListener("click",close);overlay.addEventListener("click",event=>{if(event.target===overlay)close()});
@@ -223,6 +227,7 @@ function showTestRoomPicker(){
  overlay.querySelector("[data-room]")?.focus();
 }
 function startRoomTest(scene){
+ if(!AUTHOR_PREVIEW)return;
  clearSave();playerName=playerName||"主人公";
  roomStates.room06={testGuide:true};
  if(scene==="room01"){showFirstRoom();return}

@@ -1,6 +1,6 @@
-// Post-game puzzle commentary. Test builds expose the guide from the title screen.
+// Puzzle answers unlock after the epilogue; author preview keeps them accessible for QA.
 (() => {
-  const TEST_MODE = true; // Set to false for the release build.
+  const TEST_MODE = window.GameBuild?.preview === true;
   const UNLOCK_KEY = "saigononazo-guide-unlocked-v1";
   const CHAPTERS = [
     {
@@ -220,12 +220,18 @@
   // Also accept a finished save created before the local unlock flag existed.
   const completedSave = () => {
     try {
-      return typeof readSavedGame === "function" && !!readSavedGame()?.rooms?.room08?.epilogueSeen;
+      const completed=typeof readSavedGame==="function"?readSavedGame()?.rooms?.room08:null;
+      return completed?.ended===true && completed.epilogueSeen===true;
     } catch (_) {
       return false;
     }
   };
   const enabled = () => TEST_MODE || localStorage.getItem(UNLOCK_KEY) === "1" || completedSave();
+  function markCleared(){
+    if(!completedSave())return false;
+    try{localStorage.setItem(UNLOCK_KEY,"1")}catch{return false}
+    return true;
+  }
   let selected = 0;
   function titleLink(){
     const home = document.querySelector("#game .title-home");
@@ -271,10 +277,10 @@
     game.querySelector(".pguide-article")?.focus({preventScroll:true});
   }
   const observer=new MutationObserver(()=>{
-    if(game.querySelector(".ending-credits"))try{localStorage.setItem(UNLOCK_KEY,"1")}catch{}
+    if(game.querySelector(".ending-credits"))markCleared();
     titleLink();
   });
   observer.observe(game,{childList:true,subtree:true});
   titleLink();
-  window.PuzzleGuide={open:openGuide,isTestMode:()=>TEST_MODE,isUnlocked:enabled};
+  window.PuzzleGuide={open:openGuide,isTestMode:()=>TEST_MODE,isUnlocked:enabled,markCleared};
 })();

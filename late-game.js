@@ -2249,6 +2249,8 @@
   }
   function r8EndScreen(){
     Dialogue.stop();
+    // Preserve the postgame guide before returning from the ending.
+    window.PuzzleGuide?.markCleared?.();
     EndingCredits.fromEpilogue(game,()=>showTitle());
   }
 })();

@@ -1,0 +1,40 @@
+name: Room 1 piano visible answer
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'script.js'
+      - 'design-ui.css'
+      - 'index.html'
+      - 'tests/room1-piano-visual.browser.cjs'
+      - '.github/workflows/room1-piano-visual.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  piano:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps webkit
+          google-chrome --version
+      - name: Verify published piano layout without scrolling
+        env:
+          UI_SCREENSHOT_DIR: artifacts/room01-piano
+        run: node tests/room1-piano-visual.browser.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: room01-piano-review
+          path: artifacts/room01-piano/
+          if-no-files-found: warn
+          retention-days: 14

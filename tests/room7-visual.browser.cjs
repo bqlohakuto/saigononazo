@@ -45,7 +45,7 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
     if(target==='寅'){
      await p.locator('.memory-scene[data-location="r7tiger"]').waitFor();
      await p.locator('.memory-background').evaluate(im=>im.decode());await p.locator('.memory-girl').evaluate(im=>im.decode());
-     await shot('tiger-memory');
+     await p.waitForTimeout(700);await shot('tiger-memory');
      for(let n=0;n<30&&!(await state()).shortMemory.progress?.logId.startsWith('r7_mem_tiger_05');n++)await click('#roomNextButton');
      const duringMemory=await state();assert.match(await p.locator('#roomMessage').textContent(),/いえ、別に/);
      await p.reload({waitUntil:'load'});await p.locator('#continueButton').click();await p.locator('.save-slot-action:not([disabled])').last().click();await p.locator('.save-slot-action.is-confirm').click();

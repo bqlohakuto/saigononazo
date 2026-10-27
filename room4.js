@@ -74,11 +74,9 @@ function r4SyncHanaGazePose(){
  hana.style.setProperty("--r4-hana-height",spriteHeight+"px");
  hana.style.setProperty("--r4-hana-bottom",(-footInset)+"px");
  hana.style.setProperty("--r4-hana-head-offset",(spriteHeight-footInset-spriteHeight*112/2048)+"px");
- const idle=getComputedStyle(hana,"::before");
- pose.style.width=idle.width;
- pose.style.height=idle.height;
- pose.style.bottom=idle.bottom;
- pose.style.backgroundSize="contain";
+ // Idle and gaze share the four CSS variables declared just above.
+ // Never cache the computed size in an inline pose style: early layout
+ // updates could otherwise leave the gaze artwork one frame behind.
 }
 window.addEventListener("resize",r4SyncHanaGazePose);
 function r4SetHanaLookUp(active){

@@ -75,14 +75,14 @@ test("No.119: pause and reopen preserve the identical active challenge state",()
  assert.equal(h.saved,0,"Closing does not write a reset or alter saved challenge state");
  assert.equal(h.state.challengeActive,true);
  assert.equal(h.state.answer,answer);
- assert.equal(h.state.guess[0],guess[0]);
+ assert.equal(JSON.stringify(h.state.guess[0]),JSON.stringify(guess[0]),"The placed block retains its value after normalization");
   assert.equal(h.state.guess.filter(Boolean).length,1,"Pause/reopen must retain the placed block");
  assert.equal(h.state.history,history);
  assert.equal(h.state.attempts,2);
  assert.equal(h.state.challengeBest,best);
  h.open();
  assert.equal(h.state.challengeActive,true);
- assert.equal(h.state.guess[0],guess[0]);
+ assert.equal(JSON.stringify(h.state.guess[0]),JSON.stringify(guess[0]),"The placed block retains its value after normalization");
   assert.equal(h.state.guess.filter(Boolean).length,1,"Pause/reopen must retain the placed block");
  assert.equal(h.state.history,history);
  assert.match(h.overlay.innerHTML,/一時中断/);

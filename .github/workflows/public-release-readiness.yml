@@ -2,23 +2,10 @@ name: Public release readiness and portable ZIP
 
 on:
   workflow_dispatch:
+  # Generate a large release artifact only for intentional releases, not every
+  # working commit while polishing artwork and dialogue.
   push:
-    branches: [main]
-    paths:
-      - 'index.html'
-      - 'manifest.webmanifest'
-      - '*.js'
-      - '*.css'
-      - 'images/**'
-      - 'audio/**'
-      - 'fonts/**'
-      - 'scripts/build_release.py'
-      - 'tests/critical-path.test.cjs'
-      - 'tests/game-audio.test.cjs'
-      - 'tests/ending-credits.test.cjs'
-      - 'tests/room8-art.test.cjs'
-      - 'tests/room8-flow.test.cjs'
-      - '.github/workflows/public-release-readiness.yml'
+    tags: ['v*']
 
 permissions:
   contents: read

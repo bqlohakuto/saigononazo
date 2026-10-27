@@ -10,10 +10,8 @@
     });
   };
   const transition=(label,next)=>{
-    GameAudio.play("doorOpen");
-    Dialogue.stop();
-    game.innerHTML='<div class="late-transition"><div><p>'+label+'</p><span>……</span></div></div>';
-    setTimeout(next,650);
+    // Reuse the same door passage as Rooms 1-4; puzzle state is left untouched.
+    showRoomTravel(next,{label,duration:650});
   };
 
   // ---------- Room 5 ----------
@@ -2025,7 +2023,14 @@
       line("r7_mem_35","ト書き","次の瞬間。視界が、赤く染まる。"),
       line("r7_mem_36","ト書き","音が遠のく。彼女の姿も、街の景色も、すべて赤の向こうに滲んでいく。"),
       line("r7_mem_37","ト書き","――そこで、記憶が途切れる。")
-    ],()=>{room7State.completed=true;saveGame();showEighthRoom(roomStates.room08)});
+    ],()=>{
+      room7State.completed=true;saveGame();
+      // Keep the Room 8 entry synchronous for save/restore and dialogue,
+      // but fade the whole new scene from black after the accident.
+      showEighthRoom(roomStates.room08);
+      game.classList.add("room-entry-from-dark");
+      window.setTimeout(()=>game.classList.remove("room-entry-from-dark"),850);
+    });
   }
 
   // ---------- Room 8 ----------

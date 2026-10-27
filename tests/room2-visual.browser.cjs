@@ -348,12 +348,17 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-puzzle').count(),0,'Correct main-story answer starts the flashback dialogue flow');
    assert.equal(await page.locator('.room-dialog-overlay').count(),1,'Success proceeds to in-story conversation');
 
-   // No.117: returning and starting from the room use the same compact panel as the result.
-   await page.evaluate(()=>showSecondRoom({
-    doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true,
-    challengeActive:false,challengeBest:3,challengeCleared:true,attempts:4,
-    history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'赤'})),hit:0,blow:0}]
-   }));
+   // No.117: switch from the unfinished flashback to an independent, cleared
+   // save fixture. The old save-migration code also reads GameLog, so do not
+   // let the previous test's in-progress memory impersonate a resumed save.
+   await page.evaluate(()=>{
+    GameLog.restore([]);
+    showSecondRoom({
+     doorInspected:true,deskInspected:true,unlocked:true,flashbackSeen:true,
+     challengeActive:false,challengeBest:3,challengeCleared:true,attempts:4,
+     history:[{guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'赤'})),hit:0,blow:0}]
+    });
+   });
    await page.locator('#r2Blocks').click();
    assert.equal(await page.locator('.room2-start-panel').count(),1,'Unlocked blocks open the new start panel');
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Start does not open novel dialogue');

@@ -53,8 +53,22 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
      assert.equal((await state()).shortMemory.progress.logId,duringMemory.shortMemory.progress.logId,spec.name+' memory line resumes');
      assert.match(await p.locator('#roomMessage').textContent(),/いえ、別に/);
     }
+    if(target==='卯'){
+     await p.locator('.memory-scene[data-location="r7rabbit"]').waitFor();
+     await p.locator('.memory-background').evaluate(im=>im.decode());
+     assert.equal(await p.locator('.memory-girl').isHidden(),true,spec.name+' senior is on the phone');
+     await p.waitForTimeout(700);await shot('rabbit-memory');
+     for(let n=0;n<50&&!(await state()).shortMemory.progress?.logId.startsWith('r7_mem_rabbit_09');n++)await click('#roomNextButton');
+     const duringMemory=await state();assert.match(await p.locator('#roomMessage').textContent(),/それが、まだ悩んでいて/);
+     await shot('rabbit-dialogue');
+     await p.reload({waitUntil:'load'});await p.locator('#continueButton').click();await p.locator('.save-slot-action:not([disabled])').last().click();await p.locator('.save-slot-action.is-confirm').click();
+     await p.locator('.memory-scene[data-location="r7rabbit"]').waitFor();
+     assert.equal((await state()).shortMemory.progress.logId,duringMemory.shortMemory.progress.logId,spec.name+' phone conversation resumes');
+     assert.equal(await p.locator('.memory-girl').isHidden(),true);
+     assert.match(await p.locator('#roomMessage').textContent(),/それが、まだ悩んでいて/);
+    }
     await finish();
-    if(target==='寅'){assert.equal((await state()).shortMemory,null);assert.equal(await p.locator('.memory-scene').count(),0)}
+    if(target==='寅'||target==='卯'){assert.equal((await state()).shortMemory,null);assert.equal(await p.locator('.memory-scene').count(),0)}
    }
    assert.equal((await state()).completed,true);assert.equal(await p.locator('#r7Next').count(),0,'accident returns directly to room8');await p.locator('.r8-paper-hit:visible,#r8Paper:visible,#roomNextButton:visible').first().waitFor();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1')).currentScene),'room08');
    assert.deepEqual(errors,[],spec.name+' no runtime errors');assert.deepEqual(missing,[],spec.name+' no missing assets');

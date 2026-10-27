@@ -7,6 +7,11 @@
     background:'images/background/memories/room01/walk-home.png',
     sprite:'images/characters/memories/room03/girl-spring.png',layout:'standing',prop:null,
     ids:Array.from({length:20},(_,i)=>'r7_mem_tiger_'+String(i+1).padStart(2,'0'))});
+  // The senior is on the phone, so she is not physically present in this memory.
+  scenes.push({key:'r7rabbit',room:'room07',reveal:'concealed',
+    background:'images/background/memories/room02/music-room-paperwork.png',
+    sprite:null,layout:'standing',prop:null,
+    ids:Array.from({length:18},(_,i)=>'r7_mem_rabbit_'+String(i+1).padStart(2,'0'))});
   const byId = new Map();
   for (const scene of scenes) for (const id of scene.ids) byId.set(scene.room+':'+id,scene);
   function original(sceneId, line) {

@@ -755,9 +755,9 @@ body{background:#0b1322!important;display:grid;place-items:center}
 
 /* Recollections use their own scene and a faded ivory / gray-brown dialogue palette. */
 #game .memory-scene{position:absolute;inset:0;z-index:50;overflow:hidden;pointer-events:none;background:#d6cbb9}
-#game .memory-scene[data-location="r7tiger"]{animation:r7-memory-arrive .65s ease-out both}
+#game .memory-scene[data-location="r7tiger"],#game .memory-scene[data-location="r7rabbit"]{animation:r7-memory-arrive .65s ease-out both}
 @keyframes r7-memory-arrive{from{filter:brightness(2)}to{filter:brightness(1)}}
-@media(prefers-reduced-motion:reduce){#game .memory-scene[data-location="r7tiger"]{animation:none}}
+@media(prefers-reduced-motion:reduce){#game .memory-scene[data-location="r7tiger"],#game .memory-scene[data-location="r7rabbit"]{animation:none}}
 #game .memory-background{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.72) sepia(.12) contrast(.94)}
 #game .memory-girl{position:absolute;left:12%;bottom:-36%;height:128%;width:auto;max-width:none;object-fit:contain;image-rendering:auto}
 #game .memory-girl[hidden]{display:none!important}

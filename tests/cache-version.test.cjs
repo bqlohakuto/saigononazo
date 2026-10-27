@@ -6,6 +6,7 @@ const path = require("node:path");
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 const expectedAssets = [
   "ending-credits.css",
+  "browser-navigation.css",
   "style.css",
   "viewport-scaler.js",
   "design-ui.css",
@@ -42,7 +43,8 @@ const expectedAssets = [
   "hana-identity-ui.js",
   "memory-visuals.js",
   "design-ui.js",
-  "puzzle-explanations.js"
+  "puzzle-explanations.js",
+  "browser-navigation.js"
 ];
 
 function localAssetReferences() {
@@ -94,7 +96,8 @@ test("script load order remains intentional", () => {
     "hana-identity-ui.js",
   "memory-visuals.js",
   "design-ui.js",
-  "puzzle-explanations.js"
+  "puzzle-explanations.js",
+  "browser-navigation.js"
   ]);
 });
 

@@ -38,6 +38,13 @@
 #game .room2-immersive-board>.room2-board-help{top:13px!important;right:100px!important;z-index:20;}
 #game .room2-immersive-board:has(.room2-pause)>.room2-board-help{right:137px!important;}
 #game .room2-immersive-board>.device-close{top:12px!important;right:12px!important;z-index:20;}
+/* issue #25 A01: eight-turn challenge has a pause button, rules icon, and
+   an attempt counter. Give the two header controls their own clear strip,
+   keeping the notebook/counter below instead of sharing the same coordinates. */
+#game .room2-puzzle.room2-immersive-board.room2-challenge-board{
+  padding-top:clamp(62px,6.7cqw,72px)!important;
+}
+
 #game .room2-immersive-board .room2-wood-workbench{
   grid-column:1!important;
   grid-row:1!important;

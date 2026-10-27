@@ -846,6 +846,7 @@ function showRoomTravel(next,{label="次の部屋へ",tone="dark",image=null,dur
   light.setAttribute("aria-hidden","true");
   screen.appendChild(light);
  }
+ screen.style.setProperty("--room-passage-ms",duration+"ms");
  game.replaceChildren(screen);
  window.setTimeout(()=>{
   if(!screen.isConnected)return;

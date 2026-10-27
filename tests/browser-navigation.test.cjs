@@ -83,8 +83,8 @@ test("A02: installs one history guard without changing the URL or existing histo
   assert.equal(page.pushed[0].url,"https://example.com/saigononazo/?preview=1");
   assert.equal(page.history.state.other,"original");
   assert.equal(page.history.state.__saigononazoBackGuard,true);
-  assert.match(html,/browser-navigation[.]js[?]v=\\d{8}-[a-z0-9-]+/);
-  assert.match(html,/browser-navigation[.]css[?]v=\\d{8}-[a-z0-9-]+/);
+  assert.match(html,/browser-navigation[.]js[?]v=\d{8}-[a-z0-9-]+/);
+  assert.match(html,/browser-navigation[.]css[?]v=\d{8}-[a-z0-9-]+/);
 });
 
 test("A02: reloading the already-protected history entry adds no extra Back step",()=>{

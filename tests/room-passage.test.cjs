@@ -25,6 +25,11 @@ function travelHarness(){
   }
  };
  const game={
+  classList:{
+   values:new Set(),
+   add(value){this.values.add(value)},
+   remove(value){this.values.delete(value)}
+  },
   replaceChildren(newNode){
    if(screen)screen.isConnected=false;
    screen=newNode;screen.isConnected=true;
@@ -58,10 +63,12 @@ test("A05: other passages have no misleading room artwork and preserve destinati
  assert.equal(t.screen.children[0].tagName,"span");
  assert.equal(t.screen.style["--room-passage-ms"],"650ms");
  assert.equal(t.timers[0].ms,650);
- t.room={classList:{values:new Set(),add(v){this.values.add(v)},remove(v){this.values.delete(v)}},addEventListener(){}};
  t.timers[0].fn();
  assert.equal(called,1);
- assert(t.room.classList.values.has("room-entry-fade"),"New room fades in");
+ assert(t.game.classList.values.has("room-entry-fade"),"Whole new scene fades in");
+ assert.equal(t.timers[1].ms,700);
+ t.timers[1].fn();
+ assert(!t.game.classList.values.has("room-entry-fade"),"Transition cleanup does not persist");
 });
 
 test("A05: a cancelled or replaced transition cannot change the current room",()=>{

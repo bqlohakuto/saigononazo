@@ -1309,7 +1309,7 @@
     line("r6_memory_full_020","主人公","ん？"),
     line("r6_memory_full_021","彼女","最近、私に怒ってる？"),
     line("r6_memory_full_022","主人公","……え？"),
-    line("r6_memory_full_023","彼女","なんか、ずっと遠いから。"),
+    line("r6_memory_full_023","彼女","一緒にいるのに、なんだか遠くに感じるから。"),
     line("r6_memory_full_024","主人公","■■に怒ってるわけじゃないよ。"),
     line("r6_memory_full_025","彼女","じゃあ、何に怒ってるの？"),
     line("r6_memory_full_026","ト書き","答えが出ない。"),

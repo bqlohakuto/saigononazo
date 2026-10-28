@@ -15,6 +15,7 @@ on:
       - 'images/characters/hana-current/world/look-up/**'
       - 'tests/room4-visual.browser.cjs'
       - 'tests/room4-projection.browser.cjs'
+      - 'tests/room4-light-reset.test.cjs'
       - 'tests/room4-hana-look-source.test.cjs'
       - '.github/workflows/room4-visual-review.yml'
 permissions:
@@ -34,6 +35,8 @@ jobs:
           google-chrome --version
       - name: Verify gaze triggers for expanded dialogue IDs
         run: node tests/room4-hana-look-source.test.cjs
+      - name: Verify D05 light-off preview, retry, and mounting persistence
+        run: node --test tests/room4-light-reset.test.cjs
       - name: Check published room 4 on desktop Chrome and landscape WebKit
         run: node tests/room4-visual.browser.cjs
       - name: Check partial mounting and live Virgo projection

@@ -158,7 +158,7 @@ test("G04: Room 7's bookshelf completion records flowers without opening a book"
   const flower=observed.find(entry=>entry.logId==="r7_books_glow_flower");
   assert.match(flower?.text||"",/押し花/);
   assert.ok(clueIds.includes(flower.logId));
-  const placement=late.slice(late.indexOf("  function r7Shelf(){"),late.indexOf("  function r7Read(id){"));
+  const placement=late.slice(late.indexOf("  function r7Shelf(selectedId){"),late.indexOf("  function r7BooksGlow(){"));
   assert.match(placement,/logId:'r7_return_'\+book\.id/);
   assert.match(placement,/text:'『'\+book\.title\+'』を棚に戻した。'/);
   assert.match(placement,/if\(justSolved\)\{m\.close\(\);renderR7\(\);r7BooksGlow\(\);return\}/);

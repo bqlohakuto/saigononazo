@@ -29,18 +29,36 @@ test('E14: rabbit panel introduces memory in approved sensory order without chan
    'そして、聞き覚えのある女性の鼻歌。',
    '視界がゆっくりと明るくなっていく。'
   ];
-  for(const [index,part] of expected.entries()){
-   assert(q('#roomNextButton'),'E14 dialogue page '+index+' exists');
-   assert(q('#roomMessage .message')?.textContent.includes(part),'approved E14 line '+index+' appears in order');
+  // One authored line may occupy multiple display pages in the novel UI.
+  // Accumulate pages until the first existing recollection line begins.
+  const pages=[];
+  let enteredMemory=false;
+  for(let n=0;n<100&&q('#roomNextButton');n++){
+   const page=q('#roomMessage .message')?.textContent||'';
+   pages.push(page);
+   if(pages.join('').includes('気がつくと、僕はダイニングテーブルの前に座っていた。')){
+    enteredMemory=true;break;
+   }
    click('#roomNextButton');
   }
-  assert(q('#roomMessage .message')?.textContent.includes('気がつくと、僕はダイニングテーブルの前に座っていた。'),'existing Room 5 recollection starts after the transition');
+  assert(enteredMemory,'existing Room 5 recollection starts after the transition');
+  const transcript=pages.join('').replace(/\\s+/g,'');
+  let position=0;
+  for(const [index,part] of expected.entries()){
+   const needle=part.replace(/\\s+/g,'');
+   const at=transcript.indexOf(needle,position);
+   assert(at>=position,'approved E14 line '+index+' appears in order, even across dialogue pages');
+   position=at+needle.length;
+  }
+  assert(transcript.indexOf('気がつくと、僕はダイニングテーブルの前に座っていた。',position)>=position,
+   'existing recollection starts after the approved sensory sequence');
   const saved=JSON.parse(w.localStorage.getItem('saigononazo-save-v1')).rooms.room05;
   assert.equal(saved.codeRevealed,true,'solved puzzle remains solved');
   assert.equal(saved.doorUnlocked,true,'door remains unlocked');
   assert.equal(saved.memorySeen,false,'memory is not complete before dialogue finishes');
  }finally{
   vm.runInContext('Dialogue.stop()',ctx);
+  await new Promise(resolve=>setTimeout(resolve,100));
   dom.window.close();
  }
 });

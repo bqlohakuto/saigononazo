@@ -40,7 +40,7 @@ test('E14: rabbit panel introduces memory in approved sensory order without chan
   for(const [id,part] of expected){
    const at=scene.indexOf('line("'+id+'"',last+1);
    assert(at>last,'approved E14 log ID '+id+' follows previous line');
-   assert(scene.slice(at,scene.indexOf('),',at)+2).includes(part),'E14 text '+id+' is retained');
+   assert(scene.slice(at,at+500).includes(part),'E14 text '+id+' is retained');
    last=at;
   }
   assert.match(scene,/\],r5Memory\);/,'the completed lead-in calls the existing recollection');

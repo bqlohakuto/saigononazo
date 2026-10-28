@@ -983,7 +983,7 @@
   }
   let r6Moving=false,r6TravelGeneration=0;
   const r6Busy=()=>r6Moving||!!game.querySelector('.room-dialog-overlay,.device-overlay,.gameplay-panel-overlay');
-  const r6Objective=()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"部屋を探索し、構造と床の色を確かめる";
+  const r6Objective=()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"扉をたどって、部屋の手がかりを探す";
   function r6SpecificHint(){
     const count=room6State.moves.length,route=r6WinningRoute(room6State.board,count);
     if(route?.length)return '次は'+route[0]+'の部屋で、レバーを'+(count%2===0?'左に倒して白':'右に倒して黒')+'にしてみて。';
@@ -1004,7 +1004,7 @@
       '途中で置けなくなったら、一手戻ってみよう。別の場所から挟めるかもしれないよ。'
     ];
     const choices=room6State.othelloKnown?hints.slice(0,Math.min(3,room6State.hintLevel+1)).map((text,i)=>({id:'hint-'+(i+1),label:'ヒント'+(i+1),text,level:i+1})):
-      [{id:'exploration',label:'探索について',text:'まだ通っていない扉を調べてみよう。端まで行けるところや、床の色が違う部屋も確かめてみて。'}];
+      [{id:'exploration',label:'探索について',text:'まだ通っていない扉を進んでみよう。部屋の様子をよく確かめてみて。'}];
     if(room6State.othelloKnown&&room6State.hintLevel>=3)choices.push({id:'next-move',label:'もっとヒント（次の一手）',specific:true});
     choices.push({id:'cancel',label:'なんでもない'});
     const overlay=document.createElement('div');overlay.className='device-overlay hana-choice-overlay';

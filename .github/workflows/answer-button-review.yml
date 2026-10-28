@@ -1,0 +1,40 @@
+name: Answer button color review
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'design-ui.css'
+      - 'index.html'
+      - 'tests/answer-button-style.browser.cjs'
+      - '.github/workflows/answer-button-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  answer-buttons:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install review browsers
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps webkit
+          google-chrome --version
+      - name: Verify answer colors on Chrome and landscape WebKit
+        env:
+          UI_SCREENSHOT_DIR: artifacts/answer-buttons
+        run: node tests/answer-button-style.browser.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: answer-button-color-review
+          path: artifacts/answer-buttons/
+          if-no-files-found: warn
+          retention-days: 14

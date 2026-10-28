@@ -54,6 +54,7 @@ async function fit(page){
   assert.equal(await page.locator('.room-dialog').evaluate(el=>getComputedStyle(el).boxShadow),'none','hide removes the translucent window outline');
   await page.locator('.dialogue-restore').click({position:{x:500,y:100}});
   await reach(page,'r5m038');await page.locator('.memory-girl').evaluate(i=>i.decode());await fit(page);
+  await page.locator('#roomMessage').filter({hasText:'その間やめて'}).waitFor({state:'visible'});
   assert.equal(await page.locator('.memory-prop').isVisible(),false,'E08: no substitute notebook drawing');
   assert.equal(await page.locator('.memory-notebook,.memory-appliance-box').count(),0);
   await page.screenshot({path:path.join(out,spec.name+'-pout.png')});
@@ -61,6 +62,7 @@ async function fit(page){
   await reach(page,'r5m103');await page.locator('.memory-girl').evaluate(i=>i.decode());await fit(page);
   await page.screenshot({path:path.join(out,spec.name+'-morning.png')});
   await reach(page,'r5m150');await page.locator('.memory-girl').evaluate(i=>i.decode());await fit(page);
+  await page.locator('#roomMessage').filter({hasText:'新しく買った家電が届いた日'}).waitFor({state:'visible'});
   assert.equal(await page.locator('.memory-prop').isVisible(),false,'E08: no substitute appliance or manual drawing');
   assert.equal(await page.locator('.memory-notebook,.memory-appliance-box').count(),0);
   await page.screenshot({path:path.join(out,spec.name+'-appliance.png')});

@@ -107,12 +107,25 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(save().currentScene,'room08');
   await wait(100);finish();
   assert.equal(save().rooms.room08.puzzleReady,true);
-  click('#r8Paper');click('#r8Back');click('.device-close');
+  // G01: before reading the back, no past memory is marked as a final clue.
+  assert.equal(save().rooms.room08.backSeen,false);
+  click('#r8Paper');click('.device-close');
+  [...w.document.querySelectorAll('.gameplay-hud-actions button')].find(b=>b.textContent==='記録').click();
+  click('.design-tabs [data-room="room07"]');
+  click('.design-tabs [data-category="investigation"]');
+  assert.equal(w.document.querySelectorAll('.design-record.final-clue').length,0,'records do not spoil the last puzzle before the back is read');
+  click('.design-panel header button');
+  // A read of the back enables restrained markers on existing, discovered logs.
+  click('#r8Paper');click('#r8Back');
+  assert.equal(save().rooms.room08.backSeen,true,'the paper-back hint is saved');
+  click('.device-close');
   await wait(0);
   [...w.document.querySelectorAll('.gameplay-hud-actions button')].find(b=>b.textContent==='記録').click();
   click('.design-tabs [data-room="room07"]');
   click('.design-tabs [data-category="investigation"]');
-  assert.ok(w.document.querySelectorAll('.design-record.final-clue').length>=1,'actual room-seven clues are highlighted in the current record UI');
+  assert.ok(w.document.querySelectorAll('.design-record.final-clue').length>=1,'actual room-seven memories are marked after reading the hint');
+  const clueRow=q('.design-record.final-clue');
+  assert.ok(clueRow.textContent.startsWith('● '),'clue marker is visual, not a written answer');
   click('.design-panel header button');
   click('#r8Paper');
   q('#r8Answer').value='花音';

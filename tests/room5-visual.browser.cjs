@@ -89,6 +89,22 @@ const expected=[
         await page.waitForSelector('.room-dialog-overlay');
         await page.evaluate(()=>{for(let i=0;i<100&&document.querySelector('#roomNextButton');i++)document.querySelector('#roomNextButton').click()});
         await page.waitForFunction(()=>room5State.collected.includes('mirror'));
+        // E03: the acquired item's APPROVED image must open as a large reveal.
+        const reveal=page.locator('.design-pickup-panel');
+        await reveal.waitFor();
+        const art=reveal.locator('.design-pickup-image');
+        assert.match(await art.getAttribute('src'),/images\/background\/room05\/panels\/mirror\.webp$/,'Mirror panel uses approved artwork');
+        const size=await art.evaluate(async image=>{
+          await image.decode();
+          const bounds=image.getBoundingClientRect(),style=getComputedStyle(image);
+          return {naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight,width:bounds.width,height:bounds.height,background:style.backgroundColor};
+        });
+        assert(size.naturalWidth>100&&size.naturalHeight>100,'Approved image loads at useful resolution');
+        assert(size.width>145&&size.height>120,'Collected panel appears substantially larger than the inventory thumbnail');
+        assert.equal(size.background,'rgb(250, 246, 235)','Room 5 reveal uses a paper background');
+        await page.screenshot({path:path.join(dir,'mirror-panel-acquired-large.png')});
+        await reveal.locator('button').filter({hasText:'閉じる'}).click();
+        assert.equal(await reveal.count(),0,'Player can dismiss the large panel reveal');
         assert.equal(await page.locator('.r5-decor-mirror.is-gone').count(),1,'Collected mirror disappears from the room');
         assert.equal(await page.locator('.r5-target-mirror.is-gone').count(),1,'Collected mirror is no longer interactive');
         await page.evaluate(()=>showFifthRoom({introSeen:true}));

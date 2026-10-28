@@ -1035,7 +1035,7 @@
     Dialogue.stop();currentScene="room06";GameAudio.syncSceneMusic?.(currentScene);room6State=normalizeR6(savedState);renderR6();saveGame();
     if(!room6State.introSeen){room6State.introSeen=true;saveGame();showRoomDialog([
       line("r6_intro_entry_01","ト書き","白い光が薄れ、足元に床の輪郭が戻ってきた。"),
-      line("r6_intro_entry_02","ト書き","小さな部屋だった。床も壁も明るい色で、四方には隣の部屋へ続く扉がある。"),
+      line("r6_intro_entry_02","ト書き","小さな部屋だった。床も壁も明るい色で、正面と右側に扉がある。"),
       line("r6_intro_01","ト書き","足元の床は白い。並んだ扉は、どれもよく似た形をしている。"),
       line("r6_intro_entry_03","ト書き","壁の一角に、短い言葉が刻まれていた。"),
       line("r6_intro_02","問題文","最後の影が消える時、閉ざされた道は開かれる。"),
@@ -1128,6 +1128,10 @@
     if(r6Busy()||!r6Valid(id)||id===room6State.current)return;
     if(fromMap?(!room6State.mapEvent||(!room6State.mapComplete&&!room6State.visited.includes(id))):!r6Neighbor(room6State.current,id))return;
     const previous=room6State.current,fresh=!room6State.visited.includes(id);
+    const arrivalColor=R6_INITIAL[r6Index(id)];
+    const firstAdditionalWhite=fresh&&arrivalColor==='W'&&!room6State.visited.some(room=>room!=='A8'&&R6_INITIAL[r6Index(room)]==='W');
+    const firstBlack=fresh&&arrivalColor==='G'&&!room6State.seenColors.includes('G');
+    const firstGreen=fresh&&arrivalColor==='E'&&!room6State.seenColors.includes('E');
     const change=()=>{
       if(!fromMap&&!room6State.edges.some(e=>e.includes(previous)&&e.includes(id)))room6State.edges.push([previous,id]);
       room6State.current=id;if(fresh)room6State.visited.push(id);
@@ -1142,8 +1146,9 @@
     };
     const arrived=()=>{
       const lines=[];
-      if(fresh&&id==='A7')lines.push(line('r6_a7','主人公','……さっきの部屋と、似た造りですね。'),line('r6_a7_h','ハナ','うん。壁も扉も、ほとんど同じみたい。'));
-      if(fresh&&id==='B8')lines.push(line('r6_b8','主人公','……床が黒くなった'),line('r6_b8_h','ハナ','さっきの部屋とは違うね'));
+      if(firstAdditionalWhite)lines.push(line('r6_a7','主人公','……最初に入った部屋と、似た造りですね。'),line('r6_a7_h','ハナ','うん。壁も扉も、ほとんど同じみたい。'));
+      if(firstBlack)lines.push(line('r6_b8','主人公','……ここは、床が黒いんですね。'),line('r6_b8_h','ハナ','うん。白い部屋とは違うね。'));
+      if(firstGreen)lines.push(line('r6_first_green','主人公','……この部屋は、床が緑色なんですね。'),line('r6_first_green_h','ハナ','そうだね。何かあるのかな？'));
       if(lines.length)showRoomDialog(lines,after);else after();
     };
     const direction=fromMap?'map':id[0]>previous[0]?'east':id[0]<previous[0]?'west':Number(id[1])<Number(previous[1])?'north':'south';

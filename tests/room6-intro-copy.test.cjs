@@ -60,3 +60,31 @@ test("F02: pre-discovery objective and Hana's hint stay exploratory until eviden
   assert(!before.includes('端まで行けるところや、床の色が違う部屋'),'no early structural or color clue');
   assert(game.includes('if(extremes&&colors&&!room6State.othelloKnown)'),'both board and color discoveries remain required');
 });
+
+test("F03: the fourth-room question concerns the remembered woman, not Hana's stated preference",()=>{
+  const exact='line("r6_food_03","主人公","前に思い出した、あの人の好物って……アジの南蛮漬けでしたっけ？")';
+  assert(game.includes(exact),'approved question is present at the unchanged log ID');
+  assert(!game.includes('line("r6_food_03","主人公","ハナさんが好きなのって'),'the question is no longer about Hana herself');
+  const expected=[
+    ['r6_food_01','そういえば、ハナさん'],
+    ['r6_food_02','ん？'],
+    ['r6_food_03','前に思い出した、あの人の好物って……アジの南蛮漬けでしたっけ？'],
+    ['r6_food_04','レンコンだよ'],
+    ['r6_food_05','……'],
+    ['r6_food_06','……あ'],
+    ['r6_food_07','一瞬、沈黙する。'],
+    ['r6_food_08','……レンコンでしたか'],
+    ['r6_food_09','…………うん']
+  ];
+  const section=game.slice(game.indexOf('function r6Interview4()'),game.indexOf('function r6MapEvent()'));
+  let prev=-1;
+  for(const [id,words] of expected){
+    const at=section.indexOf('line("'+id+'"',prev+1);
+    assert(at>prev,'conversation retains original order for '+id);
+    assert(section.slice(at,at+240).includes(words),'dialogue text remains intact for '+id);
+    prev=at;
+  }
+  const doc=read('scenario/06_room6.md');
+  assert(doc.includes('> 主人公「前に思い出した、あの人の好物って……アジの南蛮漬けでしたっけ？」'),'scenario matches the game');
+  assert(manuscript.includes('れんこんの南蛮漬けが好きなんだよね！'),'the earlier memory already establishes the correct food');
+});

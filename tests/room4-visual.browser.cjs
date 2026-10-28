@@ -287,7 +287,15 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  await assertStack();
  assert.equal(await page.evaluate(()=>room4State.angles[0]),2,'Four clockwise turns return to the initial orientation');
  for(const [i,n] of [2,3,0,1,2].entries())for(let j=0;j<n;j++)await page.locator(`.r4-panels button[data-i="${i}"]`).click();
- await assertStack();await page.screenshot({path:path.join(dir,'panels.png')});await page.locator('.r4-shine').click();assert(await page.evaluate(()=>room4State.completed));await finish(page);assert(await page.evaluate(()=>room4State.memorySeen));
+ await assertStack();await page.screenshot({path:path.join(dir,'panels.png')});await page.locator('.r4-shine').click();assert(await page.evaluate(()=>room4State.completed));
+ await finish(page);
+ await page.locator('.r4-memory-bridge.is-white').waitFor({timeout:3000});
+ assert.equal(await page.locator('.room-dialog-overlay').count(),0,'D06 delays memory until after Spica fade');
+ await page.locator('.r4-memory-bridge.is-dark').waitFor({timeout:3000});
+ await page.waitForFunction(()=>GameLog.list().some(entry=>entry.id==='r4f01'),null,{timeout:4000});
+ assert(await page.locator('.memory-scene').count(),'D06 reveals real planetarium artwork');
+ await page.locator('.r4-memory-bridge').waitFor({state:'detached',timeout:4000});
+ await finish(page);assert(await page.evaluate(()=>room4State.memorySeen));
  // Close the fourth-room exit choice before testing a separate device modal.
  await page.locator('.room-exit-menu .device-close').click();
  // Text entry starts only after selecting the answer field.

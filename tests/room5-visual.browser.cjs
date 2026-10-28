@@ -15,7 +15,7 @@ const expected=[
 ];
 (async()=>{
  for(const spec of cases){
-  const browser=await spec.engine.launch({headless:true});
+  const browser=await spec.engine.launch({headless:true,...(spec.mobile?{}:{channel:'chrome'})});
   try{
     const ctx=await browser.newContext({
       viewport:spec.viewport,deviceScaleFactor:spec.mobile?2:1,

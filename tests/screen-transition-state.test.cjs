@@ -52,7 +52,7 @@ test("A03: records tabs/details reset the view without overwriting saved game pr
   assert(begin!==-1&&end>begin);
   const section=s.slice(begin,end);
   assert.match(section,/function drawList\(\)[\s\S]*?m\.content\.replaceChildren\(\);[\s\S]*?m\.content\.scrollTop=0/);
-  assert.match(section,/function detail\(index\)\{m\.content\.replaceChildren\(\);m\.content\.scrollTop=0/);
+  assert.match(section,/function detail\(index\)\{\s*footer\.hidden=true;\s*m\.content\.replaceChildren\(\);m\.content\.scrollTop=0/);
   assert.match(section,/recordPage=0;drawList\(\)/);
   assert.doesNotMatch(section,/clearSave\(|roomStates\s*=|removeItem\(/);
 });

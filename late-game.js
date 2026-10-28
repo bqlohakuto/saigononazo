@@ -1036,7 +1036,7 @@
     if(!room6State.introSeen){room6State.introSeen=true;saveGame();showRoomDialog([
       line("r6_intro_entry_01","ト書き","白い光が薄れ、足元に床の輪郭が戻ってきた。"),
       line("r6_intro_entry_02","ト書き","小さな部屋だった。床も壁も明るい色で、四方には隣の部屋へ続く扉がある。"),
-      line("r6_intro_01","ト書き","足元の床は白い。どの扉の先にも、同じような空間が続いているようだ。"),
+      line("r6_intro_01","ト書き","足元の床は白い。並んだ扉は、どれもよく似た形をしている。"),
       line("r6_intro_entry_03","ト書き","壁の一角に、短い言葉が刻まれていた。"),
       line("r6_intro_02","問題文","最後の影が消える時、閉ざされた道は開かれる。"),
       line("r6_intro_03","主人公","……まずは、この部屋から調べてみよう。",{thought:true})]);}
@@ -1142,7 +1142,7 @@
     };
     const arrived=()=>{
       const lines=[];
-      if(fresh&&id==='A7')lines.push(line('r6_a7','主人公','……変化はないですね'),line('r6_a7_h','ハナ','うん。ここはそのままみたい'));
+      if(fresh&&id==='A7')lines.push(line('r6_a7','主人公','……さっきの部屋と、似た造りですね。'),line('r6_a7_h','ハナ','うん。壁も扉も、ほとんど同じみたい。'));
       if(fresh&&id==='B8')lines.push(line('r6_b8','主人公','……床が黒くなった'),line('r6_b8_h','ハナ','さっきの部屋とは違うね'));
       if(lines.length)showRoomDialog(lines,after);else after();
     };

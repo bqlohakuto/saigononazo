@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'room3.js'
+      - 'exploration-scenario.js'
+      - 'images/items/optional-room03-lecture-notebook.svg'
       - 'style.css'
       - 'design-ui.css'
       - 'index.html'

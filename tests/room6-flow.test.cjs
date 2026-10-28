@@ -49,6 +49,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(q('.r6-scene').dataset.color,'white');
   assert.equal(q('.r6-map'),null,'map not revealed before handoff');
   assert.equal(w.document.querySelectorAll('[data-dest]').length,2,'A8 has only north/east exits');
+  assert.equal(q('#r6Next'),null,'F10: the next-room exit is not shown before completion');
   // Animated travel locks repeated input and resumes dialogue only after arrival.
   w.matchMedia=()=>({matches:false,addEventListener(){}});
   click('[data-dest="A7"]');click('[data-dest="B8"]');
@@ -150,15 +151,45 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   for(let i=0;i<route.length;i++){
     if(q('.r6-scene').dataset.current!==route[i])click('[data-cell="'+route[i]+'"]');
     click(i%2===0?'#r6White':'#r6Black');
-    if(i===8){run('showSixthRoom('+JSON.stringify(save().rooms.room06)+')');assert.ok(q('#roomNextButton'),'interrupted winning recollection resumes after load');}
-    finish();
+    if(i===8){
+      run('showSixthRoom('+JSON.stringify(save().rooms.room06)+')');
+      assert.ok(q('#roomNextButton'),'interrupted winning recollection resumes after load');
+      assert.equal(q('#r6Next'),null,'F10: the exit has not been revealed before the return dialogue');
+      let revealed=false;
+      for(let n=0;n<800&&q('#roomNextButton');n++){
+        if(q('#roomMessage')?.textContent.includes('さっきまで何もなかった壁に')){
+          revealed=true;
+          assert.ok(q('#r6Next'),'F10: H2 right-hand exit appears at the corresponding narration');
+          assert.equal(q('#r6Next').disabled,true,'F10: exit is disabled during the return dialogue');
+          click('#r6Next');
+          assert.equal(save().currentScene,'room06','F10: cannot transition while the scene is playing');
+        }
+        click('#roomNextButton');
+      }
+      assert(revealed,'F10: the exit is revealed during the return dialogue');
+    }else finish();
     if(i===3){const saved=save().rooms.room06;run('showSixthRoom('+JSON.stringify(saved)+')');assert.deepEqual(save().rooms.room06.board,saved.board,'save/load retains flips and map');}
   }
   assert.equal(save().rooms.room06.completed,true);
   assert.ok(save().rooms.room06.board.every(c=>c==='W'));
   assert.ok(q('#r6Next'));
-
-  click('#r6Next');await wait(720);assert.equal(save().currentScene,'room07');
+  assert.equal(q('#r6Next').disabled,false,'F10: exit becomes interactive when the return dialogue ends');
+  assert.equal(q('#r6Next').classList.contains('r6-door-east'),true,'F10: door remains on H2 east wall');
+  const completedState=save().rooms.room06;
+  run('showSixthRoom('+JSON.stringify(completedState)+')');
+  assert.ok(q('#r6Next'),'F10: completed save restores the final exit');
+  click('#r6Next');
+  assert.equal(save().currentScene,'room06','F10: inspecting the door does not skip directly to room seven');
+  const firstInspection=finish().join('');
+  assert(firstInspection.includes('右側の壁に、先ほどまでなかった扉がある。'),'F10: inspection explains the new door');
+  assert(firstInspection.includes('……ここから、先へ進めそうだ。'),'F10: inspection gives the player a cue');
+  assert.ok(q('[data-r6-exit="proceed"]'),'F10: player can choose to go on');
+  click('[data-r6-exit="stay"]');
+  assert.equal(save().currentScene,'room06','F10: player may keep investigating');
+  click('#r6Next');finish();
+  click('[data-r6-exit="proceed"]');
+  await wait(720);
+  assert.equal(save().currentScene,'room07','F10: accepting the choice enters room seven');
 
   // Alternate route: black -> green -> a later white room; no A7/B8-specific trigger.
   run('showSixthRoom({introSeen:true})');

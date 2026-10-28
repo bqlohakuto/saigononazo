@@ -2037,6 +2037,7 @@
       line('r7_books_glow_01','ト書き','棚に並んだ本が、一瞬、淡く光った。'),
       line('r7_books_glow_02','主人公','……今、光った？'),
       line('r7_books_glow_03','ト書き','見た目は、さっきと変わらない。'),
+      line('r7_books_glow_flower','ト書き','一冊のページの端から、押し花の栞が少しだけのぞいている。'),
       line('r7_books_glow_04','ト書き','でも、何か変わったところがあるのかもしれない。')
     ]);
   }
@@ -2470,8 +2471,8 @@
     "r5_final_flower","r5_final_humming",
     // Room 6: lavender -> an audible crossing signal
     "r6_final_lavender","r6_final_signal",
-    // Room 7: a pressed flower -> the Bremen Town Musicians
-    "r7_final_pressed_flower","r7_final_bremen"
+    // Room 7: mandatory shelf-completion flower and Bremen title; optional book reading.
+    "r7_books_glow_flower","r7_return_bremen","r7_final_pressed_flower","r7_final_bremen"
   ];
   function r8IsFinalClue(entry){
     // Do not draw attention to the answer before the player reads the paper's back.

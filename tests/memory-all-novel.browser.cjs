@@ -16,6 +16,13 @@ const late=fs.readFileSync(path.join(root,'late-game.js'),'utf8');
 for(const m of late.matchAll(/line\(("(?:\\.|[^"\\])*"),("(?:\\.|[^"\\])*"),("(?:\\.|[^"\\])*")/g)){
  const [logId,speaker,text]=m.slice(1).map(s=>JSON.parse(s));authored.set(logId,{logId,speaker,text,logType:speaker==='ト書き'?'narration':'dialogue'});
 }
+// The zodiac short-memory dialogue is authored with single-quoted line(...)
+// arguments, unlike the earlier room scripts. Include those lines in review.
+for(const m of late.matchAll(/line\('(r7_mem_(?:boar|rooster)_[0-9]{2})','([^']+)','((?:\\.|[^'\\])*)'/g)){
+ const [,logId,speaker,rawText]=m;
+ const text=rawText.replace(/\\n/g,'\n').replace(/\\'/g,"'");
+ authored.set(logId,{logId,speaker,text,logType:speaker==='ト書き'?'narration':'dialogue'});
+}
 const scenes=JSON.parse(fs.readFileSync(path.join(root,'docs/MEMORY_SCENES_IMPLEMENTATION.json')));
 const samples=['room2_memory_070','room3_flashback_05','room3_flashback_39','room3_flashback_71','r4f05','r4f10','r4f51','r5m014','r5m038','r5m103','r5m121','r5m156','r5m197','r5m225','r5m248','r6_memory_full_007','r6_memory_full_030','r6_memory_full_058','r6_memory_06','r7_mem_14','r7_mem_26','r7_mem_34','r7_mem_35','r7_mem_boar_01','r7_mem_boar_02','r7_mem_boar_27','r7_mem_boar_28','r7_mem_rooster_03'];
 const engine=process.env.MEMORY_MOBILE_ENGINE==='chromium'?chromium:webkit;

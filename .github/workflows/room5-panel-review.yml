@@ -1,0 +1,40 @@
+name: Room 5 acquired panel artwork review
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'late-game.js'
+      - 'design-ui.css'
+      - 'index.html'
+      - 'images/background/room05/panels/**'
+      - 'tests/room5-visual.browser.cjs'
+      - '.github/workflows/room5-panel-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  panel-reveal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser engines
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps webkit
+          google-chrome --version
+      - name: Check collected panel artwork and layout in Chrome and iPhone WebKit
+        run: node tests/room5-visual.browser.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: room05-panel-reveal-review
+          path: artifacts/room05/
+          if-no-files-found: warn
+          retention-days: 14

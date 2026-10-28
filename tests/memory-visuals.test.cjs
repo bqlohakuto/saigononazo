@@ -156,14 +156,15 @@ test('Presence follows actual scene boundaries rather than narration or speaker 
 });
 
 
+
 test('A08: every Room 7 zodiac-door recollection has a relevant, authored scene',()=>{
  const script=fs.readFileSync(path.resolve(__dirname,'../late-game.js'),'utf8');
- const ids=[...new Set([...script.matchAll(/line\\('(r7_mem_(?:tiger|rabbit|sheep|monkey|boar|rooster)_\\d{2})'/g)].map(m=>m[1]))];
+ const ids=[...new Set([...script.matchAll(/line\('(r7_mem_(?:tiger|rabbit|sheep|monkey|boar|rooster)_[0-9]{2})'/g)].map(m=>m[1]))];
  assert.equal(ids.length,139,'Cover all six door memories, including 28 boar beats');
  for(const id of ids){
    const image=visuals.get('room07',{logId:id});
    assert.ok(image?.background,id+' must not leave the Room 7 bookshelf scene behind');
-   assert.match(image.background,/^images\\\/(?:background|cg)\\\/memories\\\//,id);
+   assert.ok(image.background.startsWith('images/background/memories/')||image.background.startsWith('images/cg/memories/'),id);
  }
  for(let i=1;i<=28;i++){
    const id='r7_mem_boar_'+String(i).padStart(2,'0');

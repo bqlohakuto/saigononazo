@@ -354,7 +354,15 @@
     const flashback=!!memoryVisual;
     window.MemoryVisuals?.sync(memoryVisual);
     const overlay=game.querySelector('.room-dialog-overlay');
-    if(overlay){if(memoryVisual)overlay.dataset.memoryStage=memoryVisual.reveal;else delete overlay.dataset.memoryStage;}
+    if(overlay){
+      if(memoryVisual){
+        overlay.dataset.memoryStage=memoryVisual.reveal;
+        overlay.dataset.memoryPresentation=memoryVisual.presentation||'scene';
+      }else{
+        delete overlay.dataset.memoryStage;
+        delete overlay.dataset.memoryPresentation;
+      }
+    }
     if(currentScene==='opening')portraitVisible=kind==='heroine'&&!!game.querySelector('.opening[data-hana-visible="true"]');else portraitVisible=!flashback&&kind==='heroine';
     if(line.expression){const choice=hanaV2Names.indexOf(line.expression);expression=choice>=0?choice:0}else if(kind==='heroine'){expression=/眠|ふぁ|スー、スー/.test(line.text)?6:/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}
     decorateDialogue(game.querySelector('.room-dialog-overlay')||document.createElement('div'));

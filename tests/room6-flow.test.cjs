@@ -77,7 +77,17 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert(!explorationHint.includes('床の色が違う部屋')&&!explorationHint.includes('端まで'),'F02 early hint does not reveal structure or color');
   assert.equal(initial.length,64);
   assert.deepEqual(['W','G','E'].map(c=>initial.filter(v=>v===c).length),[40,15,9]);
-  for(const id of ['A7','A6','A5','A4','A3']){click('[data-dest="'+id+'"]');finish();}
+  for(const id of ['A7','A6','A5','A4','A3']){
+    click('[data-dest="'+id+'"]');
+    const pages=finish();
+    if(id==='A5'){
+      const script=pages.join('').replace(/\s+/g,'');
+      const question='前に思い出した、あの人の好物って……アジの南蛮漬けでしたっけ？';
+      assert(script.includes(question),'F03: the fourth room asks about the remembered person');
+      assert(script.indexOf('レンコンだよ')>script.indexOf(question),'F03: Hana gives the remembered answer immediately');
+      assert(!script.includes('ハナさんが好きなのって'),'F03: question does not assert Hana told her own preferences');
+    }
+  }
   assert.equal(save().rooms.room06.interview4,true);
   assert.equal(save().rooms.room06.mapEvent,true,'map granted at sixth room including A8');
   assert.equal(w.document.querySelectorAll('[data-cell]').length,6,'unvisited rooms are absent');

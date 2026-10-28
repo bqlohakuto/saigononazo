@@ -257,7 +257,7 @@
     }
     showRoomDialog(lines,()=>{
       room5State.collected.push(id);saveGame();renderR5();
-      window.DesignUI?.pickup({id,name:item[1]+"のパネル",art:item[1],description:item[1]+"が描かれたパネル。"});
+      window.DesignUI?.pickup({id,name:item[1]+"のパネル",image:"images/background/room05/panels/"+id+".webp",imageAlt:item[1]+"が描かれたパネル",description:item[1]+"が描かれたパネル。"});
       if(room5State.collected.length===7)showRoomNotice("7枚すべてのパネルが集まった。中央パネルを確認しよう。","r5_all_collected","narration");
     });
   }

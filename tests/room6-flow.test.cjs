@@ -38,7 +38,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   const entryText=entryPages.join('').replace(/\s+/g,'');
   assert(entryText.includes('足元の床は白い。並んだ扉は、どれもよく似た形をしている。'),'the entry describes only visible doors');
   assert(!entryText.includes('同じような空間が続いている'),'unvisited rooms are not spoiled on entry');
-  assert(!entryText.includes('……さっきの部屋と、似た造りですね。'),'the discovery is not made until after moving');
+  assert(!entryText.includes('……最初に入った部屋と、似た造りですね。'),'the discovery is not made until after moving');
   assert.ok(q('#r6TestGuide'));
   const guideState=save().rooms.room06;
   click('#r6TestGuide');assert.equal(w.document.querySelectorAll('.r6-test-guide tbody tr').length,9);
@@ -61,7 +61,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   await wait(360);assert.equal(q('.r6-travel-shade'),null);
   const a7Pages=finish();
   const a7Text=a7Pages.join('').replace(/\s+/g,'');
-  const notice='……さっきの部屋と、似た造りですね。',reply='うん。壁も扉も、ほとんど同じみたい。';
+  const notice='……最初に入った部屋と、似た造りですね。',reply='うん。壁も扉も、ほとんど同じみたい。';
   assert(a7Text.includes(notice),'the comparison is made only after entering A7');
   assert(a7Text.indexOf(reply)>a7Text.indexOf(notice),'Hana confirms the similarity after the protagonist notices');
   assert.equal(save().rooms.room06.visited.length,2,'one click sequence creates one visit');
@@ -93,8 +93,16 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(w.document.querySelectorAll('[data-cell]').length,6,'unvisited rooms are absent');
   click('[data-cell="A8"]');assert.equal(q('.r6-scene').dataset.current,'A8');
   assert.equal(save().rooms.room06.visited.length,6,'fast travel does not count as new exploration');
-  click('[data-dest="B8"]');finish();assert.equal(q('.r6-scene').dataset.color,'black');
-  click('[data-dest="C8"]');finish();assert.equal(q('.r6-scene').dataset.color,'green');
+  click('[data-dest="B8"]');
+  const firstBlack=finish().join('').replace(/\s+/g,'');
+  assert(firstBlack.includes('……ここは、床が黒いんですね。'),'first black room is observed');
+  assert(firstBlack.includes('うん。白い部屋とは違うね。'),'Hana reacts to black floor');
+  assert.equal(q('.r6-scene').dataset.color,'black');
+  click('[data-dest="C8"]');
+  const firstGreen=finish().join('').replace(/\s+/g,'');
+  assert(firstGreen.includes('……この部屋は、床が緑色なんですね。'),'first green room is observed');
+  assert(firstGreen.includes('そうだね。何かあるのかな？'),'Hana reacts without explaining the lever');
+  assert.equal(q('.r6-scene').dataset.color,'green');
   assert.ok(q('#r6White'));assert.equal(save().rooms.room06.greenSeen,true);
   run('showSixthRoom({introSeen:true,visited:["A8","A1","H1","H8","D1","B8"],current:"H8",interview4:true,mapEvent:true})');
   click('[data-dest="H7"]');finish();

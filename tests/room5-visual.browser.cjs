@@ -23,7 +23,7 @@ const expected=[
     });
     await ctx.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
     const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-    const expectedVersion=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8').match(/design-ui\\.css\\?v=([^"']+)/)?.[1];
+    const expectedVersion=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8').match(/design-ui\.css\?v=([^"']+)/)?.[1];
     assert(expectedVersion,'Published CSS revision must be present in local source');
     for(let retry=0;retry<24;retry++){
       const response=await page.goto(base+'?room05_art_review='+Date.now(),{waitUntil:'load',timeout:60000});

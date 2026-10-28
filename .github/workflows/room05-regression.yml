@@ -1,6 +1,14 @@
 name: Room 05 exploration and puzzle regression
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'late-game.js'
+      - 'room5.css'
+      - 'index.html'
+      - 'tests/room5-mirror.test.cjs'
+      - 'tests/room5-inlay.browser.cjs'
+      - '.github/workflows/room05-regression.yml'
   push:
     branches: [main]
     paths:

@@ -74,6 +74,9 @@ assert.equal(q('.r5-inlay-code').hidden,false,'8194 appears during the approved 
 assert.equal(q('.r5-inlay-code').textContent,'8194');
 click('.r5-board-panel .device-close');
 assert.ok(q('#r5Keypad'));
+assert.ok(q('.r5-door-reveal'),'closing the completed board shows the door reveal');
+for(let n=0;n<140&&q('.r5-door-reveal');n++)await new Promise(resolve=>setTimeout(resolve,50));
+assert.equal(q('.r5-door-reveal'),null,'door reveal finishes before input');
 
 click('#r5Keypad');
 for(const d of ['8','1','9','4'])click('[data-digit="'+d+'"]');

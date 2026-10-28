@@ -114,6 +114,7 @@ async function assertFits(page){
    await assertFits(page);await page.waitForTimeout(400);await page.screenshot({path:path.join(output,spec.name+'-complete.png')});
    assert.equal(await page.locator('.r5-tile-rest.is-used').count(),7);
    await page.keyboard.press('Escape');assert.equal(await page.locator('#r5Keypad').count(),1);
+   await page.locator('.r5-door-reveal').waitFor({state:'detached',timeout:10000});
    assert.equal(await page.locator('#r5Scene .r5-wall-tile.is-placed img').count(),7);
    await page.locator('#r5Keypad').click();for(const digit of ['8','1','9','4'])await page.locator('[data-digit="'+digit+'"]').click();
    await page.locator('[data-key="enter"]').click();await finish(page);assert.equal((await saved(page)).doorUnlocked,true);

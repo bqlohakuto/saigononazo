@@ -1,0 +1,51 @@
+name: Room 5 door reveal review
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'late-game.js'
+      - 'room5.css'
+      - 'index.html'
+      - 'tests/room5-door-reveal.browser.cjs'
+      - '.github/workflows/room5-door-review.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'late-game.js'
+      - 'room5.css'
+      - 'index.html'
+      - 'tests/room5-door-reveal.browser.cjs'
+      - '.github/workflows/room5-door-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  door-reveal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PUBLIC_BASE_URL: ${{ github.event_name == 'pull_request' && 'http://127.0.0.1:8765/' || 'https://bqlohakuto.github.io/saigononazo/' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browsers
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps webkit
+          google-chrome --version
+      - name: Serve the proposed version for pull requests
+        if: github.event_name == 'pull_request'
+        run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/room05-door-http.log 2>&1 &
+      - name: Test the reveal in Chrome and iPhone WebKit
+        run: node tests/room5-door-reveal.browser.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: room05-door-reveal-review
+          path: artifacts/room05-door/
+          if-no-files-found: warn
+          retention-days: 14

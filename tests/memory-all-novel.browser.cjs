@@ -43,6 +43,26 @@ const engine=process.env.MEMORY_MOBILE_ENGINE==='chromium'?chromium:webkit;
     assert.equal(await p.locator('.memory-girl:visible').count(),expected.sprite?1:0,id);
     assert.equal(await p.locator('.memory-background').getAttribute('src'),expected.background,id);
     assert.equal(await p.locator('.memory-scene').getAttribute('data-effect'),expected.effect||'',id);
+    // A06: both recollection styles share the same dialogue geometry, but the
+    // heroine appears either in the full scene or in the text window, never twice.
+    const presentation=expected.presentation||'scene';
+    assert.equal(await p.locator('.room-dialog-overlay').getAttribute('data-memory-presentation'),presentation,id);
+    assert.equal(await p.locator('.memory-scene').getAttribute('data-presentation'),presentation,id);
+    const layout=await p.evaluate(()=>{
+      const g=game.getBoundingClientRect(),d=document.querySelector('.room-dialog').getBoundingClientRect();
+      const portrait=document.querySelector('.memory-window-portrait');
+      const text=document.querySelector('.dialog-message-area');
+      return {
+        left:(d.left-g.left)/g.width, bottom:(g.bottom-d.bottom)/g.height,
+        height:d.height/g.height,
+        portraitVisible:!!portrait&&getComputedStyle(portrait).display!=='none'&&!portrait.hidden,
+        margin:getComputedStyle(text).marginLeft
+      };
+    });
+    assert(Math.abs(layout.left-.022)<.02&&Math.abs(layout.bottom-.025)<.02,id+' consistent dialogue position');
+    assert(Math.abs(layout.height-.25)<.04,id+' consistent dialogue height');
+    assert.equal(layout.portraitVisible,presentation==='dialogue'&&!!expected.sprite,id+' correct window sprite');
+
     // The complete UI, image layer and control hitboxes must stay inside the playfield.
     const outside=await p.evaluate(()=>{
      const r=game.getBoundingClientRect();return [...document.querySelectorAll('.room-dialog button')].filter(e=>{
@@ -66,6 +86,23 @@ const engine=process.env.MEMORY_MOBILE_ENGINE==='chromium'?chromium:webkit;
    assert.equal(await p.locator('.memory-girl:visible').count(),1);
    await p.evaluate(()=>{for(let i=0;i<20&&!GameLog.list().at(-1)?.id.startsWith('r6_after_001');i++)Dialogue.advance()});
    assert.equal(await p.locator('.memory-scene').count(),0);
+   // A06: while recollecting, the old investigation HUD cannot cover the
+   // detailed memory background or dialogue. The dialogue controls stay usable.
+   await p.evaluate(()=>{
+     Dialogue.stop();game.innerHTML='';currentScene='room05';
+     showFifthRoom({introSeen:true,boardIntroSeen:true});
+     showRoomDialog([{logId:'r5m014',speaker:'ト書き',logType:'narration',text:'部屋にいた。'}]);
+   });
+   assert.equal(await p.locator('.gameplay-hud').count(),1);
+   assert.equal(await p.locator('.gameplay-bottom-bar').count(),1);
+   assert.equal(await p.locator('.gameplay-hud').evaluate(el=>getComputedStyle(el).visibility),'hidden');
+   assert.equal(await p.locator('.gameplay-bottom-bar').evaluate(el=>getComputedStyle(el).visibility),'hidden');
+   assert.equal(await p.locator('.room-dialog-overlay').getAttribute('data-memory-presentation'),'dialogue');
+   assert.equal(await p.locator('.memory-window-portrait:visible').count(),1);
+   assert.equal(await p.locator('.room-dialog .design-controls button:visible').count()>0,true,'Dialogue remains operable');
+   await p.evaluate(()=>MemoryVisuals.sync(null));
+   assert.equal(await p.locator('.gameplay-hud').evaluate(el=>getComputedStyle(el).visibility),'visible','HUD returns after memory');
+   await p.evaluate(()=>{Dialogue.stop();game.innerHTML='';});
    assert.deepEqual(errors,[],spec.name+' runtime errors');assert.deepEqual(missing,[],spec.name+' missing assets');
    console.log('PASS '+spec.name+': all 6 recollections, narration persistence, CG, furniture, hide/restore and return');
   }finally{await browser.close()}

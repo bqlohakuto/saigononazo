@@ -316,14 +316,14 @@
       '<div class="r5-inlay-board" role="group" aria-label="丸枠が八つ並ぶ木の盤"><div class="r5-counter-grid"></div><output class="r5-inlay-code" aria-label="盤に現れた暗証番号" hidden>8194</output></div>'+
       '<div class="r5-inventory" role="group" aria-label="手元のパネル"></div>'+
       '<div class="r5-board-feedback" id="r5BoardFeedback" role="status" aria-live="polite" aria-atomic="true"></div>'+
-      '<div class="r5-help-note" hidden>手元のパネルを選び、丸い枠を押してはめ込む。ドラッグでも動かせる。合わない組み合わせは手元に戻る。<br>キーボードでは Tab で移動、Enter または Space で選択・配置。Esc で盤を閉じる。</div></section>';
+      '<div class="r5-help-note" hidden>手元のパネルを選び、丸い枠を押してはめ込む。ドラッグでも動かせる。七枚そろったときだけ判定される。置いたパネルは枠を押して外せる。<br>キーボードでは Tab で移動、Enter または Space で選択・配置・取り外し。Esc で盤を閉じる。</div></section>';
     game.appendChild(o);
     const panel=o.querySelector('section'),grid=o.querySelector('.r5-counter-grid'),tray=o.querySelector('.r5-inventory'),feedback=o.querySelector('#r5BoardFeedback');
-    let selected=null,preview=null,previewTimer=null,completionTimer=null,completionPlaying=false,completionDigitVisible=false,completionLines=null,drag=null,ignoreClick=null,disposed=false;
+    let selected=null,completionTimer=null,completionPlaying=false,completionDigitVisible=false,completionLines=null,drag=null,ignoreClick=null,disposed=false;
     const valid=()=>!disposed&&o.isConnected&&currentScene==='room05'&&room5State===boardState;
     const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const stopDrag=()=>{drag?.ghost?.remove();drag?.button.classList.remove('is-dragging');drag=null;grid.querySelectorAll('.is-over').forEach(b=>b.classList.remove('is-over'));};
-    const cleanup=()=>{disposed=true;clearTimeout(previewTimer);clearTimeout(completionTimer);stopDrag();observer.disconnect();};
+    const cleanup=()=>{disposed=true;clearTimeout(completionTimer);stopDrag();observer.disconnect();};
     const observer=new MutationObserver(()=>{if(!o.isConnected)cleanup();});
     observer.observe(game,{childList:true});
     function say(lines,log=true){
@@ -378,7 +378,6 @@
       };
       advance();
     }
-    function clearPreview(){clearTimeout(previewTimer);previewTimer=null;preview=null;}
     function select(id){
       if(!valid())return;
       selected=selected===id?null:id;
@@ -392,13 +391,13 @@
     function drawSlots(){
       grid.innerHTML=R5_COUNTERS.map(([slot,counter])=>{
         const id=slot==='feather'?'rabbit':R5_ITEMS.find(([id])=>boardState.placed[id]===counter)?.[0];
-        const trying=preview?.counter===counter&&!id;
-        const imageId=id||(trying?preview.id:null);
-        const name=id==='rabbit'?'ウサギ':R5_ITEMS.find(([item])=>item===imageId)?.[1];
-        return '<button type="button" class="r5-counter-slot '+(id?'filled':trying?'is-preview':'available')+'" '+(slot==='feather'?'disabled':'data-counter="'+counter+'"')+' aria-label="'+(imageId?name+'と'+counter+'の合体絵'+(id?' 配置済み':' お試し'):counter+'の絵の枠')+'" '+(id?'disabled':'')+'>'+(imageId?'<img class="r5-combination-picture" src="'+r5CombinedImage(imageId,counter)+'" alt="" draggable="false">':r5CounterSketch(slot))+'</button>';
+        const name=id==='rabbit'?'ウサギ':R5_ITEMS.find(([item])=>item===id)?.[1];
+        const locked=slot==='feather'||boardState.codeRevealed||completionPlaying;
+        const label=id?(locked?name+'と'+counter+'の合体絵 配置済み':name+'と'+counter+'の合体絵 配置済み、押すと取り外す'):counter+'の絵の枠';
+        return '<button type="button" class="r5-counter-slot '+(id?'filled':'available')+'" '+(slot==='feather'?'':'data-counter="'+counter+'"')+' aria-label="'+label+'" '+(locked?'disabled':'')+'>'+(id?'<img class="r5-combination-picture" src="'+r5CombinedImage(id,counter)+'" alt="" draggable="false">':r5CounterSketch(slot))+'</button>';
       }).join('');
       grid.classList.toggle('has-selection',!!selected);
-      grid.querySelectorAll('[data-counter]').forEach(b=>b.onclick=()=>place(b.dataset.counter));
+      grid.querySelectorAll('[data-counter]').forEach(b=>b.onclick=()=>placedAt(b.dataset.counter)?removeFrom(b.dataset.counter):place(b.dataset.counter));
       o.querySelector('.r5-inlay-code').hidden=!boardState.codeRevealed||(completionPlaying&&!completionDigitVisible);
       panel.classList.toggle('is-complete',boardState.codeRevealed);
     }
@@ -444,21 +443,23 @@
         b.onlostpointercapture=()=>{if(drag?.button===b)stopDrag();};
       });
     }
+    const placedAt=counter=>R5_ITEMS.find(([id])=>boardState.placed[id]===counter)?.[0];
+    function removeFrom(counter){
+      if(!valid()||completionPlaying||boardState.codeRevealed)return;
+      const id=placedAt(counter);
+      if(!id)return;
+      delete boardState.placed[id];selected=null;saveGame();
+      drawSlots();drawTray();r5RefreshWall();
+      feedback.textContent='パネルを手元に戻した。配置を考え直そう。';
+      tray.querySelector('[data-tile="'+id+'"]')?.focus({preventScroll:true});
+    }
     function place(counter){
-      if(!valid()||!R5_ART_COUNTER[counter]||Object.values(boardState.placed).includes(counter))return;
+      if(!valid()||completionPlaying||boardState.codeRevealed||!R5_ART_COUNTER[counter]||placedAt(counter))return;
       if(!selected){
         feedback.textContent='手元のパネルを選んでください。';return;
       }
       const id=selected;
       if(!boardState.collected.includes(id)||boardState.placed[id])return;
-      clearPreview();
-      if(R5_TARGET[id]!==counter){
-        preview={id,counter};drawSlots();
-        say([line('r5_wrong_'+id+'_'+counter,'主人公','……違いますね。')]);
-        previewTimer=setTimeout(()=>{if(!valid())return;preview=null;drawSlots();},1800);
-        grid.querySelector('[data-counter="'+counter+'"]')?.focus({preventScroll:true});
-        return;
-      }
       const before=r5PlacedCount(),butterflyLast=id==='butterfly'&&before===6;
       if(!reduced()){
         const tile=tray.querySelector('[data-tile="'+id+'"]'),slot=grid.querySelector('[data-counter="'+counter+'"]');
@@ -477,13 +478,18 @@
       const fitted=grid.querySelector('[data-counter="'+counter+'"]');
       if(!reduced())fitted?.animate?.([{filter:'brightness(1)',transform:'scale(.88)'},{filter:'brightness(1.25)',transform:'scale(1.03)'},{filter:'brightness(1)',transform:'scale(1)'}],{duration:380,easing:'ease-out'});
       if(r5PlacedCount()===7){
-        if(butterflyLast)[line('r5_butterfly_hint_07','主人公','……本当に一頭なんですね。'),line('r5_butterfly_hint_08','ハナ','覚えたね。')].forEach(recordLog);
-        r5CompleteBoard(playBoardCompletion);drawSlots();r5RefreshWall();
+        const allCorrect=R5_ITEMS.every(([item])=>boardState.placed[item]===R5_TARGET[item]);
+        if(allCorrect){
+          if(butterflyLast)[line('r5_butterfly_hint_07','主人公','……本当に一頭なんですね。'),line('r5_butterfly_hint_08','ハナ','覚えたね。')].forEach(recordLog);
+          r5CompleteBoard(playBoardCompletion);drawSlots();r5RefreshWall();
+        }else{
+          say([line('r5_board_retry_01','ト書き','七枚そろったが、盤に変化は起きなかった。'),line('r5_board_retry_02','主人公','……並べ方を見直してみましょう。')]);
+        }
       }else if(before===0){
         recordLog(line('r5_place_first_01','ト書き','パネルが淡く光る。丸枠へ吸い込まれるように重なり、二つの絵が一つの合体絵へ切り替わる。'));
-        say([line('r5_place_first_02','主人公','……合ってる。'),line('r5_place_first_03','ハナ','みたいだね。')]);
+        say([line('r5_place_first_02','主人公','……はまりましたね。'),line('r5_place_first_03','ハナ','うん。ほかのも置いてみよう。')]);
       }else{
-        say([line('r5_fit_'+id,'ト書き','――カチッ。')]);
+        say([line('r5_fit_'+id,'ト書き','――コトッ。')]);
       }
       r5ButterflyHintIfNeeded(say);
       const next=tray.querySelector('[data-tile]')||panel.querySelector('.device-close');next?.focus({preventScroll:true});

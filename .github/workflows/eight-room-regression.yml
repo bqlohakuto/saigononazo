@@ -13,6 +13,7 @@ on:
       - 'tests/room5-delayed-validation.test.cjs'
       - 'tests/room5-memory-entry.test.cjs'
       - 'tests/room5-mirror.test.cjs'
+      - 'tests/room6-flow.test.cjs'
       - '.github/workflows/eight-room-regression.yml'
   push:
     branches: [main]
@@ -50,6 +51,8 @@ on:
       - 'tests/room-passage.test.cjs'
       - 'tests/answer-button-style.test.cjs'
       - 'tests/room6-intro-copy.test.cjs'
+      - 'tests/room6-flow.test.cjs'
+      - 'tests/room5-memory-entry.test.cjs'
       - 'tests/room3-editorial-143-151.test.cjs'
       - 'tests/room3-editorial-152-161.test.cjs'
       - 'tests/screen-transition-state.test.cjs'

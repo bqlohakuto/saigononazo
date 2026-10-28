@@ -77,6 +77,14 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 #game .design-content{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:8px;font-size:clamp(13px,1.5cqw,21px);line-height:1.7}
 #game .design-content>p{margin:0}
 #game .design-page{white-space:pre-wrap;flex:1;min-height:0;overflow:hidden;margin:0;line-height:1.7;font-size:inherit}
+/* G02: the record panel has its own scrollable surfaces inside the fixed 16:9 viewport.
+   Keep other modal pages' original pagination and layout unchanged. */
+#game .design-panel[aria-label="記録"] .design-tabs{flex-wrap:nowrap;flex-shrink:0;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+#game .design-panel[aria-label="記録"] .design-tabs>button{flex:0 0 auto}
+#game .design-panel[aria-label="記録"] .design-content{overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+#game .design-panel[aria-label="記録"] .design-record,#game .design-panel[aria-label="記録"] .design-actions{flex:0 0 auto}
+#game .design-panel[aria-label="記録"] .design-page{overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+
 #game .design-pager{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-shrink:0;font-size:12px}
 #game .design-record{width:100%;text-align:left;display:flex;justify-content:space-between;gap:8px;min-height:38px!important}
 #game .design-record small{color:#83775f;font-size:11px}

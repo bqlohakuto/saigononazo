@@ -6,7 +6,7 @@ const path=require("node:path");
 const vm=require("node:vm");
 const root=path.resolve(__dirname,"..");
 const source=fs.readFileSync(path.join(root,"room4.js"),"utf8");
-const firstLine="……あれ？　壁に何か貼ってある……？";
+const firstLine="……あれ？　壁に透明な板みたいなものが貼ってある……？";
 const laterLine="あれ……これもパネルなんじゃ……？";
 
 function inspectWall(owned={}){

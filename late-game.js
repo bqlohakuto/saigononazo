@@ -612,15 +612,15 @@
   function r5RabbitMemoryStart(){
     if(!room5State.doorUnlocked||room5State.memorySeen)return;
     showRoomDialog([
-      line("r5_rabbit_01","主人公","……。"),
-      line("r5_rabbit_02","ト書き","なぜだろう。この絵を見ていると、妙に胸の奥がざわつく。"),
-      line("r5_rabbit_03","主人公","この絵……。"),
-      line("r5_rabbit_04","ト書き","そっと手を伸ばす。指先が触れる。その瞬間――"),
-      line("r5_memory_paper","ト書き","紙を擦るような音。目の前にあったウサギの絵が、ゆっくりと白い紙へと変わっていく。"),
-      line("r5_memory_fridge","ト書き","遠くで低い機械音。――ブゥン……。冷蔵庫の音。"),
-      line("r5_memory_dishes","ト書き","続いて、食器の触れ合う小さな音。"),
-      line("r5_final_humming","ト書き","そして。「ふん、ふふーん♪」聞き覚えのある女性の鼻歌。"),
-      line("r5_memory_light","ト書き","視界が明るくなり、懐かしい部屋の景色が浮かび上がってくる。")
+      line("r5_rabbit_01","主人公","……まだ、気になる。"),
+      line("r5_rabbit_02","ト書き","開いた扉へ向かいかけ、壁のパネルを振り返る。\nあの不格好な耳の形が、どうしても目に残った。"),
+      line("r5_rabbit_03","主人公","この絵……どこかで見たような気がします。"),
+      line("r5_rabbit_04","ト書き","思い出そうとしても、何も浮かんでこない。\n確かめるように近づき、絵へそっと指を伸ばす。"),
+      line("r5_memory_paper","ト書き","触れた瞬間、指先に紙のざらついた感触が伝わった。\n目の前の絵が、白い紙の上の線と重なっていく。"),
+      line("r5_memory_fridge","ト書き","遠くで冷蔵庫の低い音。――ブゥン……。"),
+      line("r5_memory_dishes","ト書き","食器の触れ合う小さな音。"),
+      line("r5_final_humming","ト書き","そして、聞き覚えのある女性の鼻歌。"),
+      line("r5_memory_light","ト書き","視界がゆっくりと明るくなっていく。")
     ],r5Memory);
   }
 

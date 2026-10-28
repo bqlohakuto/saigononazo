@@ -80,7 +80,9 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 #game .design-pager{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-shrink:0;font-size:12px}
 #game .design-record{width:100%;text-align:left;display:flex;justify-content:space-between;gap:8px;min-height:38px!important}
 #game .design-record small{color:#83775f;font-size:11px}
-#game .final-clue,#game mark{background:#eee1bb!important;text-decoration:underline;text-decoration-color:var(--gold);color:var(--ink)}
+#game mark{background:#eee1bb!important;text-decoration:underline;text-decoration-color:var(--gold);color:var(--ink)}
+/* G01: a restrained bookmark, not a highlighted answer or an underlined page. */
+#game .design-record.final-clue,#game .design-page.final-clue{background:#f7f1e6!important;box-shadow:inset 3px 0 0 #c7b087;text-decoration:none;color:var(--ink)}
 #game .design-clue-dot{color:var(--gold)}
 #game .design-items{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 #game .design-item-art{font-size:clamp(28px,5cqw,70px);margin:auto;text-align:center}

@@ -981,8 +981,8 @@
       testGuide:!!s.testGuide,
       memorySeen:!!s.memorySeen,completed:!!s.completed,introSeen:!!s.introSeen};
   }
-  let r6Moving=false,r6TravelGeneration=0;
-  const r6Busy=()=>r6Moving||!!game.querySelector('.room-dialog-overlay,.device-overlay,.gameplay-panel-overlay');
+  let r6Moving=false,r6TravelGeneration=0,r6Flipping=false,r6FlipGeneration=0;
+  const r6Busy=()=>r6Moving||r6Flipping||!!game.querySelector('.room-dialog-overlay,.device-overlay,.gameplay-panel-overlay');
   const r6Objective=()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"扉をたどって、部屋の手がかりを探す";
   function r6SpecificHint(){
     const count=room6State.moves.length,route=r6WinningRoute(room6State.board,count);
@@ -1031,7 +1031,7 @@
   }
   window.showSixthRoom=function(savedState){
     GameAudio.stop("footsteps");
-    r6TravelGeneration++;r6Moving=false;game.classList.remove('r6-map-revealing');
+    r6TravelGeneration++;r6Moving=false;r6FlipGeneration++;r6Flipping=false;game.classList.remove('r6-map-revealing');
     Dialogue.stop();currentScene="room06";GameAudio.syncSceneMusic?.(currentScene);room6State=normalizeR6(savedState);renderR6();saveGame();
     if(!room6State.introSeen){room6State.introSeen=true;saveGame();showRoomDialog([
       line("r6_intro_entry_01","ト書き","白い光が薄れ、足元に床の輪郭が戻ってきた。"),
@@ -1252,18 +1252,39 @@
     if(!room6State.othelloKnown){showRoomDialog([line('r6_lever_observe','ト書き','左右に白と黒の目印が付いたレバーがある。')]);return}
     if(room6State.moves.length>=9){showRoomDialog([line('r6_retry','システム','UNDOかRESETでやり直せる。')]);return}
     if(color!==(room6State.moves.length%2===0?'W':'G')){showRoomDialog([line('r6_turn','システム','現在の手番は'+(room6State.moves.length%2===0?'白':'黒')+'。')]);return}
-    const next=r6Place(room6State.board,room6State.current,color);
+    const previous=room6State.board,placed=room6State.current,next=r6Place(previous,placed,color);
     if(!next){showRoomDialog([line('r6_illegal','システム','この位置では石を返せない。')]);return}
-    room6State.moves.push({id:room6State.current,color});room6State.board=next;saveGame();renderR6();
-    if(room6State.moves.length===9){
-      if(next.every(c=>c==='W')){r6Complete();return}
-      showRoomDialog([line('r6_fail','システム','9手目。黒が残っている。UNDOかRESETでやり直せる。')]);return;
+    room6State.moves.push({id:placed,color});room6State.board=next;saveGame();renderR6();
+    const turn=room6State.moves.length;
+    const afterFlip=()=>{
+      if(turn===9){
+        if(next.every(c=>c==='W')){r6Complete();return}
+        showRoomDialog([line('r6_fail','システム','9手目。黒が残っている。UNDOかRESETでやり直せる。')]);return;
+      }
+      if(turn===1)showRoomDialog([
+        line('r6_first_flip_01','ト書き','白を置く。直後、間にあった黒い床が白へ変わる。'),
+        line('r6_first_flip_02','主人公','……ひっくり返った'),line('r6_first_flip_03','主人公','オセロと同じ……'),
+        line('r6_first_flip_04','主人公','『最後の影が消える時、閉ざされた道は開かれる』……'),
+        line('r6_first_flip_05','主人公','……影って、黒のことか'),line('r6_first_flip_06','主人公','じゃあ、この黒を全部消せば……')]);
+    };
+    // Reduced-motion users get the new board and dialogue immediately.
+    if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){afterFlip();return}
+    const changes=next.flatMap((value,i)=>previous[i]!==value?[{id:String.fromCharCode(65+i%8)+(Math.floor(i/8)+1),from:previous[i],kind:i===r6Index(placed)?'placed':'flipped'}]:[]);
+    for(const change of changes){
+      const cell=game.querySelector('[data-cell="'+change.id+'"]');
+      if(!cell)continue;
+      cell.dataset.flipFrom=r6Color(change.from);
+      cell.classList.add('r6-'+change.kind);
     }
-    if(room6State.moves.length===1)showRoomDialog([
-      line('r6_first_flip_01','ト書き','白を置く。直後、間にあった黒い床が白へ変わる。'),
-      line('r6_first_flip_02','主人公','……ひっくり返った'),line('r6_first_flip_03','主人公','オセロと同じ……'),
-      line('r6_first_flip_04','主人公','『最後の影が消える時、閉ざされた道は開かれる』……'),
-      line('r6_first_flip_05','主人公','……影って、黒のことか'),line('r6_first_flip_06','主人公','じゃあ、この黒を全部消せば……')]);
+    game.querySelector('.r6-scene')?.classList.add('r6-flip-scene');
+    r6Flipping=true;const generation=++r6FlipGeneration;
+    setTimeout(()=>{
+      if(generation!==r6FlipGeneration||currentScene!=='room06')return;
+      r6Flipping=false;
+      game.querySelector('.r6-scene')?.classList.remove('r6-flip-scene');
+      game.querySelectorAll('.r6-placed,.r6-flipped').forEach(cell=>{cell.classList.remove('r6-placed','r6-flipped');delete cell.dataset.flipFrom});
+      afterFlip();
+    },600);
   }
   const R6_MEMORY_AND_AFTER=[
     line("r6_memory_full_001","ト書き","視界が、ゆっくりと色を取り戻していく。"),

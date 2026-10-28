@@ -41,6 +41,28 @@ async function finishDialogue(page){
  for(const b of await page.locator('.room3-object:not([hidden])').all()){
  const r=await b.boundingBox();assert(r.x>=bounds.x-1&&r.y>=bounds.y-1&&r.x+r.width<=bounds.x+bounds.width+1&&r.y+r.height<=bounds.y+bounds.height+1,'Hit targets fit stage');
  }
+ if(view==='right'){
+  // C02: the optional notebook is a visible prop in the desk, not a
+  // floating laptop-shaped button or an invisible click region.
+  const note=page.locator('#explore-room03-lecture-note');
+  assert.equal(await note.count(),1,'C02: lecture notebook appears by the desk');
+  const noteArt=note.locator('.ambient-prop-image');
+  assert.deepEqual(await noteArt.evaluate(async img=>{
+    await img.decode();
+    return [img.naturalWidth,img.naturalHeight,img.complete];
+  }),[168,96,true],'C02: notebook artwork has a complete image');
+  const [desk,noteBounds]=await Promise.all([page.locator('#r3Desk').boundingBox(),note.boundingBox()]);
+  assert(noteBounds.x>=desk.x-2&&noteBounds.y>=desk.y-2,'C02: notebook begins on the tabletop');
+  assert(noteBounds.x+noteBounds.width<=desk.x+desk.width+2&&noteBounds.y+noteBounds.height<=desk.y+desk.height+2,'C02: notebook remains on the tabletop');
+  await page.screenshot({path:path.join(dir,'lecture-notebook-on-desk.png')});
+  await note.click();
+  assert.equal(await page.locator('.inspection-title').textContent(),'講義ノート','C02: investigating the notebook opens its own art');
+  assert.match(await page.locator('.inspection-image').getAttribute('src'),/optional-room03-lecture-notebook\.svg$/);
+  await page.locator('.inspection-image').evaluate(async img=>{await img.decode()});
+  await page.screenshot({path:path.join(dir,'lecture-notebook-closeup.png')});
+  await page.locator('.inspection-close').click();
+  assert.equal(await page.locator('.inspection-overlay').count(),0,'C02: closing returns to exploration');
+ }
  if(view==='left'){
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.locator('.room3-sleeping-hana').waitFor({state:'visible'});

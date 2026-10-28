@@ -23,8 +23,15 @@ const expected=[
     });
     await ctx.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
     const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-    const response=await page.goto(base+'?room05_art_review='+Date.now(),{waitUntil:'load',timeout:60000});
-    assert.equal(response.status(),200);
+    const expectedVersion=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8').match(/design-ui\\.css\\?v=([^"']+)/)?.[1];
+    assert(expectedVersion,'Published CSS revision must be present in local source');
+    for(let retry=0;retry<24;retry++){
+      const response=await page.goto(base+'?room05_art_review='+Date.now(),{waitUntil:'load',timeout:60000});
+      const liveVersion=await page.locator('link[href*="design-ui.css"]').first().getAttribute('href');
+      if(response?.status()===200&&liveVersion?.includes(expectedVersion))break;
+      assert(retry<23,'GitHub Pages has not deployed '+expectedVersion);
+      await page.waitForTimeout(6000);
+    }
     const missing=await page.evaluate(async files=>{
       const missing=[];
       for(const name of files){

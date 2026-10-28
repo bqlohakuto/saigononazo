@@ -1434,7 +1434,7 @@
       line("r6_final_lavender","ト書き","光に包まれる中、ほのかにラベンダーの香りがした。"),
       ...R6_MEMORY_AND_AFTER
     ],()=>{room6State.memorySeen=true;room6State.completed=true;r6ExitRevealed=true;saveGame();renderR6();},entry=>{
-      if(entry.logId==='r6_after_001')r6RevealExit();
+      if(entry.logId?.startsWith('r6_after_001_'))r6RevealExit();
     });
   }
 

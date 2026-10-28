@@ -28,6 +28,15 @@ test("No.152: chat opens without focusing a text field",()=>{
  assert.doesNotMatch(segment,/\.focus\(\)/);
  assert.ok(segment.includes('enterkeyhint="send"'));
 });
+test("C04: phone opening starts at the first chat message while a sent reply follows the tail",()=>{
+ const chat=source.slice(source.indexOf("function showThirdRoomChat(){"),source.indexOf("function inspectThirdRoomBed(){"));
+ const open=chat.slice(0,chat.indexOf('const close=activateDeviceModal('));
+ assert.match(open,/showReference\(referenceMode\);\s*\/\/ C04:[^\n]*\n[^\n]*\n\s*stream\.scrollTop=0;/);
+ assert.equal((open.match(/scrollToBottom\(\)/g)||[]).length,0,"Opening does not jump to the latest message");
+ assert.match(chat,/saveGame\(\);scrollToBottom\(\)/,"A new reply still scrolls to the most recent message");
+ assert.match(chat,/if\(room3State\.morseSolved\)receiveBoard\(\)/,"Existing saved replies still reconstruct the image");
+});
+
 test("No.153: duplicate device overlays prevent extra chats",()=>{
  const segment=source.slice(source.indexOf("function showThirdRoomChat(){"),source.indexOf("function inspectThirdRoomBed(){"));
  assert.ok(segment.includes('game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay")'));

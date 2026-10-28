@@ -493,7 +493,7 @@ function r4P3(){
  // A tap on one plate then another works on touch screens and with the keyboard.
  draw();
 }
-function r4Wall(){if(room4State.wall){showRoomNotice("壁の透明パネルは取り外してある。","r4wall_done","investigation");return}showRoomDialog([{logId:"r4w1",logType:"dialogue",speaker:"主人公",text:r4Count()===0?"……あれ？　壁に何か貼ってある……？":"あれ……これもパネルなんじゃ……？"},{logId:"r4w2",logType:"investigation",speaker:"ト書き",text:"壁に貼られている透明な板の端に指をかけると、外れた。"}],()=>{room4State.wall=true;saveGame();r4Refresh("wall")})}
+function r4Wall(){if(room4State.wall){showRoomNotice("壁の透明パネルは取り外してある。","r4wall_done","investigation");return}showRoomDialog([{logId:"r4w1",logType:"dialogue",speaker:"主人公",text:r4Count()===0?"……あれ？　壁に透明な板みたいなものが貼ってある……？":"あれ……これもパネルなんじゃ……？"},{logId:"r4w2",logType:"investigation",speaker:"ト書き",text:"壁に貼られている透明な板の端に指をかけると、外れた。"}],()=>{room4State.wall=true;saveGame();r4Refresh("wall")})}
 function r4Box(){if(room4State.box){showRoomNotice("質問箱の透明パネルは取り外してある。","r4boxdone");return}showRoomDialog([{logId:"r4b1",logType:"investigation",speaker:"ト書き",text:"質問箱を調べる。何気なく眺めていると、一面だけ材質が違う。"},{logId:"r4b2",logType:"dialogue",speaker:"主人公",text:"……あれ？ この部分だけ、透明な板になってる……？"},{logId:"r4b3",logType:"investigation",speaker:"ト書き",text:"端に手をかけると外せそうだ。箱から透明なパネルを取り外した。"}],()=>{room4State.box=true;saveGame();r4Refresh("box")})}
 function r4Refresh(key){
  const wall=document.getElementById("r4Wall");

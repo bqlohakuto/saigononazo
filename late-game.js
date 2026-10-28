@@ -121,7 +121,10 @@
       '<div class="r5-room-fridge" aria-hidden="true"></div>'+
       '<div class="r5-room-tv" aria-hidden="true"></div>'+
       '<div class="r5-decor r5-decor-mirror'+(got('mirror')?' is-gone':'')+'" aria-hidden="true"></div>'+
-      '<div class="r5-decor r5-decor-dining'+(got('chair')?' is-chair-gone':'')+'" aria-hidden="true"></div>'+
+      '<div class="r5-decor r5-decor-dining" aria-hidden="true">'+
+      '<div class="r5-furniture r5-chair-left'+(got('chair')?' is-gone':'')+'"></div>'+
+      '<div class="r5-furniture r5-chair-right"></div>'+
+      '<div class="r5-furniture r5-dining-table"></div></div>'+
       '<div class="r5-decor r5-decor-planter'+(got('flower')?(got('butterfly')?' is-empty':' is-flower-gone'):(got('butterfly')?' is-butterfly-gone':''))+'" aria-hidden="true"></div>'+
       '<div class="r5-decor r5-decor-fish'+(got('fish')?' is-gone':'')+'" aria-hidden="true"></div>'+
       '<div class="r5-decor r5-decor-squid'+(got('squid')?' is-gone':'')+'" aria-hidden="true"></div>'+

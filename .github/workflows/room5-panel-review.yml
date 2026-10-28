@@ -2,6 +2,16 @@ name: Room 5 acquired panel artwork review
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'late-game.js'
+      - 'room5.css'
+      - 'index.html'
+      - 'images/background/room05/overlays/**'
+      - 'tests/room5-visual.browser.cjs'
+      - 'tests/room5-planter.browser.cjs'
+      - 'tests/room5-dining.browser.cjs'
+      - '.github/workflows/room5-panel-review.yml'
   push:
     branches: [main]
     paths:
@@ -13,6 +23,7 @@ on:
       - 'images/background/room05/overlays/**'
       - 'tests/room5-visual.browser.cjs'
       - 'tests/room5-planter.browser.cjs'
+      - 'tests/room5-dining.browser.cjs'
       - '.github/workflows/room5-panel-review.yml'
 
 permissions:
@@ -22,6 +33,8 @@ jobs:
   panel-reveal:
     runs-on: ubuntu-latest
     timeout-minutes: 12
+    env:
+      PUBLIC_BASE_URL: ${{ github.event_name == 'pull_request' && 'http://127.0.0.1:8765/' || 'https://bqlohakuto.github.io/saigononazo/' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,10 +45,15 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps webkit
           google-chrome --version
+      - name: Serve the proposed version for pull request checks
+        if: github.event_name == 'pull_request'
+        run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/room05-http.log 2>&1 &
       - name: Check collected panel artwork and layout in Chrome and iPhone WebKit
         run: node tests/room5-visual.browser.cjs
       - name: Check planter acquisition states in Chrome and iPhone WebKit
         run: node tests/room5-planter.browser.cjs
+      - name: Check dining furniture acquisition states in Chrome and iPhone WebKit
+        run: node tests/room5-dining.browser.cjs
       - if: always()
         uses: actions/upload-artifact@v4
         with:

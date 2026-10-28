@@ -2,15 +2,39 @@ const R4_ANGLES=[0,0,0,0,0],R4_INITIAL=[2,1,0,3,2],R4_PANEL_KEYS=["star","lightP
 // HIP identifiers from the approved 5 glass-panel SVG partition JSON.
 const R4_VIRGO_PANEL_HIPS=[[57380,69427,66249],[60030,71957,63608],[61941,72220],[65474,68520],[69701,63090]];
 let r4HanaGazeObserver;
+const R4_FAILED_LIGHT_PREVIEW_MS=1600;
+let r4FailedLightTimer=null;
+function r4CancelFailedLightOff(){
+ if(r4FailedLightTimer!==null){clearTimeout(r4FailedLightTimer);r4FailedLightTimer=null}
+}
+function r4Illuminate(){
+ r4CancelFailedLightOff();
+ if(!room4State.lightOn){room4State.lightOn=true;saveGame()}
+ r4Projection();
+}
+function r4ScheduleFailedLightOff(afterOff){
+ r4CancelFailedLightOff();
+ r4FailedLightTimer=setTimeout(()=>{
+  r4FailedLightTimer=null;
+  if(currentScene!=="room04"||room4State.completed||!room4State.lightOn)return;
+  room4State.lightOn=false;
+  r4Projection();
+  saveGame();
+  if(afterOff)afterOff();
+ },R4_FAILED_LIGHT_PREVIEW_MS);
+}
 function r4Count(){return [room4State.wall,room4State.box,room4State.star,room4State.lightPuzzle,room4State.meteors].filter(Boolean).length}
 function r4All(){return r4Count()===5}
 function r4Mounted(i){return !!(room4State[R4_PANEL_KEYS[i]]&&room4State.mountedPanels?.[i])}
 function r4AllMounted(){return R4_PANEL_KEYS.every((_,i)=>r4Mounted(i))}
 function r4Correct(){return r4AllMounted()&&room4State.angles.every((v,i)=>v===R4_ANGLES[i])}
 function showFourthRoom(savedState){
+ r4CancelFailedLightOff();
  r4HanaGazeObserver?.disconnect();r4HanaGazeObserver=null;
  Dialogue.stop();firstRoomState=undefined;room2State=undefined;room3State=undefined;currentScene="room04";GameAudio.syncSceneMusic?.(currentScene);
- room4State={door:false,wall:false,box:false,star:false,lightPuzzle:false,meteors:false,angles:[...R4_INITIAL],panelRotationVersion:1,rainbow:[...R4_RAINBOW],lightOn:false,completed:false,memorySeen:false,nextRoomTransitionSeen:false,hanaSleepSeen:false,standInspected:false,highlightEnabled:true,view:"front",...savedState};
+ room4State={door:false,wall:false,box:false,star:false,lightPuzzle:false,meteors:false,angles:[...R4_INITIAL],panelRotationVersion:1,rainbow:[...R4_RAINBOW],lightOn:false,lightUsed:false,completed:false,memorySeen:false,nextRoomTransitionSeen:false,hanaSleepSeen:false,standInspected:false,highlightEnabled:true,view:"front",...savedState};
+ // A failed projection is transient, including when restoring a legacy lit save.
+ if(!room4State.completed)room4State.lightOn=false;
  if(!Array.isArray(room4State.angles)||room4State.angles.length!==5)room4State.angles=[...R4_INITIAL];
  if(savedState&&savedState.panelRotationVersion!==1){
   const legacy=[90,270,180,0,90];
@@ -193,10 +217,19 @@ function r4Door(){
 }
 function r4Light(){
  if(room4State.completed){showRoomNotice("おとめ座は完成している。","r4light_completed","investigation");return}
- const firstLight=!room4State.lightOn;if(firstLight){room4State.lightOn=true;saveGame()}r4Projection();
- if(!R4_PANEL_KEYS.some((_,i)=>r4Mounted(i))){if(!firstLight){showRoomNotice("ライトは点いているが、まだ星は映らない。","r4light_repeat","investigation");return}showRoomDialog([{logId:"r4le1",logType:"investigation",speaker:"ト書き",text:"スイッチを入れる。ライトが点灯し、左の壁を照らした。ただ、壁が明るく照らされただけだ。"},{logId:"r4le2",logType:"dialogue",speaker:"主人公",text:"これだけじゃ、何も起きないみたいだな"}]);return}
- if(!r4AllMounted()){showRoomNotice("はめたパネルの星が、壁に映っている。まだ空いている枠がある。","r4partial");return}
- if(!r4Correct()){showRoomDialog([{logId:"r4lw1",logType:"investigation",speaker:"ト書き",text:"ライトの光がパネルを通り、左の壁にいくつもの星が映し出される。"},{logId:"r4lw2",logType:"dialogue",speaker:"主人公",text:"……星は映ったけど。これじゃ、まだ何の形か分からないな"},{logId:"r4lw3",logType:"dialogue",speaker:"主人公",text:"パネルの向きが違うのかもしれない"}]);return}
+ const firstLight=!room4State.lightUsed;
+ room4State.lightUsed=true;
+ r4Illuminate();
+ if(!R4_PANEL_KEYS.some((_,i)=>r4Mounted(i))){
+  r4ScheduleFailedLightOff();
+  if(!firstLight){showRoomNotice("ライトは点灯するが、まだ星は映らない。","r4light_repeat","investigation");return}
+  showRoomDialog([{logId:"r4le1",logType:"investigation",speaker:"ト書き",text:"スイッチを入れる。ライトが点灯し、左の壁を照らした。ただ、壁が明るく照らされただけだ。"},{logId:"r4le2",logType:"dialogue",speaker:"主人公",text:"これだけじゃ、何も起きないみたいだな"}]);return;
+ }
+ if(!r4AllMounted()){r4ScheduleFailedLightOff();showRoomNotice("はめたパネルの星が、壁に映っている。まだ空いている枠がある。","r4partial");return}
+ if(!r4Correct()){
+  r4ScheduleFailedLightOff();
+  showRoomDialog([{logId:"r4lw1",logType:"investigation",speaker:"ト書き",text:"ライトの光がパネルを通り、左の壁にいくつもの星が映し出される。"},{logId:"r4lw2",logType:"dialogue",speaker:"主人公",text:"……星は映ったけど。これじゃ、まだ何の形か分からないな"},{logId:"r4lw3",logType:"dialogue",speaker:"主人公",text:"パネルの向きが違うのかもしれない"}]);return;
+ }
  r4Complete();
 }
 // The stand and wall share the exact coordinates used by the approved SVG panes.
@@ -317,10 +350,12 @@ function r4Stand(){
  drawLinks(true);
  o.querySelector(".r4-shine").onclick=()=>{
   if(room4State.completed)return;
-  if(!room4State.lightOn){room4State.lightOn=true;saveGame()}
-  r4Projection();
-  if(r4Correct()){close();r4Complete()}
-  else fb.textContent=!R4_PANEL_KEYS.some((_,i)=>r4Mounted(i))?"壁が明るく照らされている。":!r4AllMounted()?"はめたパネルの星が映っている。まだ空いている枠がある。":allLinked()?"星はつながった。でも、全体の向きが違うようだ。":"星は映ったが、まだ何の形か分からない。";
+  r4Illuminate();
+  if(r4Correct()){close();r4Complete();return}
+  fb.textContent=!R4_PANEL_KEYS.some((_,i)=>r4Mounted(i))?"壁が明るく照らされている。":!r4AllMounted()?"はめたパネルの星が映っている。まだ空いている枠がある。":allLinked()?"星はつながった。でも、全体の向きが違うようだ。":"星は映ったが、まだ何の形か分からない。";
+  r4ScheduleFailedLightOff(()=>{
+   if(o.isConnected)fb.textContent+=" ライトが消えた。向きを調整して、もう一度当ててみよう。";
+  });
  };
 }
 function r4Const(){showRoomDialog([{logId:"r4c1",logType:"investigation",speaker:"ト書き",text:"12星座の名前と、星の位置を示す図が並んでいる。"},{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"},{logId:"r4c2",logType:"dialogue",speaker:"主人公",text:"……十二星座が、ひとつずつ載ってるんだな"}],r4OpenZodiacExhibit)}
@@ -480,7 +515,9 @@ function r4Hana(){
  PuzzleHints.choose('r4Hana',topics);
 }
 function r4Complete(){
- if(room4State.completed)return;room4State.completed=true;room4State.lightOn=true;saveGame();r4Projection();game.querySelector(".room-four")?.classList.add("is-restored");const status=game.querySelector(".room-four .room-color-status");if(status)status.textContent="記憶を取り戻した部屋";
+ if(room4State.completed)return;
+ r4CancelFailedLightOff();
+ room4State.completed=true;room4State.lightOn=true;saveGame();r4Projection();game.querySelector(".room-four")?.classList.add("is-restored");const status=game.querySelector(".room-four .room-color-status");if(status)status.textContent="記憶を取り戻した部屋";
  showRoomDialog([{logId:"r4ok1",logType:"investigation",speaker:"ト書き",text:"ライトの光が、五枚のパネルを通り抜ける。左の壁に、いくつもの星が映し出された。今までばらばらだった星が、ひとつの形を描いている。"},{logId:"r4ok2",logType:"dialogue",speaker:"主人公",text:"これ……星座だ"},{logId:"r4ok3",logType:"narration",speaker:"ト書き",text:"右の壁にある星座一覧へ目を向ける。"},{logId:"r4ok4",logType:"dialogue",speaker:"主人公",text:"……おとめ座"},{logId:"r4ok5",logType:"narration",speaker:"ト書き",text:"もう一度、壁を見る。その瞬間――おとめ座を形作る星のひとつが、強く輝き始めた。光は次第に強くなり、辺りを白く染めていく。"},{logId:"r4ok6",logType:"dialogue",speaker:"ハナ",text:"……スピカ"},{logId:"r4ok7",logType:"dialogue",speaker:"主人公",text:"え？"},{logId:"r4ok8",logType:"narration",speaker:"ト書き",text:"ハナの方を振り返ろうとした瞬間、視界がまばゆい光に包まれた。"}],r4Memory);
 }
 function r4Memory(){if(room4State.memorySeen)return;showRoomDialog([...room4FlashbackLines,...room4AfterMemoryLines],()=>{room4State.memorySeen=true;saveGame();r4Exit()})}

@@ -188,7 +188,7 @@ function r4Moon(){
 }
 function r4Door(){
  if(room4State.completed&&room4State.memorySeen){showRoomDialog([{logId:"r4open1",logType:"investigation",speaker:"ト書き",text:"扉の鍵は開いている。"},{logId:"r4open2",logType:"narration",speaker:"主人公",thought:true,text:"先へ行けば、名前のことも思い出せるかもしれない。"}],r4Exit);return}
- if(room4State.door){showRoomNotice("『散らばる星を重ね、夜空にひとつの姿を描け。』","r4drepeat","investigation");return}
+ if(room4State.door){showRoomNotice("散らばる星を重ね、夜空にひとつの姿を描け。","r4drepeat","investigation");return}
  showRoomDialog(room4DoorLines,()=>{room4State.door=true;saveGame()});
 }
 function r4Light(){

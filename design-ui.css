@@ -2626,3 +2626,36 @@ body{background:#0b1322!important;display:grid;place-items:center}
   filter:grayscale(.45);
   cursor:not-allowed;
 }
+
+/* Issue #25 D06: Spica flash -> darkness -> first planetarium recollection.
+   This veil covers both the room and dialogue, preventing visual pop-in. */
+#game .r4-memory-bridge{
+ position:absolute;
+ inset:0;
+ z-index:130;
+ background:#fff;
+ pointer-events:auto;
+}
+#game .r4-memory-bridge.is-white{
+ animation:r4MemoryBloom 600ms ease-in both;
+}
+#game .r4-memory-bridge.is-dark{
+ animation:r4MemoryNightfall 700ms ease-in-out both;
+}
+#game .r4-memory-bridge.is-revealing{
+ background:#0a0a10;
+ pointer-events:none;
+ animation:r4MemoryReveal 380ms ease-out both;
+}
+@keyframes r4MemoryBloom{
+ from{opacity:0}
+ to{opacity:1}
+}
+@keyframes r4MemoryNightfall{
+ from{background:#fff;opacity:1}
+ to{background:#0a0a10;opacity:1}
+}
+@keyframes r4MemoryReveal{
+ from{opacity:1}
+ to{opacity:0}
+}

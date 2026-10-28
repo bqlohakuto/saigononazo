@@ -13,7 +13,7 @@ function fixture(){
   lightOn:false,completed:false
  };
  const ctx={
-  room4State,currentScene:"room04",window:{},
+  room4State,currentScene:"room04",window:{addEventListener(){}},
   saveGame:()=>{saves++},
   setTimeout:(fn,delay)=>{const id=++timerId;timers.set(id,{fn,delay});return id},
   clearTimeout:id=>timers.delete(id),

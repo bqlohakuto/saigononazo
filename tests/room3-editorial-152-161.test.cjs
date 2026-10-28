@@ -43,22 +43,28 @@ test("No.154-157: first reply earns a board; a second completes the memory puzzl
  assert.ok(chat.includes("room3State.phoneReplies.push"));
  assert.ok(chat.includes("saveGame();scrollToBottom()"));
 });
-test("No.158-159: revisiting bed and trumpet shows concise notices without saving",()=>{
- const state={bedInspected:true,trumpetInspected:true};
- const notices=[];let saves=0;
+test("No.158-159 + C03: waking Hana enables visible repeat bed dialogue without saving",()=>{
+ const state={bedInspected:true,trumpetInspected:true,trumpetAwakeTalkSeen:true};
+ const notices=[],dialogs=[];let saves=0;
  const sandbox={
   room3State:state,
   showRoomNotice(text,id){notices.push({text,id})},
-  showRoomDialog(){throw Error("No replay of the initial cutscene")},
+  showRoomDialog(lines){
+   dialogs.push(Array.from(lines,line=>({logId:line.logId,logType:line.logType,speaker:line.speaker,text:line.text})));
+  },
   saveGame(){saves++},
   renderThirdRoomView(){throw Error("No re-render necessary")}
  };
  vm.runInNewContext(source+";this.__bed=inspectThirdRoomBed;this.__trumpet=inspectThirdRoomTrumpet;",sandbox);
  sandbox.__bed();sandbox.__trumpet();
- assert.equal(saves,0);
- assert.equal(notices.length,2);
- assert.equal(notices[0].text,"ベッドには、特に変わったところはない。");
- assert.equal(notices[1].text,"記憶の中で使っていたものと同じトランペットだ。");
+ assert.equal(saves,0,"Reinspection must not change saved progress");
+ assert.equal(dialogs.length,1,"C03: bed uses a visible dialogue instead of hidden exploreStatus");
+ assert.deepEqual(dialogs[0],[{
+  logId:"room3_bed_repeat",logType:"investigation",speaker:"ト書き",
+  text:"ベッドには、特に変わったところはない。"
+ }]);
+ assert.equal(notices.length,1,"Trumpet repeat remains the prior concise notice");
+ assert.equal(notices[0].text,"記憶の中で使っていたものと同じトランペットだ。");
  assert.equal(state.bedInspected,true);
  assert.equal(state.trumpetInspected,true);
 });

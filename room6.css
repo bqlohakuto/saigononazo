@@ -160,7 +160,7 @@
 #game .r6-final-door:disabled{cursor:default;pointer-events:none}
 #game .r6-final-door-appearing{animation:r6ExitAppear 850ms ease-out both}
 @keyframes r6ExitAppear{0%{opacity:0;filter:brightness(2)}45%{opacity:.8;filter:brightness(1.5)}100%{opacity:1;filter:brightness(1)}}
-#game .r6-exit-menu{width:min(410px,92%);max-height:90%;display:flex;flex-direction:column;gap:14px;padding:22px 24px;background:#fffdf5;color:#493f2b;border:2px solid #b18d3f}
+#game .r6-exit-menu{position:relative;width:min(410px,92%);max-height:90%;display:flex;flex-direction:column;gap:14px;padding:22px 24px;background:#fffdf5;color:#493f2b;border:2px solid #b18d3f}
 #game .r6-exit-menu h2{margin:0;font-size:clamp(15px,1.8cqw,22px);text-align:center}
 #game .r6-exit-actions{display:flex;flex-direction:column;gap:10px}
 #game .r6-exit-actions button{padding:10px 14px;min-height:42px;cursor:pointer;border:1px solid #a39272;color:#493f2b;background:#fff}

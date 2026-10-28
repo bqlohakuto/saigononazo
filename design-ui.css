@@ -2545,7 +2545,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
   visibility:hidden!important;
   pointer-events:none!important;
 }
-#game .room-dialog-overlay[data-memory-stage] .room-dialog{
+#game .room-dialog-overlay[data-memory-stage] .room-dialog:not(.is-log-open){
   box-sizing:border-box;
   left:2.2%;
   bottom:2.5%;

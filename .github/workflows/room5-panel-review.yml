@@ -6,10 +6,13 @@ on:
     branches: [main]
     paths:
       - 'late-game.js'
+      - 'room5.css'
       - 'design-ui.css'
       - 'index.html'
       - 'images/background/room05/panels/**'
+      - 'images/background/room05/overlays/**'
       - 'tests/room5-visual.browser.cjs'
+      - 'tests/room5-planter.browser.cjs'
       - '.github/workflows/room5-panel-review.yml'
 
 permissions:
@@ -31,6 +34,8 @@ jobs:
           google-chrome --version
       - name: Check collected panel artwork and layout in Chrome and iPhone WebKit
         run: node tests/room5-visual.browser.cjs
+      - name: Check planter acquisition states in Chrome and iPhone WebKit
+        run: node tests/room5-planter.browser.cjs
       - if: always()
         uses: actions/upload-artifact@v4
         with:

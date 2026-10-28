@@ -44,7 +44,8 @@
 .r5-decor-dining{inset:0;background-size:100% 100%;background-image:url("images/background/room05/overlays/dining-set.webp")}
 .r5-decor-planter{left:3%;top:6%;width:24%;height:54%;background-image:url("images/background/room05/overlays/planter-flowers-blue-butterfly.webp")}
 .r5-decor-planter.is-empty{background-image:url("images/background/room05/overlays/planter-empty.webp")}
-.r5-decor-planter.is-butterfly-gone{filter:saturate(.65)}
+.r5-decor-planter.is-butterfly-gone{background-image:url("images/background/room05/overlays/planter-flowers-only.webp")}
+.r5-decor-planter.is-flower-gone{background-image:url("images/background/room05/overlays/planter-butterfly-only.webp")}
 .r5-decor-dining.is-chair-gone{background-image:url("images/background/room05/overlays/dining-set.webp")}
 .r5-decor-fish{left:15%;top:19%;width:17%;height:13%;background-image:url("images/background/room05/overlays/fish.webp")}
 .r5-decor-squid{left:15%;top:51%;width:17%;height:13%;background-image:url("images/background/room05/overlays/frozen-squid.webp")}

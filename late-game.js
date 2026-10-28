@@ -122,7 +122,7 @@
       '<div class="r5-room-tv" aria-hidden="true"></div>'+
       '<div class="r5-decor r5-decor-mirror'+(got('mirror')?' is-gone':'')+'" aria-hidden="true"></div>'+
       '<div class="r5-decor r5-decor-dining'+(got('chair')?' is-chair-gone':'')+'" aria-hidden="true"></div>'+
-      '<div class="r5-decor r5-decor-planter'+(got('flower')&&got('butterfly')?' is-empty':got('butterfly')?' is-butterfly-gone':'')+'" aria-hidden="true"></div>'+
+      '<div class="r5-decor r5-decor-planter'+(got('flower')?(got('butterfly')?' is-empty':' is-flower-gone'):(got('butterfly')?' is-butterfly-gone':''))+'" aria-hidden="true"></div>'+
       '<div class="r5-decor r5-decor-fish'+(got('fish')?' is-gone':'')+'" aria-hidden="true"></div>'+
       '<div class="r5-decor r5-decor-squid'+(got('squid')?' is-gone':'')+'" aria-hidden="true"></div>'+
       '<div class="r5-decor r5-decor-cannon'+(got('cannon')?' is-gone':'')+'" aria-hidden="true"></div>'+

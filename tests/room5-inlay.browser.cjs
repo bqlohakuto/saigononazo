@@ -43,27 +43,29 @@ async function assertFits(page){
    assert.match(await page.locator('.r5-counter-slot').first().locator('img').getAttribute('src'),/rabbit-feather\.png$/);
    await page.screenshot({path:path.join(output,spec.name+'-empty.png')});
    await page.locator('.r5-board-help').click();assert.equal(await page.locator('.r5-help-note').isVisible(),true);await page.locator('.r5-board-help').click();
-   // Every wrong pairing has its own handdrawn picture and never consumes a tile.
+   // All 42 wrong combinations are valid temporary placements. None are
+   // graded until all seven panels are present, and a filled slot is removable.
    for(const [id,right] of pairs){
-    await choose(page,id);
     for(const [,counter,key] of pairs){
      if(counter===right)continue;
+     await choose(page,id);
      await page.locator('[data-counter="'+counter+'"]').click();
      const img=page.locator('[data-counter="'+counter+'"] img');
      assert.match(await img.getAttribute('src'),new RegExp(id+'-'+key+'\\.png$'));
      await img.evaluate(image=>image.decode());
-     assert.equal(await page.locator('.room-dialog-overlay').count(),0);
-     assert.equal(Object.keys((await saved(page)).placed).length,0);
+     assert.equal((await saved(page)).placed[id],counter,'wrong-looking placement is saved');
+     assert.equal((await saved(page)).codeRevealed,false,'no early verdict');
+     await page.locator('[data-counter="'+counter+'"]').click();
+     assert.equal((await saved(page)).placed[id],undefined,'player can undo without grading');
     }
    }
-   // A visible rejected combination returns to the engraved socket.
+   // In-progress attempts survive closing and reopening the board.
    await choose(page,'mirror');await page.locator('[data-counter="尾"]').click();
    await page.screenshot({path:path.join(output,spec.name+'-wrong.png')});
-   await page.waitForTimeout(1900);assert.equal(await page.locator('.is-preview').count(),0);
-   assert.equal(await page.locator('[data-tile="mirror"]').getAttribute('aria-pressed'),'true');
-   // Closing during the rejection timer must not mutate a later room/overlay.
-   await page.locator('[data-counter="尾"]').click();await page.keyboard.press('Escape');
-   await page.locator('#r5Board').click();assert.equal(await page.locator('.is-preview').count(),0);
+   await page.keyboard.press('Escape');await page.locator('#r5Board').click();
+   assert.equal((await saved(page)).placed.mirror,'尾');
+   await page.locator('[data-counter="尾"]').click();
+   assert.equal((await saved(page)).placed.mirror,undefined);
    if(!spec.mobile){
     // Real captured pointer drag on a scaled canvas, including an outside release.
     let tile=await page.locator('[data-tile="mirror"]').boundingBox();
@@ -79,7 +81,7 @@ async function assertFits(page){
     await page.touchscreen.tap(slot.x+slot.width/2,slot.y+slot.height/2);
    }
    assert.equal((await saved(page)).placed.mirror,'面');
-   assert.equal(await page.locator('.r5-board-feedback p').count(),2,'two reaction lines shown together');
+   assert.equal(await page.locator('.r5-board-feedback p').count(),2,'two neutral first-fit lines shown together');
    assert.equal(await page.locator('.r5-board-overlay').count(),1);
    if(spec.mobile){
     const client=await ctx.newCDPSession(page);
@@ -87,7 +89,10 @@ async function assertFits(page){
     await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:tile.x+tile.width/2,y:tile.y+tile.height/2}]});
     await client.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:slot.x+slot.width/2,y:slot.y+slot.height/2}]});
     await client.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-    assert.match(await page.locator('[data-counter="頭"] img').getAttribute('src'),/fish-head\.png$/,'real touch drag shows wrong combination');
+    assert.match(await page.locator('[data-counter="頭"] img').getAttribute('src'),/fish-head\.png$/,'real touch drag stores the chosen combination');
+    assert.equal((await saved(page)).placed.fish,'頭');
+    await page.locator('[data-counter="頭"]').click();
+    assert.equal((await saved(page)).placed.fish,undefined);
     await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:tile.x+tile.width/2,y:tile.y+tile.height/2}]});
     await client.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:slot.x+slot.width/2,y:slot.y+slot.height/2}]});
     await client.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});
@@ -119,7 +124,7 @@ async function assertFits(page){
    await page.locator('#r5Keypad').click();for(const digit of ['8','1','9','4'])await page.locator('[data-digit="'+digit+'"]').click();
    await page.locator('[data-key="enter"]').click();await finish(page);assert.equal((await saved(page)).doorUnlocked,true);
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
-   await ctx.close();console.log('PASS '+spec.name+': 42 wrong combinations, drag/tap, keyboard, save/load, seven fits and keypad');
+   await ctx.close();console.log('PASS '+spec.name+': 42 temporary combinations with undo, drag/tap, keyboard, save/load, seven fits and keypad');
   }
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

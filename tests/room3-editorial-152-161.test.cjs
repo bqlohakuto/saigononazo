@@ -100,6 +100,7 @@ test("No.161: an unlocked old save restores the completed Morse stage",()=>{
   game,
   document:{getElementById(id){return nodes[id]??(nodes[id]=node())}},
   Dialogue:{stop(){}},
+  GameAudio:{syncSceneMusic(){}},
   window:{},
   saveGame(){saved++},
   showRoomNotice(){},

@@ -45,7 +45,7 @@ window.RoomExplorationScenes = {
    ['ハナ','座って考えるのも、いいんじゃない？'],
    ['主人公','ハナさんみたいに、そのまま寝ないようにします。']
   ],quiet:[['ト書き','黒い椅子を少し引いてみる。眠っているハナを起こさないよう、そっと元に戻した。']],repeat:'机の前の椅子だ。使い終わったら、机の下に戻しておこう。'},
-  {id:'lecture-note',label:'講義ノート',view:'right',rect:[.56,.58,.11,.10],asset:'images/items/optional-room03-lecture-notebook.svg',assetAspect:1.75,lines:[
+  {id:'lecture-note',label:'講義ノート',view:'right',rect:[.56,.58,.11,.10],asset:'images/items/optional-room03-lecture-notebook.svg?v=20261028-c02',assetAspect:1.75,lines:[
    ['ト書き','黒い机の端に、講義ノートが一冊置いてある。表紙の角が少し折れていた。'],
    ['主人公','この部屋で勉強していたんでしょうか。……なんとなく、自分の字を思い出しそうです。'],
    ['ハナ','ずいぶん使い込んでるみたいだね。']

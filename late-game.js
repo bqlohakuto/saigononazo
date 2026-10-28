@@ -981,7 +981,7 @@
       testGuide:!!s.testGuide,
       memorySeen:!!s.memorySeen,completed:!!s.completed,introSeen:!!s.introSeen};
   }
-  let r6Moving=false,r6TravelGeneration=0,r6Flipping=false,r6FlipGeneration=0;
+  let r6Moving=false,r6TravelGeneration=0,r6Flipping=false,r6FlipGeneration=0,r6ExitRevealed=false;
   const r6Busy=()=>r6Moving||r6Flipping||!!game.querySelector('.room-dialog-overlay,.device-overlay,.gameplay-panel-overlay');
   const r6Objective=()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"扉をたどって、部屋の手がかりを探す";
   function r6SpecificHint(){
@@ -1032,7 +1032,7 @@
   window.showSixthRoom=function(savedState){
     GameAudio.stop("footsteps");
     r6TravelGeneration++;r6Moving=false;r6FlipGeneration++;r6Flipping=false;game.classList.remove('r6-map-revealing');
-    Dialogue.stop();currentScene="room06";GameAudio.syncSceneMusic?.(currentScene);room6State=normalizeR6(savedState);renderR6();saveGame();
+    Dialogue.stop();currentScene="room06";GameAudio.syncSceneMusic?.(currentScene);room6State=normalizeR6(savedState);r6ExitRevealed=room6State.completed;renderR6();saveGame();
     if(!room6State.introSeen){room6State.introSeen=true;saveGame();showRoomDialog([
       line("r6_intro_entry_01","ト書き","白い光が薄れ、足元に床の輪郭が戻ってきた。"),
       line("r6_intro_entry_02","ト書き","小さな部屋だった。床も壁も明るい色で、正面と右側に扉がある。"),
@@ -1071,7 +1071,7 @@
     const door=(dir,dest)=>'<button class="r6-door r6-door-'+dir+'" data-dest="'+dest+'" aria-label="'+({north:'正面',west:'左',east:'右',south:'手前'})[dir]+'の部屋へ"></button>';
     game.innerHTML='<main class="room late-room r6-full" aria-label="第六の部屋"><section class="r6-scene" data-color="'+color+'" data-current="'+id+'"><div class="r6-space"><div class="r6-floor" aria-hidden="true"></div><div class="r6-walls" aria-hidden="true"></div>'+
       (y>0?door('north',id[0]+y):'')+(x>0?door('west',String.fromCharCode(64+x)+(y+1)):'')+
-      (x<7?door('east',String.fromCharCode(66+x)+(y+1)):room6State.completed&&id==='H2'?'<button class="r6-door r6-door-east" id="r6Next" aria-label="第七の部屋へ"></button>':'')+
+      (x<7?door('east',String.fromCharCode(66+x)+(y+1)):(room6State.completed||r6ExitRevealed)&&id==='H2'?'<button class="r6-door r6-door-east r6-final-door" id="r6Next" aria-label="第七の部屋へ" '+(room6State.completed?'':'disabled')+'></button>':'')+
       (y<7?door('south',id[0]+(y+2)):'')+
       '<button class="r6-wall-text" id="r6WallText" aria-label="壁の問題文">最後の影が消える時、<br>閉ざされた道は開かれる</button>'+
       '<button class="r6-hana hana-v2-world" id="r6Hana" aria-label="ハナ"></button>'+
@@ -1101,7 +1101,7 @@
     game.querySelector('#r6Hana').onclick=r6Hana;
     game.querySelector('#r6TestGuide')?.addEventListener('click',r6ShowTestGuide);
     game.querySelector('#r6WallText').onclick=()=>showRoomDialog([line('r6_wall','問題文','最後の影が消える時、閉ざされた道は開かれる。')]);
-    game.querySelector('#r6Next')?.addEventListener('click',()=>transition('第七の部屋へ',()=>showSeventhRoom(roomStates.room07)));
+    game.querySelector('#r6Next')?.addEventListener('click',r6InspectExit);
     window.RoomExploration?.mount('room06',game.querySelector('.r6-space'),'front',room6State,{image:'images/background/room06/'+color+'.webp',imageAspect:16/9});
     setHud('room06','第六の部屋',r6Objective,r6Hana);
   }
@@ -1395,6 +1395,35 @@
     line("r6_after_018","ハナ","うん。"),
     line("r6_after_019","ト書き","僕はまだ、その答えを口にしないまま、次の扉へ手を伸ばした。")
   ];
+  function r6RevealExit(){
+    if(currentScene!=='room06'||room6State.current!=='H2')return;
+    r6ExitRevealed=true;
+    const space=game.querySelector('.r6-space');
+    if(!space||space.querySelector('#r6Next'))return;
+    const door=document.createElement('button');
+    door.type='button';door.id='r6Next';door.className='r6-door r6-door-east r6-final-door r6-final-door-appearing';
+    door.setAttribute('aria-label','第七の部屋へ');door.disabled=true;
+    space.appendChild(door);
+  }
+  function r6ConfirmExit(){
+    if(!room6State.completed||currentScene!=='room06')return;
+    const overlay=document.createElement('div');
+    overlay.className='device-overlay r6-exit-overlay';
+    overlay.innerHTML='<section class="menu-panel r6-exit-menu" aria-label="第七の部屋へ進むか選択"><h2>この扉を進みますか？</h2><div class="r6-exit-actions"><button type="button" data-r6-exit="proceed">第七の部屋へ進む</button><button type="button" data-r6-exit="stay">もう少し調べる</button></div></section>';
+    game.appendChild(overlay);
+    const close=activateDeviceModal(overlay,'r6Exit',overlay.querySelector('[data-r6-exit="proceed"]'));
+    overlay.querySelector('[data-r6-exit="stay"]').onclick=close;
+    overlay.querySelector('[data-r6-exit="proceed"]').onclick=()=>{
+      close();transition('第七の部屋へ',()=>showSeventhRoom(roomStates.room07));
+    };
+  }
+  function r6InspectExit(){
+    if(r6Busy()||!room6State.completed||room6State.current!=='H2')return;
+    showRoomDialog([
+      line('r6_exit_inspect_01','ト書き','右側の壁に、先ほどまでなかった扉がある。'),
+      line('r6_exit_inspect_02','主人公','……ここから、先へ進めそうだ。')
+    ],r6ConfirmExit);
+  }
   function r6Complete(){
     showRoomDialog([
       line("r6_complete_01","ト書き","H2に白を置く。最後に残っていた黒い床が、白へと変わる。"),
@@ -1404,7 +1433,9 @@
       line("r6_complete_05","主人公","……っ"),
       line("r6_final_lavender","ト書き","光に包まれる中、ほのかにラベンダーの香りがした。"),
       ...R6_MEMORY_AND_AFTER
-    ],()=>{room6State.memorySeen=true;room6State.completed=true;saveGame();renderR6()});
+    ],()=>{room6State.memorySeen=true;room6State.completed=true;r6ExitRevealed=true;saveGame();renderR6();},entry=>{
+      if(entry.logId==='r6_after_001')r6RevealExit();
+    });
   }
 
   // ---------- Room 7 ----------

@@ -120,6 +120,8 @@
       '<div class="r5-room-shelf" aria-hidden="true"></div>'+
       '<div class="r5-room-fridge" aria-hidden="true"></div>'+
       '<div class="r5-room-tv" aria-hidden="true"></div>'+
+      '<div class="r5-wall-keypad-cover" aria-hidden="true"></div>'+
+      (room5State.codeRevealed?'<div class="r5-door-keypad-art" aria-hidden="true"></div>':'')+
       '<div class="r5-decor r5-decor-mirror'+(got('mirror')?' is-gone':'')+'" aria-hidden="true"></div>'+
       '<div class="r5-decor r5-decor-dining" aria-hidden="true">'+
       '<div class="r5-furniture r5-chair-left'+(got('chair')?' is-gone':'')+'"></div>'+
@@ -292,7 +294,7 @@
       '<div class="r5-help-note" hidden>手元のパネルを選び、丸い枠を押してはめ込む。ドラッグでも動かせる。合わない組み合わせは手元に戻る。<br>キーボードでは Tab で移動、Enter または Space で選択・配置。Esc で盤を閉じる。</div></section>';
     game.appendChild(o);
     const panel=o.querySelector('section'),grid=o.querySelector('.r5-counter-grid'),tray=o.querySelector('.r5-inventory'),feedback=o.querySelector('#r5BoardFeedback');
-    let selected=null,preview=null,previewTimer=null,completionTimer=null,completionPlaying=false,completionDigitVisible=false,drag=null,ignoreClick=null,disposed=false;
+    let selected=null,preview=null,previewTimer=null,completionTimer=null,completionPlaying=false,completionDigitVisible=false,completionLines=null,drag=null,ignoreClick=null,disposed=false;
     const valid=()=>!disposed&&o.isConnected&&currentScene==='room05'&&room5State===boardState;
     const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const stopDrag=()=>{drag?.ghost?.remove();drag?.button.classList.remove('is-dragging');drag=null;grid.querySelectorAll('.is-over').forEach(b=>b.classList.remove('is-over'));};
@@ -312,7 +314,7 @@
     // Only the finished board gets a cinematic sequence; ordinary fit feedback is unchanged.
     // The existing scripted lines are logged once in r5CompleteBoard, then shown here automatically.
     function playBoardCompletion(lines){
-      completionPlaying=true;completionDigitVisible=false;
+      completionPlaying=true;completionDigitVisible=false;completionLines=lines;
       panel.classList.add('r5-completing');
       const caption=document.createElement('div');
       caption.className='r5-completion-caption';
@@ -323,17 +325,15 @@
         {entries:[lines[0],lines[1]],ms:1800},
         {entries:[lines[2],lines[3]],ms:2200},
         {entries:[lines[4]],ms:1800},
-        {entries:[lines[5],lines[6]],ms:2100,reveal:true},
-        {entries:[lines[7]],ms:2800},
-        {entries:[lines[8],lines[9]],ms:2200}
+        {entries:[lines[5],lines[6]],ms:2100,reveal:true}
       ];
       let step=0;
       const advance=()=>{
         if(!valid())return;
         if(step===stages.length){
-          caption.remove();panel.classList.remove('r5-completing');
-          completionPlaying=false;
-          say([lines[8],lines[9]],false);
+          // Return to the actual room so the promised change at the door can
+          // be seen, instead of narrating it behind the full-screen board.
+          panel.querySelector('.device-close').click();
           return;
         }
         const stage=stages[step++];
@@ -467,8 +467,58 @@
     help.onclick=()=>{note.hidden=!note.hidden;help.setAttribute('aria-expanded',String(!note.hidden));};
     drawSlots();drawTray();
     activateDeviceModal(o,'r5Board',tray.querySelector('[data-tile]')||panel.querySelector('.device-close'),()=>{
-      cleanup();if(currentScene==='room05'&&room5State===boardState){renderR5();document.getElementById('r5Board')?.focus({preventScroll:true});}
+      const doorLines=completionPlaying?completionLines:null;
+      const showMissedDigits=completionPlaying&&!completionDigitVisible;
+      cleanup();if(currentScene==='room05'&&room5State===boardState){
+        renderR5();
+        if(doorLines)r5PlayDoorReveal(doorLines,showMissedDigits);
+        else document.getElementById('r5Board')?.focus({preventScroll:true});
+      }
     });
+  }
+
+  function r5PlayDoorReveal(lines,showMissedDigits){
+    const scene=game.querySelector('#r5Scene'),state=room5State;
+    if(!scene||!state.codeRevealed||state.doorUnlocked)return;
+    const live=()=>scene.isConnected&&currentScene==='room05'&&room5State===state;
+    const effect=document.createElement('div');
+    effect.className='r5-door-reveal';
+    effect.innerHTML='<svg class="r5-door-reveal-light" viewBox="0 0 1672 941" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M 310 260 Q 570 165 898 360" /></svg><div class="r5-door-reveal-caption" role="status" aria-live="polite"></div>';
+    scene.append(effect);
+    const controls=[...scene.querySelectorAll('button')].map(button=>[button,button.disabled]);
+    controls.forEach(([button])=>{button.disabled=true;});
+    const caption=effect.querySelector('.r5-door-reveal-caption');
+    const say=entries=>{
+      caption.replaceChildren();
+      entries.forEach(entry=>{
+        const p=document.createElement('p');
+        if(entry.speaker!=='ト書き'&&entry.speaker!=='システム'){
+          const speaker=document.createElement('b');speaker.textContent=entry.speaker;p.append(speaker);
+        }
+        p.append(document.createTextNode(entry.text));caption.append(p);
+      });
+    };
+    const start=()=>{
+      if(!live())return;
+      scene.classList.remove('is-r5-reveal-waiting');
+      scene.classList.add('is-r5-revealing');
+      say([lines[7]]);
+      setTimeout(()=>{
+        if(!live())return;
+        say([lines[8],lines[9]]);
+        setTimeout(()=>{
+          if(!live())return;
+          effect.remove();scene.classList.remove('is-r5-revealing');
+          controls.forEach(([button,disabled])=>{button.disabled=disabled;});
+          if(!game.querySelector('.room-dialog-overlay,.device-overlay,.design-overlay,.save-slot-overlay'))document.getElementById('r5Keypad')?.focus({preventScroll:true});
+        },2200);
+      },2800);
+    };
+    if(showMissedDigits){
+      // Closing early must not hide the newly discovered answer.
+      scene.classList.add('is-r5-reveal-waiting');say([lines[5],lines[6]]);
+      setTimeout(start,2100);
+    }else start();
   }
 
   function r5ButterflyHintIfNeeded(inline){

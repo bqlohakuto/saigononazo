@@ -18,7 +18,10 @@ test("B01: Room 6 first narration matches its visible multi-door room",()=>{
 test("B01: manuscript no longer contradicts the room or repeats the wall inscription",()=>{
   const start=manuscript.indexOf("## 第6の部屋");
   assert(start>=0);
-  const tail=manuscript.slice(start,manuscript.indexOf("### ",start+4));
+  const introStart=manuscript.indexOf("### 導入",start);
+  assert(introStart>start);
+  const nextHeading=manuscript.indexOf("### ",introStart+5);
+  const tail=manuscript.slice(introStart,nextHeading<0?undefined:nextHeading);
   assert.match(tail,/小さな部屋だった。床も壁も明るい色で、四方には隣の部屋へ続く扉がある。/);
   assert.doesNotMatch(tail,/ずいぶん何もないですね|家具らしいものは何もない/);
   assert.equal((tail.match(/壁の一角に、短い言葉が刻まれていた。/g)||[]).length,1);

@@ -450,7 +450,7 @@
     "background": "images/background/memories/room05/dining-moving-in.png",
     "sprite": "images/characters/memories/room05/girl-seated-pout.png",
     "layout": "dining",
-    "prop": "notebook",
+    "prop": null,
     "ids": [
       "r5m020",
       "r5m021",
@@ -584,7 +584,7 @@
     "background": "images/background/memories/room05/living-morning.png",
     "sprite": "images/characters/memories/room05/girl-home.png",
     "layout": "standing",
-    "prop": "manual",
+    "prop": null,
     "ids": [
       "r5m150",
       "r5m151",

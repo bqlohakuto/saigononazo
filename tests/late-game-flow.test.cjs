@@ -132,10 +132,10 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   // G03: the room dropdown makes every visited room directly reachable.
   const roomJump=q('select[aria-label="記録の部屋へジャンプ"]');
   assert.ok(roomJump,'direct room jump exists');
-  assert.ok([...roomJump.options].some(option=>option.value==='room01'),'past rooms remain available');
-  roomJump.value='room01';
+  assert.ok([...roomJump.options].some(option=>option.value==='room06'),'visited rooms remain available');
+  roomJump.value='room06';
   roomJump.dispatchEvent(new w.Event('change',{bubbles:true}));
-  assert.equal(q('.design-room-tabs [data-room="room01"]').getAttribute('aria-pressed'),'true','room jump switches the visible tab');
+  assert.equal(q('.design-room-tabs [data-room="room06"]').getAttribute('aria-pressed'),'true','room jump switches the visible tab');
   click('.design-record-categories [data-category="all"]');
   const pageSelect=q('select[aria-label="記録のページを選択"]');
   assert.ok(pageSelect && pageSelect.options.length>=1,'page picker is always available');

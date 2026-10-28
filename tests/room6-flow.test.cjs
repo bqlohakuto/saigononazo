@@ -71,7 +71,10 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   w.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});
   const initial=save().rooms.room06.board;
   click('#gameplayHanaButton');assert.ok(q('[data-r6-hint="exploration"]'));assert.equal(q('[data-r6-hint="hint-1"]'),null);
-  click('[data-r6-hint="exploration"]');finish();
+  click('[data-r6-hint="exploration"]');
+  const explorationHint=finish().join('').replace(/\s+/g,'');
+  assert(explorationHint.includes('まだ通っていない扉を進んでみよう。部屋の様子をよく確かめてみて。'),'F02 early hint remains discovery-neutral');
+  assert(!explorationHint.includes('床の色が違う部屋')&&!explorationHint.includes('端まで'),'F02 early hint does not reveal structure or color');
   assert.equal(initial.length,64);
   assert.deepEqual(['W','G','E'].map(c=>initial.filter(v=>v===c).length),[40,15,9]);
   for(const id of ['A7','A6','A5','A4','A3']){click('[data-dest="'+id+'"]');finish();}

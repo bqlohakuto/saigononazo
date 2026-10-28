@@ -27,3 +27,27 @@ test('Room 6 adopted first-person recollection text agrees with the manuscript',
   assert(runtime.includes(approved),'Playable dialogue keeps: '+approved);
  }
 });
+
+test('F09: the reconciliation memory describes emotional distance without changing the speakers or sequence',()=>{
+ const source=fs.readFileSync('late-game.js','utf8'),manuscript=fs.readFileSync('SCENARIO.md','utf8'),room6=fs.readFileSync('scenario/06_room6.md','utf8');
+ const ordered=[
+  ['r6_memory_full_021','最近、私に怒ってる？'],
+  ['r6_memory_full_022','……え？'],
+  ['r6_memory_full_023','一緒にいるのに、なんだか遠くに感じるから。'],
+  ['r6_memory_full_024','■■に怒ってるわけじゃないよ。'],
+  ['r6_memory_full_025','じゃあ、何に怒ってるの？']
+ ];
+ let previous=-1;
+ for(const [id,text] of ordered){
+  const at=source.indexOf('line("'+id+'"',previous+1);
+  assert(at>previous,'the scene retains dialogue order for '+id);
+  assert(source.slice(at,at+180).includes(text),'approved wording is preserved for '+id);
+  previous=at;
+ }
+ assert(source.includes('line("r6_memory_full_023","彼女","一緒にいるのに、なんだか遠くに感じるから。")'));
+ assert(manuscript.includes('一緒にいるのに、なんだか遠くに感じるから。'));
+ assert(room6.includes('一緒にいるのに、なんだか遠くに感じるから。'));
+ assert(!source.includes('なんか、ずっと遠いから。'));
+ assert(!manuscript.includes('なんか、ずっと遠いから。'));
+ assert(!room6.includes('なんか、ずっと遠いから。'));
+});

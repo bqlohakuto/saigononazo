@@ -27,8 +27,11 @@ async function finishDialogue(page){
  await page.evaluate(()=>{settings.instantText=true;showThirdRoom();});
  assert.equal(await page.locator('.room3-stage').getAttribute('data-view'),'front','C01: entry starts facing the doorway');
  const firstNarration=await page.locator('.room-dialog .message').textContent();
- assert.match(firstNarration,/正面には、これまでと同じ扉がある。/,'C01: first dialogue describes the current doorway');
- assert.doesNotMatch(firstNarration,/ベッド|机|棚|トランペット/,'C01: entry does not describe props in other views');
+ assert.equal(firstNarration,'視界が開ける。','C01: opening sentence appears first');
+ await page.locator('#roomNextButton').click({force:true});
+ const doorwayNarration=await page.locator('.room-dialog .message').textContent();
+ assert.match(doorwayNarration,/正面には、これまでと同じ扉がある。/,'C01: next page describes the current doorway');
+ assert.doesNotMatch(firstNarration+doorwayNarration,/ベッド|机|棚|トランペット/,'C01: first view does not mention off-screen props');
  await page.screenshot({path:path.join(dir,'entry-dialogue.png')});
  await page.evaluate(()=>showThirdRoom({}));
  for(const view of ['front','right','back','left']){

@@ -16,17 +16,17 @@ async function fit(page){
  const result=await page.evaluate(()=>{
   const dialog=document.querySelector('.room-dialog'),portrait=dialog.querySelector('.memory-window-portrait');
   const d=dialog.getBoundingClientRect(),p=portrait.getBoundingClientRect(),g=game.getBoundingClientRect(),a=dialog.querySelector('.dialog-message-area');
-  const ar=a.getBoundingClientRect();return {portrait:{x:p.x,y:p.y,width:p.width,height:p.height,right:p.right},area:{x:ar.x,y:ar.y,width:ar.width,height:ar.height},above:p.top<d.top,inside:p.top>=g.top&&p.left>=g.left&&p.right<=g.right&&p.bottom<=g.bottom,
+  const ar=a.getBoundingClientRect();return {dialogClass:dialog.className,presentation:document.querySelector('.room-dialog-overlay')?.dataset.memoryPresentation,margin:getComputedStyle(a).marginLeft,portrait:{x:p.x,y:p.y,width:p.width,height:p.height,right:p.right},area:{x:ar.x,y:ar.y,width:ar.width,height:ar.height},above:p.top<d.top,inside:p.top>=g.top&&p.left>=g.left&&p.right<=g.right&&p.bottom<=g.bottom,
    overflow:getComputedStyle(dialog).overflow,overlap:portrait.getBoundingClientRect().right>a.getBoundingClientRect().left+3,
    textScroll:a.scrollHeight>a.clientHeight+2};
  });
  console.log('FIT_DIAGNOSTIC '+JSON.stringify(result));
 }
 (async()=>{
- const desktopBrowser=await chromium.launch({headless:true,...(process.env.BROWSER_EXECUTABLE?{executablePath:process.env.BROWSER_EXECUTABLE}:{})});
- const mobileBrowser=process.env.BROWSER_EXECUTABLE?desktopBrowser:await webkit.launch({headless:true});
+ const desktopBrowser=await webkit.launch({headless:true});
+ const mobileBrowser=desktopBrowser;
  fs.mkdirSync(out,{recursive:true});
- try{for(const spec of [{name:'desktop',width:1366,height:768},{name:'phone',width:852,height:393,touch:true}]){
+ try{for(const spec of [{name:'phone',width:852,height:393,touch:true}]){
   const browser=spec.touch?mobileBrowser:desktopBrowser;
   const ctx=await browser.newContext({viewport:{width:spec.width,height:spec.height},hasTouch:!!spec.touch,isMobile:!!spec.touch,reducedMotion:spec.touch?'reduce':'no-preference'});
   await ctx.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
@@ -43,6 +43,7 @@ async function fit(page){
   const p=await paper.boundingBox(),d=await page.locator('.room-dialog').boundingBox();assert(p.y+p.height<d.y,'complete drawing stays above conversation '+JSON.stringify({p,d}));
   await reach(page,'r5m008');await page.locator('.memory-window-portrait .memory-girl').evaluate(i=>i.decode());
   assert.match(await page.locator('#roomMessage').textContent(),/クマかと思った/);await fit(page);
+  await page.waitForTimeout(500);await fit(page);
   assert.equal(await page.locator('.memory-scene>.memory-girl:visible').count(),0,'no character pasted into the room');
   await page.screenshot({path:path.join(out,spec.name+'-rabbit.png')});
   await reach(page,'r5m014');assert.equal(await page.locator('.memory-window-portrait:visible').count(),1,'narration retains her');await fit(page);

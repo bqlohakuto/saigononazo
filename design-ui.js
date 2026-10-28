@@ -183,29 +183,95 @@
     requestAnimationFrame(measure);return area;
   }
   function records(){
-    const m=panel('記録');if(!recordRoom)recordRoom=currentScene;
-    const tabs=document.createElement('div');tabs.className='design-tabs';m.p.insertBefore(tabs,m.content);
-    const categories=document.createElement('div');categories.className='design-tabs';m.p.insertBefore(categories,m.content);
+    const m=panel('記録');
     const entries=GameLog.list(),visited=new Set([...(state().visited||[]),currentScene,...entries.map(inferRoom)]);
     const rooms=['opening',...roomNames.map((_,i)=>`room0${i+1}`)].filter(id=>visited.has(id));
+    if(!rooms.includes(recordRoom))recordRoom=rooms.includes(currentScene)?currentScene:rooms[0];
+    let recordOrder=localStorage.getItem('saigononazo-record-order')==='oldest'?'oldest':'newest';
+
+    // G03: a direct room picker avoids having to swipe through every room tab.
+    const jump=document.createElement('label');jump.className='design-record-jump';
+    jump.append(document.createTextNode('部屋へ'));
+    const roomSelect=document.createElement('select');roomSelect.setAttribute('aria-label','記録の部屋へジャンプ');
+    rooms.forEach(id=>{const option=document.createElement('option');option.value=id;option.textContent=roomLabel(id);roomSelect.append(option)});
+    roomSelect.onchange=()=>{recordRoom=roomSelect.value;recordPage=0;drawList()};
+    jump.append(roomSelect);m.p.insertBefore(jump,m.content);
+
+    const tabs=document.createElement('div');tabs.className='design-tabs design-room-tabs';m.p.insertBefore(tabs,m.content);
+    const categories=document.createElement('div');categories.className='design-tabs design-record-categories';m.p.insertBefore(categories,m.content);
     rooms.forEach(id=>{const b=button(roomLabel(id),()=>{recordRoom=id;recordPage=0;drawList()});b.dataset.room=id;tabs.append(b)});
-    [['all','全部'],['conversation','会話'],['investigation','調査']].forEach(([id,label])=>{const b=button(label,()=>{recordCategory=id;localStorage.setItem('saigononazo-record-category',id);recordPage=0;drawList()});b.dataset.category=id;categories.append(b)});
+    [['all','全部'],['conversation','会話'],['investigation','調査']].forEach(([id,label])=>{
+      const b=button(label,()=>{recordCategory=id;localStorage.setItem('saigononazo-record-category',id);recordPage=0;drawList()});
+      b.dataset.category=id;categories.append(b)
+    });
+    const order=button('新しい順',()=>{
+      recordOrder=recordOrder==='newest'?'oldest':'newest';
+      localStorage.setItem('saigononazo-record-order',recordOrder);
+      recordPage=0;drawList()
+    },'design-record-order');
+    order.setAttribute('aria-label','記録の並び順を切り替える');
+    categories.append(order);
+
+    // The page picker remains visible outside the scrolling list, even with many records.
+    const footer=document.createElement('div');footer.className='design-pager design-record-pager';m.p.append(footer);
     let rows=[];
     function clue(entry){return !!roomStates.room08?.backSeen&&!!config?.highlightLogEntry?.(entry)}
     function drawList(){
+      footer.hidden=false;
+      roomSelect.value=recordRoom;
       tabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.room===recordRoom)));
-      categories.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.category===recordCategory)));
-      // Rebuild when the room tab changes, retaining chronological text within each conversation.
-      const groups=[];entries.filter(e=>inferRoom(e)===recordRoom).forEach(e=>{const category=e.type==='investigation'?'investigation':'conversation',last=groups.at(-1),group=e.group||legacyGroup(e.id);if(last&&category==='conversation'&&last.category===category&&last.group===group)last.entries.push(e);else groups.push({category,group,entries:[e]})});
-      rows=groups.reverse().filter(g=>recordCategory==='all'||g.category===recordCategory);m.content.replaceChildren();
-      // A03: each newly selected room/category/page opens at its own beginning.
-      m.content.scrollTop=0;
-      const perPage=game.clientHeight<500?3:6,total=Math.max(1,Math.ceil(rows.length/perPage));recordPage=Math.min(recordPage,total-1);
+      categories.querySelectorAll('[data-category]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.category===recordCategory)));
+      order.textContent=recordOrder==='newest'?'新しい順':'古い順';
+      order.setAttribute('aria-pressed',String(recordOrder==='oldest'));
+      const groups=[];
+      entries.filter(e=>inferRoom(e)===recordRoom).forEach(e=>{
+        const category=e.type==='investigation'?'investigation':'conversation',last=groups.at(-1),group=e.group||legacyGroup(e.id);
+        if(last&&category==='conversation'&&last.category===category&&last.group===group)last.entries.push(e);
+        else groups.push({category,group,entries:[e]})
+      });
+      rows=(recordOrder==='newest'?groups.reverse():groups).filter(g=>recordCategory==='all'||g.category===recordCategory);
+      m.content.replaceChildren();m.content.scrollTop=0;
+      const perPage=game.clientHeight<500?3:6,total=Math.max(1,Math.ceil(rows.length/perPage));
+      recordPage=Math.max(0,Math.min(recordPage,total-1));
       if(!rows.length)m.content.append(paragraph('まだ記録がありません。'));
-      rows.slice(recordPage*perPage,(recordPage+1)*perPage).forEach((row,i)=>{const first=row.entries[0],flag=row.entries.some(clue);const title=(row.category==='investigation'?(first.target?first.target+' — ':'調査 — '):'')+first.text.slice(0,42);const b=button((flag?'● ':'')+title,()=>detail(recordPage*perPage+i),'design-record');b.classList.toggle('final-clue',flag);m.content.append(b)});
-      const nav=document.createElement('div');nav.className='design-pager';const prev=button('前の一覧',()=>{recordPage--;drawList()}),next=button('次の一覧',()=>{recordPage++;drawList()});prev.disabled=recordPage===0;next.disabled=recordPage===total-1;nav.append(prev,paragraph(`${recordPage+1} / ${total}`),next);m.content.append(nav);
+      rows.slice(recordPage*perPage,(recordPage+1)*perPage).forEach((row,i)=>{
+        const first=row.entries[0],flag=row.entries.some(clue);
+        const description=(first.text||'').replace(/\s+/g,' ').trim().slice(0,48);
+        const title=row.category==='investigation'
+          ?(first.target?first.target+' — ':'')+description
+          :(first.thought?'心の声':first.speaker==='主人公'?'僕':first.speaker==='ト書き'?'情景':first.speaker||'会話')+' — '+description;
+        const b=button('',()=>detail(recordPage*perPage+i),'design-record');
+        b.classList.toggle('final-clue',flag);
+        if(flag)b.append(document.createTextNode('● '));
+        const summary=document.createElement('span');summary.className='design-record-summary';
+        const kind=document.createElement('small');kind.textContent=row.category==='investigation'?'調査':'会話';
+        const excerpt=document.createElement('span');excerpt.textContent=title;
+        summary.append(kind,excerpt);b.append(summary);
+        m.content.append(b)
+      });
+      footer.replaceChildren();
+      const prev=button('前の一覧',()=>{recordPage--;drawList()});
+      prev.disabled=recordPage===0;
+      const pageLabel=document.createElement('label');pageLabel.className='design-record-page-select';
+      pageLabel.append(document.createTextNode('ページ'));
+      const pageSelect=document.createElement('select');pageSelect.setAttribute('aria-label','記録のページを選択');
+      for(let i=0;i<total;i++){const option=document.createElement('option');option.value=String(i);option.textContent=`${i+1} / ${total}`;pageSelect.append(option)}
+      pageSelect.value=String(recordPage);
+      pageSelect.onchange=()=>{recordPage=Number(pageSelect.value);drawList()};
+      pageLabel.append(pageSelect);
+      const next=button('次の一覧',()=>{recordPage++;drawList()});
+      next.disabled=recordPage===total-1;
+      footer.append(prev,pageLabel,next)
     }
-    function detail(index){m.content.replaceChildren();m.content.scrollTop=0;const row=rows[index];const controls=document.createElement('div');controls.className='design-actions';const prev=button('前の記録',()=>detail(index-1)),next=button('次の記録',()=>detail(index+1));prev.disabled=index===0;next.disabled=index===rows.length-1;controls.append(button('一覧に戻る',drawList),prev,next);m.content.append(controls);const p=pageText(m.content,'',row.entries);p.classList.toggle('final-clue',row.entries.some(clue))}
+    function detail(index){
+      footer.hidden=true;
+      m.content.replaceChildren();m.content.scrollTop=0;
+      const row=rows[index],controls=document.createElement('div');controls.className='design-actions';
+      const prev=button('前の記録',()=>detail(index-1)),next=button('次の記録',()=>detail(index+1));
+      prev.disabled=index===0;next.disabled=index===rows.length-1;
+      controls.append(button('一覧に戻る',drawList),prev,next);m.content.append(controls);
+      const p=pageText(m.content,'',row.entries);p.classList.toggle('final-clue',row.entries.some(clue))
+    }
     drawList();
   }
   function inferRoom(e){if(e.room)return e.room;const n=e.id?.match(/^(?:room|r)([1-8])/);return n?'room0'+n[1]:'opening'}

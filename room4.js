@@ -2,6 +2,12 @@ const R4_ANGLES=[0,0,0,0,0],R4_INITIAL=[2,1,0,3,2],R4_PANEL_KEYS=["star","lightP
 // HIP identifiers from the approved 5 glass-panel SVG partition JSON.
 const R4_VIRGO_PANEL_HIPS=[[57380,69427,66249],[60030,71957,63608],[61941,72220],[65474,68520],[69701,63090]];
 let r4HanaGazeObserver;
+let r4MemoryBridgeTimer=null;
+const R4_MEMORY_WHITE_MS=600,R4_MEMORY_DARK_MS=700,R4_MEMORY_REVEAL_MS=380;
+function r4CancelMemoryBridge(){
+ if(r4MemoryBridgeTimer!==null){clearTimeout(r4MemoryBridgeTimer);r4MemoryBridgeTimer=null}
+ game.querySelector(".r4-memory-bridge")?.remove();
+}
 const R4_FAILED_LIGHT_PREVIEW_MS=1600;
 let r4FailedLightTimer=null;
 function r4CancelFailedLightOff(){
@@ -29,6 +35,7 @@ function r4Mounted(i){return !!(room4State[R4_PANEL_KEYS[i]]&&room4State.mounted
 function r4AllMounted(){return R4_PANEL_KEYS.every((_,i)=>r4Mounted(i))}
 function r4Correct(){return r4AllMounted()&&room4State.angles.every((v,i)=>v===R4_ANGLES[i])}
 function showFourthRoom(savedState){
+ r4CancelMemoryBridge();
  r4CancelFailedLightOff();
  r4HanaGazeObserver?.disconnect();r4HanaGazeObserver=null;
  Dialogue.stop();firstRoomState=undefined;room2State=undefined;room3State=undefined;currentScene="room04";GameAudio.syncSceneMusic?.(currentScene);
@@ -520,7 +527,31 @@ function r4Complete(){
  room4State.completed=true;room4State.lightOn=true;saveGame();r4Projection();game.querySelector(".room-four")?.classList.add("is-restored");const status=game.querySelector(".room-four .room-color-status");if(status)status.textContent="記憶を取り戻した部屋";
  showRoomDialog([{logId:"r4ok1",logType:"investigation",speaker:"ト書き",text:"ライトの光が、五枚のパネルを通り抜ける。左の壁に、いくつもの星が映し出された。今までばらばらだった星が、ひとつの形を描いている。"},{logId:"r4ok2",logType:"dialogue",speaker:"主人公",text:"これ……星座だ"},{logId:"r4ok3",logType:"narration",speaker:"ト書き",text:"右の壁にある星座一覧へ目を向ける。"},{logId:"r4ok4",logType:"dialogue",speaker:"主人公",text:"……おとめ座"},{logId:"r4ok5",logType:"narration",speaker:"ト書き",text:"もう一度、壁を見る。その瞬間――おとめ座を形作る星のひとつが、強く輝き始めた。光は次第に強くなり、辺りを白く染めていく。"},{logId:"r4ok6",logType:"dialogue",speaker:"ハナ",text:"……スピカ"},{logId:"r4ok7",logType:"dialogue",speaker:"主人公",text:"え？"},{logId:"r4ok8",logType:"narration",speaker:"ト書き",text:"ハナの方を振り返ろうとした瞬間、視界がまばゆい光に包まれた。"}],r4Memory);
 }
-function r4Memory(){if(room4State.memorySeen)return;showRoomDialog([...room4FlashbackLines,...room4AfterMemoryLines],()=>{room4State.memorySeen=true;saveGame();r4Exit()})}
+function r4Memory(){
+ if(room4State.memorySeen||currentScene!=="room04"||game.querySelector(".r4-memory-bridge"))return;
+ const veil=document.createElement("div");
+ veil.className="r4-memory-bridge is-white";
+ veil.setAttribute("aria-hidden","true");
+ game.appendChild(veil);
+ // Finish the bright Spica flash, then darken into the real planetarium.
+ r4MemoryBridgeTimer=setTimeout(()=>{
+  if(currentScene!=="room04"||!veil.isConnected)return;
+  veil.classList.replace("is-white","is-dark");
+  r4MemoryBridgeTimer=setTimeout(()=>{
+   if(currentScene!=="room04"||!veil.isConnected)return;
+   const opened=showRoomDialog([...room4FlashbackLines,...room4AfterMemoryLines],()=>{
+    room4State.memorySeen=true;saveGame();r4Exit();
+   });
+   if(!opened){r4CancelMemoryBridge();return}
+   // Reveal the first recollection only after its image and dialogue are mounted.
+   veil.classList.replace("is-dark","is-revealing");
+   r4MemoryBridgeTimer=setTimeout(()=>{
+    r4MemoryBridgeTimer=null;
+    veil.remove();
+   },R4_MEMORY_REVEAL_MS);
+  },R4_MEMORY_DARK_MS);
+ },R4_MEMORY_WHITE_MS);
+}
 function r4Exit(){
  if(room4State.nextRoomTransitionSeen||game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;const o=document.createElement("div");o.className="device-overlay";o.innerHTML=`<section class="menu-panel room-exit-menu"><button class="device-close">×</button><h2>扉の先へ</h2><button id="r4Next">次の部屋へ向かう</button><button id="r4Stay">もう少し部屋を調べる</button></section>`;game.appendChild(o);const close=activateDeviceModal(o,"r4Door",o.querySelector("#r4Next"));o.querySelector("#r4Stay").onclick=close;let moving=false;o.querySelector("#r4Next").onclick=()=>{if(moving||room4State.nextRoomTransitionSeen)return;moving=true;close();showRoomDialog([{logId:"r4x1",logType:"narration",speaker:"ト書き",text:"ドアノブに手をかける。"},{logId:"r4x2",logType:"narration",speaker:"ト書き",text:"扉が開くのを待つことすら、もどかしく感じる。"},{logId:"r4x3",logType:"narration",speaker:"ト書き",text:"扉の向こうへ足を踏み出す。背後から、ハナがついてくる気配がした。"},{logId:"r4x4",logType:"narration",speaker:"ト書き",text:"振り返ることなく、そのまま先へ進んだ。"},{logId:"r4x5",logType:"narration",speaker:"ト書き",text:"視界が、まばゆい光に包まれていく。"}],()=>{room4State.nextRoomTransitionSeen=true;saveGame();r4NextPlaceholder()})};
 }

@@ -212,8 +212,8 @@
    own keypad on the door only after the board has produced its four digits. */
 .r5-wall-keypad-cover,.r5-door-keypad-art{position:absolute;pointer-events:none;visibility:hidden;background-image:url("images/background/room05/front.webp");background-repeat:no-repeat}
 .r5-wall-keypad-cover{
- left:61.4%;top:32.9%;width:3.9%;height:9.2%;z-index:2;
- background-size:2564.1026% 1086.9565%;background-position:68.46% 36.28%;
+ left:61.4%;top:32.9%;width:3.9%;height:10.2%;z-index:2;
+ background-size:2564.1026% 980.3922%;background-position:68.46% 36.69%;
 }
 .r5-door-keypad-art{
  left:52.2%;top:34.2%;width:3%;height:8%;z-index:4;

@@ -45,7 +45,7 @@ async function finishBoard(page){
    const scene=page.locator('#r5Scene'),cover=page.locator('.r5-wall-keypad-cover');
    const sceneBox=await scene.boundingBox(),coverBox=await cover.boundingBox();
    assert.equal(await cover.isVisible(),true,'The keypad baked into the wall image is covered');
-   assert(within({x:sceneBox.x+sceneBox.width*.617,y:sceneBox.y+sceneBox.height*.337,width:sceneBox.width*.029,height:sceneBox.height*.079},coverBox),'The wall cover fully includes the original keypad');
+   assert(within({x:sceneBox.x+sceneBox.width*.617,y:sceneBox.y+sceneBox.height*.337,width:sceneBox.width*.029,height:sceneBox.height*.087},coverBox),'The wall cover fully includes the original keypad and its shadow');
    assert.equal(await page.locator('#r5Keypad,.r5-door-keypad-art').count(),0,'No keypad appears or can be used before completion');
    const out=path.join('artifacts','room05-door',spec.name);fs.mkdirSync(out,{recursive:true});
    await page.screenshot({path:path.join(out,'01-before.png')});

@@ -104,3 +104,26 @@ test("F04/F06: white, black, green reactions are based on visited colors, not ha
   assert.match(prose,/……ここは、床が黒いんですね。/);
   assert.match(prose,/……この部屋は、床が緑色なんですね。/);
 });
+
+test("F05: Hana deflects the question about the puzzle author without a procedural instruction",()=>{
+  const section=game.slice(game.indexOf('function r6MapEvent()'),game.indexOf('function r6CheckDiscovery()'));
+  const ordered=[
+    ["r6_map_14","この謎、ハナさんが作ったんですか？"],
+    ["r6_map_15","…………"],
+    ["r6_map_16","……その地図は、わたしが作ったよ"],
+    ["r6_map_17","地図は？"],
+    ["r6_map_18","うん"],
+    ["r6_map_19","……"],
+    ["r6_map_20","……ほら、まだ行ってない部屋もあるし。もう少し見てみよ？"],
+    ["r6_map_21","……そうですね"]
+  ];
+  let last=-1;
+  for(const [id,part] of ordered){
+    const at=section.indexOf('line("'+id+'"',last+1);
+    assert(at>last,'F05 keeps dialogue event order: '+id);
+    assert(section.slice(at,at+200).includes(part),'F05 text intact: '+id);
+    last=at;
+  }
+  assert(!section.includes('地図を使って、探索を進めよう'),'old mechanical instruction was removed');
+  assert(read("scenario/06_room6.md").includes('> ハナ「……ほら、まだ行ってない部屋もあるし。もう少し見てみよ？」'),'scene manuscript matches approved line');
+});

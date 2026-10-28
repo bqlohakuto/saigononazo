@@ -180,10 +180,7 @@ const mobileEngine=process.env.R6_MOBILE_ENGINE==='chromium'?chromium:webkit;
    assert.equal(await page.locator('#r6Next').count(),1,'F10: loading a completed room restores the door');
    await page.locator('#r6Next').click();await finish();
    await page.locator('[data-r6-exit="proceed"]').click();
-   await page.waitForSelector('[aria-label="第七の部屋"]',{timeout:10000}).catch(async()=>{
-     await page.waitForTimeout(750);
-     assert(await page.evaluate(()=>currentScene==='room07'),'F10: transition reaches Room 7');
-   });
+   await page.waitForTimeout(900);
    assert.equal(await page.evaluate(()=>currentScene),'room07','F10: proceed enters Room 7');
    assert.deepEqual(errors,[]);console.log('PASS',spec.name,'assets, fixed-view exits, map travel, F10 inspection/choice and Room 7 transition');
   }finally{await browser.close()}

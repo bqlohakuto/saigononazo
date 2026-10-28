@@ -167,7 +167,7 @@ test("F10: final H2 east exit appears during its narrated revelation, stays iner
  assert(js.includes("(room6State.completed||r6ExitRevealed)&&id==='H2'"),'only H2 shows the east exit after reveal');
  assert(js.includes("id=\"r6Next\""),'the final door keeps its existing identifier');
  assert(js.includes("game.querySelector('#r6Next')?.addEventListener('click',r6InspectExit)"),'the door is inspectable, not an immediate transition');
- assert(js.includes("if(entry.logId==='r6_after_001')r6RevealExit()"),'revelation occurs when its corresponding narration displays');
+ assert(js.includes("if(entry.logId?.startsWith('r6_after_001_'))r6RevealExit()"),'revelation occurs on the expanded narration log ID');
  assert(js.includes("door.disabled=true"),'door cannot be used during the returning memory dialogue');
  assert(js.includes("room6State.completed=true;r6ExitRevealed=true;saveGame();renderR6()"),'exit is enabled after the entire memory and return dialogue');
  assert(js.includes("r6ExitRevealed=room6State.completed"),'saved completion reloads an enabled exit');

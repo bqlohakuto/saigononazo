@@ -84,6 +84,25 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 #game .design-panel[aria-label="記録"] .design-content{overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 #game .design-panel[aria-label="記録"] .design-record,#game .design-panel[aria-label="記録"] .design-actions{flex:0 0 auto}
 #game .design-panel[aria-label="記録"] .design-page{overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+/* G03: compact navigation above the existing scrollable list. */
+#game .design-panel[aria-label="記録"] .design-record-jump{display:flex;align-items:center;gap:9px;flex:0 0 auto;font-size:clamp(11px,1.3cqw,16px)}
+#game .design-panel[aria-label="記録"] select{font:inherit;color:var(--ink);background:#fffdf7;border:1px solid var(--paper-line);border-radius:5px;min-height:34px;padding:3px 8px;max-width:100%}
+#game .design-panel[aria-label="記録"] .design-record-jump select{flex:1;min-width:0}
+#game .design-panel[aria-label="記録"] .design-record-categories{gap:5px}
+#game .design-panel[aria-label="記録"] .design-record-order{margin-left:auto;white-space:nowrap}
+#game .design-panel[aria-label="記録"] .design-record-summary{display:flex;flex-direction:column;align-items:flex-start;gap:1px;flex:1;min-width:0;overflow-wrap:anywhere}
+#game .design-panel[aria-label="記録"] .design-record-summary small{font-size:clamp(10px,1cqw,13px);color:#746a56;line-height:1.2}
+#game .design-panel[aria-label="記録"] .design-record-summary>span{display:block;text-align:left;line-height:1.35}
+#game .design-panel[aria-label="記録"] .design-record-pager{margin-top:0;flex:0 0 auto;padding-top:6px;border-top:1px solid var(--paper-line)}
+#game .design-panel[aria-label="記録"] .design-record-pager[hidden]{display:none!important}
+#game .design-panel[aria-label="記録"] .design-record-page-select{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:clamp(10px,1.2cqw,15px)}
+#game .design-panel[aria-label="記録"] .design-record-pager button{white-space:nowrap;flex:0 1 auto}
+@container game-viewport (max-height:460px){
+ #game .design-panel[aria-label="記録"] .design-record-jump select{min-height:30px}
+ #game .design-panel[aria-label="記録"] .design-record-pager{padding-top:3px}
+ #game .design-panel[aria-label="記録"] .design-record-page-select{gap:4px}
+}
+
 
 #game .design-pager{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-shrink:0;font-size:12px}
 #game .design-record{width:100%;text-align:left;display:flex;justify-content:space-between;gap:8px;min-height:38px!important}

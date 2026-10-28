@@ -23,12 +23,21 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   const save=()=>JSON.parse(w.localStorage.getItem('saigononazo-save-v1'));
   const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   function finish(){
-    for(let n=0;n<800&&q('#roomNextButton');n++)click('#roomNextButton');
+    const pages=[];
+    for(let n=0;n<800&&q('#roomNextButton');n++){
+      pages.push(q('#roomMessage .message')?.textContent||'');
+      click('#roomNextButton');
+    }
     assert.equal(q('#roomNextButton'),null,'dialogue should finish');
+    return pages;
   }
 
   // Room 6: authored board, live map, legal Othello and late-game transition.
-  click('#testRoomButton');click('[data-room="room06"]');finish();
+  click('#testRoomButton');click('[data-room="room06"]');
+  const entryPages=finish();
+  assert(entryPages.includes('足元の床は白い。並んだ扉は、どれもよく似た形をしている。'),'the entry describes only visible doors');
+  assert(!entryPages.some(text=>text.includes('同じような空間が続いている')),'unvisited rooms are not spoiled on entry');
+  assert(!entryPages.some(text=>text.includes('……さっきの部屋と、似た造りですね。')),'the discovery is not made until after moving');
   assert.ok(q('#r6TestGuide'));
   const guideState=save().rooms.room06;
   click('#r6TestGuide');assert.equal(w.document.querySelectorAll('.r6-test-guide tbody tr').length,9);
@@ -48,7 +57,9 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(q('.r6-travel-label').textContent,'正面の部屋へ');
   await wait(270);assert.equal(save().rooms.room06.current,'A7');
   click('[data-dest="B7"]');assert.equal(save().rooms.room06.current,'A7','input remains locked during fade-in');
-  await wait(360);assert.equal(q('.r6-travel-shade'),null);finish();
+  await wait(360);assert.equal(q('.r6-travel-shade'),null);
+  const a7Pages=finish();
+  assert.deepEqual(a7Pages,['……さっきの部屋と、似た造りですね。','うん。壁も扉も、ほとんど同じみたい。'],'similar rooms discovered after entering A7');
   assert.equal(save().rooms.room06.visited.length,2,'one click sequence creates one visit');
   click('[data-dest="B7"]');run('showSixthRoom({introSeen:true})');await wait(650);
   assert.equal(save().rooms.room06.current,'A8','loading a room cancels stale travel timers');

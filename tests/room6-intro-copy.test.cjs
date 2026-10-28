@@ -145,3 +145,19 @@ test("F07: coordinate axes and compass only appear after the player discovers Ot
   assert(render.includes('scroll.scrollTop=')&&render.includes('scroll.scrollLeft='),'tracking keeps the current cell in view');
   assert(game.includes('if(extremes&&colors&&!room6State.othelloKnown)'),'puzzle discovery still uses the same three corners and colors');
 });
+
+test("F08: only changed Othello tiles receive 600ms visual flips before first and final narration",()=>{
+  const js=game.slice(game.indexOf('function r6Move('),game.indexOf('const R6_MEMORY_AND_AFTER=',game.indexOf('function r6Move(')));
+  const css=read('room6.css');
+  assert(js.includes('next.flatMap((value,i)=>previous[i]!==value?'),'F08 changes are computed from the previous board');
+  assert(js.includes("kind:i===r6Index(placed)?'placed':'flipped'"),'F08 distinguishes placement and reversal');
+  assert(js.includes('cell.dataset.flipFrom=r6Color(change.from)'),'F08 knows the pre-flip face');
+  assert(js.includes("cell.classList.add('r6-'+change.kind)"),'F08 effect is applied to changed cells');
+  assert(js.includes('r6Flipping=true')&&game.includes('r6Moving||r6Flipping'),'F08 prevents simultaneous actions');
+  assert(js.indexOf('setTimeout(()=>{')>js.indexOf('const afterFlip='),'F08 dialogue starts after animation');
+  assert(js.includes('},600);'),'F08 uses the approved 600ms duration');
+  assert(js.includes("window.matchMedia?.('(prefers-reduced-motion: reduce)').matches"),'F08 reduced motion skips animation');
+  assert(game.includes('r6FlipGeneration++;r6Flipping=false;'),'F08 loading cancels pending animation');
+  assert(css.includes('@keyframes r6TurnFace')&&css.includes('.r6-flipped::after'),'F08 CSS has a flip transition');
+  assert(css.includes('@media(prefers-reduced-motion:reduce)'),'F08 CSS respects reduced motion');
+});

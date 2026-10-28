@@ -24,7 +24,13 @@ async function finishDialogue(page){
  }
  assert(deployed,'Expected deployed revision');
  const dir=path.join('artifacts/room03',spec.name);fs.mkdirSync(dir,{recursive:true});
- await page.evaluate(()=>{settings.instantText=true;showThirdRoom({});});
+ await page.evaluate(()=>{settings.instantText=true;showThirdRoom();});
+ assert.equal(await page.locator('.room3-stage').getAttribute('data-view'),'front','C01: entry starts facing the doorway');
+ const firstNarration=await page.locator('.room-dialog .message').textContent();
+ assert.match(firstNarration,/正面には、これまでと同じ扉がある。/,'C01: first dialogue describes the current doorway');
+ assert.doesNotMatch(firstNarration,/ベッド|机|棚|トランペット/,'C01: entry does not describe props in other views');
+ await page.screenshot({path:path.join(dir,'entry-dialogue.png')});
+ await page.evaluate(()=>showThirdRoom({}));
  for(const view of ['front','right','back','left']){
  assert.equal(await page.locator('.room3-stage').getAttribute('data-view'),view);
  const image=await page.locator('#r3Background').evaluate(async img=>{await img.decode();return [img.naturalWidth,img.naturalHeight]});assert.deepEqual(image,[1672,941]);

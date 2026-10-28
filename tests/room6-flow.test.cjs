@@ -182,6 +182,44 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
     assert(!again.includes('……最初に入った部屋と、似た造りですね。'),'white reaction does not repeat');
   }
   assert.equal(save().rooms.room06.current,'A7','non-hardcoded color reactions allow later A7 arrival');
+
+  // F08: normal-motion UI shows only changed tiles before first narration.
+  w.matchMedia=()=>({matches:false,addEventListener(){}});
+  run('showSixthRoom('+JSON.stringify({introSeen:true,visited:ids,current:'D1',interview4:true,mapEvent:true,othelloKnown:true,mapComplete:true})+')');
+  const startBoard=save().rooms.room06.board;
+  click('#r6White');
+  assert.equal(save().rooms.room06.moves.length,1,'F08: board saves immediately when a legal lever is used');
+  assert.equal(q('.r6-placed')?.dataset.cell,'D1','F08: only the placed tile gets the placed effect');
+  assert.ok(w.document.querySelectorAll('.r6-flipped').length>0,'F08: all reversed tiles animate separately');
+  assert.ok([...w.document.querySelectorAll('.r6-flipped')].every(el=>el.dataset.flipFrom==='black'),'F08: flipped tiles retain original black face');
+  assert.equal(q('#roomNextButton'),null,'F08: first-turn narration begins only after visual flip');
+  click('#r6Undo');
+  assert.equal(save().rooms.room06.moves.length,1,'F08: ignore UNDO during the flip');
+  await wait(670);
+  assert.equal(q('.r6-flipped'),null,'F08: transient effects are removed after animation');
+  assert.ok(q('#roomNextButton'),'F08: first-turn dialogue follows the visual effect');
+  finish();
+  click('#r6Undo');
+  assert.deepEqual(save().rooms.room06.board,startBoard,'F08: UNDO restores board without flip effects');
+  assert.equal(q('.r6-flipped'),null);
+  click('#r6White');
+  run('showSixthRoom('+JSON.stringify(save().rooms.room06)+')');
+  assert.equal(q('.r6-flipped'),null,'F08: save reload does not replay an in-flight animation');
+  await wait(670);
+  assert.equal(q('#roomNextButton'),null,'F08: invalidated timer does not reopen dialogue after reload');
+
+  // Final legal move starts its memory only after all board changes finish.
+  run('showSixthRoom('+JSON.stringify({introSeen:true,visited:ids,current:'H2',interview4:true,mapEvent:true,othelloKnown:true,mapComplete:true,moves:route.slice(0,8)})+')');
+  assert.equal(save().rooms.room06.moves.length,8);
+  click('#r6White');
+  assert.ok(q('.r6-placed'),'F08: the ninth move also shows the placed tile effect');
+  assert.ok(q('.r6-flipped'),'F08: the ninth move flips remaining dark tiles');
+  assert.equal(q('#roomNextButton'),null,'F08: winning recollection cannot interrupt the flip');
+  await wait(670);
+  assert.ok(q('#roomNextButton'),'F08: winning recollection begins after the flip');
+  finish();
+  assert.equal(save().rooms.room06.completed,true,'F08: winning route still completes');
+  w.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});
   console.log('PASS: Room 6 live map, first white/black/green encounter per route, doors, Othello, save/load and chapter transition.');
   // Flush UI mutation observers and audio microtasks before closing JSDOM.
   run('Dialogue.stop()');

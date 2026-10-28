@@ -2680,3 +2680,22 @@ body{background:#0b1322!important;display:grid;place-items:center}
    max-height:48cqh;
  }
 }
+
+
+/* Mobile landscape: keep memory-window character art outside the text lane.
+   Size the portrait and its text reservation from the same game viewport. */
+#game .room-dialog.has-memory-portrait{
+  --memory-portrait-width:clamp(110px,22cqw,240px);
+  --memory-portrait-gutter:calc(var(--memory-portrait-width) + 12px);
+}
+#game .room-dialog.has-memory-portrait .memory-window-portrait{
+  width:var(--memory-portrait-width);
+  max-width:calc(100% - 24px);
+}
+#game .room-dialog.has-memory-portrait:not(.is-log-open) .dialog-message-area{
+  margin-left:var(--memory-portrait-gutter);
+  min-width:0;
+}
+#game .room-dialog.is-log-open .dialog-message-area{
+  margin-left:0;
+}

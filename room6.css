@@ -155,3 +155,15 @@
  #game .r6-map .r6-cell.r6-placed,#game .r6-map .r6-cell.r6-flipped,#game .r6-map .r6-cell.r6-placed::after,#game .r6-map .r6-cell.r6-flipped::after,#game .r6-scene.r6-flip-scene .r6-floor{animation:none}
  #game .r6-map .r6-cell.r6-placed::after,#game .r6-map .r6-cell.r6-flipped::after{display:none}
 }
+
+/* F10: the H2 east exit becomes visible during the return dialogue but cannot be used until it ends. */
+#game .r6-final-door:disabled{cursor:default;pointer-events:none}
+#game .r6-final-door-appearing{animation:r6ExitAppear 850ms ease-out both}
+@keyframes r6ExitAppear{0%{opacity:0;filter:brightness(2)}45%{opacity:.8;filter:brightness(1.5)}100%{opacity:1;filter:brightness(1)}}
+#game .r6-exit-menu{width:min(410px,92%);max-height:90%;display:flex;flex-direction:column;gap:14px;padding:22px 24px;background:#fffdf5;color:#493f2b;border:2px solid #b18d3f}
+#game .r6-exit-menu h2{margin:0;font-size:clamp(15px,1.8cqw,22px);text-align:center}
+#game .r6-exit-actions{display:flex;flex-direction:column;gap:10px}
+#game .r6-exit-actions button{padding:10px 14px;min-height:42px;cursor:pointer;border:1px solid #a39272;color:#493f2b;background:#fff}
+#game .r6-exit-actions button[data-r6-exit="proceed"]{background:#ede2ca}
+@container game-viewport (max-height:500px){#game .r6-exit-menu{padding:13px 15px;gap:8px}#game .r6-exit-actions button{min-height:34px;padding:7px 11px}}
+@media(prefers-reduced-motion:reduce){#game .r6-final-door-appearing{animation:none}}

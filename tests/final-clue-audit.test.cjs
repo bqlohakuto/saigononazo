@@ -5,6 +5,7 @@ const {test}=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
+const vm=require("node:vm");
 const root=path.join(__dirname,"..");
 const read=name=>fs.readFileSync(path.join(root,name),"utf8");
 const late=read("late-game.js");
@@ -53,4 +54,32 @@ test("G04: the name is not stated on the final paper and record emphasis require
 test("G04: the last answer still accepts kanji, hiragana and katakana forms without auto-solving",()=>{
   assert.ok(late.includes('["花音","かのん","カノン"].includes(value)'));
   assert.ok(late.includes('room8State.solved=true;saveGame();r8SolvedDialogue()'));
+});
+
+test("G04: marked lines become directly selectable only after reading the paper back",()=>{
+  const script=read("design-ui.js");
+  const start=script.indexOf("      const groups=[];",script.indexOf("  function records(){"));
+  const end=script.indexOf("      rows=",start);
+  assert.ok(start>0&&end>start,"Use the record UI's actual grouping algorithm");
+  const grouping=script.slice(start,end);
+  const entries=[
+    {id:"before1",room:"room03",group:"memory",type:"dialogue",text:"The start"},
+    {id:"before2",room:"room03",group:"memory",type:"dialogue",text:"Another memory"},
+    {id:"flower",room:"room03",group:"memory",type:"dialogue",text:"The flower clue"},
+    {id:"middle",room:"room03",group:"memory",type:"dialogue",text:"The following memory"},
+    {id:"sound",room:"room03",group:"memory",type:"dialogue",text:"The sound clue"},
+    {id:"after",room:"room03",group:"memory",type:"dialogue",text:"The end"}
+  ];
+  function group(backSeen){
+    const ctx={entries,recordRoom:"room03",inferRoom:e=>e.room,legacyGroup:id=>id,
+      clue:e=>backSeen&&(e.id==="flower"||e.id==="sound")};
+    return vm.runInNewContext(grouping+"\nthis.result=groups;",ctx).result;
+  }
+  const hidden=group(false);
+  assert.equal(hidden.length,1,"Keep original conversation grouping before the final hint");
+  assert.equal(hidden[0].entries.length,6);
+  const visible=group(true);
+  assert.deepEqual(Array.from(visible,row=>row.entries.map(e=>e.id).join(",")),
+    ["before1,before2","flower","middle","sound","after"],
+    "Every marked sentence has its own directly selectable record, preserving order");
 });

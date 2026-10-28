@@ -11,6 +11,7 @@ on:
       - 'tests/room5-dining.test.cjs'
       - 'tests/room5-board-clue.test.cjs'
       - 'tests/room5-delayed-validation.test.cjs'
+      - 'tests/room5-mirror.test.cjs'
       - '.github/workflows/eight-room-regression.yml'
   push:
     branches: [main]

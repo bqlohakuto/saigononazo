@@ -24,6 +24,7 @@ const pairs=[
  ["r4_final_zodiac_flowers","r4f01"],
  ["r5_final_flower","r5_final_humming"],
  ["r6_final_lavender","r6_final_signal"],
+ ["r7_books_glow_flower","r7_return_bremen"],
  ["r7_final_pressed_flower","r7_final_bremen"]
 ];
 
@@ -32,7 +33,11 @@ test("G04: every remembered room has an existing flower/sound pair in the saved-
   for(const [flower,sound] of pairs){
     for(const id of [flower,sound]){
       assert.ok(clueIds.includes(id),"Final clue list includes "+id);
-      assert.ok(sources.some(source=>source.includes(id)),"A discoverable source log exists for "+id);
+      const present=sources.some(source=>source.includes(id));
+      const loggedDynamically=id==="r7_return_bremen"
+        &&late.includes("logId:'r7_return_'+book.id")
+        &&late.includes("id:'bremen',title:'ブレーメンの音楽隊'");
+      assert.ok(present||loggedDynamically,"A discoverable source log exists for "+id);
     }
   }
   assert.equal(new Set(clueIds).size,clueIds.length,"No clue ID is duplicated");
@@ -136,4 +141,27 @@ test("G04: Room 4's mandatory success scene retains a flower even without viewin
   assert.doesNotMatch(flower.text,/花音/);
   assert.match(script.slice(end),/showRoomDialog\(\[\.\.\.room4FlashbackLines,\.\.\.room4AfterMemoryLines\]/);
   assert.ok(!observed.some(line=>line.logId==="r4_final_zodiac_flowers"),"The optional exhibit was not inspected");
+});
+
+test("G04: Room 7's bookshelf completion records flowers without opening a book",()=>{
+  const begin=late.indexOf("  function r7BooksGlow(){");
+  const end=late.indexOf("  function r7Read(id){",begin);
+  assert.ok(begin>0&&end>begin);
+  let observed=[];
+  const ctx={
+    game:{querySelector:()=>null},
+    setTimeout:()=>0,
+    showRoomDialog:lines=>{observed=lines},
+    line:(id,speaker,text)=>({logId:id,speaker,text})
+  };
+  vm.runInNewContext(late.slice(begin,end)+"\nr7BooksGlow();",ctx);
+  const flower=observed.find(entry=>entry.logId==="r7_books_glow_flower");
+  assert.match(flower?.text||"",/押し花/);
+  assert.ok(clueIds.includes(flower.logId));
+  const placement=late.slice(late.indexOf("  function r7Shelf(){"),late.indexOf("  function r7Read(id){"));
+  assert.match(placement,/logId:'r7_return_'\+book\.id/);
+  assert.match(placement,/text:'『'\+book\.title\+'』を棚に戻した。'/);
+  assert.match(placement,/if\(justSolved\)\{m\.close\(\);renderR7\(\);r7BooksGlow\(\);return\}/);
+  assert.match(late,/id:'bremen',title:'ブレーメンの音楽隊'/);
+  assert.ok(clueIds.includes("r7_return_bremen"));
 });

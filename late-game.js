@@ -1086,8 +1086,10 @@
       const scroll=game.querySelector('.r6-map-scroll'),current=scroll?.querySelector('.r6-cell.current');
       if(scroll&&current){
         const rect=current.getBoundingClientRect(),box=scroll.getBoundingClientRect();
-        scroll.scrollLeft=Math.max(0,scroll.scrollLeft+rect.left-box.left-(box.width-rect.width)/2);
-        scroll.scrollTop=Math.max(0,scroll.scrollTop+rect.top-box.top-(box.height-rect.height)/2);
+        // The fixed 960x540 viewport may be scaled on phones: scroll amounts use CSS pixels.
+        const scaleX=scroll.clientWidth?box.width/scroll.clientWidth:1,scaleY=scroll.clientHeight?box.height/scroll.clientHeight:1;
+        scroll.scrollLeft=Math.max(0,scroll.scrollLeft+(rect.left-box.left-(box.width-rect.width)/2)/(scaleX||1));
+        scroll.scrollTop=Math.max(0,scroll.scrollTop+(rect.top-box.top-(box.height-rect.height)/2)/(scaleY||1));
       }
     }
     game.querySelector('#r6MapToggle')?.addEventListener('click',()=>{if(r6Busy())return;room6State.mapOpen=!room6State.mapOpen;saveGame();renderR6()});

@@ -1,0 +1,49 @@
+name: Room 5 board clue review
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'late-game.js'
+      - 'index.html'
+      - 'tests/room5-board-clue.browser.cjs'
+      - '.github/workflows/room5-board-clue-review.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'late-game.js'
+      - 'index.html'
+      - 'tests/room5-board-clue.browser.cjs'
+      - '.github/workflows/room5-board-clue-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  board-clue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PUBLIC_BASE_URL: ${{ github.event_name == 'pull_request' && 'http://127.0.0.1:8765/' || 'https://bqlohakuto.github.io/saigononazo/' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browsers
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps webkit
+          google-chrome --version
+      - name: Serve the proposed version for pull requests
+        if: github.event_name == 'pull_request'
+        run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/room05-board-clue-http.log 2>&1 &
+      - name: Test first inspection in Chrome and iPhone WebKit
+        run: node tests/room5-board-clue.browser.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: room05-board-clue-review
+          path: artifacts/room05-board-clue/
+          if-no-files-found: warn
+          retention-days: 14

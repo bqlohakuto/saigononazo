@@ -52,10 +52,14 @@
   function normalizeR5(saved){
     const s=saved&&typeof saved==="object"?saved:{};
     const legacySkipped=(!!s.puzzleSkipped||"mirrorPlaced" in s||"mirrorCollected" in s)&&!s.codeRevealed&&!s.doorUnlocked;
+    const placed=s.placed&&typeof s.placed==="object"&&!Array.isArray(s.placed)?{...s.placed}:{};
     return {
       collected:Array.isArray(s.collected)?[...new Set(s.collected.filter(id=>R5_ITEMS.some(x=>x[0]===id)))]:[],
-      placed:s.placed&&typeof s.placed==="object"&&!Array.isArray(s.placed)?{...s.placed}:{},
+      placed,
       boardIntroSeen:!!s.boardIntroSeen,
+      // Existing saves that already opened the seven-panel conversation or
+      // placed a tile have inspected the board; do not replay a first visit.
+      boardClueSeen:!!s.boardClueSeen||!!s.boardIntroSeen||R5_ITEMS.some(([id])=>placed[id]===R5_TARGET[id])||(!legacySkipped&&(!!s.codeRevealed||!!s.doorUnlocked||!!s.completed)),
       butterflyHintSeen:!!s.butterflyHintSeen,
       codeRevealed:legacySkipped?false:!!s.codeRevealed,
       doorUnlocked:legacySkipped?false:!!s.doorUnlocked,
@@ -73,8 +77,12 @@
     if(room5State.completed)return "第六の部屋へ進む";
     if(room5State.doorUnlocked)return "中央パネルの羽の生えたウサギを調べる";
     if(room5State.codeRevealed)return "扉のテンキーに4桁の数字を入力する";
-    if(room5State.collected.length===7)return "7枚のパネルを正しい数え方へ配置する";
-    return "部屋から7つのパネルを集める";
+    if(!room5State.collected.length)return "部屋を調べる";
+    if(!room5State.boardClueSeen)return "手に入れたパネルや部屋を調べる";
+    if(room5State.collected.length===7){
+      return room5State.boardIntroSeen?"7枚のパネルを正しい数え方へ配置する":"集めたパネルと中央パネルを調べる";
+    }
+    return "部屋からパネルを探す";
   }
 
   showFifthRoom=function(savedState){
@@ -269,6 +277,21 @@
 
   function r5Board(){
     if(game.querySelector('.device-overlay,.room-dialog-overlay,.design-overlay'))return;
+    if(!room5State.boardClueSeen){
+      const boardState=room5State;
+      showRoomDialog([
+        line("r5_clue_01","ト書き","パネルには、短い文章が書かれている。"),
+        line("r5_clue_02","ト書き","描かれたものを正しく数え、あるべき場所へ導け。"),
+        line("r5_clue_03","主人公","数えて、あるべき場所へ……？"),
+        line("r5_clue_04","ハナ","この丸い枠に、何かをはめるのかな"),
+        line("r5_clue_05","主人公","部屋にも、手がかりがあるかもしれませんね。")
+      ],()=>{
+        if(currentScene!=='room05'||room5State!==boardState)return;
+        boardState.boardClueSeen=true;saveGame();
+        r5Board();
+      });
+      return;
+    }
     if(!room5State.boardIntroSeen&&room5State.collected.length===7){
       room5State.boardIntroSeen=true;saveGame();
       showRoomDialog([

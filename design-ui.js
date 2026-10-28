@@ -226,7 +226,7 @@
       const groups=[];
       entries.filter(e=>inferRoom(e)===recordRoom).forEach(e=>{
         const category=e.type==='investigation'?'investigation':'conversation',last=groups.at(-1),group=e.group||legacyGroup(e.id);
-        if(last&&category==='conversation'&&last.category===category&&last.group===group)last.entries.push(e);
+        if(last&&category==='conversation'&&last.category===category&&last.group===group&&!clue(e)&&!last.entries.some(clue))last.entries.push(e);
         else groups.push({category,group,entries:[e]})
       });
       rows=(recordOrder==='newest'?groups.reverse():groups).filter(g=>recordCategory==='all'||g.category===recordCategory);

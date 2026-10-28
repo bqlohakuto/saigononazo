@@ -66,7 +66,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.ok(q('#r6Next'));
 
   // Room 7: books -> zodiac doors -> accident memory.
-  click('#r6Next');await wait(720);
+  click('#r6Next');
+  assert.equal(save().currentScene,'room06','F10: door inspection does not immediately leave Room 6');
+  finish();
+  assert.ok(q('[data-r6-exit="proceed"]'),'F10: inspection offers the explicit next-room action');
+  click('[data-r6-exit="proceed"]');await wait(720);
   assert.equal(save().currentScene,'room07');
   finish();
   const turn=view=>{for(let i=0;i<4&&save().rooms.room07.view!==view;i++)click('#r7TurnRight')};

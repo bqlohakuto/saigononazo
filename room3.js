@@ -277,7 +277,9 @@ function showThirdRoomChat(){
  }
  if(room3State.morseSolved)receiveBoard();
  showReference(referenceMode);
- scrollToBottom();
+ // C04: start at the first message whenever the phone opens or reopens.
+ // Only replies sent during this session should scroll to the newest message.
+ stream.scrollTop=0;
  let solvedTransition=false;
  const close=activateDeviceModal(overlay,"r3Phone",overlay.querySelector(".device-close"),()=>{
   if(!room3State.chatRead){room3State.chatRead=true;room3State.phoneInspected=true}

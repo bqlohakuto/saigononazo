@@ -165,7 +165,27 @@ const mobileEngine=process.env.R6_MOBILE_ENGINE==='chromium'?chromium:webkit;
    }
    assert(await page.evaluate(()=>room6State.completed&&room6State.board.every(c=>c==='W')));
    assert.equal(await page.locator('#r6Next').count(),1);
-   assert.deepEqual(errors,[]);console.log('PASS',spec.name,'assets, fixed-view exits, map travel, 9 moves and completion');
+   assert.equal(await page.locator('#r6Next').isDisabled(),false,'F10: final door is usable after the recollection');
+   const exitButton=await page.locator('#r6Next').boundingBox();
+   assert(exitButton.x>scene.x+scene.width*.8,'F10: exit is on the right/east wall');
+   await page.screenshot({path:path.join(dir,'room6-h2-new-exit.png')});
+   await page.locator('#r6Next').click();await finish();
+   assert.equal(await page.locator('.r6-exit-menu').count(),1,'F10: door is inspected before choosing to leave');
+   assert.equal(await page.locator('[data-r6-exit="proceed"]').innerText(),'第七の部屋へ進む');
+   assert.equal(await page.locator('[data-r6-exit="stay"]').innerText(),'もう少し調べる');
+   await page.screenshot({path:path.join(dir,'room6-exit-choice.png')});
+   await page.locator('[data-r6-exit="stay"]').click();
+   assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),'H2');
+   await page.evaluate(()=>showSixthRoom(room6State));
+   assert.equal(await page.locator('#r6Next').count(),1,'F10: loading a completed room restores the door');
+   await page.locator('#r6Next').click();await finish();
+   await page.locator('[data-r6-exit="proceed"]').click();
+   await page.waitForSelector('[aria-label="第七の部屋"]',{timeout:10000}).catch(async()=>{
+     await page.waitForTimeout(750);
+     assert(await page.evaluate(()=>currentScene==='room07'),'F10: transition reaches Room 7');
+   });
+   assert.equal(await page.evaluate(()=>currentScene),'room07','F10: proceed enters Room 7');
+   assert.deepEqual(errors,[]);console.log('PASS',spec.name,'assets, fixed-view exits, map travel, F10 inspection/choice and Room 7 transition');
   }finally{await browser.close()}
  }
 })().catch(e=>{console.error(e);process.exitCode=1});

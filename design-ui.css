@@ -2659,3 +2659,26 @@ body{background:#0b1322!important;display:grid;place-items:center}
  from{opacity:1}
  to{opacity:0}
 }
+
+
+/* Issue #25 E03: full-size counter panel reveal using the actual Room 5 art.
+   Keep the hand-drawn paper look, not the star-glass frame from Room 4. */
+#game .design-pickup-panel .design-pickup-image[src*="/room05/panels/"]{
+  background:#faf6eb;
+  border:3px solid #897459;
+  border-radius:6px;
+  padding:clamp(3px,.5cqw,7px);
+  width:min(380px,66cqw);
+  max-width:96%;
+  height:min(325px,56cqh);
+  max-height:58cqh;
+  box-shadow:0 5px 15px #382c2340,inset 0 0 0 2px #dfd2bb;
+  image-rendering:auto;
+}
+@container game-viewport (max-height:460px){
+ #game .design-pickup-panel .design-pickup-image[src*="/room05/panels/"]{
+   width:min(250px,48cqw);
+   height:min(190px,46cqh);
+   max-height:48cqh;
+ }
+}

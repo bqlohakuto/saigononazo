@@ -47,10 +47,14 @@ async function finishDialogue(page){
   const note=page.locator('#explore-room03-lecture-note');
   assert.equal(await note.count(),1,'C02: lecture notebook appears by the desk');
   const noteArt=note.locator('.ambient-prop-image');
-  assert.deepEqual(await noteArt.evaluate(async img=>{
+  const noteDimensions=await noteArt.evaluate(async img=>{
     await img.decode();
-    return [img.naturalWidth,img.naturalHeight,img.complete];
-  }),[168,96,true],'C02: notebook artwork has a complete image');
+    return {width:img.naturalWidth,height:img.naturalHeight,complete:img.complete};
+  });
+  assert.equal(noteDimensions.complete,true,'C02: notebook SVG decodes');
+  assert(noteDimensions.width>=90&&noteDimensions.height>=45,'C02: notebook has usable rasterized dimensions');
+  assert(Math.abs(noteDimensions.width/noteDimensions.height-168/96)<.03,
+    'C02: SVG keeps its authored notebook aspect ratio on mobile WebKit');
   const [desk,noteBounds]=await Promise.all([page.locator('#r3Desk').boundingBox(),note.boundingBox()]);
   assert(noteBounds.x>=desk.x-2&&noteBounds.y>=desk.y-2,'C02: notebook begins on the tabletop');
   assert(noteBounds.x+noteBounds.width<=desk.x+desk.width+2&&noteBounds.y+noteBounds.height<=desk.y+desk.height+2,'C02: notebook remains on the tabletop');

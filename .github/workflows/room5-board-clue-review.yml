@@ -7,6 +7,7 @@ on:
       - 'late-game.js'
       - 'index.html'
       - 'tests/room5-board-clue.browser.cjs'
+      - 'tests/room5-inlay.browser.cjs'
       - '.github/workflows/room5-board-clue-review.yml'
   push:
     branches: [main]
@@ -14,6 +15,7 @@ on:
       - 'late-game.js'
       - 'index.html'
       - 'tests/room5-board-clue.browser.cjs'
+      - 'tests/room5-inlay.browser.cjs'
       - '.github/workflows/room5-board-clue-review.yml'
 
 permissions:
@@ -33,13 +35,17 @@ jobs:
       - name: Install browsers
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
-          npx playwright install --with-deps webkit
+          npx playwright install --with-deps chromium webkit
           google-chrome --version
       - name: Serve the proposed version for pull requests
         if: github.event_name == 'pull_request'
         run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/room05-board-clue-http.log 2>&1 &
       - name: Test first inspection in Chrome and iPhone WebKit
         run: node tests/room5-board-clue.browser.cjs
+      - name: Verify seven-panel inlay, undo, save, and completion on desktop and mobile
+        env:
+          LOCAL_REVIEW: '1'
+        run: node tests/room5-inlay.browser.cjs
       - if: always()
         uses: actions/upload-artifact@v4
         with:

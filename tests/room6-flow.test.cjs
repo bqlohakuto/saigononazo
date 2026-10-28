@@ -101,6 +101,8 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(save().rooms.room06.interview4,true);
   assert.equal(save().rooms.room06.mapEvent,true,'map granted at sixth room including A8');
   assert.equal(w.document.querySelectorAll('[data-cell]').length,6,'unvisited rooms are absent');
+  assert.equal(q('.r6-map-coordinates'),null,'F07 axes stay hidden before Othello discovery');
+  assert.equal(q('.r6-map-compass'),null,'F07 compass stays hidden before Othello discovery');
   click('[data-cell="A8"]');assert.equal(q('.r6-scene').dataset.current,'A8');
   assert.equal(save().rooms.room06.visited.length,6,'fast travel does not count as new exploration');
   click('[data-dest="B8"]');
@@ -119,8 +121,14 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(save().rooms.room06.othelloKnown,true);
   assert.equal(save().rooms.room06.mapComplete,true);
   assert.equal(w.document.querySelectorAll('[data-cell]').length,64,'Hana reveals all rooms after discovery');
+  assert.deepEqual(Array.from(w.document.querySelectorAll('.r6-coordinate-columns span'),el=>el.textContent),['A','B','C','D','E','F','G','H'],'F07 columns increase to the right');
+  assert.deepEqual(Array.from(w.document.querySelectorAll('.r6-coordinate-rows span'),el=>el.textContent),['1','2','3','4','5','6','7','8'],'F07 row numbers increase downward');
+  assert.equal(q('.r6-map-compass').textContent,'↑ 正面→ 右↓ 手前← 左','F07 map compass matches visible doors');
+  assert.equal(q('.r6-cell.current').getAttribute('aria-current'),'location','F07 current location marked accessibly');
   assert.equal(save().rooms.room06.visited.includes('G6'),false);
   click('[data-cell="G6"]');assert.equal(save().rooms.room06.current,'G6','newly revealed unvisited room is reachable from map');
+  assert.equal(q('.r6-map-location').textContent,'現在地 G6','F07 current coordinate updates after map jump');
+  assert.equal(q('.r6-cell.current').dataset.cell,'G6','F07 current cell corresponds to actual room');
   assert.equal(save().rooms.room06.visited.includes('G6'),true);
   const ids=Array.from({length:64},(_,i)=>String.fromCharCode(65+i%8)+(Math.floor(i/8)+1));
   run('showSixthRoom('+JSON.stringify({introSeen:true,visited:ids,current:'D1',interview4:true,mapEvent:true,othelloKnown:true,mapComplete:true})+')');

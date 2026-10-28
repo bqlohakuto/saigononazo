@@ -85,7 +85,12 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   turn('back');click('#r7Shelf');finish();
   for(const [id,slot]of [['ikkyu',1],['rabbit',2],['wolf',3],['monkey',5],['mitten',7],['bremen',8]]){click('[data-held="'+id+'"]');click('[data-slot="'+slot+'"]')}
   finish();assert.equal(save().rooms.room07.booksSolved,true);
-  click('#r7Shelf');for(const slot of [1,2,3,5,7,8]){click('[data-slot="'+slot+'"]');finish();click('#r7BackShelf')}click('.r7-overlay .device-close');
+  // G04: intentionally skip every optional book-reading interaction.
+  // The completed bookshelf itself must already have recorded flower and music.
+  assert.equal(save().rooms.room07.read.length,0,'books are not read on this minimal route');
+  const mandatoryLogs=run('GameLog.list()');
+  assert.ok(mandatoryLogs.some(e=>e.id==='r7_books_glow_flower'&&e.text.includes('押し花')),'the completed shelf leaves a flower clue in the saved log');
+  assert.ok(mandatoryLogs.some(e=>e.id==='r7_return_bremen'&&e.text.includes('音楽隊')),'placing the required Bremen book leaves a music clue in the saved log');
   turn('front');click('#r7Door');finish();
   for(const zodiac of ['寅','卯','未','申','亥','酉']){
     const before=save().rooms.room07.doorIndex;

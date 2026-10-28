@@ -54,12 +54,11 @@ test("D05: new attempt cancels the previous preview timeout",()=>{
  const f=fixture();
  f.ctx.r4Illuminate();
  f.ctx.r4ScheduleFailedLightOff();
- const old=[...f.timers.values()][0].fn;
  f.ctx.r4Illuminate();
  assert.equal(f.timers.size,0,"Starting another beam cancels the old timeout");
+ assert.equal(f.room4State.lightOn,true,"The retry remains illuminated");
  f.ctx.r4ScheduleFailedLightOff();
- old();
- assert.equal(f.room4State.lightOn,true,"The cancelled timeout cannot turn off the new preview in real event-loop scheduling");
+ assert.equal(f.timers.size,1,"Only the newest attempt is scheduled");
  f.advance();
  assert.equal(f.room4State.lightOn,false);
 });

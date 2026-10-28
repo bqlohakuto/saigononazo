@@ -64,7 +64,7 @@
     // The senior has not entered the shot at the opening, and is gone once
     // the bus leaves. No unrelated character should fill either frame.
     if(scene.key==='r7boar'){
-      const beat=Number(id.match(/r7_mem_boar_(\\d{2})/)?.[1]);
+      const beat=Number(id.match(/r7_mem_boar_(\d{2})/)?.[1]);
       if(beat===1||beat===28)visual.suppressSprite=true;
     }
     if(scene.key==='r7monkey'){

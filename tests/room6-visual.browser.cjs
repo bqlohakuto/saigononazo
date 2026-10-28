@@ -54,6 +54,8 @@ const mobileEngine=process.env.R6_MOBILE_ENGINE==='chromium'?chromium:webkit;
    assert.equal(await page.locator('.r6-scene').getAttribute('data-color'),'green');
    await page.evaluate(()=>showSixthRoom({introSeen:true,current:'C8',visited:['A8','B8','C8','C7','C6','C5'],mapEvent:true,interview4:true,edges:[['A8','B8'],['B8','C8'],['C8','C7'],['C7','C6'],['C6','C5']]}));
    assert.equal(await page.locator('[data-cell]').count(),6);
+   assert.equal(await page.locator('.r6-map-coordinates').count(),0,'F07: map coordinate grid is hidden before the puzzle is discovered');
+   assert.equal(await page.locator('.r6-map-compass').count(),0,'F07: full direction key is hidden before discovery');
    await page.locator('[data-cell="A8"]').click();assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),'A8');
    await doorClick('east');assert.equal(await page.locator('.r6-scene').getAttribute('data-current'),'B8');
    assert.equal(await page.locator('.r6-map').count(),1,'map remains open while using door');
@@ -77,6 +79,10 @@ const mobileEngine=process.env.R6_MOBILE_ENGINE==='chromium'?chromium:webkit;
    assert(hana.y+hana.height<scene.y+scene.height*.82,'feet remain grounded in the middle of the room');
    assert(hana.height>scene.height*.55,'Hana has adult scale beside the doors');
    assert.equal(await page.locator('.r6-map-location').innerText(),'現在地 D1');
+   assert.deepEqual(await page.locator('.r6-coordinate-columns span').allTextContents(),['A','B','C','D','E','F','G','H'],'F07: column headers follow physical left-to-right');
+   assert.deepEqual(await page.locator('.r6-coordinate-rows span').allTextContents(),['1','2','3','4','5','6','7','8'],'F07: row headers follow physical north-to-south');
+   assert.equal((await page.locator('.r6-map-compass').innerText()).replace(/\\s+/g,''),'↑正面→右↓手前←左');
+   assert.equal(await page.locator('.r6-cell.current').getAttribute('data-cell'),'D1');
    await page.screenshot({path:path.join(dir,'full-map.png')});
    // Same-color rooms and every exit remain distinguishable without a dialogue.
    await page.emulateMedia({reducedMotion:'no-preference'});
@@ -115,6 +121,15 @@ const mobileEngine=process.env.R6_MOBILE_ENGINE==='chromium'?chromium:webkit;
    await page.locator('[data-cell="H4"]').click();await page.locator('#r6Black').click();assert.equal(await page.locator('.r6-scene').getAttribute('data-color'),'black');
    await page.screenshot({path:path.join(dir,'black-selected.png')});
    await page.locator('#r6MapExpand').click();await page.screenshot({path:path.join(dir,'expanded-map.png')});
+   await page.locator('[data-cell="H8"]').click();
+   await page.waitForSelector('.r6-travel-shade',{state:'detached'});
+   const currentVisible=await page.locator('.r6-cell.current').evaluate(el=>{
+     const box=el.getBoundingClientRect(),viewport=el.closest('.r6-map-scroll').getBoundingClientRect();
+     return box.top>=viewport.top-1&&box.bottom<=viewport.bottom+1&&box.left>=viewport.left-1&&box.right<=viewport.right+1;
+   });
+   assert(currentVisible,'F07: expanded map scrolls to keep remote H8 location visible');
+   assert.equal(await page.locator('.r6-map-location').innerText(),'現在地 H8','F07: current coordinate stays visible');
+   await page.screenshot({path:path.join(dir,'expanded-map-current-h8.png')});
    await page.locator('#r6MapToggle').click();assert.equal(await page.locator('.r6-map').count(),0);await page.locator('#r6MapToggle').click();
    for(const [i,id] of ['D2','G5','G6','G3','C8','C2','H2'].entries()){
     await page.evaluate(()=>{room6State.mapExpanded=false;showSixthRoom(room6State)});

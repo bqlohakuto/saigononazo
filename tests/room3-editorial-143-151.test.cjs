@@ -111,3 +111,20 @@ test("No.143-151: chapter and combined scripts record all adopted edits",()=>{
    assert.ok(text.includes(`【校閲No.${number}・推奨案 採用】`),`No.${number} missing`);
  }
 });
+
+
+test("C01: Room 3 opening narration only describes the doorway visible on entry",()=>{
+  const opening=vm.runInNewContext(source+"\nroom3IntroLines",{});
+  assert.equal(opening[0].logId,"room3_intro_01");
+  assert.equal(opening[0].speaker,"ト書き");
+  assert.equal(opening[0].text,"視界が開ける。正面には、これまでと同じ扉がある。");
+  assert.doesNotMatch(opening[0].text,/ベッド|机|棚|トランペット|だけが/,"Do not describe out-of-view objects");
+  assert.match(source,/view:"front",doorInspected:false/,"The first view faces the doorway");
+  assert.match(source,/right:\["r3Desk","r3Phone"\]/,"Desk and phone remain in the right-hand view");
+  assert.match(source,/back:\["r3Shelf","r3Trumpet"\]/,"Shelf and trumpet remain in the back view");
+  assert.match(source,/left:room3State.bedInspected\?\["r3Bed"\]/,"Bed remains in the left-hand view");
+  assert.match(chapter,/正面には、これまでと同じ扉がある。/);
+  assert.match(combined,/正面には、これまでと同じ扉がある。/);
+  assert.doesNotMatch(chapter,/ベッドと机、それから小さな棚だけが置かれていた。/);
+  assert.doesNotMatch(combined,/ベッドと机、それから小さな棚だけが置かれていた。/);
+});

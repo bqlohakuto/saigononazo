@@ -160,6 +160,16 @@ const mobileEngine=process.env.R6_MOBILE_ENGINE==='chromium'?chromium:webkit;
      assert((await page.locator('#roomMessage').innerText()).includes('今日ね、新しいの'));
      assert.equal(await page.locator('.room-dialog-overlay').getAttribute('data-memory-stage'),'expressive');
      await page.screenshot({path:path.join(dir,'memory-first-half.png')});
+     await page.evaluate(()=>{
+       for(let n=0;n<800&&document.querySelector('#roomNextButton');n++){
+         if(document.querySelector('#roomMessage')?.textContent.includes('さっきまで何もなかった壁に'))break;
+         document.querySelector('#roomNextButton').click();
+       }
+     });
+     assert((await page.locator('#roomMessage').innerText()).includes('さっきまで何もなかった壁に'),'F10: after-memory narration is reached');
+     assert.equal(await page.locator('#r6Next').count(),1,'F10: H2 exit appears at the return narration');
+     assert(await page.locator('#r6Next').isDisabled(),'F10: the emerging door stays disabled during dialogue');
+     await page.screenshot({path:path.join(dir,'room6-door-appearing-during-dialogue.png')});
     }
     await finish();
    }

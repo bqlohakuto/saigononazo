@@ -103,7 +103,8 @@ async function enter(page,state){
    await page.locator('.r4-memory-bridge.is-white').waitFor({timeout:3000});
    await page.locator('.r4-memory-bridge.is-dark').waitFor({timeout:3000});
    assert.equal(await page.locator('.room-dialog-overlay').count(),0,'Memory waits for the dark phase');
-   await page.waitForFunction(()=>GameLog.list().some(entry=>/^r4f01(?:_\d+)?$/.test(entry.id)),null,{timeout:4000});
+   await page.waitForFunction(()=>!!document.querySelector('.room-dialog-overlay')&&!!document.querySelector('.memory-scene'),null,{timeout:4000});
+   assert.equal(await page.locator('.memory-scene').getAttribute('data-location'),'r4show','The first recollection uses the original planetarium backdrop');
    await page.locator('.r4-memory-bridge').waitFor({state:'detached',timeout:4000});
    await enter(page,{star:true,lightPuzzle:true,meteors:true,wall:true,box:true,completed:true,memorySeen:true,lightOn:true,angles:[0,0,0,0,0]});
    assert.deepEqual(await page.evaluate(()=>room4State.mountedPanels),[true,true,true,true,true],'Finished legacy saves retain their constellation');

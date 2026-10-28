@@ -94,6 +94,18 @@ async function finishDialogue(page){
  }
  await page.locator('#r3TurnLeft').click();assert.equal(await page.locator('.room3-stage').getAttribute('data-view'),'left');
  await page.locator('#r3SleepingHana').click();await finishDialogue(page);assert(await page.evaluate(()=>room3State.bedInspected));assert.equal(await page.locator('.room3-sleeping-hana').isVisible(),false,'Hana gets out of bed after existing conversation');
+ // C03: the bed remains a real investigation target after she leaves.
+ // The old code wrote to #exploreStatus, which is display:none in the adopted UI.
+ assert.equal(await page.locator('#r3Bed').isVisible(),true,'C03: bed is tappable after waking Hana');
+ assert.equal(await page.locator('#r3SleepingHana').isVisible(),false,'C03: sleeping-Hana hotspot is gone');
+ await page.locator('#r3Bed').click();
+ assert.equal(await page.locator('.room-dialog-overlay').count(),1,'C03: tapping the bed opens a visible investigation');
+ assert.equal(await page.locator('.room-dialog .message').textContent(),'ベッドには、特に変わったところはない。','C03: repeat investigation describes the empty bed');
+ assert.equal(await page.locator('.room3-sleeping-hana').isVisible(),false,'C03: repeating does not put Hana back to bed');
+ await page.screenshot({path:path.join(dir,'bed-after-hana-wakes.png')});
+ await finishDialogue(page);
+ assert.equal(await page.locator('.room-dialog-overlay').count(),0,'C03: closing the bed response restores exploration');
+ assert.equal(await page.evaluate(()=>room3State.bedInspected),true,'C03: repeat preserves the wake-up state');
  await page.locator('#r3TurnRight').click();await page.locator('#r3Door').click();await finishDialogue(page);
  await page.locator('#r3TurnRight').click();await page.locator('#r3Desk').click();await finishDialogue(page);
  await page.locator('#r3Phone').click();assert.equal(await page.locator('.room3-chat-message').count(),15);

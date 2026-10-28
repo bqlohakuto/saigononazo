@@ -17,7 +17,7 @@ for(const m of late.matchAll(/line\(("(?:\\.|[^"\\])*"),("(?:\\.|[^"\\])*"),("(?
  const [logId,speaker,text]=m.slice(1).map(s=>JSON.parse(s));authored.set(logId,{logId,speaker,text,logType:speaker==='ト書き'?'narration':'dialogue'});
 }
 const scenes=JSON.parse(fs.readFileSync(path.join(root,'docs/MEMORY_SCENES_IMPLEMENTATION.json')));
-const samples=['room2_memory_070','room3_flashback_05','room3_flashback_39','room3_flashback_71','r4f05','r4f10','r4f51','r5m014','r5m038','r5m103','r5m121','r5m156','r5m197','r5m225','r5m248','r6_memory_full_007','r6_memory_full_030','r6_memory_full_058','r6_memory_06','r7_mem_14','r7_mem_26','r7_mem_34','r7_mem_35'];
+const samples=['room2_memory_070','room3_flashback_05','room3_flashback_39','room3_flashback_71','r4f05','r4f10','r4f51','r5m014','r5m038','r5m103','r5m121','r5m156','r5m197','r5m225','r5m248','r6_memory_full_007','r6_memory_full_030','r6_memory_full_058','r6_memory_06','r7_mem_14','r7_mem_26','r7_mem_34','r7_mem_35','r7_mem_boar_01','r7_mem_boar_02','r7_mem_boar_27','r7_mem_boar_28','r7_mem_rooster_03'];
 const engine=process.env.MEMORY_MOBILE_ENGINE==='chromium'?chromium:webkit;
 (async()=>{
  fs.mkdirSync(out,{recursive:true});
@@ -69,7 +69,7 @@ const engine=process.env.MEMORY_MOBILE_ENGINE==='chromium'?chromium:webkit;
       const b=e.getBoundingClientRect();return b.width&&b.height&&(b.left<r.left-1||b.right>r.right+1||b.top<r.top-1||b.bottom>r.bottom+1);
      }).map(e=>e.textContent);
     });assert.deepEqual(outside,[],id);
-    if(['room2_memory_070','room3_flashback_71','r4f10','r5m014','r5m103','r5m121','r6_memory_full_030','r7_mem_34'].includes(id))await p.screenshot({path:path.join(out,spec.name+'-'+id+'.png')});
+    if(['room2_memory_070','room3_flashback_71','r4f10','r5m014','r5m103','r5m121','r6_memory_full_030','r7_mem_34','r7_mem_boar_02','r7_mem_boar_27'].includes(id))await p.screenshot({path:path.join(out,spec.name+'-'+id+'.png')});
     if(id==='r5m014'){
      await p.getByRole('button',{name:'非表示',exact:true}).click();
      assert.equal(await p.locator('.memory-girl:visible').count(),1);

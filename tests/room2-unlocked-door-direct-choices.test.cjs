@@ -14,7 +14,7 @@ function harness(overrides={}){
  const calls={choices:[],dialogues:[],notices:[],saves:0,boundary:0};
  const sandbox={
   room2State:{doorInspected:false,deskInspected:true,unlocked:true,...overrides},
-  showRoomDialog(lines,done){calls.dialogues.push({ids:Array.from(lines,line=>line.logId),done})},
+  showRoomDialog(lines,done){calls.dialogues.push({ids:Array.from(lines,line=>line.logId),lines:Array.from(lines,line=>({logId:line.logId,logType:line.logType,speaker:line.speaker,text:line.text})),done})},
   showRoomNotice(text,id){calls.notices.push({text,id})},
   saveGame(){calls.saves++},
   showThirdRoomBoundary(){calls.boundary++}
@@ -41,6 +41,13 @@ test("No.124: 'next room' retains original two transition lines and boundary cal
  calls.choices[0][0].onSelect();
  assert.equal(calls.dialogues.length,1,"Selecting next room still starts the story transition");
  assert.deepEqual(calls.dialogues[0].ids,["room2_room3_transition_01","room2_room3_transition_02"]);
+ assert.deepEqual(calls.dialogues[0].lines[0],{
+   logId:"room2_room3_transition_01",
+   logType:"narration",
+   speaker:"ト書き",
+   text:"僕はドアノブに手を伸ばした。"
+ },"B02: the doorknob line must render as narration with no decorative quotation marks");
+ assert.equal(calls.dialogues[0].lines[1].speaker,"ト書き","The following door animation narration is preserved");
  assert.equal(calls.boundary,0,"Third room is entered only after finishing the transition");
  calls.dialogues[0].done();
  assert.equal(calls.boundary,1,"Finishing the original narration reaches the third room");

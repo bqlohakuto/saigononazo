@@ -15,7 +15,7 @@ const room4DoorLines=[
 {logId:"r4d01",logType:"investigation",speaker:"ト書き",text:"正面の扉を調べる。見た目は、これまでの部屋にあったものと変わらない。ドアノブに手をかけ、回してみる。"},
 {logId:"r4d02",logType:"dialogue",speaker:"主人公",text:"……やっぱり開かない"},
 {logId:"r4d03",logType:"investigation",speaker:"ト書き",text:"扉の中央には、文字が刻まれている。"},
-{logId:"r4d04",logType:"narration",speaker:"システム",text:"『散らばる星を重ね、夜空にひとつの姿を描け。』"},
+{logId:"r4d04",logType:"narration",speaker:"システム",text:"散らばる星を重ね、夜空にひとつの姿を描け。"},
 {logId:"r4d05",logType:"dialogue",speaker:"主人公",text:"散らばる星を……重ねる？"},
 {logId:"r4d06",logType:"dialogue",speaker:"主人公",text:"この部屋のどこかに、“星”が散らばってるってことかな"},
 {logId:"r4d07",logType:"dialogue",speaker:"主人公",text:"それを重ねて、ひとつの姿を作る……まずは、星を探してみよう"}

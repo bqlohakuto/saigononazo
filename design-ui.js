@@ -173,7 +173,7 @@
     const pager=document.createElement('div');pager.className='design-pager';content.append(pager);
     let page=0,pages=[];const count=document.createElement('span');
     const prev=button('前のページ',()=>{page--;draw()}),next=button('次のページ',()=>{page++;draw()});pager.append(prev,count,next);
-    function draw(){area.textContent=pages[page]||'';prev.disabled=page===0;next.disabled=page>=pages.length-1;count.textContent=`${page+1} / ${Math.max(1,pages.length)}`}
+    function draw(){area.textContent=pages[page]||'';area.scrollTop=0;prev.disabled=page===0;next.disabled=page>=pages.length-1;count.textContent=`${page+1} / ${Math.max(1,pages.length)}`}
     function measure(){
       const css=getComputedStyle(area),width=Math.max(100,area.clientWidth),font=`${css.fontSize} ${css.fontFamily}`;
       const lines=Math.max(entries?2:1,Math.floor(area.clientHeight/parseFloat(css.lineHeight)));

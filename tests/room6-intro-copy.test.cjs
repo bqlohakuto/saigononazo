@@ -127,3 +127,21 @@ test("F05: Hana deflects the question about the puzzle author without a procedur
   assert(!section.includes('地図を使って、探索を進めよう'),'old mechanical instruction was removed');
   assert(read("scenario/06_room6.md").includes('> ハナ「……ほら、まだ行ってない部屋もあるし。もう少し見てみよ？」'),'scene manuscript matches approved line');
 });
+
+test("F07: coordinate axes and compass only appear after the player discovers Othello",()=>{
+  const start=game.indexOf('function r6MapMarkup()');
+  const end=game.indexOf('function renderR6()',start);
+  assert(start>0&&end>start);
+  const map=game.slice(start,end);
+  assert(map.includes('const coordinates=room6State.othelloKnown?'),'axes are gated by discovery');
+  assert(map.includes('const compass=room6State.othelloKnown?'),'compass is gated by discovery');
+  assert(map.includes('r6-coordinate-columns')&&map.includes('r6-coordinate-rows'),'axes exist in grid');
+  assert(map.includes('65+minX+i')&&map.includes('minY+i+1'),'labels follow cropped map origin');
+  for(const direction of ['↑ 正面','→ 右','↓ 手前','← 左'])assert(map.includes(direction),'direction shown: '+direction);
+  assert(map.includes('room6State.othelloKnown?id'),'the existing hidden-coordinate rule remains intact');
+  const render=game.slice(game.indexOf('function renderR6()'),game.indexOf('function r6Neighbor('));
+  assert(render.includes('if(room6State.othelloKnown&&room6State.mapExpanded)'),'tracking is only enabled for known expanded maps');
+  assert(render.includes("scroll.querySelector")||render.includes("scroll?.querySelector"),'tracking finds the current map cell');
+  assert(render.includes('scroll.scrollTop=')&&render.includes('scroll.scrollLeft='),'tracking keeps the current cell in view');
+  assert(game.includes('if(extremes&&colors&&!room6State.othelloKnown)'),'puzzle discovery still uses the same three corners and colors');
+});

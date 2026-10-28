@@ -41,12 +41,17 @@
 .r5-decor{position:absolute;pointer-events:none;background-repeat:no-repeat;background-size:contain;background-position:center;visibility:hidden}
 .r5-decor.is-gone{display:none}
 .r5-decor-mirror{left:6%;top:30%;width:29%;height:42%;background-image:url("images/background/room05/overlays/mirror.webp")}
-.r5-decor-dining{inset:0;background-size:100% 100%;background-image:url("images/background/room05/overlays/dining-set.webp")}
+.r5-decor-dining{inset:0}
+.r5-furniture{position:absolute;background-repeat:no-repeat;background-position:center;background-size:100% 100%}
+.r5-furniture.is-gone{display:none}
+.r5-chair-left,.r5-chair-right{top:16.3%;width:39.3%;height:73.7%;background-image:url("images/background/room05/overlays/dining-chair-v2.png")}
+.r5-chair-left{left:-3.3%}
+.r5-chair-right{right:-3.3%;transform:scaleX(-1)}
+.r5-dining-table{left:11.4%;top:12.8%;width:76.7%;height:86.2%;background-image:url("images/background/room05/overlays/dining-table-v2.png")}
 .r5-decor-planter{left:3%;top:6%;width:24%;height:54%;background-image:url("images/background/room05/overlays/planter-flowers-blue-butterfly.webp")}
 .r5-decor-planter.is-empty{background-image:url("images/background/room05/overlays/planter-empty.webp")}
 .r5-decor-planter.is-butterfly-gone{background-image:url("images/background/room05/overlays/planter-flowers-only.webp")}
 .r5-decor-planter.is-flower-gone{background-image:url("images/background/room05/overlays/planter-butterfly-only.webp")}
-.r5-decor-dining.is-chair-gone{background-image:url("images/background/room05/overlays/dining-set.webp")}
 .r5-decor-fish{left:15%;top:19%;width:17%;height:13%;background-image:url("images/background/room05/overlays/fish.webp")}
 .r5-decor-squid{left:15%;top:51%;width:17%;height:13%;background-image:url("images/background/room05/overlays/frozen-squid.webp")}
 .r5-decor-cannon{left:29%;top:39%;width:9%;height:12%;background-image:url("images/background/room05/overlays/cannon.webp")}
@@ -126,15 +131,12 @@
 }
 
 
-/* 2026-10-14: calibrated against the actual four-view contact preview.
-   Keep the authored pixels unchanged; remove the near-left chair by clipping
-   its independent transparent furniture overlay after panel collection. */
+/* Calibrated against the actual four-view contact preview. */
 .r5-decor-mirror{left:14.7%;top:44.6%;width:9%;height:18%}
 .r5-target-mirror{left:13%;top:41.6%;width:13%;height:23%}
 .r5-decor-planter{left:7.5%;top:12%;width:13%;height:31%}
 .r5-target-butterfly{left:12.5%;top:19%;width:9%;height:16%}
 .r5-target-flower{left:7.5%;top:27%;width:14%;height:16%}
-.r5-decor-dining.is-chair-gone{clip-path:inset(0 0 0 18%)}
 .r5-board-panel .r5-art-fallback[hidden]{display:none!important}
 
 

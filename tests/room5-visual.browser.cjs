@@ -11,6 +11,7 @@ const expected=[
   'right-kitchen-upper-open.webp','right-kitchen-lower-open.webp',
   'right-kitchen-both-open.webp','back.webp',
   ...['mirror','dining-set','planter-flowers-blue-butterfly','planter-empty','fish','frozen-squid','cannon'].map(f=>'overlays/'+f+'.webp'),
+  'overlays/dining-table-v2.png','overlays/dining-chair-v2.png',
   ...['mirror','fish','squid','butterfly','flower','chair','cannon'].map(f=>'panels/'+f+'.webp')
 ];
 (async()=>{

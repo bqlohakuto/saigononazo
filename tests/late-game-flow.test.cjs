@@ -129,13 +129,43 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   click('.design-tabs [data-room="room07"]');
   click('.design-tabs [data-category="investigation"]');
   assert.ok(w.document.querySelectorAll('.design-record.final-clue').length>=1,'actual room-seven memories are marked after reading the hint');
+  // G03: the room dropdown makes every visited room directly reachable.
+  const roomJump=q('select[aria-label="記録の部屋へジャンプ"]');
+  assert.ok(roomJump,'direct room jump exists');
+  assert.ok([...roomJump.options].some(option=>option.value==='room01'),'past rooms remain available');
+  roomJump.value='room01';
+  roomJump.dispatchEvent(new w.Event('change',{bubbles:true}));
+  assert.equal(q('.design-room-tabs [data-room="room01"]').getAttribute('aria-pressed'),'true','room jump switches the visible tab');
+  click('.design-record-categories [data-category="all"]');
+  const pageSelect=q('select[aria-label="記録のページを選択"]');
+  assert.ok(pageSelect && pageSelect.options.length>=1,'page picker is always available');
+  if(pageSelect.options.length>1){
+    const last=String(pageSelect.options.length-1);
+    pageSelect.value=last;
+    pageSelect.dispatchEvent(new w.Event('change',{bubbles:true}));
+    assert.equal(q('select[aria-label="記録のページを選択"]').value,last,'direct page jump is applied');
+    assert.equal(q('.design-record-pager button').disabled,false,'earlier records remain selectable after page jump');
+  }
+  const order=q('.design-record-order');
+  assert.equal(order.textContent,'新しい順');
+  order.click();
+  assert.equal(q('.design-record-order').textContent,'古い順','chronological order can be selected');
+  assert.equal(w.localStorage.getItem('saigononazo-record-order'),'oldest');
+  order.click();
+  assert.equal(q('.design-record-order').textContent,'新しい順','reverse chronological order remains available');
+  roomJump.value='room07';
+  roomJump.dispatchEvent(new w.Event('change',{bubbles:true}));
+  click('.design-record-categories [data-category="investigation"]');
+  assert.ok(q('.design-record.final-clue'),'G01 clue remains after room, order and page navigation');
   const clueRow=q('.design-record.final-clue');
   assert.ok(clueRow.textContent.startsWith('● '),'clue marker is visual, not a written answer');
   // G02: opening a long record keeps the existing detail and back-to-list controls.
   clueRow.click();
+  assert.equal(q('.design-record-pager').hidden,true,'list pager is hidden in a record detail');
   assert.ok(q('.design-page.final-clue'),'the memory detail remains accessible');
   assert.ok(q('.design-pager'),'the existing page buttons are retained');
   click('.design-actions button');
+  assert.equal(q('.design-record-pager').hidden,false,'returning to the list restores the page picker');
   assert.ok(q('.design-record.final-clue'),'returning to the list retains the G01 marker');
   click('.design-panel header button');
   click('#r8Paper');

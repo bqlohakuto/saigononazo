@@ -87,6 +87,16 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
       assert(script.indexOf('レンコンだよ')>script.indexOf(question),'F03: Hana gives the remembered answer immediately');
       assert(!script.includes('ハナさんが好きなのって'),'F03: question does not assert Hana told her own preferences');
     }
+    if(id==='A3'){
+      const script=pages.join('').replace(/\s+/g,'');
+      const question='この謎、ハナさんが作ったんですか？';
+      const correction='……その地図は、わたしが作ったよ';
+      const deflection='……ほら、まだ行ってない部屋もあるし。もう少し見てみよ？';
+      assert(script.includes(question),'F05: author question appears on sixth visited room');
+      assert(script.indexOf(correction)>script.indexOf(question),'F05: Hana avoids claiming the whole puzzle');
+      assert(script.indexOf(deflection)>script.indexOf(correction),'F05: Hana redirects gently after answering about the map');
+      assert(!script.includes('地図を使って、探索を進めよう'),'F05: old procedural line does not appear');
+    }
   }
   assert.equal(save().rooms.room06.interview4,true);
   assert.equal(save().rooms.room06.mapEvent,true,'map granted at sixth room including A8');

@@ -2565,3 +2565,64 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .room-dialog-overlay[data-memory-presentation="dialogue"] .room-dialog .memory-window-portrait{
   pointer-events:none;
 }
+
+
+/* Issue #25 A07: make answers visually distinct from ordinary paper controls.
+   The Room 2 HIT/BLOW answer remains a physical lever, with its own artwork. */
+#game :is(
+  .design-submit,
+  .room1-piano-panel #playMelodyButton,
+  .room3-answer-submit,
+  .room3-final-submit,
+  .r4-mini .r4-answer,
+  .r8-puzzle #r8Submit,
+  .r5-keypad-panel .r5-keypad-grid [data-key="enter"]
+),
+#game .r4-mini.r4-color-exhibit .r4-answer{
+  background:linear-gradient(180deg,#ffe4ac 0%,#e8b95f 100%)!important;
+  color:#312314!important;
+  border:2px solid #88602d!important;
+  box-shadow:inset 0 2px 0 #fff1cd,0 3px 0 #644622!important;
+  text-shadow:none!important;
+  font-weight:800!important;
+  cursor:pointer;
+}
+#game :is(
+  .design-submit,
+  .room1-piano-panel #playMelodyButton,
+  .room3-answer-submit,
+  .room3-final-submit,
+  .r4-mini .r4-answer,
+  .r8-puzzle #r8Submit,
+  .r5-keypad-panel .r5-keypad-grid [data-key="enter"]
+):hover:not(:disabled),
+#game .r4-mini.r4-color-exhibit .r4-answer:hover:not(:disabled){
+  filter:brightness(1.045);
+}
+#game :is(
+  .design-submit,
+  .room1-piano-panel #playMelodyButton,
+  .room3-answer-submit,
+  .room3-final-submit,
+  .r4-mini .r4-answer,
+  .r8-puzzle #r8Submit,
+  .r5-keypad-panel .r5-keypad-grid [data-key="enter"]
+):focus-visible,
+#game .r4-mini.r4-color-exhibit .r4-answer:focus-visible{
+  outline:3px solid #246788!important;
+  outline-offset:3px;
+}
+#game :is(
+  .design-submit,
+  .room1-piano-panel #playMelodyButton,
+  .room3-answer-submit,
+  .room3-final-submit,
+  .r4-mini .r4-answer,
+  .r8-puzzle #r8Submit,
+  .r5-keypad-panel .r5-keypad-grid [data-key="enter"]
+):disabled,
+#game .r4-mini.r4-color-exhibit .r4-answer:disabled{
+  opacity:.52;
+  filter:grayscale(.45);
+  cursor:not-allowed;
+}

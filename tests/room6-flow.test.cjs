@@ -141,7 +141,30 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.ok(q('#r6Next'));
 
   click('#r6Next');await wait(720);assert.equal(save().currentScene,'room07');
-  console.log('PASS: Room 6 live map, doors, colors, lever, undo/reset, save/load, completion and next chapter.');
+
+  // Alternate route: black -> green -> a later white room; no A7/B8-specific trigger.
+  run('showSixthRoom({introSeen:true})');
+  click('[data-dest="B8"]');
+  const altBlack=finish().join('');
+  assert(altBlack.includes('……ここは、床が黒いんですね。'),'black is observed at first arrival');
+  click('[data-dest="C8"]');
+  const altGreen=finish().join('');
+  assert(altGreen.includes('……この部屋は、床が緑色なんですね。'),'green is observed at first arrival');
+  click('[data-dest="D8"]');
+  const altWhite=finish().join('');
+  assert(altWhite.includes('……最初に入った部屋と、似た造りですね。'),'first additional white room may be D8');
+  assert(altWhite.includes('前に思い出した、あの人の好物って……'),'fourth unique room interview remains reachable');
+  const altSaved=save().rooms.room06;
+  run('showSixthRoom('+JSON.stringify(altSaved)+')'); // reload after all three colors were seen
+  for(const dest of ['C8','B8','A8','A7']){
+    click('[data-dest="'+dest+'"]');
+    const again=finish().join('');
+    assert(!again.includes('……この部屋は、床が緑色なんですね。'),'green reaction does not repeat');
+    assert(!again.includes('……ここは、床が黒いんですね。'),'black reaction does not repeat');
+    assert(!again.includes('……最初に入った部屋と、似た造りですね。'),'white reaction does not repeat');
+  }
+  assert.equal(save().rooms.room06.current,'A7','non-hardcoded color reactions allow later A7 arrival');
+  console.log('PASS: Room 6 live map, first white/black/green encounter per route, doors, Othello, save/load and chapter transition.');
   dom.window.close();
 })().catch(e=>{console.error(e);process.exitCode=1});
 

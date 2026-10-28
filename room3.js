@@ -317,7 +317,7 @@ function showThirdRoomChat(){
  if(room3State.unlocked){form.hidden=true}
 }
 function inspectThirdRoomBed(){
- if(room3State.bedInspected){showRoomNotice("ベッドには、特に変わったところはない。","room3_bed_repeat","investigation");return}
+ if(room3State.bedInspected){showRoomDialog([{logId:"room3_bed_repeat",logType:"investigation",speaker:"ト書き",text:"ベッドには、特に変わったところはない。"}]);return}
  const lines=[
   {logId:"room3_bed_01",logType:"dialogue",speaker:"主人公",text:"……ハナさん？　こんなところで寝てたんですか？"},
   {logId:"room3_bed_02",logType:"narration",speaker:"ト書き",text:"返事はない。ハナは気持ちよさそうに寝息を立てている。"},

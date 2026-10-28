@@ -6,9 +6,9 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   const root=path.join(__dirname,'..');
   // G02: only the records modal opts into native vertical/horizontal scrolling.
   const recordCss=fs.readFileSync(path.join(root,'design-ui.css'),'utf8');
-  assert.match(recordCss, /design-panel\\[aria-label="記録"\\] \\.design-content\\{overflow-y:auto/, 'record list has native vertical scrolling');
-  assert.match(recordCss, /design-panel\\[aria-label="記録"\\] \\.design-page\\{overflow-y:auto/, 'record detail can scroll when its text exceeds the viewport');
-  assert.match(recordCss, /design-panel\\[aria-label="記録"\\] \\.design-tabs\\{[^}]*overflow-x:auto/, 'small landscape screens can swipe between room tabs');
+  assert.ok(recordCss.includes('#game .design-panel[aria-label="記録"] .design-content{overflow-y:auto'), 'record list has native vertical scrolling');
+  assert.ok(recordCss.includes('#game .design-panel[aria-label="記録"] .design-page{overflow-y:auto'), 'record detail can scroll when its text exceeds the viewport');
+  assert.ok(recordCss.includes('#game .design-panel[aria-label="記録"] .design-tabs{flex-wrap:nowrap;flex-shrink:0;overflow-x:auto'), 'small landscape screens can swipe between room tabs');
   const dom=new JSDOM('<div id="game-container"><div id="game"></div></div>',{
     url:'https://game.test/?preview=1',runScripts:'outside-only',pretendToBeVisual:true
   });

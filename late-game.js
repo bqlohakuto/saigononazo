@@ -1059,7 +1059,11 @@
       const ax=a.charCodeAt(0)-65-minX+.5,ay=Number(a[1])-1-minY+.5,bx=b.charCodeAt(0)-65-minX+.5,by=Number(b[1])-1-minY+.5;
       return '<line x1="'+ax+'" y1="'+ay+'" x2="'+bx+'" y2="'+by+'"/>';
     }).join('');
-    return '<aside class="r6-map-paper'+(room6State.mapExpanded?' expanded':'')+'" aria-label="探索地図"><div class="r6-map-location">現在地'+(room6State.othelloKnown?' '+room6State.current:'')+'</div><div class="r6-map-tools"><button id="r6MapExpand" aria-label="地図を'+(room6State.mapExpanded?'縮小':'拡大')+'">'+(room6State.mapExpanded?'−':'＋')+'</button><button id="r6MapToggle" aria-label="地図を畳む">×</button></div><div class="r6-map-scroll"><div class="r6-map" style="--cols:'+cols+';--rows:'+rows+'"><svg class="r6-map-lines" viewBox="0 0 '+cols+' '+rows+'" preserveAspectRatio="none" aria-hidden="true">'+paths+'</svg>'+cells+'</div></div></aside>';
+    const map='<div class="r6-map" style="--cols:'+cols+';--rows:'+rows+'"><svg class="r6-map-lines" viewBox="0 0 '+cols+' '+rows+'" preserveAspectRatio="none" aria-hidden="true">'+paths+'</svg>'+cells+'</div>';
+    const coordinates=room6State.othelloKnown?
+      '<div class="r6-map-coordinates" style="--cols:'+cols+';--rows:'+rows+'" aria-label="地図座標"><span class="r6-coordinate-corner" aria-hidden="true">↗</span><div class="r6-coordinate-columns" aria-hidden="true">'+Array.from({length:cols},(_,i)=>'<span>'+String.fromCharCode(65+minX+i)+'</span>').join('')+'</div><div class="r6-coordinate-rows" aria-hidden="true">'+Array.from({length:rows},(_,i)=>'<span>'+(minY+i+1)+'</span>').join('')+'</div>'+map+'</div>':map;
+    const compass=room6State.othelloKnown?'<div class="r6-map-compass" aria-label="地図の方向：上は正面、右は右、下は手前、左は左"><span>↑ 正面</span><span>→ 右</span><span>↓ 手前</span><span>← 左</span></div>':'';
+    return '<aside class="r6-map-paper'+(room6State.mapExpanded?' expanded':'')+'" aria-label="探索地図"><div class="r6-map-location">現在地'+(room6State.othelloKnown?' '+room6State.current:'')+'</div><div class="r6-map-tools"><button id="r6MapExpand" aria-label="地図を'+(room6State.mapExpanded?'縮小':'拡大')+'">'+(room6State.mapExpanded?'−':'＋')+'</button><button id="r6MapToggle" aria-label="地図を畳む">×</button></div><div class="r6-map-scroll">'+coordinates+'</div>'+compass+'</aside>';
   }
   function renderR6(){
     const id=room6State.current,x=id.charCodeAt(0)-65,y=Number(id[1])-1,color=r6Color(room6State.board[r6Index(id)]);
@@ -1077,6 +1081,15 @@
       r6MapMarkup()+'</section></main>';
     game.querySelectorAll('[data-dest]').forEach(b=>b.onclick=()=>r6Visit(b.dataset.dest));
     game.querySelectorAll('[data-cell]').forEach(b=>b.onclick=()=>r6Visit(b.dataset.cell,true));
+    // Map redraws replace the scroll box; keep the current room visible in expanded mode.
+    if(room6State.othelloKnown&&room6State.mapExpanded){
+      const scroll=game.querySelector('.r6-map-scroll'),current=scroll?.querySelector('.r6-cell.current');
+      if(scroll&&current){
+        const rect=current.getBoundingClientRect(),box=scroll.getBoundingClientRect();
+        scroll.scrollLeft=Math.max(0,scroll.scrollLeft+rect.left-box.left-(box.width-rect.width)/2);
+        scroll.scrollTop=Math.max(0,scroll.scrollTop+rect.top-box.top-(box.height-rect.height)/2);
+      }
+    }
     game.querySelector('#r6MapToggle')?.addEventListener('click',()=>{if(r6Busy())return;room6State.mapOpen=!room6State.mapOpen;saveGame();renderR6()});
     game.querySelector('#r6MapExpand')?.addEventListener('click',()=>{if(r6Busy())return;room6State.mapExpanded=!room6State.mapExpanded;saveGame();renderR6()});
     game.querySelector('#r6White')?.addEventListener('click',()=>r6Move('W'));

@@ -73,7 +73,7 @@ test("G04: marked lines become directly selectable only after reading the paper 
   function group(backSeen){
     const ctx={entries,recordRoom:"room03",inferRoom:e=>e.room,legacyGroup:id=>id,
       clue:e=>backSeen&&(e.id==="flower"||e.id==="sound")};
-    return vm.runInNewContext(grouping+"\nthis.result=groups;",ctx).result;
+    return vm.runInNewContext(grouping+"\ngroups;",ctx);
   }
   const hidden=group(false);
   assert.equal(hidden.length,1,"Keep original conversation grouping before the final hint");

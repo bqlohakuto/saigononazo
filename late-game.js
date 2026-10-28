@@ -2454,15 +2454,30 @@
       o.remove();room8State.solved=true;saveGame();r8SolvedDialogue();
     };
   }
+  // G01: Each pair is a memory already encountered before the final puzzle.
+  // Use exact log IDs (or sentence-split descendants), never broad scene prefixes.
+  // Neither the clues nor their order are displayed as the final answer.
   const R8_FINAL_LOG_IDS=[
-    "room1_poster_03","room1_piano","room2_memory_053_flower_01","room2_final_hanamaru","room2_memory_003",
-    "room3_final_ringtone","room3_flashback_34","r4f01","r4_final_zodiac_flowers",
-    "r5_final_humming","r5_final_flower","r6_final_signal","r6_final_lavender",
-    "r7_final_bremen","r7_final_pressed_flower"
+    // Room 1: concert flower song -> the sound of the piano
+    "room1_poster_03","room1_piano_introduction_02",
+    // Room 2: a flower-shaped compliment -> the sound of the trumpet
+    "room2_memory_053_flower_01","room2_final_hanamaru","room2_memory_003",
+    // Room 3: cherry blossoms -> a ringing phone
+    "room3_flashback_34","room3_final_ringtone",
+    // Room 4: flowers of the zodiac -> the planetarium announcement
+    "r4_final_zodiac_flowers","r4f01",
+    // Room 5: a flower in the vase -> her humming
+    "r5_final_flower","r5_final_humming",
+    // Room 6: lavender -> an audible crossing signal
+    "r6_final_lavender","r6_final_signal",
+    // Room 7: a pressed flower -> the Bremen Town Musicians
+    "r7_final_pressed_flower","r7_final_bremen"
   ];
   function r8IsFinalClue(entry){
+    // Do not draw attention to the answer before the player reads the paper's back.
+    if(!room8State.backSeen)return false;
     const id=entry?.id||"";
-    return R8_FINAL_LOG_IDS.some(prefix=>id.startsWith(prefix));
+    return R8_FINAL_LOG_IDS.some(clue=>id===clue||id.startsWith(clue+"_"));
   }
   function r8ArmLogHint(){
     const btn=document.getElementById("gameplayLogButton")||[...game.querySelectorAll(".gameplay-hud-actions button")].find(button=>button.textContent==="記録");

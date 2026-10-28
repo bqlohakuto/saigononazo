@@ -1409,7 +1409,7 @@
     if(!room6State.completed||currentScene!=='room06')return;
     const overlay=document.createElement('div');
     overlay.className='device-overlay r6-exit-overlay';
-    overlay.innerHTML='<section class="menu-panel r6-exit-menu" aria-label="第七の部屋へ進むか選択"><h2>この扉を進みますか？</h2><div class="r6-exit-actions"><button type="button" data-r6-exit="proceed">第七の部屋へ進む</button><button type="button" data-r6-exit="stay">もう少し調べる</button></div></section>';
+    overlay.innerHTML='<section class="menu-panel r6-exit-menu" aria-label="第七の部屋へ進むか選択"><button type="button" class="device-close" aria-label="閉じる">×</button><h2>この扉を進みますか？</h2><div class="r6-exit-actions"><button type="button" data-r6-exit="proceed">第七の部屋へ進む</button><button type="button" data-r6-exit="stay">もう少し調べる</button></div></section>';
     game.appendChild(overlay);
     const close=activateDeviceModal(overlay,'r6Exit',overlay.querySelector('[data-r6-exit="proceed"]'));
     overlay.querySelector('[data-r6-exit="stay"]').onclick=close;

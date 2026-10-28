@@ -4,7 +4,7 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
 const css=fs.readFileSync(path.join(__dirname,"..","design-ui.css"),"utf8");
-const rule=css.split("/* Issue #25 A07: answer-action contrast")[1];
+const rule=css.split("/* Issue #25 A07: make answers visually distinct")[1];
 function rgb(hex){return [1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255)}
 function lum(hex){
  const values=rgb(hex).map(x=>x<=.04045?x/12.92:Math.pow((x+.055)/1.055,2.4));

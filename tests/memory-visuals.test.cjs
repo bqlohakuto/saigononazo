@@ -96,7 +96,7 @@ test('Every authored Room 2-7 recollection ID and its paginated continuation res
     assert.equal(visuals.get(scene.room,{logId:logId+'_01_02'}).background,v.background,logId);
     assert.equal(visuals.get(scene.room,{logId:'page',logSource:{logId}}).sprite,v.sprite,logId);
   }
-  assert.equal(ids.size,716);
+  assert.equal(ids.size,766,'Includes the 28 boar and 22 rooster recollection beats');
 });
 
 test('Tiger-door recollection keeps the earlier concealed-face presentation',()=>{

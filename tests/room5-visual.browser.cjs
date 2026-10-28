@@ -51,6 +51,48 @@ const expected=[
       if(view==='front'){
         const wallBoard=await page.locator('#r5Board').boundingBox();
         assert(wallBoard.y+wallBoard.height<bounds.y+bounds.height*.5,'Puzzle is mounted on the wall above the shelf');
+        const mirror=page.locator('.r5-decor-mirror');
+        const mirrorBox=await mirror.boundingBox();
+        const mirrorTarget=await page.locator('.r5-target-mirror').boundingBox();
+        assert(mirrorTarget.x<=mirrorBox.x && mirrorTarget.y<=mirrorBox.y &&
+          mirrorTarget.x+mirrorTarget.width>=mirrorBox.x+mirrorBox.width &&
+          mirrorTarget.y+mirrorTarget.height>=mirrorBox.y+mirrorBox.height,
+          'Mirror tap target covers the entire decorative image');
+        // The transparent padding in mirror.webp means the element's bounding
+        // box is not the visible base. Measure its opaque pixels, then compare
+        // the base against the shelf surface in the approved 1672x941 artwork.
+        const visibleBase=await mirror.evaluate(async el=>{
+          const image=new Image();
+          image.src='images/background/room05/overlays/mirror.webp';
+          await image.decode();
+          const canvas=document.createElement('canvas');
+          canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
+          const context=canvas.getContext('2d');
+          context.drawImage(image,0,0);
+          const pixels=context.getImageData(0,0,canvas.width,canvas.height).data;
+          let lastRow=-1;
+          for(let y=canvas.height-1;y>=0&&lastRow<0;y--){
+            let opaque=0;
+            for(let x=0;x<canvas.width;x++)if(pixels[(y*canvas.width+x)*4+3]>=128)opaque++;
+            if(opaque>=10)lastRow=y;
+          }
+          if(lastRow<0)throw new Error('Mirror asset has no visible base');
+          const rect=el.getBoundingClientRect();
+          const scale=Math.min(rect.width/canvas.width,rect.height/canvas.height);
+          const top=rect.y+(rect.height-canvas.height*scale)/2;
+          return top+(lastRow+1)*scale;
+        });
+        const shelfSurface=bounds.y+bounds.height*(560/941);
+        assert(Math.abs(visibleBase-shelfSurface)<bounds.height*.008,
+          'Visible mirror base rests on the shelf instead of overlapping its front');
+        await page.locator('.r5-target-mirror').click();
+        await page.waitForSelector('.room-dialog-overlay');
+        await page.evaluate(()=>{for(let i=0;i<100&&document.querySelector('#roomNextButton');i++)document.querySelector('#roomNextButton').click()});
+        await page.waitForFunction(()=>room5State.collected.includes('mirror'));
+        assert.equal(await page.locator('.r5-decor-mirror.is-gone').count(),1,'Collected mirror disappears from the room');
+        assert.equal(await page.locator('.r5-target-mirror.is-gone').count(),1,'Collected mirror is no longer interactive');
+        await page.evaluate(()=>showFifthRoom({introSeen:true}));
+        await page.waitForFunction(()=>document.querySelector('#r5Scene')?.classList.contains('has-r5-background'));
         const hana=await page.locator('#r5Hana').boundingBox();
         assert(hana.x>bounds.x+bounds.width*.65,'Hana stands to the right, clear of the mirror');
         assert.equal(await page.locator('#r5Hana').evaluate(el=>getComputedStyle(el).pointerEvents),'auto','Hana remains clickable');

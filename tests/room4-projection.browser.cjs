@@ -2,6 +2,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {chromium}=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const base=process.env.BASE_URL||'https://bqlohakuto.github.io/saigononazo/';
+const version=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8').match(/room4.js\?v=([^"']+)/)[1];
 const shots=process.env.ARTIFACT_DIR||'artifacts/room04/projection';
 fs.mkdirSync(shots,{recursive:true});
 async function finish(page){
@@ -21,7 +22,14 @@ async function enter(page,state){
    const page=await browser.newPage({viewport,reducedMotion:'reduce'}),errors=[];
    page.on('pageerror',e=>errors.push(e.message));
    await page.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
-   await page.goto(base,{waitUntil:'load',timeout:90000});
+   let deployed=false;
+   for(let attempt=0;attempt<24;attempt++){
+    await page.goto(base+'?room4_projection_review='+Date.now(),{waitUntil:'load',timeout:90000});
+    const src=await page.locator('script[src*="room4.js"]').getAttribute('src');
+    if(src?.includes(version)){deployed=true;break}
+    await page.waitForTimeout(5000);
+   }
+   assert(deployed,'Expected the D05 public version before testing its light behavior');
    await page.evaluate(()=>settings.instantText=true);
    await enter(page,{});
    await page.locator('#r4Stand').click();

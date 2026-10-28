@@ -74,7 +74,7 @@ const room2IntroLines=[
 function inspectSecondRoomDoor(){
  if(room2State.unlocked){showRoomChoices([
   {label:"次の部屋へ向かう",onSelect:()=>showRoomDialog([
-   {logId:"room2_room3_transition_01",logType:"narration",speaker:"主人公",text:"僕はドアノブに手を伸ばした。"},
+   {logId:"room2_room3_transition_01",logType:"narration",speaker:"ト書き",text:"僕はドアノブに手を伸ばした。"},
    {logId:"room2_room3_transition_02",logType:"narration",speaker:"ト書き",text:"開けようとすると、また扉はひとりでに開いた。扉の向こうへ、身体が吸い込まれていくような感覚に襲われる。視界が、まばゆい光に包まれていく。"}
   ],showThirdRoomBoundary)},
   {label:"もう少し調べる",onSelect:()=>{}}

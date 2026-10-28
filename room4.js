@@ -323,7 +323,7 @@ function r4Stand(){
   else fb.textContent=!R4_PANEL_KEYS.some((_,i)=>r4Mounted(i))?"壁が明るく照らされている。":!r4AllMounted()?"はめたパネルの星が映っている。まだ空いている枠がある。":allLinked()?"星はつながった。でも、全体の向きが違うようだ。":"星は映ったが、まだ何の形か分からない。";
  };
 }
-function r4Const(){showRoomDialog([{logId:"r4c1",logType:"investigation",speaker:"ト書き",text:"12星座の名前と、星の位置を示す図が並んでいる。"},{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"},{logId:"r4c2",logType:"dialogue",speaker:"主人公",text:"これを見れば、星の形から星座を調べられそうだ"}],r4OpenZodiacExhibit)}
+function r4Const(){showRoomDialog([{logId:"r4c1",logType:"investigation",speaker:"ト書き",text:"12星座の名前と、星の位置を示す図が並んでいる。"},{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"},{logId:"r4c2",logType:"dialogue",speaker:"主人公",text:"……十二星座が、ひとつずつ載ってるんだな"}],r4OpenZodiacExhibit)}
 function r4Meteor(){showRoomDialog([{logId:"r4m1",logType:"investigation",speaker:"ト書き",text:"流れ星についての展示だ。流れ星は、宇宙空間の小さなちりや岩石が大気に飛び込み、高温になって光って見える現象らしい。地球が彗星の残したちりの中を通ると、流星群が見られることもある。"},{logId:"r4m2",logType:"dialogue",speaker:"主人公",text:"こんな小さいものが、あんなに明るく見えるんだな"}])}
 function r4WordPuzzle(kind){
  if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;

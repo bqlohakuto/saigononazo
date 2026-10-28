@@ -1,0 +1,24 @@
+name: E08 dialogue diagnostics
+on:
+  push:
+    branches: [codex/memory-e08-dialog-check]
+permissions:
+  contents: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps chromium webkit
+      - run: node tests/e08-dialog-diagnostic.browser.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e08-dialog-diagnostic
+          path: artifacts/memory05-window/
+          if-no-files-found: warn

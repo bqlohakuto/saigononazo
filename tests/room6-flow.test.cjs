@@ -165,6 +165,9 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   }
   assert.equal(save().rooms.room06.current,'A7','non-hardcoded color reactions allow later A7 arrival');
   console.log('PASS: Room 6 live map, first white/black/green encounter per route, doors, Othello, save/load and chapter transition.');
+  // Flush UI mutation observers and audio microtasks before closing JSDOM.
+  run('Dialogue.stop()');
+  await wait(150);
   dom.window.close();
 })().catch(e=>{console.error(e);process.exitCode=1});
 

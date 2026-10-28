@@ -20,9 +20,11 @@
     ["flower","花","輪","花瓶"],["squid","イカ","杯","冷蔵庫"],["chair","椅子","脚","ダイニング"],
     ["cannon","大砲","門","テレビ台"]
   ];
+  // Fixed visual order deliberately differs from inventory / answer order.
+  // Only display positions change; counter keys, answer mapping and saved placements stay stable.
   const R5_COUNTERS=[
-    ["feather","羽","うさぎ"],["face","面","鏡"],["tail","尾","魚"],["head","頭","蝶"],
-    ["ring","輪","花"],["cup","杯","イカ"],["leg","脚","椅子"],["gate","門","大砲"]
+    ["feather","羽","うさぎ"],["leg","脚","椅子"],["head","頭","蝶"],["cup","杯","イカ"],
+    ["gate","門","大砲"],["face","面","鏡"],["ring","輪","花"],["tail","尾","魚"]
   ];
   const R5_TARGET={mirror:"面",fish:"尾",butterfly:"頭",flower:"輪",squid:"杯",chair:"脚",cannon:"門"};
   const R5_ART_COUNTER={"面":"mask","尾":"tail","頭":"head","輪":"wheel","杯":"cup","脚":"legs","門":"gate"};

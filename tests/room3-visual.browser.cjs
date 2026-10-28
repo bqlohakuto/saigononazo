@@ -117,6 +117,7 @@ async function finishDialogue(page){
  assert.equal(await page.locator('.r3-no-attachment').count(),0,'There is no empty clue display frame');
  const shell=page.locator('.r3-handset'),stream=page.locator('.r3-chat-scroll');
  const phoneBounds=await shell.boundingBox();assert(phoneBounds.height<=spec.viewport.height&&phoneBounds.width<=spec.viewport.width,'Phone fits viewport');
+ assert.equal(await stream.evaluate(el=>el.scrollTop),0,'C04: first phone opening starts at the earliest message');
  assert.deepEqual(await page.locator('.room3-chat-message p').allTextContents(),await page.evaluate(()=>ROOM3_CHAT_MESSAGES.map(item=>item.face)),'All original face glyphs remain exact and ordered');
  assert.equal(await page.locator('.r3-text-message').count(),7,'Original opening and ending chat lines remain');
  assert(await page.locator('.room-three').evaluate(el=>el.inert),'Exploration blocked while reading phone');
@@ -128,7 +129,11 @@ async function finishDialogue(page){
  await page.keyboard.press('Escape');assert.equal(await shell.count(),0,'Escape closes phone');
  assert.equal(await page.evaluate(()=>document.activeElement.id),'r3Phone','Keyboard focus returns to phone');
  assert(await page.evaluate(()=>room3State.chatRead&&room3State.phoneInspected),'Existing investigation state retained');
- await page.locator('#r3Phone').click();await page.locator('.room3-chat-panel .device-close').click();
+ await page.locator('#r3Phone').click();
+ assert.equal(await stream.evaluate(el=>el.scrollTop),0,'C04: reopening after scrolling to the end returns to the top');
+ assert.equal(await stream.locator('article').first().locator('p').textContent(),'ねえ、暇だから変なことしよ','C04: first message is still present');
+ await page.screenshot({path:path.join(dir,'smartphone-reopened-at-top.png')});
+ await page.locator('.room3-chat-panel .device-close').click();
  await page.locator('#r3TurnRight').click();await page.locator('#r3Shelf').click();await finishDialogue(page);
  const chart=page.locator('.r3-morse-chart');assert.equal(await page.locator('.r3-morse-cell').count(),26,'All A–Z included');
  assert.deepEqual(await page.locator('.r3-morse-cell').evaluateAll(cells=>cells.map(c=>c.dataset.letter)),Array.from({length:26},(_,i)=>String.fromCharCode(65+i)));
@@ -164,6 +169,13 @@ async function finishDialogue(page){
  assert(await page.locator('.r3-large-letterboard img').evaluate(async img=>{await img.decode();return img.complete&&img.naturalWidth>0&&img.naturalHeight>0}),'The received SVG image loads and decodes; exact 10x10 contents are checked in the asset unit test');
  assert.equal(await page.locator('.r3-large-letterboard').isVisible(),true,'Received board is enlarged in the companion pane');
  assert.equal(await reply.evaluate(el=>el===document.activeElement),false,'No mobile keyboard appears when the image arrives');
+ assert(await stream.evaluate(el=>el.scrollTop>0),'C04: sending a reply still follows the latest message');
+ await page.locator('.room3-chat-panel .device-close').click();
+ await page.locator('#r3Phone').click();
+ assert.equal(await stream.evaluate(el=>el.scrollTop),0,'C04: reopening with a saved correct reply starts at the first message');
+ assert.equal(await page.locator('.r3-board-preview').count(),1,'C04: saved reply and received board survive reopening');
+ assert.equal(await page.locator('.r3-reply-input').evaluate(el=>el===document.activeElement),false,'C04: no keyboard pop-up on reopening');
+ await page.screenshot({path:path.join(dir,'smartphone-saved-replies-at-top.png')});
  await page.locator('.r3-show-morse').click();
  assert.equal(await page.locator('.r3-inline-morse').isVisible(),true,'Morse reference can be reopened while the chat stays open');
  await page.locator('.r3-board-preview').click();

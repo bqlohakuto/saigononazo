@@ -9,7 +9,7 @@ const game=read("late-game.js");
 const manuscript=read("SCENARIO.md");
 
 test("B01: Room 6 first narration matches its visible multi-door room",()=>{
-  assert.match(game,/line\("r6_intro_entry_02","ト書き","小さな部屋だった。床も壁も明るい色で、四方には隣の部屋へ続く扉がある。"/);
+  assert.match(game,/line\("r6_intro_entry_02","ト書き","小さな部屋だった。床も壁も明るい色で、正面と右側に扉がある。"/);
   assert.match(game,/line\("r6_intro_01","ト書き","足元の床は白い。並んだ扉は、どれもよく似た形をしている。"/);
   assert.match(game,/r6-door r6-door-/,"The room draws actual doors");
   assert.doesNotMatch(game,/ずいぶん何もないですね|家具らしいものは何もない/);
@@ -22,7 +22,7 @@ test("B01: manuscript no longer contradicts the room or repeats the wall inscrip
   assert(introStart>start);
   const nextHeading=manuscript.indexOf("### ",introStart+5);
   const tail=manuscript.slice(introStart,nextHeading<0?undefined:nextHeading);
-  assert.match(tail,/小さな部屋だった。床も壁も明るい色で、四方には隣の部屋へ続く扉がある。/);
+  assert.match(tail,/小さな部屋だった。床も壁も明るい色で、正面と右側に扉がある。/);
   assert.doesNotMatch(tail,/ずいぶん何もないですね|家具らしいものは何もない/);
   assert.equal((tail.match(/壁の一角に、短い言葉が刻まれていた。/g)||[]).length,1);
 });
@@ -39,14 +39,16 @@ test("F01: unseen rooms are not described until the player enters another room",
   const arrivalEnd=game.indexOf('const direction=',arrivalStart);
   const arrival=game.slice(arrivalStart,arrivalEnd);
   assert(arrivalStart>=0&&arrivalEnd>arrivalStart);
-  assert.match(arrival,/if\(fresh&&id==='A7'\)/,'A7 reaction only occurs after a new room is entered');
-  assert.match(arrival,/line\('r6_a7','主人公','……さっきの部屋と、似た造りですね。'\)/);
+  assert.match(game,/const firstAdditionalWhite=fresh&&arrivalColor==='W'/,'white comparison is tied to a new white room');
+  assert.match(game,/const firstBlack=fresh&&arrivalColor==='G'/,'black observation is tied to first black room');
+  assert.match(game,/const firstGreen=fresh&&arrivalColor==='E'/,'green observation is tied to first green room');
+  assert.match(arrival,/line\('r6_a7','主人公','……最初に入った部屋と、似た造りですね。'\)/);
   assert.match(arrival,/line\('r6_a7_h','ハナ','うん。壁も扉も、ほとんど同じみたい。'\)/);
 
   const start=manuscript.indexOf('## 第6の部屋');
   const section=manuscript.slice(start,manuscript.indexOf('### 盤面・移動の前提',start));
   assert(section.includes('足元の床は白い。並んだ扉は、どれもよく似た形をしている。'));
-  assert(section.includes('……さっきの部屋と、似た造りですね。'));
+  assert(section.includes('……最初に入った部屋と、似た造りですね。'));
 });
 
 test("F02: pre-discovery objective and Hana's hint stay exploratory until evidence is found",()=>{
@@ -87,4 +89,18 @@ test("F03: the fourth-room question concerns the remembered woman, not Hana's st
   const doc=read('scenario/06_room6.md');
   assert(doc.includes('> 主人公「前に思い出した、あの人の好物って……アジの南蛮漬けでしたっけ？」'),'scenario matches the game');
   assert(manuscript.includes('れんこんの南蛮漬けが好きなんだよね！'),'the earlier memory already establishes the correct food');
+});
+
+test("F04/F06: white, black, green reactions are based on visited colors, not hardcoded coordinates",()=>{
+  assert.match(game,/const firstAdditionalWhite=fresh&&arrivalColor==='W'&&!room6State\.visited\.some/);
+  assert.match(game,/const firstBlack=fresh&&arrivalColor==='G'&&!room6State\.seenColors\.includes\('G'\)/);
+  assert.match(game,/const firstGreen=fresh&&arrivalColor==='E'&&!room6State\.seenColors\.includes\('E'\)/);
+  assert.match(game,/if\(firstAdditionalWhite\)lines\.push\(line\('r6_a7','主人公','……最初に入った部屋と、似た造りですね。'\)/);
+  assert.match(game,/if\(firstBlack\)lines\.push\(line\('r6_b8','主人公','……ここは、床が黒いんですね。'\)/);
+  assert.match(game,/if\(firstGreen\)lines\.push\(line\('r6_first_green','主人公','……この部屋は、床が緑色なんですね。'\)/);
+  const prose=manuscript.slice(manuscript.indexOf('### 床色の初発見'),manuscript.indexOf('### 盤面・移動の前提'));
+  assert.match(prose,/再訪・セーブ再開では繰り返さない/);
+  assert.match(prose,/……最初に入った部屋と、似た造りですね。/);
+  assert.match(prose,/……ここは、床が黒いんですね。/);
+  assert.match(prose,/……この部屋は、床が緑色なんですね。/);
 });

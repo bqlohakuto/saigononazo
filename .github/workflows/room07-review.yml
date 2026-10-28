@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['index.html', 'manifest.webmanifest', 'late-game.js', 'design-ui.js', 'design-ui.css', 'images/background/room07/**', 'images/items/room07/**', 'tests/room6-flow.test.cjs', 'tests/late-game-flow.test.cjs', 'tests/room7*', 'tests/room8*', 'tests/mobile-display*', '.github/workflows/room07-review.yml']
+    paths: ['index.html', 'manifest.webmanifest', 'late-game.js', 'design-ui.js', 'design-ui.css', 'images/background/room07/**', 'images/items/room07/**', 'tests/room6-flow.test.cjs', 'tests/late-game-flow.test.cjs', 'tests/final-clue-audit.test.cjs', 'tests/room7*', 'tests/room8*', 'tests/mobile-display*', '.github/workflows/room07-review.yml']
 permissions:
   contents: read
 jobs:
@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save --no-package-lock jsdom@26 playwright@1.56.1
-      - run: node --test tests/cache-version.test.cjs tests/memory-visuals.test.cjs tests/room6-logic.test.cjs tests/room6-memory.test.cjs tests/game-log.test.cjs
+      - run: node --test tests/cache-version.test.cjs tests/memory-visuals.test.cjs tests/room6-logic.test.cjs tests/room6-memory.test.cjs tests/game-log.test.cjs tests/final-clue-audit.test.cjs
       - run: node tests/room7-flow.test.cjs
       - run: node tests/room8-flow.test.cjs
       - run: node tests/late-game-flow.test.cjs

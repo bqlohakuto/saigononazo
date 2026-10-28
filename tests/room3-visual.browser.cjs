@@ -57,7 +57,7 @@ async function finishDialogue(page){
   await page.screenshot({path:path.join(dir,'lecture-notebook-on-desk.png')});
   await note.click();
   assert.equal(await page.locator('.inspection-title').textContent(),'講義ノート','C02: investigating the notebook opens its own art');
-  assert.match(await page.locator('.inspection-image').getAttribute('src'),/optional-room03-lecture-notebook\.svg$/);
+  assert.match(await page.locator('.inspection-image').getAttribute('src'),/optional-room03-lecture-notebook\.svg\?v=20261028-c02$/);
   await page.locator('.inspection-image').evaluate(async img=>{await img.decode()});
   await page.screenshot({path:path.join(dir,'lecture-notebook-closeup.png')});
   await page.locator('.inspection-close').click();

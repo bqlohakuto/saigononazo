@@ -81,7 +81,7 @@ const mobileEngine=process.env.R6_MOBILE_ENGINE==='chromium'?chromium:webkit;
    assert.equal(await page.locator('.r6-map-location').innerText(),'現在地 D1');
    assert.deepEqual(await page.locator('.r6-coordinate-columns span').allTextContents(),['A','B','C','D','E','F','G','H'],'F07: column headers follow physical left-to-right');
    assert.deepEqual(await page.locator('.r6-coordinate-rows span').allTextContents(),['1','2','3','4','5','6','7','8'],'F07: row headers follow physical north-to-south');
-   assert.equal((await page.locator('.r6-map-compass').innerText()).replace(/\\s+/g,''),'↑正面→右↓手前←左');
+   assert.equal((await page.locator('.r6-map-compass').innerText()).replace(/\s+/g,''),'↑正面→右↓手前←左');
    assert.equal(await page.locator('.r6-cell.current').getAttribute('data-cell'),'D1');
    await page.screenshot({path:path.join(dir,'full-map.png')});
    // Same-color rooms and every exit remain distinguishable without a dialogue.

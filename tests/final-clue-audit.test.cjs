@@ -16,9 +16,11 @@ const sources=scenarios.map(name=>name==="late-game.js"
 const match=late.match(/  const R8_FINAL_LOG_IDS=\[([\s\S]*?)\];/);
 const clueIds=match?[...match[1].matchAll(/"([^"]+)"/g)].map(m=>m[1]):[];
 const pairs=[
+ ["room1_hana_first_07","room1_piano_correct_04"],
  ["room1_poster_03","room1_piano_introduction_02"],
  ["room2_memory_053_flower_01","room2_memory_003"],
  ["room3_flashback_34","room3_final_ringtone"],
+ ["r4ok3","r4f01"],
  ["r4_final_zodiac_flowers","r4f01"],
  ["r5_final_flower","r5_final_humming"],
  ["r6_final_lavender","r6_final_signal"],
@@ -82,4 +84,56 @@ test("G04: marked lines become directly selectable only after reading the paper 
   assert.deepEqual(Array.from(visible,row=>row.entries.map(e=>e.id).join(",")),
     ["before1,before2","flower","middle","sound","after"],
     "Every marked sentence has its own directly selectable record, preserving order");
+});
+
+test("G04: Room 1 remembers flower and music without checking the optional poster",()=>{
+  const first=vm.runInNewContext(read("scenario.js")+"\nfirstRoomScenario;");
+  const script=read("script.js");
+  assert.match(script,/function canExploreFirstRoom\(\)\{\s*return firstRoomState\.questionSeen&&firstRoomState\.hanaIntroduced;/);
+  const introStart=script.indexOf("function talkToHana(){");
+  const introEnd=script.indexOf("function hasCheckedAllMail(",introStart);
+  const memoryStart=script.indexOf("function showFirstRoomMemory(){");
+  const memoryEnd=script.indexOf("function unlockFirstRoomDoor(){",memoryStart);
+  assert.ok(introStart>=0&&introEnd>introStart&&memoryStart>=0&&memoryEnd>memoryStart);
+  const observed=[];
+  const ctx={
+    firstRoomScenario:first,
+    firstRoomState:{hanaIntroduced:false,hanaVisits:0},
+    showRoomDialog:lines=>{observed.push(...lines)},
+    completeHanaIntroduction:()=>{},
+    unlockFirstRoomDoor:()=>{}
+  };
+  vm.runInNewContext(script.slice(introStart,introEnd)+"\ntalkToHana();",ctx);
+  vm.runInNewContext(script.slice(memoryStart,memoryEnd)+"\nshowFirstRoomMemory();",ctx);
+  const flower=observed.find(line=>line.logId==="room1_hana_first_07");
+  const sound=observed.find(line=>line.logId==="room1_piano_correct_04");
+  assert.match(flower?.text||"",/花/);
+  assert.match(sound?.text||"",/音楽/);
+  assert.ok(clueIds.includes(flower.logId)&&clueIds.includes(sound.logId));
+  assert.ok(!observed.some(line=>line.logId==="room1_poster_03"),"The optional poster was never inspected");
+});
+
+test("G04: Room 4's mandatory success scene retains a flower even without viewing the exhibit",()=>{
+  const script=read("room4.js");
+  const start=script.indexOf("function r4Complete(){");
+  const end=script.indexOf("function r4Memory(){",start);
+  assert.ok(start>=0&&end>start);
+  let observed=[];
+  const ctx={
+    room4State:{completed:false,lightOn:false},
+    r4CancelFailedLightOff:()=>{},
+    saveGame:()=>{},
+    r4Projection:()=>{},
+    game:{querySelector:()=>null},
+    showRoomDialog:lines=>{observed=lines},
+    r4Memory:()=>{}
+  };
+  vm.runInNewContext(script.slice(start,end)+"\nr4Complete();",ctx);
+  const flower=observed.find(line=>line.logId==="r4ok3");
+  assert.match(flower?.text||"",/星座にまつわる花/);
+  assert.ok(clueIds.includes(flower.logId));
+  assert.equal(ctx.room4State.completed,true);
+  assert.doesNotMatch(flower.text,/花音/);
+  assert.match(script.slice(end),/showRoomDialog\(\[\.\.\.room4FlashbackLines,\.\.\.room4AfterMemoryLines\]/);
+  assert.ok(!observed.some(line=>line.logId==="r4_final_zodiac_flowers"),"The optional exhibit was not inspected");
 });

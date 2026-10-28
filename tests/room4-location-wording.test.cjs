@@ -24,7 +24,9 @@ test("D01: original manuscripts match the approved Room 4 wording",()=>{
  }
 });
 
-test("D01 only changes the room name; D04 constellation hint wording stays separate",()=>{
+test("D04: constellation exhibit dialogue observes without explaining the solution",()=>{
  const room=read("room4.js");
- assert.match(room,/星の形から星座を/,"D04 hint is not silently rewritten by D01");
+ assert.match(room,/logId:"r4c2",logType:"dialogue",speaker:"主人公",text:"……十二星座が、ひとつずつ載ってるんだな"/,"The approved observational line stays on the existing dialogue ID");
+ assert.doesNotMatch(room,/これを見れば、星の形から星座を調べられそうだ/,"The exhibit should not prematurely explain how to solve the puzzle");
+ assert.match(room,/\],r4OpenZodiacExhibit\)/,"The constellation exhibit still opens after dialogue");
 });

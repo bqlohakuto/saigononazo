@@ -2458,14 +2458,14 @@
   // Use exact log IDs (or sentence-split descendants), never broad scene prefixes.
   // Neither the clues nor their order are displayed as the final answer.
   const R8_FINAL_LOG_IDS=[
-    // Room 1: concert flower song -> the sound of the piano
-    "room1_poster_03","room1_piano_introduction_02",
+    // Room 1: mandatory Hana introduction and melody memory; optional poster and piano support.
+    "room1_hana_first_07","room1_piano_correct_04","room1_poster_03","room1_piano_introduction_02",
     // Room 2: a flower-shaped compliment -> the sound of the trumpet
     "room2_memory_053_flower_01","room2_final_hanamaru","room2_memory_003",
     // Room 3: cherry blossoms -> a ringing phone
     "room3_flashback_34","room3_final_ringtone",
-    // Room 4: flowers of the zodiac -> the planetarium announcement
-    "r4_final_zodiac_flowers","r4f01",
+    // Room 4: mandatory completion-view flower narration; optional exhibit and planetarium sound.
+    "r4ok3","r4_final_zodiac_flowers","r4f01",
     // Room 5: a flower in the vase -> her humming
     "r5_final_flower","r5_final_humming",
     // Room 6: lavender -> an audible crossing signal

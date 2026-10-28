@@ -48,3 +48,15 @@ test("F01: unseen rooms are not described until the player enters another room",
   assert(section.includes('足元の床は白い。並んだ扉は、どれもよく似た形をしている。'));
   assert(section.includes('……さっきの部屋と、似た造りですね。'));
 });
+
+test("F02: pre-discovery objective and Hana's hint stay exploratory until evidence is found",()=>{
+  const goal=game.match(/const r6Objective=\(\)=>[^;]+;/)?.[0];
+  assert(goal,'room objective is defined');
+  assert(goal.includes('"扉をたどって、部屋の手がかりを探す"'));
+  assert(!goal.includes('構造と床の色を確かめる'),'objective must not reveal the intended observations');
+  assert(goal.includes('room6State.othelloKnown?"9手で最後の黒を消す"'),'post-discovery goal remains unchanged');
+  const before=game.slice(game.indexOf('const choices=room6State.othelloKnown?'),game.indexOf('choices.push({id:\'cancel\''));
+  assert(before.includes("text:'まだ通っていない扉を進んでみよう。部屋の様子をよく確かめてみて。'"));
+  assert(!before.includes('端まで行けるところや、床の色が違う部屋'),'no early structural or color clue');
+  assert(game.includes('if(extremes&&colors&&!room6State.othelloKnown)'),'both board and color discoveries remain required');
+});

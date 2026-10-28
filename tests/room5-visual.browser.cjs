@@ -110,7 +110,7 @@ const expected=[
         assert(size.width>145&&size.height>120,'Collected panel appears substantially larger than the inventory thumbnail');
         assert.equal(size.background,'rgb(250, 246, 235)','Room 5 reveal uses a paper background');
         await page.screenshot({path:path.join(dir,'mirror-panel-acquired-large.png')});
-        await reveal.locator('button').filter({hasText:'閉じる'}).click();
+        await reveal.locator('button').filter({hasText:'閉じる'}).first().click();
         assert.equal(await reveal.count(),0,'Player can dismiss the large panel reveal');
         assert.equal(await page.locator('.r5-decor-mirror.is-gone').count(),1,'Collected mirror disappears from the room');
         assert.equal(await page.locator('.r5-target-mirror.is-gone').count(),1,'Collected mirror is no longer interactive');

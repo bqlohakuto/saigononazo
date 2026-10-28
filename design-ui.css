@@ -2533,3 +2533,35 @@ body{background:#0b1322!important;display:grid;place-items:center}
   #game.room-entry-fade,
   #game.room-entry-from-dark{animation:none!important}
 }
+
+
+/* Issue #25 A06: memory UI follows one dialogue layout in either presentation.
+   Hide only exploration controls while the authored recollection is on screen:
+   AUTO, SKIP, LOG, and hide/restore remain available in the dialogue window. */
+#game[data-memory-stage] > .gameplay-hud,
+#game[data-memory-stage] > .gameplay-bottom-bar,
+#game[data-memory-stage] .design-use-prompt,
+#game[data-memory-stage] .explore-status{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+#game .room-dialog-overlay[data-memory-stage] .room-dialog{
+  box-sizing:border-box;
+  left:2.2%;
+  bottom:2.5%;
+  width:95.6%!important;
+  height:25%;
+}
+/* Scene portraits and window portraits remain different by design.
+   In dialogue-portrait scenes the same gutter is reserved for the text,
+   and the log always uses the full width again. */
+#game .room-dialog-overlay[data-memory-presentation="dialogue"] .room-dialog.has-memory-portrait:not(.is-log-open) .dialog-message-area{
+  margin-left:var(--memory-portrait-gutter);
+  min-width:0;
+}
+#game .room-dialog-overlay[data-memory-presentation="dialogue"] .room-dialog.is-log-open .dialog-message-area{
+  margin-left:0;
+}
+#game .room-dialog-overlay[data-memory-presentation="dialogue"] .room-dialog .memory-window-portrait{
+  pointer-events:none;
+}

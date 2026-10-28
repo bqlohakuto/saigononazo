@@ -8,6 +8,28 @@ const sandbox = { window: {} };
 vm.runInNewContext(source, sandbox);
 const visuals = sandbox.window.MemoryVisuals;
 
+test('E08: Room 5 notebook and appliance memories use no substitute prop',()=>{
+  const specs=[
+    {first:20,last:91,location:'r5notebook',background:'dining-moving-in.png'},
+    {first:150,last:174,location:'r5appliance',background:'living-morning.png'}
+  ];
+  const documented=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../docs/MEMORY_SCENES_IMPLEMENTATION.json')));
+  for(const spec of specs){
+    assert.equal(documented.find(s=>s.key===spec.location)?.prop,null);
+    for(let n=spec.first;n<=spec.last;n++){
+      const id='r5m'+String(n).padStart(3,'0');
+      for(const line of [{logId:id},{logId:id+'_01_02'},{logId:'page',logSource:{logId:id}}]){
+        const v=visuals.get('room05',line);
+        assert.equal(v.location,spec.location,id);assert.equal(v.prop,null,id);
+        assert.ok(v.background.endsWith(spec.background),id);assert.ok(v.sprite,id);
+      }
+    }
+  }
+  assert.equal(visuals.get('room05',{logId:'r5m010'}).prop,'rabbit','existing drawing remains');
+  assert.equal(visuals.get('room05',{logId:'r5m248'}).prop,'cards','existing card art remains');
+  assert.equal(visuals.get('room07',{logId:'r7_mem_monkey_01'}).prop,'notebook','Room 7 presentation is unchanged');
+});
+
 test('Room 1-4 recollections conceal the face', () => {
   const examples = [
     ['room01', 'room1_memory_music_room_09'],

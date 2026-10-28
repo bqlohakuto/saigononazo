@@ -1,4 +1,4 @@
-const {chromium}=require('playwright');
+const {chromium,webkit}=require('playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),base=process.env.PUBLIC_BASE_URL||'https://memory05.local/';
 const out=process.env.UI_SCREENSHOT_DIR||path.join(root,'artifacts/memory05-window');
@@ -25,9 +25,11 @@ async function fit(page){
  assert.equal(result.overlap,false,'portrait leaves space for text');assert.equal(result.textScroll,false,'text pages fit');
 }
 (async()=>{
- const browser=await chromium.launch({headless:true,...(process.env.BROWSER_EXECUTABLE?{executablePath:process.env.BROWSER_EXECUTABLE}:{})});
+ const desktopBrowser=await chromium.launch({headless:true,...(process.env.BROWSER_EXECUTABLE?{executablePath:process.env.BROWSER_EXECUTABLE}:{})});
+ const mobileBrowser=process.env.BROWSER_EXECUTABLE?desktopBrowser:await webkit.launch({headless:true});
  fs.mkdirSync(out,{recursive:true});
  try{for(const spec of [{name:'desktop',width:1366,height:768},{name:'phone',width:852,height:393,touch:true}]){
+  const browser=spec.touch?mobileBrowser:desktopBrowser;
   const ctx=await browser.newContext({viewport:{width:spec.width,height:spec.height},hasTouch:!!spec.touch,isMobile:!!spec.touch,reducedMotion:spec.touch?'reduce':'no-preference'});
   await ctx.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
   const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -52,15 +54,23 @@ async function fit(page){
   assert.equal(await page.locator('.room-dialog').evaluate(el=>getComputedStyle(el).boxShadow),'none','hide removes the translucent window outline');
   await page.locator('.dialogue-restore').click({position:{x:500,y:100}});
   await reach(page,'r5m038');await page.locator('.memory-girl').evaluate(i=>i.decode());await fit(page);
+  await page.locator('#roomMessage').filter({hasText:'その間やめて'}).waitFor({state:'visible'});
+  assert.equal(await page.locator('.memory-prop').isVisible(),false,'E08: no substitute notebook drawing');
+  assert.equal(await page.locator('.memory-notebook,.memory-appliance-box').count(),0);
   await page.screenshot({path:path.join(out,spec.name+'-pout.png')});
   await reach(page,'r5m076');assert.equal(await page.locator('#roomMessage').evaluate(el=>{const copy=el.cloneNode(true);copy.querySelectorAll('button').forEach(b=>b.remove());return copy.textContent;}),'急に言われても無理だよ。');
   await reach(page,'r5m103');await page.locator('.memory-girl').evaluate(i=>i.decode());await fit(page);
   await page.screenshot({path:path.join(out,spec.name+'-morning.png')});
+  await reach(page,'r5m150');await page.locator('.memory-girl').evaluate(i=>i.decode());await fit(page);
+  await page.locator('#roomMessage').filter({hasText:'新しく買った家電が届いた日'}).waitFor({state:'visible'});
+  assert.equal(await page.locator('.memory-prop').isVisible(),false,'E08: no substitute appliance or manual drawing');
+  assert.equal(await page.locator('.memory-notebook,.memory-appliance-box').count(),0);
+  await page.screenshot({path:path.join(out,spec.name+'-appliance.png')});
   await reach(page,'r5m248');await page.locator('.memory-girl').evaluate(i=>i.decode());await fit(page);
   const cards=await page.locator('.memory-prop[data-kind="cards"]').boundingBox(),dialog=await page.locator('.room-dialog').boundingBox();assert(cards.y+cards.height<dialog.y,'later cards remain visible');
   await page.evaluate(()=>{for(let n=0;n<1800&&document.querySelector('#roomNextButton');n++)Dialogue.advance();});
   assert.equal(await page.locator('.memory-window-portrait').count(),0,'remove portrait after recollection');
   assert.equal(await page.locator('.memory-scene').count(),0);assert.deepEqual(errors,[]);
   await ctx.close();console.log('PASS '+spec.name+': full Room 5 memory, drawing visibility, window portraits, narration, revised lines and return');
- }}finally{await browser.close();}
+ }}finally{if(mobileBrowser!==desktopBrowser)await mobileBrowser.close();await desktopBrowser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

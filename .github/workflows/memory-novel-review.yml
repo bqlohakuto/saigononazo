@@ -2,6 +2,14 @@ name: Memory novel review
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'memory-visuals.js'
+      - 'design-ui.css'
+      - 'index.html'
+      - 'docs/MEMORY_SCENES_IMPLEMENTATION.json'
+      - 'tests/memory*.cjs'
+      - '.github/workflows/memory-novel-review.yml'
   push:
     branches: [main, 'codex/room01-memory-novel', 'codex/room02-memory-blazer', 'codex/memory-*']
     paths:

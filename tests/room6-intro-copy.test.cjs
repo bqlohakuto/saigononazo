@@ -176,6 +176,7 @@ test("F10: final H2 east exit appears during its narrated revelation, stays iner
   assert(doc.includes(phrase),'F10 storyboard remains synchronized: '+phrase);
  }
  assert(js.includes("activateDeviceModal(overlay,'r6Exit'"),'accessible explicit exit choice');
+ assert(js.includes('class="device-close" aria-label="閉じる"'),'the exit modal supplies the close button required by activateDeviceModal');
  assert(css.includes('.r6-final-door-appearing'),'visual exit reveal is styled');
  assert(css.includes('@media(prefers-reduced-motion:reduce)'),'reduced motion remains supported');
 });

@@ -1,18 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="168" height="96" viewBox="0 0 168 96" shape-rendering="crispEdges">
-<title>大学の講義ノート</title>
-<!-- A slim notebook with a cardboard-backed cover on a dark desk -->
-<g opacity=".29" fill="#191e22"><path d="M12 72h132v6H20v-2h-8zM30 80h117v3H30z"/></g>
-<path fill="#414e58" d="M18 55h112v5h11v6h-11v6H18v-6H11V60h7z"/>
-<path fill="#e9e1cd" d="M18 59h111v10H18z"/>
-<path fill="#b0a38e" d="M20 66h106v4H20z"/>
-<path fill="#1d3340" d="M13 28h112v4h9v30H22v-4h-9z"/>
-<path fill="#3b6472" d="M22 21h104v5h8v29H22v-4h-9V29h9z"/>
-<path fill="#476e7c" d="M26 25h99v25H26z"/>
-<path fill="#668893" d="M30 27h87v3H30z"/>
-<path fill="#243f4c" d="M22 22h3v37h-3z"/>
-<path fill="#c3af89" d="M29 31h4v23h-4zM38 31h4v23h-4zM47 31h4v23h-4zM56 31h4v23h-4z"/>
-<path fill="#f2e6d1" d="M81 30h35v22H81z"/>
-<path fill="#d4c2a5" d="M85 34h27v3H85zM85 40h24v2H85zM85 46h19v2H85z"/>
-<path fill="#172f3d" d="M134 58h14v3h-14zM141 49h6v10h-6z"/>
-<path fill="#c8a96f" d="M134 46h6v12h-6z"/>
+<title>大学の講義ノート（閉じた表紙、折れた角）</title>
+<desc>机の上に斜めに置かれた、使い込まれた青緑色の講義ノート。白い紙の厚み、綴じ目、折れた表紙の角が見える。</desc>
+<!-- Minimal transparent pixel-art prop, not a second desk or a laptop. -->
+<path fill="#14191c" opacity=".28" d="M30 79L149 67L160 74L41 89L23 84Z"/>
+<!-- A few visible cream paper sheets beneath the cover -->
+<path fill="#746c59" d="M23 19L137 10L155 68L40 83L23 28Z"/>
+<path fill="#f3ead7" d="M24 22L138 13L152 65L39 79L24 29Z"/>
+<path fill="#c9bea8" d="M39 76L152 62V65L39 80Z"/>
+<path fill="#e2d7be" d="M40 80L153 65V68L40 84Z"/>
+<path fill="#8d8475" d="M29 27L139 17L140 19L30 29Z"/>
+<!-- Wear on the clothbound cover and a clear broad front surface -->
+<path fill="#1b3540" d="M19 15L133 6L150 62L35 77L19 24Z"/>
+<path fill="#2d5968" d="M24 16L130 9L145 59L38 72L24 23Z"/>
+<path fill="#477785" d="M30 18L126 11L138 54L41 65Z"/>
+<path fill="#5c8992" d="M31 18L121 12L122 15L32 21Z"/>
+<path fill="#21414c" d="M25 16L33 15L48 68L39 73L24 23Z"/>
+<!-- Distinct binding on the left, no laptop keyboard or hinge -->
+<path fill="#af9971" d="M29 17L32 16L47 70L43 71Z"/>
+<g fill="#e9dab9">
+<path d="M25 23h9v3h-9zM28 33h9v3h-9zM31 43h9v3h-9zM34 53h9v3h-9zM37 63h9v3h-9z"/>
+</g>
+<g fill="#4e635f">
+<path d="M30 23h4v2h-4zM33 33h4v2h-4zM36 43h4v2h-4zM39 53h4v2h-4zM42 63h4v2h-4z"/>
+</g>
+<!-- Plain, unlabelled worn notebook label: no letters or puzzle clues -->
+<path fill="#b4aa92" d="M63 25L107 22L115 47L70 51Z"/>
+<path fill="#f0e6d1" d="M65 24L105 22L112 45L71 48Z"/>
+<path fill="#d3c7af" d="M72 30L102 28V31L73 33ZM74 36L104 33V36L75 39ZM76 42L94 40V43L77 45Z"/>
+<!-- One bent paper corner with a visible crease -->
+<path fill="#ead9b9" d="M119 10L133 6L138 24L125 23Z"/>
+<path fill="#f6ead2" d="M119 10L130 10L138 24L125 23Z"/>
+<path fill="#a7a18e" d="M125 23L138 24L133 26Z"/>
+<!-- Small rubbed edges of an old cover -->
+<path fill="#7b9289" d="M43 67h12v2H43zM128 51h10v2h-10zM61 18h12v2H61z"/>
 </svg>

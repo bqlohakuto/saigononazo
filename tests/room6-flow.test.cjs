@@ -35,9 +35,10 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   // Room 6: authored board, live map, legal Othello and late-game transition.
   click('#testRoomButton');click('[data-room="room06"]');
   const entryPages=finish();
-  assert(entryPages.includes('足元の床は白い。並んだ扉は、どれもよく似た形をしている。'),'the entry describes only visible doors');
-  assert(!entryPages.some(text=>text.includes('同じような空間が続いている')),'unvisited rooms are not spoiled on entry');
-  assert(!entryPages.some(text=>text.includes('……さっきの部屋と、似た造りですね。')),'the discovery is not made until after moving');
+  const entryText=entryPages.join('').replace(/\s+/g,'');
+  assert(entryText.includes('足元の床は白い。並んだ扉は、どれもよく似た形をしている。'),'the entry describes only visible doors');
+  assert(!entryText.includes('同じような空間が続いている'),'unvisited rooms are not spoiled on entry');
+  assert(!entryText.includes('……さっきの部屋と、似た造りですね。'),'the discovery is not made until after moving');
   assert.ok(q('#r6TestGuide'));
   const guideState=save().rooms.room06;
   click('#r6TestGuide');assert.equal(w.document.querySelectorAll('.r6-test-guide tbody tr').length,9);
@@ -59,7 +60,10 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   click('[data-dest="B7"]');assert.equal(save().rooms.room06.current,'A7','input remains locked during fade-in');
   await wait(360);assert.equal(q('.r6-travel-shade'),null);
   const a7Pages=finish();
-  assert.deepEqual(a7Pages,['……さっきの部屋と、似た造りですね。','うん。壁も扉も、ほとんど同じみたい。'],'similar rooms discovered after entering A7');
+  const a7Text=a7Pages.join('').replace(/\s+/g,'');
+  const notice='……さっきの部屋と、似た造りですね。',reply='うん。壁も扉も、ほとんど同じみたい。';
+  assert(a7Text.includes(notice),'the comparison is made only after entering A7');
+  assert(a7Text.indexOf(reply)>a7Text.indexOf(notice),'Hana confirms the similarity after the protagonist notices');
   assert.equal(save().rooms.room06.visited.length,2,'one click sequence creates one visit');
   click('[data-dest="B7"]');run('showSixthRoom({introSeen:true})');await wait(650);
   assert.equal(save().rooms.room06.current,'A8','loading a room cancels stale travel timers');

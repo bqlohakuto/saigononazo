@@ -57,7 +57,14 @@ function showFourthRoom(savedState){
  document.getElementById("r4TurnLeft").onclick=()=>turnFourthRoom(-1);
  document.getElementById("r4TurnRight").onclick=()=>turnFourthRoom(1);
  renderFourthRoomView();r4Projection();
- if(savedState){showRoomNotice("続きから再開しました。","r4resume","narration");if(room4State.nextRoomTransitionSeen)setTimeout(r4NextPlaceholder,150);else if(room4State.completed&&!room4State.memorySeen)setTimeout(r4Memory,150)}else showRoomDialog(room4IntroLines,()=>r4SetHanaLookUp(false),(line)=>{
+ if(savedState){
+  showRoomNotice("続きから再開しました。","r4resume","narration");
+  // Ignore callbacks scheduled for a prior load if the scene or state changed.
+  const resumedState=room4State;
+  const stillResuming=()=>currentScene==="room04"&&room4State===resumedState;
+  if(room4State.nextRoomTransitionSeen)setTimeout(()=>{if(stillResuming())r4NextPlaceholder()},150);
+  else if(room4State.completed&&!room4State.memorySeen)setTimeout(()=>{if(stillResuming())r4Memory()},150);
+ }else showRoomDialog(room4IntroLines,()=>r4SetHanaLookUp(false),(line)=>{
   // Match the existing narration: Hana looks up from r4i06 to r4i09.
   // expandScenario adds _01/_02 suffixes; compare the original introduction beat.
   r4SetHanaLookUp(/^r4i0[6-9](?:_\d+)?$/.test(line.logId||""));

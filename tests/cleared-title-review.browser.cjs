@@ -26,6 +26,15 @@ const fs=require('node:fs');
    assert.equal(await h1.locator('img').getAttribute('src'),'images/ui/title-cleared-logo.jpg');
    assert.equal(await h1.locator('img').getAttribute('alt'),'最後の謎が解けても');
    if(!spec.fail){
+    const lowerRoomBrightness=await page.evaluate(async()=>{
+     const image=new Image();image.src='images/ui/title-cleared-background-v2.png';await image.decode();
+     const canvas=document.createElement('canvas');canvas.width=32;canvas.height=18;
+     const context=canvas.getContext('2d');context.drawImage(image,0,0,32,18);
+     const pixels=context.getImageData(0,9,32,9).data;
+     let sum=0;for(let i=0;i<pixels.length;i+=4)sum+=pixels[i]+pixels[i+1]+pixels[i+2];
+     return sum/(32*9*3);
+    });
+    assert(lowerRoomBrightness>40,'background must decode through the furniture and floor, not just its top rows');
     assert.equal(await h1.evaluate(el=>getComputedStyle(el).filter),'grayscale(1) invert(1) brightness(80)');
     assert.equal(await page.locator('.title-menu').evaluate(el=>getComputedStyle(el).mixBlendMode),'normal');
    }

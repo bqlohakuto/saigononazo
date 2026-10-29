@@ -28,6 +28,25 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
    assert.match(await p.locator('#roomMessage').textContent(),/わたしのことも/);
    await frame('overview','overview-white.webp');
    await p.screenshot({path:path.join(out,'room08-'+spec.name+'-reunion.png')});
+   // H01: manual SAVE / LOAD must work in the middle of dialogue, on desktop and phone.
+   const dialogueBeforeSave=await p.locator('#roomMessage').textContent();
+   await click('.manual-data-button[data-action="save"]');
+   await p.locator('.save-slot-panel[aria-label="セーブ"]').waitFor();
+   assert.equal(await p.locator('.save-slot-action').first().textContent(),'セーブ','manual slot starts empty');
+   await p.locator('.save-slot-action').first().click();
+   const manualSave=await p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1-slot-1')));
+   assert.equal(manualSave.currentScene,'room08');
+   assert.equal(manualSave.rooms.room08.introLogId,'r8_reunion_13','manual save keeps exact dialogue position');
+   await click('.save-slot-close');
+   assert.equal(await p.locator('#roomMessage').textContent(),dialogueBeforeSave,'closing SAVE resumes the same dialogue line');
+   await click('.manual-data-button[data-action="load"]');
+   await p.locator('.save-slot-panel[aria-label="ロード"]').waitFor();
+   await p.locator('.save-slot-action:not([disabled])').first().click();
+   await p.locator('.save-slot-action.is-confirm').click();
+   assert.equal((await saved()).introLogId,'r8_reunion_13','manual LOAD restores exact dialogue position');
+   assert.equal(await p.locator('#roomMessage').textContent(),dialogueBeforeSave,'LOAD restores the current line');
+   assert.equal(await p.locator('.save-slot-overlay').count(),0,'LOAD closes its modal');
+   assert.equal(await p.locator('#roomNextButton').isEnabled(),true,'dialogue can continue after loading');
    // Reload through the player's Continue/load UI rather than calling the renderer.
    await p.reload({waitUntil:'load'});await click('#continueButton');await p.locator('.save-slot-action:not([disabled])').last().click();await click('.save-slot-action.is-confirm');
    assert.equal((await saved()).introLogId,'r8_reunion_13');assert.match(await p.locator('#roomMessage').textContent(),/わたしのことも/);

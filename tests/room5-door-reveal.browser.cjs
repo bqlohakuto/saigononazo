@@ -53,8 +53,8 @@ async function finishBoard(page){
    await finishBoard(page);
    await page.locator('#roomNextButton').waitFor();
    assert.equal(await page.locator('.r5-board-overlay').count(),0,'Success uses the ordinary conversation window');
-   for(let i=0;i<30&&(await page.locator('#roomMessage').textContent())!=='8194';i++)await page.locator('#roomNextButton').click();
-   assert.equal(await page.locator('#roomMessage').textContent(),'8194');
+   for(let i=0;i<30&&!(await page.locator('#roomMessage').textContent()).includes('8194');i++)await page.locator('#roomNextButton').click();
+   assert.match(await page.locator('#roomMessage').textContent(),/8194/);
    await page.screenshot({path:path.join(out,'02-code.png')});
    for(let i=0;i<20&&await page.locator('.r5-door-reveal').count()===0;i++)await page.locator('#roomNextButton').click();
    const effect=page.locator('.r5-door-reveal');await effect.waitFor();

@@ -67,7 +67,7 @@ async function fit(page){
   assert.equal(await page.locator('.memory-notebook,.memory-appliance-box').count(),0);
   await page.screenshot({path:path.join(out,spec.name+'-appliance.png')});
   await reach(page,'r5m248');await page.locator('.memory-girl').evaluate(i=>i.decode());await fit(page);
-  const cards=await page.locator('.memory-prop[data-kind="cards"]').boundingBox(),dialog=await page.locator('.room-dialog').boundingBox();assert(cards.y+cards.height<dialog.y,'later cards remain visible');
+  assert.equal(await page.locator('.memory-prop[data-kind="cards"]').isVisible(),false,'recollection does not display the puzzle card overlay');
   await page.evaluate(()=>{for(let n=0;n<1800&&document.querySelector('#roomNextButton');n++)Dialogue.advance();});
   assert.equal(await page.locator('.memory-window-portrait').count(),0,'remove portrait after recollection');
   assert.equal(await page.locator('.memory-scene').count(),0);assert.deepEqual(errors,[]);

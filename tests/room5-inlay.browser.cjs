@@ -16,7 +16,7 @@ async function assertFits(page){
  assert.equal(await page.locator('.r5-board-panel').evaluate(el=>el.scrollHeight>el.clientHeight),false,'no scrolling hides the tray');
 }
 (async()=>{
- const browser=await chromium.launch({headless:true,...(process.env.BROWSER_EXECUTABLE?{executablePath:process.env.BROWSER_EXECUTABLE}:{})});
+ const browser=await chromium.launch({headless:true,...(process.env.BROWSER_EXECUTABLE?{executablePath:process.env.BROWSER_EXECUTABLE}:process.platform==='win32'?{channel:'chrome'}:{})});
  fs.mkdirSync(output,{recursive:true});
  try{
   for(const spec of [{name:'pc',viewport:{width:1366,height:768},mobile:false},{name:'phone-landscape',viewport:{width:852,height:393},mobile:true}]){
@@ -112,17 +112,18 @@ async function assertFits(page){
     assert.equal((await saved(page)).placed[id],counter);
    }
    assert.equal((await saved(page)).codeRevealed,true);
-   // The code appears during the authored completion animation, not immediately upon the last fit.
-   await page.locator('.r5-inlay-code').waitFor({state:'visible',timeout:12000});
-   assert.equal(await page.locator('.r5-inlay-code').isVisible(),true);
-   assert.equal(await page.locator('.room-dialog-overlay').count(),0);
-   await assertFits(page);await page.waitForTimeout(400);await page.screenshot({path:path.join(output,spec.name+'-complete.png')});
-   assert.equal(await page.locator('.r5-tile-rest.is-used').count(),7);
-   await page.keyboard.press('Escape');assert.equal(await page.locator('#r5Keypad').count(),1);
-   await page.locator('.r5-door-reveal').waitFor({state:'detached',timeout:10000});
+   // The completion now uses the same conversation window as other dialogue.
+   await page.locator('#roomNextButton').waitFor();
+   assert.equal(await page.locator('.r5-board-panel').count(),0);
+   for(let n=0;n<30&&!(await page.locator('#roomMessage').textContent()).includes('8194');n++)await page.locator('#roomNextButton').click();
+   assert.match(await page.locator('#roomMessage').textContent(),/8194/);
+   await page.screenshot({path:path.join(output,spec.name+'-complete.png')});
+   for(let n=0;n<30&&await page.locator('#roomNextButton').count();n++)await page.locator('#roomNextButton').click();
+   assert.equal(await page.locator('#r5Keypad').count(),1);
+   await page.locator('.r5-door-reveal').waitFor({state:'detached'});
    assert.equal(await page.locator('#r5Scene .r5-wall-tile.is-placed img').count(),7);
    await page.locator('#r5Keypad').click();for(const digit of ['8','1','9','4'])await page.locator('[data-digit="'+digit+'"]').click();
-   await page.locator('[data-key="enter"]').click();await finish(page);assert.equal((await saved(page)).doorUnlocked,true);
+   await page.locator('[data-key="enter"]').click();await page.locator('#roomNextButton').waitFor();await finish(page);assert.equal((await saved(page)).doorUnlocked,true);
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    await ctx.close();console.log('PASS '+spec.name+': 42 temporary combinations with undo, drag/tap, keyboard, save/load, seven fits and keypad');
   }

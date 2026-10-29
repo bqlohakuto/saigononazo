@@ -29,7 +29,7 @@ test("H02 Room 3: entering an unknown room does not reveal that it is the protag
   assert.equal(h.q(".room-color-status").textContent,"静かな部屋");
   assert.equal(h.q(".room3-stage").getAttribute("aria-label"),"部屋の中");
   assert.doesNotMatch(h.q(".room-header").textContent,/大学時代の自室|僕の部屋/);
-  assert.equal(h.q("#r3Desk").disabled,false,"Investigation rules are unchanged for an inspected-door save");
+  assert.equal(h.q("#r3Desk").disabled,true,"The desk stays locked until the player investigates the door");
  }finally{h.dom.window.close()}
 });
 test("H02 Room 3: the post-clear room label still states the memory was recovered",()=>{

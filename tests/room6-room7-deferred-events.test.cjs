@@ -35,7 +35,7 @@ function room6Harness(){
   document:{createElement:()=>({classList:classList(),setAttribute(){},appendChild(){},remove(){}})},
   setTimeout(callback,delay){timers.push({callback,delay});return timers.length;},
   requestAnimationFrame(){},
-  room6State:{},normalizeR6:state=>state,
+  room6State:{},normalizeR6:state=>({moves:[],board:[],mapComplete:false,memorySeen:false,...state}),
   renderR6(){},saveGame(){},r6Arrival(){events.push("arrival")}
  };
  vm.runInNewContext(

@@ -297,7 +297,11 @@ function showSettings(){
 // This shared transition remains here because it hands control to room 1.
 function endOpening(){
  GameAudio.stop("tinnitus");
+ // A save load or return to title can replace the opening during this delay.
+ // Only the still-visible opening that scheduled this transition may finish it.
+ const openingScreen=game.querySelector(".opening");
  setTimeout(()=>{
+  if(currentScene!=="opening"||!openingScreen?.isConnected)return;
   showFirstRoom();
   // Keep the room-entry narration paused behind the transition veil.
   queueMicrotask(()=>{if(currentScene==="room01")Dialogue.suspend()});

@@ -52,3 +52,59 @@ for(const room of [3,4]){
     });
   }
 }
+
+function openingTransitionHarness(){
+  const source=read("script.js");
+  const start=source.indexOf("function endOpening(){");
+  const end=source.indexOf("\nlet firstRoomState;",start);
+  assert.ok(start>=0&&end>start,"Extract the actual opening-to-first-room transition");
+  const timers=[],calls=[],microtasks=[];
+  const opening={isConnected:true},room={isConnected:true,inert:false};
+  const styles=new Set();
+  const game={
+    querySelector(selector){
+      if(selector===".opening")return opening.isConnected?opening:null;
+      if(selector===".first-room")return room;
+      return null;
+    },
+    append(){},
+    classList:{add(value){styles.add(value)},remove(value){styles.delete(value)}}
+  };
+  const context={
+    currentScene:"opening",game,roomStates:{},
+    GameAudio:{stop(name){calls.push("sound:"+name)}},
+    Dialogue:{suspend(){},resume(){}},
+    setTimeout(callback,delay){timers.push({callback,delay});return timers.length},
+    queueMicrotask(callback){microtasks.push(callback)},
+    showFirstRoom(){calls.push("first-room");context.currentScene="room01"},
+    document:{createElement(){return {setAttribute(){},addEventListener(){},remove(){},className:""}}},
+    matchMedia:()=>({matches:false})
+  };
+  vm.runInNewContext(source.slice(start,end)+"\nendOpening();",context);
+  assert.equal(timers[0].delay,1200,"Opening retains its authored transition duration");
+  return {context,opening,timers,calls,fire(){timers[0].callback()}};
+}
+
+test("H01 opening: cancelled transition cannot overwrite a loaded save of another room",()=>{
+  const h=openingTransitionHarness();
+  h.context.currentScene="room07";
+  h.opening.isConnected=false;
+  h.fire();
+  assert.equal(h.calls.filter(c=>c==="first-room").length,0,"The old opening callback does not reset the loaded room");
+});
+
+test("H01 opening: loading another slot of the opening does not inherit the old transition",()=>{
+  const h=openingTransitionHarness();
+  h.opening.isConnected=false;
+  h.context.roomStates={};
+  h.fire();
+  assert.equal(h.calls.filter(c=>c==="first-room").length,0,"The prior opening instance cannot finish the new slot");
+});
+
+test("H01 opening: normal opening still reaches the first room",()=>{
+  const h=openingTransitionHarness();
+  h.fire();
+  assert.equal(h.calls.filter(c=>c==="first-room").length,1);
+  assert.equal(h.context.currentScene,"room01");
+  assert.equal(h.timers[1].delay,1600,"The first-room entry fade stays unchanged");
+});

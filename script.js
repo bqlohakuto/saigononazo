@@ -3,7 +3,7 @@ const SAVE_KEY="saigononazo-save-v1",SETTINGS_KEY="saigononazo-settings-v1";
 // Public play hides development shortcuts; opt in explicitly to review them.
 const AUTHOR_PREVIEW=new URLSearchParams(window.location.search).get("preview")==="1";
 window.GameBuild={preview:AUTHOR_PREVIEW};
-const defaultSettings={volume:70,bgmVolume:70,seVolume:70,textSpeed:45,instantText:false,soundCaptions:false};
+const defaultSettings={volume:70,bgmVolume:70,seVolume:70,textSpeed:45,instantText:false};
 let playerName="";
 let openingIndex=0;
 let currentScene="opening";

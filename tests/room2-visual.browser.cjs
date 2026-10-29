@@ -345,6 +345,29 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-history-row').count(),1,'Duplicate cannot grow challenge history');
    await page.screenshot({path:path.join(dir,'05-room02-help-challenge.png')});
 
+
+   // Every turn in the eight-entry ledger must remain accessible by touch scrolling.
+   await page.evaluate(()=>showSecondRoom({
+    doorInspected:true,deskInspected:true,unlocked:true,challengeActive:true,attempts:7,
+    answer:ROOM2_SYMBOLS.map(symbol=>({symbol,color:'赤'})),
+    history:Array.from({length:8},(_,i)=>({
+     guess:ROOM2_SYMBOLS.map(symbol=>({symbol,color:i%2?'赤':'青'})),
+     hit:0,blow:0
+    }))
+   }));
+   await page.locator('#r2Blocks').click();
+   assert.equal(await page.locator('.room2-history-row').count(),8,'All eight past judgements remain present');
+   const ledgerScroll=await page.locator('.room2-history').evaluate(el=>{
+    const before={canScroll:el.scrollHeight>el.clientHeight,touchAction:getComputedStyle(el).touchAction};
+    el.scrollTop=el.scrollHeight;
+    const latest=el.lastElementChild?.getBoundingClientRect(),pane=el.getBoundingClientRect();
+    return {...before,scrolled:el.scrollTop>0,lastVisible:!!latest&&latest.bottom<=pane.bottom+2&&latest.top>=pane.top-2};
+   });
+   assert(ledgerScroll.canScroll&&ledgerScroll.scrolled&&ledgerScroll.lastVisible,'Eight entries can scroll to the final judgement');
+   assert.equal(ledgerScroll.touchAction,'pan-y','Touch scrolling stays enabled on landscape phones');
+   await page.screenshot({path:path.join(dir,'05b-room02-eight-entry-ledger.png')});
+   await page.locator('.room2-pause').click();
+
    // No.105: unlimited first play must accept a wrong tenth attempt and a subsequent correct answer.
    await page.evaluate(()=>showSecondRoom({
     doorInspected:true,deskInspected:true,
@@ -755,7 +778,16 @@ function within(inner,outer,tolerance=3){
     assert.equal(await page.locator('.room2-history-row').count(),1,'HIT/BLOW history still records the result');
     assert.match(await page.locator('.room2-history-row').textContent(),/0H\s*0B/);
     assert.equal(await page.locator('.room2-reaction-line').count(),2,'Only the milestone pair is shown');
-    assert.deepEqual(await page.locator('.room2-reaction-name').allTextContents(),['ハナ','主人公']);
+    assert.deepEqual(await page.locator('.room2-reaction-name').allTextContents(),['ハナ'],'Only Hana is labelled on the puzzle screen');
+    const reactionLayout=await page.evaluate(()=>{
+     const reaction=document.querySelector('.room2-sidebar>.room2-reaction').getBoundingClientRect();
+     const history=document.querySelector('.room2-sidebar>.room2-history').getBoundingClientRect();
+     return {reactionBottom:reaction.bottom,historyTop:history.top,
+      historyFont:parseFloat(getComputedStyle(document.querySelector('.room2-history-row b')).fontSize),
+      remainingFont:parseFloat(getComputedStyle(document.querySelector('.room2-attempt-left')).fontSize)};
+    });
+    assert(reactionLayout.reactionBottom<=reactionLayout.historyTop+2,'Conversation never overlays judgement history');
+    assert(reactionLayout.historyFont>=18&&reactionLayout.remainingFont>=19,'Judgement and remaining-turn text are enlarged');
     assert.deepEqual(await page.locator('.room2-reaction-speech').allTextContents(),dialogue,'Milestone text replaces the standard judge lines');
     assert.equal(await page.locator('.room2-answer-slot.is-filled').count(),5,'All fitted tokens remain available');
     assert.equal(await page.locator('.room2-palette-token').first().isDisabled(),false,'The player can still manipulate blocks');

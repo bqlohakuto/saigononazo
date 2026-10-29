@@ -187,6 +187,7 @@ function harness(saved) {
   };
   const context = vm.createContext({
     document, HTMLElement: Element, MutationObserver, GameAudio, Image: class {},
+    URLSearchParams, location:{search:""},
     localStorage: {
       getItem: key => storage.get(key) ?? null,
       setItem: (key, value) => { writes.push({ key, value }); storage.set(key, value); },

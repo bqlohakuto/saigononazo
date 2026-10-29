@@ -227,16 +227,13 @@ test("new effects decode, play once, and follow the SE category volume", async (
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 test('memory ambience loops without restarting on pages and follows scene boundaries', async()=>{
  const {audio,contexts}=harness();
- audio.syncMemoryAmbience('room2_memory_015');await tick();assert.equal(contexts.length,0);
- audio.syncMemoryAmbience('room2_memory_054');await tick();const c=contexts[0],first=c.sources[0];
+ audio.syncMemoryAmbience('room3_flashback_34');await tick();const c=contexts[0],first=c.sources[0];
  assert.equal(first.loop,true);assert.equal(first.starts,1);
- assert.deepEqual(c.gains.at(-1).gain.events,[['set',0,12],['ramp',0.30,12.4]]);
- audio.syncMemoryAmbience('room2_memory_054_02');audio.syncMemoryAmbience('room2_final_hanamaru_01');await tick();assert.equal(c.sources.length,1);
- audio.syncMemoryAmbience('room2_memory_096');assert.equal(first.disconnected,true);
- audio.syncMemoryAmbience('room3_flashback_34_02');await tick();assert.equal(c.sources.length,2);assert.equal(c.sources[1].loop,true);
- audio.syncMemoryAmbience('room3_flashback_71');await tick();assert.equal(c.sources.length,2);
- audio.syncMemoryAmbience('room3_flashback_72');assert.equal(c.sources[1].disconnected,true);
+ audio.syncMemoryAmbience('room3_flashback_34_02');await tick();assert.equal(c.sources.length,1);
+ audio.syncMemoryAmbience('room3_flashback_71');assert.equal(c.sources.length,1);
+ audio.syncMemoryAmbience('room3_flashback_72');assert.equal(first.disconnected,true);
 });
+
 test('stopping or leaving during ambience decoding cancels playback and permits later resume',async()=>{
  const load=deferred();const {audio,contexts}=harness({fetch:()=>load.promise});
  audio.syncMemoryAmbience('room3_flashback_50');audio.stopMemoryAmbience();load.resolve(response());await tick();assert.equal(contexts[0].sources.length,0);
@@ -247,15 +244,15 @@ test('stopping or leaving during ambience decoding cancels playback and permits 
 test('title, exploration and memory music follow scene boundaries without restarting within a phase',async()=>{
  const {audio,contexts}=harness();audio.syncSceneMusic('title');await tick();const c=contexts[0];
  audio.syncSceneMusic('title');await tick();assert.equal(c.sources.length,1);
- audio.syncSceneMusic('opening');assert.equal(c.sources[0].disconnected,true);
+ audio.syncSceneMusic('opening');assert.equal(c.sources[0].stopAt,12.65);
  audio.syncSceneMusic('room01');await tick();const exploration=c.sources.at(-1);
  audio.syncSceneMusic('room07','r7_book_01');await tick();assert.equal(c.sources.length,2);
- audio.syncSceneMusic('room01','room1_piano_correct_04');assert.equal(exploration.disconnected,true);
+ audio.syncSceneMusic('room01','room1_piano_correct_04');assert.equal(exploration.stopAt,12.65);
  audio.syncSceneMusic('room03','room3_flashback_34');await tick();const memory=c.sources.at(-1);
  assert.equal(memory.loop,true);assert.deepEqual(c.gains.at(-1).gain.events.at(-1),['ramp',0.22,12.4]);
  audio.syncSceneMusic('room03','room3_flashback_35');await tick();assert.equal(c.sources.length,3);
- audio.syncSceneMusic('room03','room3_after_01');await tick();assert.equal(memory.stopAt,12.45);assert.equal(c.sources.length,4);
- audio.syncSceneMusic('room08');assert.equal(c.sources.at(-1).disconnected,true);
+ audio.syncSceneMusic('room03','room3_after_01');await tick();assert.equal(memory.stopAt,12.65);assert.equal(c.sources.length,4);
+ audio.syncSceneMusic('room08');assert.equal(c.sources.at(-1).stopAt,12.65);
 });
 test('BGM and ambience obey separate categories, including mute during fade-in',async()=>{
  const {audio,contexts}=harness();audio.setCategoryVolumes(0.2,0.4);
@@ -278,13 +275,14 @@ test('switching scenes while music is loading prevents a stale title from starti
  audio.resumeMusic();await tick();assert.equal(contexts[0].sources.length,0);
 });
 
-test('after-school ambience switches to the quiet classroom when helping the senior',async()=>{
+test('helping the senior stops school ambience and adds no classroom loop',async()=>{
  const {audio,contexts}=harness();
- audio.syncMemoryAmbience('room2_memory_016_01');await tick();const c=contexts[0],busy=c.sources[0];assert.equal(busy.loop,true);
+ audio.syncMemoryAmbience('room2_memory_016_01');await tick();const c=contexts[0],busy=c.sources[0];
  audio.syncMemoryAmbience('room2_memory_053_flower_02_01');await tick();assert.equal(c.sources.length,1);
- audio.syncMemoryAmbience('room2_memory_054_01');await tick();assert.equal(busy.disconnected,true);assert.equal(c.sources.length,2);
- audio.syncMemoryAmbience('room2_memory_096');assert.equal(c.sources[1].disconnected,true);
+ audio.syncMemoryAmbience('room2_memory_054_01');await tick();assert.equal(busy.disconnected,true);assert.equal(c.sources.length,1);
+ audio.syncMemoryAmbience('room2_final_hanamaru');await tick();assert.equal(c.sources.length,1);
 });
+
 test('nature ambience continues across all walk source IDs and stops on whiteout',async()=>{
  const {audio,contexts}=harness();audio.syncMemoryAmbience('r6_memory_full_050');await tick();assert.equal(contexts.length,0);
  for(const id of ['r6_memory_full_051_01','r6_final_signal_01','r6_memory_full_064','r6_memory_01','r6_memory_07_01','r6_memory_full_072','r6_memory_full_085'])audio.syncMemoryAmbience(id);
@@ -582,7 +580,7 @@ test('shared memories include short recollections but preserve room-one performa
  await tick();assert.equal(contexts.length,0);
  for(const id of ['room2_memory_016','room2_final_hanamaru','room3_flashback_04','r4f1','r5m001','r5_memory_01','r6_memory_full_051','r6_final_signal','r7_mem_rabbit_01','r7_mem_25'])audio.syncSceneMusic('room07',id);
  await tick();const c=contexts[0],memory=c.sources[0];assert.equal(c.sources.length,1);
- audio.syncSceneMusic('room07','r7_mem_26');assert.equal(memory.stopAt,12.45);
+ audio.syncSceneMusic('room07','r7_mem_26');assert.equal(memory.stopAt,12.65);
  for(const id of ['r7_mem_32','r7_mem_35','r7_mem_37','r8_epilogue_01','r8_memory_truth_03'])audio.syncSceneMusic('room08',id);
  await tick();assert.equal(c.sources.length,1);
 });

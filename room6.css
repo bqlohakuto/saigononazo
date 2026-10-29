@@ -167,3 +167,12 @@
 #game .r6-exit-actions button[data-r6-exit="proceed"]{background:#ede2ca}
 @container game-viewport (max-height:500px){#game .r6-exit-menu{padding:13px 15px;gap:8px}#game .r6-exit-actions button{min-height:34px;padding:7px 11px}}
 @media(prefers-reduced-motion:reduce){#game .r6-final-door-appearing{animation:none}}
+
+/* Keep all eight rows visible, including in expanded map view. */
+#game .r6-map-scroll{overflow:visible;max-height:none}
+#game .r6-full .r6-map-paper.expanded{max-height:none;max-width:40%;top:10%}
+#game .r6-full .r6-map-paper.expanded .r6-map{--step:32px}
+#game .r6-full .r6-map-paper.expanded .r6-map-coordinates{--axis-step:32px}
+#game .r6-full .r6-map-paper.expanded .r6-cell{width:28px;height:28px}
+
+#game .r6-full .r6-map-paper.expanded .r6-map{grid-template-columns:repeat(var(--cols),var(--step));grid-template-rows:repeat(var(--rows),var(--step))}

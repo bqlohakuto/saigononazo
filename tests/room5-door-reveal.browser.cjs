@@ -51,19 +51,18 @@ async function finishBoard(page){
    await page.screenshot({path:path.join(out,'01-before.png')});
 
    await finishBoard(page);
-   assert.equal(await page.locator('.r5-inlay-code').isVisible(),false,'The answer is not shown before the completion narration');
-   await page.locator('.r5-inlay-code').waitFor({state:'visible',timeout:12000});
-   assert.equal(await page.locator('.r5-inlay-code').textContent(),'8194');
+   await page.locator('#roomNextButton').waitFor();
+   assert.equal(await page.locator('.r5-board-overlay').count(),0,'Success uses the ordinary conversation window');
+   for(let i=0;i<30&&!(await page.locator('#roomMessage').textContent()).includes('8194');i++)await page.locator('#roomNextButton').click();
+   assert.match(await page.locator('#roomMessage').textContent(),/8194/);
    await page.screenshot({path:path.join(out,'02-code.png')});
-   await page.locator('.r5-board-overlay').waitFor({state:'detached',timeout:6000});
-   const effect=page.locator('.r5-door-reveal');
-   await effect.waitFor({state:'visible'});
-   assert.match(await page.locator('.r5-door-reveal-caption').textContent(),/正面の扉へ細い光/);
-   assert.equal(await page.locator('.r5-door-reveal-light path').count(),1,'The board-to-door light is rendered');
-   assert.equal(await page.locator('#r5Keypad').isDisabled(),true,'The input is available after the reveal');
-   await page.waitForTimeout(spec.mobile?500:1100);
+   for(let i=0;i<20&&await page.locator('.r5-door-reveal').count()===0;i++)await page.locator('#roomNextButton').click();
+   const effect=page.locator('.r5-door-reveal');await effect.waitFor();
+   assert.match(await page.locator('#roomMessage').textContent(),/正面の扉へ細い光/);
+   assert.equal(await page.locator('.r5-door-reveal-light path').count(),1);
    await page.screenshot({path:path.join(out,'03-door-reveal.png')});
-   await effect.waitFor({state:'detached',timeout:8000});
+   for(let i=0;i<30&&await page.locator('#roomNextButton').count();i++)await page.locator('#roomNextButton').click();
+   await effect.waitFor({state:'detached'});
    const art=page.locator('.r5-door-keypad-art'),target=page.locator('#r5Keypad'),door=page.locator('#r5Door');
    assert.equal(await art.isVisible(),true);
    assert.equal(await target.isEnabled(),true);
@@ -82,13 +81,6 @@ async function finishBoard(page){
    await page.locator('[data-key="enter"]').click();
    assert.equal(await page.evaluate(()=>room5State.doorUnlocked),true,'8194 still unlocks the door');
 
-   // Closing immediately must still show the code, then lead to the door.
-   await startPartial(page);await finishBoard(page);
-   await page.locator('.r5-board-panel .device-close').click();
-   assert.match(await page.locator('.r5-door-reveal-caption').textContent(),/8194/,'An early close does not skip the answer');
-   assert.equal(await page.locator('#r5Scene').evaluate(el=>el.classList.contains('is-r5-reveal-waiting')),true);
-   await page.locator('.r5-door-reveal').waitFor({state:'detached',timeout:10000});
-   assert.equal(await page.locator('#r5Keypad').isEnabled(),true);
    assert.deepEqual(errors,[]);
    await context.close();console.log('PASS '+spec.name+': hidden keypad, 8194, visible door reveal, early close and save/load');
   }finally{await browser.close();}

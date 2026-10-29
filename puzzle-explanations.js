@@ -234,6 +234,7 @@
   }
   let selected = 0;
   function titleLink(){
+    if(typeof document==='undefined'||!document.documentElement)return;
     const home = document.querySelector("#game .title-home");
     if(!home || home.querySelector("#puzzleGuideButton") || !enabled()) return;
     const menu = home.querySelector(".title-menu");

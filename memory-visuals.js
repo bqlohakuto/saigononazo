@@ -6,7 +6,7 @@
   // Use the actual earlier recollection art, not Room 7's library background.
   scenes.push({key:'r7boar',room:'room07',reveal:'concealed',
     background:'images/background/memories/room01/walk-home.png',
-    sprite:'images/characters/memories/room01/girl-approved.png',layout:'standing',prop:null,
+    sprite:'images/characters/memories/room02/girl-blazer.png',layout:'standing',prop:null,
     ids:Array.from({length:28},(_,i)=>'r7_mem_boar_'+String(i+1).padStart(2,'0'))});
   // The tiger door revisits the earlier, concealed-face period of her life.
   scenes.push({key:'r7tiger',room:'room07',reveal:'concealed',
@@ -25,7 +25,7 @@
     ids:Array.from({length:26},(_,i)=>'r7_mem_sheep_'+String(i+1).padStart(2,'0'))});
   scenes.push({key:'r7monkey',room:'room07',reveal:'expressive',presentation:'dialogue',
     background:'images/background/memories/room05/dining-night.png',
-    sprite:'images/characters/memories/room05/girl-home.png',layout:'dining',prop:'notebook',
+    sprite:'images/characters/memories/room05/girl-home.png',layout:'dining',prop:null,
     ids:Array.from({length:25},(_,i)=>'r7_mem_monkey_'+String(i+1).padStart(2,'0'))});
   // On the final door, a warm recollection of leaving home precedes the accident.
   // Reuse the existing home art and heroine portrait to match earlier Room 5 scenes.
@@ -74,6 +74,7 @@
     }
     let sprite=visual.suppressSprite?null:scene.sprite;
     delete visual.suppressSprite;
+    if(id==="r4f10"){visual.background="images/cg/memories/room04/quiet-hand.png";visual.layout="cg";sprite=null;}
     const number=Number(id.match(/(?:memory_|flashback_|^r5m|^r4f)(\d+)/)?.[1]);
     if(scene.key==='r2visit'&&number<3 || scene.key==='r2leader'&&number<21 || scene.key==='r2flower'&&id==='room2_memory_053')sprite=null;
     if(id==='room2_memory_014')sprite=null;
@@ -154,7 +155,7 @@
       for(const path of propPaths(visual.prop))prop.append(picture('memory-prop-image',path));
       if(visual.prop==='notebook'){const book=document.createElement('div');book.className='memory-notebook';book.append(document.createElement('i'),document.createElement('i'));prop.append(book)}
     }
-    prop.hidden=!visual.prop;
+    prop.hidden=!visual.prop||visual.prop==='cards';
   }
   window.MemoryVisuals=Object.freeze({get,prepare,sync,revealByRoom});
 })();

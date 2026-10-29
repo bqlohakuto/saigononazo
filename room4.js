@@ -568,13 +568,13 @@ function r4Exit(){
 function r4NextPlaceholder(){
  // The ending narration fades to white; the following room appears gradually.
  showRoomTravel(()=>showFifthRoom(roomStates.room05),{
-  label:"第五の部屋へ移動",tone:"light",duration:650
+  label:"第五の部屋へ移動",tone:"light",duration:1800
  });
 }
 function showFourthRoomBoundary(){
  if(room3State){room3State.nextRoomTransitionSeen=true;saveGame()}
  showRoomTravel(()=>showFourthRoom(roomStates.room04),{
-  label:"第四の部屋へ移動",tone:"light",duration:1100
+  label:"第四の部屋へ移動",tone:"light",duration:1800
  });
 }
 

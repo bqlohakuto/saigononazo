@@ -166,10 +166,11 @@ function clearSave(){
 }
 
 // Sound cues follow source lines, so pagination and LOG viewing do not replay them.
-const dialogueSoundCues={room2_after_memory_003:"doorUnlock",r5_keypad_ok_02:"doorUnlock",r4x2:"doorOpen",r7_last_01:"doorOpen",r8_end_01:"doorOpen"};
+const dialogueSoundCues={room2_after_correct_06:"memoryBand",room2_after_memory_003:"doorUnlock",r5_keypad_ok_02:"doorUnlock",r4x2:"doorOpen",r7_last_01:"doorOpen",r8_end_01:"doorOpen"};
 function recordLog(line){
  GameAudio.syncSceneMusic?.(currentScene,line.logId);
- const cue=dialogueSoundCues[line.logId];
+ if(/^room2_memory_001(?:_|$)/.test(line.logId||""))GameAudio.fadeOut("memoryBand",1000);
+ const cue=dialogueSoundCues[line.logId]||dialogueSoundCues[line.logId?.replace(/_01$/u,"")];
  if(cue)GameAudio.play(cue);
  GameLog.record({...line,logRoom:line.logRoom||currentScene,logGroup:line.logGroup||window.DesignUI?.dialogueGroup||null,logTarget:line.logTarget||window.DesignUI?.inspectionTarget||null});
  saveGame();
@@ -199,9 +200,11 @@ function showTitle(notice=""){
  GameAudio.stopAll();
  GameAudio.syncSceneMusic?.("title");
  const hasSave=!!readSavedGame();
- game.innerHTML=`<div class="title-screen title-home title-art-loading"><h1 class="title-logo"><img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span></h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button>${AUTHOR_PREVIEW?'<button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button>':""}<button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-art-status" role="status">画像を読み込み中…</p><p class="title-notice" aria-live="polite">${notice}</p></div>`;
+ const cleared=!!localStorage.getItem("saigononazo-guide-unlocked-v1")||!!readSavedGame()?.rooms?.room08?.ended;
+ game.innerHTML=`<div class="title-screen title-home title-art-loading"><h1 class="title-logo"><img src="images/ui/${cleared?"title-cleared-logo.jpg":"title-logo.jpg"}" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span></h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button>${AUTHOR_PREVIEW?'<button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button>':""}<button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-art-status" role="status">画像を読み込み中…</p><p class="title-notice" aria-live="polite">${notice}</p></div>`;
  const title=game.querySelector('.title-home'),background=new Image();
- background.src='images/pixel-ui/title-background-pixel.png';
+ background.src=cleared?'images/ui/title-cleared-background.jpg':'images/pixel-ui/title-background-pixel.png';
+ if(cleared){title.classList.add('title-cleared');title.style.backgroundImage='url("'+background.src+'")';}
  const images=[background,...title.querySelectorAll('img')];
  Promise.all(images.map(image=>image.decode?image.decode():new Promise((resolve,reject)=>{
   if(image.complete){image.naturalWidth?resolve():reject();return}
@@ -242,7 +245,7 @@ function startRoomTest(scene){
 }
 function showNameInput(){
  game.innerHTML=`<div class="title-screen"><h2>あなたの名前を入力してください</h2><input id="playerName" type="text" maxlength="8" placeholder="名前"><br><br><button id="decideButton">決定</button></div>`;
- document.getElementById("decideButton").addEventListener("click",()=>{clearSave();flashRed()});
+ document.getElementById("decideButton").addEventListener("click",()=>{const input=document.getElementById("playerName"),button=document.getElementById("decideButton");button.disabled=true;input.disabled=true;clearSave();playerName=input.value.trim()||"主人公";setTimeout(()=>{if(button.isConnected)flashRed()},2000)});
 }
 
 function resumeGame(){
@@ -801,7 +804,7 @@ function showFirstRoomMemory(){
   unlockFirstRoomDoor,
   line=>{
    const sourceId=line.logId?.replace(/_\d{2}$/u,"");
-   if(sourceId==="room1_piano_correct_02")GameAudio.stop("memoryMelody");
+   if(sourceId==="room1_piano_correct_02")GameAudio.fadeOut("memoryMelody",650);
    if(sourceId==="room1_piano_correct_04")GameAudio.play("memoryBand");
    if(sourceId==="room1_memory_music_room_09")GameAudio.fadeOut("memoryBand",2000);
   }
@@ -840,7 +843,7 @@ function showUnlockedDoorChoices(){
 
 // Issue #25 A05: one transition for consecutive room changes.
 // The first room keeps its authored door image; other rooms never borrow that artwork.
-function showRoomTravel(next,{label="次の部屋へ",tone="dark",image=null,duration=650,sound=true}={}){
+function showRoomTravel(next,{label="次の部屋へ",tone="dark",image=null,duration=1800,sound=true}={}){
  if(sound){GameAudio.play("doorOpen");GameAudio.play("roomSparkle");}
  Dialogue.stop();
  const screen=document.createElement("div");
@@ -874,7 +877,7 @@ function showNextRoomBoundary(){
  showRoomTravel(()=>showSecondRoom(roomStates.room02),{
   label:"扉を通って第二の部屋へ",
   image:"images/background/room01/pixel/room01_door_halfopen.png",
-  duration:1100
+  duration:1800
  });
 }
 
@@ -883,6 +886,18 @@ function showRoomNotice(text,logId,logType="investigation"){
 }
 
 function showRoomDialog(lines,onComplete,onDisplay,options={}){
+ const feedbackWait=GameAudio.correctFeedbackRemaining?.()||0;
+ const feedbackRoom=game.querySelector('.room,.late-room');
+ if(feedbackWait>0&&feedbackRoom){
+  if(game._correctWait?.room===feedbackRoom)return false;
+  const wait={room:feedbackRoom};game._correctWait=wait;feedbackRoom.inert=true;
+  setTimeout(()=>{
+   if(game._correctWait!==wait)return;
+   game._correctWait=null;feedbackRoom.inert=false;
+   if(feedbackRoom.isConnected)showRoomDialog(lines,onComplete,onDisplay,options);
+  },feedbackWait);
+  return true;
+ }
  // Never stack dialogue overlays. Stacking disposes the older Dialogue controller
  // while leaving its overlay on screen, which makes the conversation impossible to finish.
  if(game.querySelector(".room-dialog-overlay"))return false;

@@ -22,6 +22,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
     vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file});
   }
 
+ w.GameAudio.correctFeedbackRemaining=()=>0;
   const run=code=>vm.runInContext(code,ctx);
   const q=s=>w.document.querySelector(s);
   const click=s=>{const el=q(s);assert.ok(el,'control exists: '+s);el.click();};
@@ -75,7 +76,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(save().currentScene,'room06','F10: door inspection does not immediately leave Room 6');
   finish();
   assert.ok(q('[data-r6-exit="proceed"]'),'F10: inspection offers the explicit next-room action');
-  click('[data-r6-exit="proceed"]');await wait(720);
+  click('[data-r6-exit="proceed"]');await wait(1900);
   assert.equal(save().currentScene,'room07');
   finish();
   const turn=view=>{for(let i=0;i<4&&save().rooms.room07.view!==view;i++)click('#r7TurnRight')};

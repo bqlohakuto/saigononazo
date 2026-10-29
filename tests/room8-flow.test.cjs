@@ -8,6 +8,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  w.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});w.scrollTo=()=>{};
  w.HTMLCanvasElement.prototype.getContext=()=>null;w.HTMLElement.prototype.scrollIntoView=function(){};
  for(const [,file]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<script src="([^?]+)\?/g))vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file});
+ w.GameAudio.correctFeedbackRemaining=()=>0;
  const run=code=>vm.runInContext(code,ctx),q=s=>w.document.querySelector(s);
  const click=s=>{assert.ok(q(s),'control '+s);q(s).click()};
  const saved=()=>JSON.parse(w.localStorage.getItem('saigononazo-save-v1'));

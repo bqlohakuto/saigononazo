@@ -10,7 +10,9 @@
     ["GRAPHIC PRODUCTION","ChatGPT"],
     ["UI DESIGN","八上白兎"],
     ["BACKGROUND MUSIC","Gemini"],
-    ["SOUND EFFECTS","効果音ラボ"]
+    ["SOUND EFFECTS","効果音ラボ"],
+    ["ENDING SONG","こたえあわせ"],
+    ["CREATED BY","八上白兎"]
   ];
   const DURATION=166.243208;
   let active=null;

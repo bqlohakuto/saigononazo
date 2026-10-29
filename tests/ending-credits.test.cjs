@@ -2,9 +2,9 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const source=fs.readFileSync(require('node:path').join(__dirname,'../ending-credits.js'),'utf8');
 const w={};vm.runInNewContext(source,{window:w});
 const frame=w.EndingCredits.frameAt;
-test('nine individually approved roles occupy the whole staff sequence',()=>{
- const roles=['PLANNING','STORY / SCENARIO','PUZZLE DESIGN','GAME DESIGN','VISUAL DESIGN','GRAPHIC PRODUCTION','UI DESIGN','BACKGROUND MUSIC','SOUND EFFECTS'];
- roles.forEach((role,i)=>{const f=frame(i*132/9+8);assert.equal(f.role,role);assert.equal(f.name,['ChatGPT','Gemini','効果音ラボ'].includes(f.name)?{5:'ChatGPT',7:'Gemini',8:'効果音ラボ'}[i]:'八上白兎');assert.equal(f.opacity,1)});
+test('eleven individually approved roles occupy the whole staff sequence',()=>{
+ const roles=['PLANNING','STORY / SCENARIO','PUZZLE DESIGN','GAME DESIGN','VISUAL DESIGN','GRAPHIC PRODUCTION','UI DESIGN','BACKGROUND MUSIC','SOUND EFFECTS','ENDING SONG','CREATED BY'];
+ roles.forEach((role,i)=>{const f=frame(i*132/11+7);assert.equal(f.role,role);assert.equal(f.name,({5:'ChatGPT',7:'Gemini',8:'効果音ラボ',9:'こたえあわせ'}[i]||'八上白兎'));assert.equal(f.opacity,1)});
  assert.equal(frame(131).kind,'credit');assert.equal(frame(132).kind,'gap');
 });
 test('title erases three characters before writing the exact ending, then thanks through piano tail',()=>{

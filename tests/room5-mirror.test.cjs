@@ -9,6 +9,7 @@ const w=dom.window,ctx=dom.getInternalVMContext();
 w.HTMLCanvasElement.prototype.getContext=()=>null;
 w.matchMedia=()=>({matches:false,addEventListener(){}});w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=function(){};
 for(const [,file] of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<script src="([^?]+)\?/g))vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file});
+w.GameAudio.correctFeedbackRemaining=()=>0;
 const q=s=>w.document.querySelector(s),qa=s=>[...w.document.querySelectorAll(s)],click=s=>{assert.ok(q(s),'control exists: '+s);q(s).click();};
 const save=()=>JSON.parse(w.localStorage.getItem('saigononazo-save-v1'));
 function finish(){for(let n=0;n<1000&&q('#roomNextButton');n++)click('#roomNextButton');assert.equal(q('#roomNextButton'),null);}
@@ -65,21 +66,14 @@ for(let i=0;i<placements.length;i++){
   if(q('[data-tile="'+id+'"]').getAttribute('aria-pressed')!=='true')click('[data-tile="'+id+'"]');
   click('[data-counter="'+counter+'"]');
   finish();
-  assert.equal(q('.r5-board-panel'),board,'placement must leave the same board open');
+  if(i<placements.length-1)assert.equal(q('.r5-board-panel'),board,'partial placement keeps the board open');
   assert.equal(qa('#r5Scene .r5-board-wall-grid .r5-wall-tile.is-placed img').length,i+1,'fitted artwork also appears on the wall');
 }
 assert.equal(save().rooms.room05.codeRevealed,true);
 assert.equal(Object.keys(save().rooms.room05.placed).length,7);
-// The adopted reveal is deliberately delayed until the fourth narration beat.
-assert.equal(q('.r5-inlay-code').hidden,true);
-for(let n=0;n<240&&q('.r5-inlay-code').hidden;n++)await new Promise(resolve=>setTimeout(resolve,50));
-assert.equal(q('.r5-inlay-code').hidden,false,'8194 appears during the approved completion sequence');
-assert.equal(q('.r5-inlay-code').textContent,'8194');
-click('.r5-board-panel .device-close');
+assert.equal(q('.r5-board-panel'),null,'success continues through the standard dialogue');
 assert.ok(q('#r5Keypad'));
-assert.ok(q('.r5-door-reveal'),'closing the completed board shows the door reveal');
-for(let n=0;n<140&&q('.r5-door-reveal');n++)await new Promise(resolve=>setTimeout(resolve,50));
-assert.equal(q('.r5-door-reveal'),null,'door reveal finishes before input');
+assert.equal(q('.r5-door-reveal'),null,'the normal dialogue completes the door reveal');
 
 click('#r5Keypad');
 for(const d of ['8','1','9','4'])click('[data-digit="'+d+'"]');
@@ -96,7 +90,7 @@ click('[data-gameplay="save"]');assert.ok(q('#saveSlotOverlay'));click('.save-sl
 assert.equal(JSON.parse(w.localStorage.getItem('saigononazo-save-v1-slot-1')).rooms.room05.completed,true);
 q('#saveSlotOverlay').remove();
 
-click('#r5Next');await new Promise(r=>setTimeout(r,720));
+click('#r5Next');await new Promise(r=>setTimeout(r,1900));
 assert.equal(save().currentScene,'room06');
 assert.ok(q('.r6-scene'));assert.equal(q('.r6-map'),null,'map is obtained during room 6 exploration');assert.ok(q('#gameplayHud'));
 console.log('PASS: Room 5 exploration -> counters -> 8194 keypad -> flashback -> Room 6.');

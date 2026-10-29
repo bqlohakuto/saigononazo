@@ -11,7 +11,7 @@
   };
   const transition=(label,next)=>{
     // Reuse the same door passage as Rooms 1-4; puzzle state is left untouched.
-    showRoomTravel(next,{label,duration:650});
+    showRoomTravel(next,{label,duration:1800});
   };
 
   // ---------- Room 5 ----------
@@ -339,45 +339,9 @@
     // Only the finished board gets a cinematic sequence; ordinary fit feedback is unchanged.
     // H02: register each completion line only when it becomes visible.
     function playBoardCompletion(lines){
-      completionPlaying=true;completionDigitVisible=false;completionLines=lines;
-      panel.classList.add('r5-completing');
-      const caption=document.createElement('div');
-      caption.className='r5-completion-caption';
-      caption.setAttribute('role','status');
-      caption.setAttribute('aria-live','polite');
-      o.querySelector('.r5-inlay-board').append(caption);
-      const stages=[
-        {entries:[lines[0],lines[1]],ms:1800},
-        {entries:[lines[2],lines[3]],ms:2200},
-        {entries:[lines[4]],ms:1800},
-        {entries:[lines[5],lines[6]],ms:2100,reveal:true}
-      ];
-      let step=0;
-      const advance=()=>{
-        if(!valid())return;
-        if(step===stages.length){
-          // Return to the actual room so the promised change at the door can
-          // be seen, instead of narrating it behind the full-screen board.
-          panel.querySelector('.device-close').click();
-          return;
-        }
-        const stage=stages[step++];
-        if(stage.reveal){
-          completionDigitVisible=true;
-          o.querySelector('.r5-inlay-code').hidden=false;
-        }
-        caption.replaceChildren();
-        stage.entries.forEach(entry=>{
-          const p=document.createElement('p');
-          if(entry.speaker!=='ト書き'&&entry.speaker!=='システム'){
-            const speaker=document.createElement('b');speaker.textContent=entry.speaker;p.append(speaker);
-          }
-          p.append(document.createTextNode(entry.text));caption.append(p);
-          recordLog(entry);
-        });
-        completionTimer=setTimeout(advance,reduced()?1100:stage.ms);
-      };
-      advance();
+      completionPlaying=true;completionDigitVisible=true;completionLines=null;
+      panel.querySelector('.device-close').click();
+      showRoomDialog(lines.slice(0,7),()=>r5PlayDoorReveal(lines,false));
     }
     function select(id){
       if(!valid())return;
@@ -485,7 +449,8 @@
           if(butterflyLast)[line('r5_butterfly_hint_07','主人公','……本当に一頭なんですね。'),line('r5_butterfly_hint_08','ハナ','覚えたね。')].forEach(recordLog);
           r5CompleteBoard(playBoardCompletion);drawSlots();r5RefreshWall();
         }else{
-          say([line('r5_board_retry_01','ト書き','七枚そろったが、盤に変化は起きなかった。'),line('r5_board_retry_02','主人公','……並べ方を見直してみましょう。')]);
+          boardState.placed={};selected=null;saveGame();drawSlots();drawTray();r5RefreshWall();
+          say([line('r5_board_retry_01','ト書き','七枚そろったが、盤に変化は起きなかった。パネルがすべて手元に戻る。'),line('r5_board_retry_02','主人公','……並べ方を見直してみましょう。')]);
         }
       }else if(before===0){
         recordLog(line('r5_place_first_01','ト書き','パネルが淡く光る。丸枠へ吸い込まれるように重なり、二つの絵が一つの合体絵へ切り替わる。'));
@@ -513,47 +478,13 @@
   function r5PlayDoorReveal(lines,showMissedDigits){
     const scene=game.querySelector('#r5Scene'),state=room5State;
     if(!scene||!state.codeRevealed||state.doorUnlocked)return;
-    const live=()=>scene.isConnected&&currentScene==='room05'&&room5State===state;
-    const effect=document.createElement('div');
-    effect.className='r5-door-reveal';
-    effect.innerHTML='<svg class="r5-door-reveal-light" viewBox="0 0 1672 941" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M 310 260 Q 570 165 898 360" /></svg><div class="r5-door-reveal-caption" role="status" aria-live="polite"></div>';
-    scene.append(effect);
-    const controls=[...scene.querySelectorAll('button')].map(button=>[button,button.disabled]);
-    controls.forEach(([button])=>{button.disabled=true;});
-    const caption=effect.querySelector('.r5-door-reveal-caption');
-    const say=entries=>{
-      caption.replaceChildren();
-      entries.forEach(entry=>{
-        const p=document.createElement('p');
-        if(entry.speaker!=='ト書き'&&entry.speaker!=='システム'){
-          const speaker=document.createElement('b');speaker.textContent=entry.speaker;p.append(speaker);
-        }
-        p.append(document.createTextNode(entry.text));caption.append(p);
-        // Do not append later reveal dialogue to LOG before the player sees it.
-        if(!GameLog.list().some(saved=>saved.id===entry.logId))recordLog(entry);
-      });
-    };
-    const start=()=>{
-      if(!live())return;
-      scene.classList.remove('is-r5-reveal-waiting');
-      scene.classList.add('is-r5-revealing');
-      say([lines[7]]);
-      setTimeout(()=>{
-        if(!live())return;
-        say([lines[8],lines[9]]);
-        setTimeout(()=>{
-          if(!live())return;
-          effect.remove();scene.classList.remove('is-r5-revealing');
-          controls.forEach(([button,disabled])=>{button.disabled=disabled;});
-          if(!game.querySelector('.room-dialog-overlay,.device-overlay,.design-overlay,.save-slot-overlay'))document.getElementById('r5Keypad')?.focus({preventScroll:true});
-        },2200);
-      },2800);
-    };
-    if(showMissedDigits){
-      // Closing early must not hide the newly discovered answer.
-      scene.classList.add('is-r5-reveal-waiting');say([lines[4],lines[5],lines[6]]);
-      setTimeout(start,2100);
-    }else start();
+    const effect=document.createElement('div');effect.className='r5-door-reveal';
+    effect.innerHTML='<svg class="r5-door-reveal-light" viewBox="0 0 1672 941" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M 310 260 Q 570 165 898 360" /></svg>';
+    scene.append(effect);scene.classList.add('is-r5-revealing');
+    showRoomDialog(lines.slice(showMissedDigits?4:7),()=>{
+      effect.remove();scene.classList.remove('is-r5-revealing');
+      if(scene.isConnected)document.getElementById('r5Keypad')?.focus({preventScroll:true});
+    });
   }
 
   function r5ButterflyHintIfNeeded(inline){
@@ -572,7 +503,7 @@
   }
 
   function r5CompleteBoard(inline){
-    room5State.codeRevealed=true;saveGame();
+    room5State.codeRevealed=true;saveGame();GameAudio.play("answerCorrect");
     const lines=[
       line("r5_board_complete_01","ト書き","――カチッ。"),
       line("r5_board_complete_02","ト書き","八つの完成した絵が、一斉に淡く光る。"),
@@ -983,14 +914,16 @@
       greenSeen:visited.some(id=>R6_INITIAL[r6Index(id)]==="E"),interview4:!!s.interview4,mapEvent:!!s.mapEvent,
       mapOpen:s.mapOpen!==false,mapExpanded:!!s.mapExpanded,mapComplete:!!s.mapComplete,othelloKnown:!!s.othelloKnown,
       hintLevel:Math.min(3,Math.max(0,Math.floor(Number(s.hintLevel)||0))),
-      testGuide:!!s.testGuide,
+      testGuide:!!s.testGuide,resetUsed:!!s.resetUsed,
       memorySeen:!!s.memorySeen,completed:!!s.completed,introSeen:!!s.introSeen};
   }
   let r6Moving=false,r6TravelGeneration=0,r6Flipping=false,r6FlipGeneration=0,r6ExitRevealed=false;
   const r6Busy=()=>r6Moving||r6Flipping||!!game.querySelector('.room-dialog-overlay,.device-overlay,.gameplay-panel-overlay');
   const r6Objective=()=>room6State.completed?"第七の部屋へ進む":room6State.othelloKnown?"9手で最後の黒を消す":"扉をたどって、部屋の手がかりを探す";
   function r6SpecificHint(){
-    const count=room6State.moves.length,route=r6WinningRoute(room6State.board,count);
+    const count=room6State.moves.length;
+    if(count>=6)return "ここから先の3手は、自分で考えてみよう。白と黒の手番と、返る列を地図で確かめてみて。";
+    const route=r6WinningRoute(room6State.board,count);
     if(route?.length)return '次は'+route[0]+'の部屋で、レバーを'+(count%2===0?'左に倒して白':'右に倒して黒')+'にしてみて。';
     if(route)return '黒は全部消えたね。開いた扉へ進もう。';
     for(let back=1;back<=count;back++){
@@ -1249,6 +1182,7 @@
   }
   function r6History(reset){
     if(r6Busy()||room6State.completed)return;
+    if(reset)room6State.resetUsed=true;
     const moves=reset?[]:room6State.moves.slice(0,-1),replay=r6Replay(moves);
     room6State.moves=replay.moves;room6State.board=replay.board;saveGame();renderR6();
   }
@@ -1267,7 +1201,7 @@
         if(next.every(c=>c==='W')){r6Complete();return}
         showRoomDialog([line('r6_fail','システム','9手目。黒が残っている。UNDOかRESETでやり直せる。')]);return;
       }
-      if(turn===1)showRoomDialog([
+      if(turn===1&&!room6State.resetUsed)showRoomDialog([
         line('r6_first_flip_01','ト書き','白を置く。直後、間にあった黒い床が白へ変わる。'),
         line('r6_first_flip_02','主人公','……ひっくり返った'),line('r6_first_flip_03','主人公','オセロと同じ……'),
         line('r6_first_flip_04','主人公','『最後の影が消える時、閉ざされた道は開かれる』……'),
@@ -2007,7 +1941,7 @@
         const fixed=R7_FIXED.find(b=>b.slot===slot),placed=r7PlacedAt(slot),book=fixed||placed;
         return '<button type="button" class="r7-slot'+(book?' is-filled':'')+'" data-slot="'+slot+'" aria-label="'+(book?r7Escape(book.title)+(placed?(room7State.booksSolved?'を手に取る':'を取り出す'):'の背表紙'):(slot+1)+'番目の空きに本を戻す')+'">'+(book?'<img src="'+r7Asset(book.id,'spine')+'" alt="'+book.title+'">'+(placed?'<span class="r7-red-ribbon" aria-hidden="true"></span>':''):'<span class="r7-empty-slot" aria-hidden="true"></span>')+'</button>';
       }).join('');
-      const available=R7_BOOKS.filter(b=>room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id));
+      const available=['wolf','bremen','ikkyu','monkey','mitten','rabbit'].map(r7Book).filter(b=>b&&room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id));
       held.innerHTML=available.map(b=>'<button type="button" data-held="'+b.id+'" aria-pressed="'+(selected===b.id)+'">'+b.title+'</button>').join('');
       status.textContent=selected?'『'+r7Book(selected).title+'』を戻す場所を選ぶ。':room7State.booksSolved?'本が並んでいる。':room7State.placed.length===6?'本は開かない。':available.length?'手元の本を選んで、棚の空きに戻そう。':'棚には、本が抜けた隙間がある。';
       row.querySelectorAll('[data-slot]').forEach(button=>button.onclick=()=>{
@@ -2093,7 +2027,7 @@
     art.addEventListener('pointermove',e=>{if(!drag)return;const a=angle(e);let delta=a-drag.last;if(delta>180)delta-=360;if(delta< -180)delta+=360;drag.total+=delta;drag.last=a;const next=Math.round(drag.total/30);if(next!==steps){steps=next;set()}});
     art.addEventListener('pointerup',()=>{drag=null});art.addEventListener('pointercancel',()=>{drag=null});
   }
-  window.Room7LibraryUI={items:()=>currentScene==='room07'&&room7State?R7_BOOKS.filter(b=>room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id)).map(b=>({id:b.id,name:b.title,art:'本',description:'赤い栞の挟まれた本。',target:'r7Shelf'})):[],use:id=>r7Cover(id)};
+  window.Room7LibraryUI={items:()=>currentScene==='room07'&&room7State?['wolf','bremen','ikkyu','monkey','mitten','rabbit'].map(r7Book).filter(b=>b&&room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id)).map(b=>({id:b.id,name:b.title,art:'本',description:'赤い栞の挟まれた本。',target:'r7Shelf'})):[],use:id=>r7Cover(id)};
   function r7PlayShortMemory(){
     const pending=room7State.shortMemory,lines=pending&&R7_SHORT_MEMORIES[pending.zodiac];
     if(!lines)return;
@@ -2281,7 +2215,7 @@
     return 0;
   }
   function r8Living(){
-    game.innerHTML='<main class="room late-room r8-living" data-hana-pose="seated"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">リビング</p></header><section class="late-stage living final-living r8-dissolve-stage"><div class="r8-table r8-dissolve-fallback"><span>ダイニングテーブル</span><span>ハナが椅子に座っている</span></div></section></main>';
+    game.innerHTML='<main class="room late-room r8-living" data-hana-pose="seated"><header class="room-header"><p class="room-label">第八の部屋</p><p class="room-color-status">リビング</p></header><section class="late-stage living final-living r8-dissolve-stage"><div class="r8-dissolve-fallback" aria-hidden="true"></div></section></main>';
     r8SetDissolveStage(0,true);
   }
   function r8Intro(){

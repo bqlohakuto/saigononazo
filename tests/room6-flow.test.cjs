@@ -188,7 +188,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(save().currentScene,'room06','F10: player may keep investigating');
   click('#r6Next');finish();
   click('[data-r6-exit="proceed"]');
-  await wait(720);
+  await wait(1900);
   assert.equal(save().currentScene,'room07','F10: accepting the choice enters room seven');
 
   // Alternate route: black -> green -> a later white room; no A7/B8-specific trigger.

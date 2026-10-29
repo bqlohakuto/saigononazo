@@ -100,7 +100,7 @@ function updatePixelOpening(line) {
   world.querySelector('.pixel-opening-whiteout').classList.toggle('visible',v.whiteout);
   document.getElementById('character-area').hidden=!v.hana||v.whiteout;
   const sprite=document.getElementById('openingHanaSprite');sprite.dataset.emotion=v.emotion;
-  if(v.emotion!=='idle')sprite.src='images/characters/hana-hires/idle/01.webp';
+  window.DesignUI?.refreshWorldExpression?.();
   const bubble=document.getElementById('openingBubble');bubble.hidden=!v.bubble||!v.hana;
   if(!bubble.hidden){bubble.src='images/pixel-ui/bubbles-side/right/'+v.bubble+'.png';bubble.alt=v.bubble==='question'?'疑問':v.bubble==='thinking'?'考え中':'困惑'}
   if(previous&&previous!==v.view&&!matchMedia('(prefers-reduced-motion: reduce)').matches){world.classList.remove('is-turning');void world.offsetWidth;world.classList.add('is-turning')}

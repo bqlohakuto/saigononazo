@@ -14,6 +14,7 @@ on:
       - 'tests/room5-memory-entry.test.cjs'
       - 'tests/room5-mirror.test.cjs'
       - 'tests/room6-flow.test.cjs'
+      - 'tests/room6-room7-deferred-events.test.cjs'
       - '.github/workflows/eight-room-regression.yml'
   push:
     branches: [main]
@@ -54,6 +55,7 @@ on:
       - 'tests/answer-button-style.test.cjs'
       - 'tests/room6-intro-copy.test.cjs'
       - 'tests/room6-flow.test.cjs'
+      - 'tests/room6-room7-deferred-events.test.cjs'
       - 'tests/room5-memory-entry.test.cjs'
       - 'tests/room3-editorial-143-151.test.cjs'
       - 'tests/room3-editorial-152-161.test.cjs'
@@ -90,7 +92,7 @@ jobs:
       - name: Check gameplay scripts and room entry/artwork completeness
         run: |
           for f in viewport-scaler.js browser-navigation.js script.js hana-choice.js inspection.js exploration-scenario.js room-exploration.js room2.js room3.js room4.js room8-visuals.js late-game.js design-ui.js; do node --check "$f"; done
-          node --test tests/room6-intro-copy.test.cjs tests/answer-button-style.test.cjs tests/room-passage.test.cjs tests/room-resume-timers.test.cjs tests/browser-navigation.test.cjs tests/screen-transition-state.test.cjs tests/critical-path.test.cjs tests/release-gates.test.cjs tests/save-data.test.cjs tests/final-clue-audit.test.cjs tests/cache-version.test.cjs tests/room4-projection.test.cjs tests/room4-light-reset.test.cjs tests/room4-memory-fade.test.cjs tests/room4-location-wording.test.cjs tests/room4-door-quotation.test.cjs tests/room4-first-pane-dialogue.test.cjs tests/room5-panel-reveal.test.cjs tests/room5-planter.test.cjs tests/room5-dining.test.cjs tests/room5-board-clue.test.cjs tests/room5-delayed-validation.test.cjs tests/room5-memory-entry.test.cjs tests/room3-morse.test.cjs tests/room3-editorial-143-151.test.cjs tests/room3-editorial-152-161.test.cjs tests/room8-resume-timers.test.cjs tests/room2-choice-keyboard-focus.test.cjs tests/room2-compact-choice-panel.test.cjs
+          node --test tests/room6-intro-copy.test.cjs tests/answer-button-style.test.cjs tests/room-passage.test.cjs tests/room-resume-timers.test.cjs tests/browser-navigation.test.cjs tests/screen-transition-state.test.cjs tests/critical-path.test.cjs tests/release-gates.test.cjs tests/save-data.test.cjs tests/final-clue-audit.test.cjs tests/cache-version.test.cjs tests/room4-projection.test.cjs tests/room4-light-reset.test.cjs tests/room4-memory-fade.test.cjs tests/room4-location-wording.test.cjs tests/room4-door-quotation.test.cjs tests/room4-first-pane-dialogue.test.cjs tests/room5-panel-reveal.test.cjs tests/room5-planter.test.cjs tests/room5-dining.test.cjs tests/room5-board-clue.test.cjs tests/room5-delayed-validation.test.cjs tests/room5-memory-entry.test.cjs tests/room3-morse.test.cjs tests/room3-editorial-143-151.test.cjs tests/room3-editorial-152-161.test.cjs tests/room8-resume-timers.test.cjs tests/room6-room7-deferred-events.test.cjs tests/room2-choice-keyboard-focus.test.cjs tests/room2-compact-choice-panel.test.cjs
       - name: Test first room piano timer across save-slot switches
         run: node --test --test-name-pattern='H01:' tests/game-flow.test.cjs
       - name: Test room five puzzle through its transition

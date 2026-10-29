@@ -9,7 +9,7 @@ function events() {
   const listeners = new Map();
   return {
     addEventListener(name, fn) { listeners.set(name, fn); },
-    emit(name) { listeners.get(name)?.(); }
+    emit(name, event) { listeners.get(name)?.(event); }
   };
 }
 function response() {
@@ -297,4 +297,49 @@ test('room seven changes from city road to intersection before impact, then goes
  audio.syncMemoryAmbience('r7_mem_34');await tick();assert.equal(c.sources.length,2);
  audio.syncMemoryAmbience('r7_mem_35_01');assert.equal(c.sources[1].disconnected,true);
  audio.syncMemoryAmbience('r7_mem_37');await tick();assert.equal(c.sources.length,2);
+});
+
+
+test('UI clicks replace each other, follow SE volume and never interrupt music', async () => {
+  const {audio, contexts}=harness();
+  audio.setCategoryVolumes(0.5,0.4);
+  await audio.play('titleMusic');
+  const c=contexts[0], music=c.sources[0];
+  await audio.play('uiClick'); const first=c.sources[1];
+  assert.equal(c.gains.at(-1).gain.value,0.22*0.4);
+  await audio.play('uiClick'); assert.equal(first.disconnected,true);
+  assert.equal(music.disconnected,undefined);
+  audio.setCategoryVolumes(0.5,0); assert.equal(c.gains.at(-1).gain.value,0);
+  c.emit('statechange');
+  c.state='interrupted';c.emit('statechange');
+  assert.equal(c.sources.at(-1).disconnected,true);
+});
+
+test('a pending click is cancelled by an authored sound or by leaving the page',async()=>{
+  for(const action of ['effect','hide']) {
+    const file=deferred();const {audio,contexts,window}=harness({fetch:()=>file.promise});
+    const click=audio.play('uiClick');
+    const effect=action==='effect'?audio.play('doorOpen'):null;
+    if(action==='hide')window.emit('pagehide');
+    file.resolve(response());assert.equal(await click,false);
+    if(effect)assert.equal(await effect,true);
+    assert.equal(contexts[0].sources.length,action==='effect'?1:0);
+  }
+});
+
+test('one delegated click handles nested targets and ignores disabled or protected controls',async()=>{
+  const {document,contexts}=harness();
+  const button={disabled:false,getAttribute:()=>null,closest:()=>null,matches:()=>false};
+  const click=()=>document.emit('click',{target:{closest:()=>button}});
+  click();await tick();assert.equal(contexts[0].sources.length,1);
+  button.disabled=true;click();await tick();assert.equal(contexts[0].sources.length,1);
+  button.disabled=false;button.matches=()=>true;click();await tick();assert.equal(contexts[0].sources.length,1);
+  button.matches=()=>false;button.closest=()=>({});click();await tick();assert.equal(contexts[0].sources.length,1);
+});
+
+test('slow-loading UI clicks expire instead of sounding during a later scene',async()=>{
+  const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});
+  const pending=audio.play('uiClick');
+  await new Promise(resolve=>setTimeout(resolve,220));file.resolve(response());
+  assert.equal(await pending,false);assert.equal(contexts[0].sources.length,0);
 });

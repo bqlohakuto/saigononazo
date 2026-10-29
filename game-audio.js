@@ -2,6 +2,7 @@
   "use strict";
 
   const sounds = {
+    uiClick: { url: "audio/se/ui_click.mp3", gain: 0.22 },
     highSchool: { url: "audio/se/high_school.mp3", gain: 0.30, loop: true },
     naturePark: { url: "audio/se/nature_park.mp3", gain: 0.25, loop: true },
     cityRoad: { url: "audio/se/city_road.mp3", gain: 0.25, loop: true },
@@ -158,15 +159,22 @@
 
   async function play(id) {
     if (!Object.prototype.hasOwnProperty.call(sounds, id)) return false;
+    // Authored one-shot effects take priority over a click from the same gesture.
+    if (id !== "uiClick" && !sounds[id].loop) stop("uiClick");
     stop(id);
     if (document.hidden) return false;
     const ready = unlock();
     if (!context || !master) return false;
-    const entry = {};
+    const entry = { requestedAt: Date.now() };
     playing.set(id, entry);
     try {
       const [running, buffer] = await Promise.all([ready, loadBuffer(id)]);
       if (playing.get(id) !== entry) return false;
+      // Never deliver a stale UI response after a slow load or mobile resume.
+      if (id === "uiClick" && Date.now() - entry.requestedAt > 200) {
+        stop(id);
+        return false;
+      }
       if (!running || !buffer || document.hidden || context.state !== "running") {
         stop(id);
         return false;
@@ -272,5 +280,16 @@
   document.addEventListener("visibilitychange", () => { if (document.hidden) pausePage(); });
   global.addEventListener("pagehide", pausePage);
   if (typeof global.fetch === "function") Object.keys(sounds).forEach(loadFile);
+  // One click event covers mouse, touch and native Enter/Space activation.
+  // Capture before handlers replace/remove their buttons; never bind touch + click.
+  document.addEventListener("click", event => {
+    const button = event.target?.closest?.("button,[role='button']");
+    if (!button || button.disabled || button.getAttribute("aria-disabled") === "true" ||
+        button.closest("[inert],[hidden],[aria-hidden='true']")) return;
+    // Preserve instruments, scene interactions, and the quiet rhythm of dialogue.
+    // data-ui-sound lets future controls explicitly opt out of the common sound.
+    if (button.matches(".object,.item-object,.late-object,.r5-scene-target,.r7-target,.piano-note-key,[data-note],#playMelodyButton,.next-button,.skip-button,#r5FridgeUpper,#r5FridgeLower,[data-ui-sound='off']")) return;
+    void play("uiClick");
+  }, { capture: true });
   global.GameAudio = { createEndingTrack, releaseEndingTrack, fadeForEnding, unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes,syncMemoryAmbience,stopMemoryAmbience,setMusic,syncSceneMusic,resumeMusic };
 })(window);

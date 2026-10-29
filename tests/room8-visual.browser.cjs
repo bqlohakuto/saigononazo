@@ -44,9 +44,10 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
    await p.screenshot({path:path.join(out,'room08-'+spec.name+'-dissolve.png')});
    await finish();assert.equal((await saved()).puzzleReady,true);
    // H01: autosave supports mid-dialogue Continue above. Manual SAVE/LOAD uses the exploration HUD.
-   assert.ok(await p.locator('#gameplayHud [data-gameplay="save"]').isVisible(),
-     'puzzle exploration exposes the supported SAVE control');
-   await click('#gameplayHud [data-gameplay="save"]');
+   const settingsButton=p.locator('.gameplay-hud-actions').getByRole('button',{name:'設定',exact:true});
+   assert.ok(await settingsButton.isVisible(),'puzzle exploration exposes the supported settings control');
+   await settingsButton.click();
+   await p.locator('.design-panel[aria-label="設定"] .design-actions').getByRole('button',{name:'セーブ',exact:true}).click();
    await p.locator('.save-slot-panel[aria-label="セーブ"]').waitFor();
    assert.equal(await p.locator('.save-slot-action').nth(2).textContent(),'セーブ','third slot starts empty even after legacy save migration');
    await p.locator('.save-slot-action').nth(2).click();
@@ -55,7 +56,8 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
    assert.equal(manualSave.rooms.room08.puzzleReady,true,'manual save keeps the puzzle-ready checkpoint');
    await click('.save-slot-close');
    assert.equal(await p.locator('#r8PaperImage').isVisible(),true,'closing SAVE returns to exploration');
-   await click('#gameplayHud [data-gameplay="load"]');
+   await settingsButton.click();
+   await p.locator('.design-panel[aria-label="設定"] .design-actions').getByRole('button',{name:'ロード',exact:true}).click();
    await p.locator('.save-slot-panel[aria-label="ロード"]').waitFor();
    await p.locator('.save-slot-action').nth(2).click();
    await p.locator('.save-slot-action.is-confirm').click();

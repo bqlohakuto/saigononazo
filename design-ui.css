@@ -2751,10 +2751,12 @@ body{background:#0b1322!important;display:grid;place-items:center}
 
 /* Cleared title: the archived handwriting is almost white on white. Invert its
    pale strokes into a dark backing, then screen-blend only the strokes. */
-#game .title-cleared .title-logo{mix-blend-mode:normal}
-#game .title-cleared:not(.title-art-loading):not(.title-art-fallback) .title-logo img{
- filter:invert(1) brightness(80);mix-blend-mode:screen;
+#game .title-cleared:not(.title-art-loading):not(.title-art-fallback){
+ background-image:url("images/ui/title-cleared-background-v2.png")!important;
+ background-size:100% 100%!important;
 }
+#game .title-cleared .title-logo{filter:invert(1) brightness(80);mix-blend-mode:screen}
+#game .title-cleared .title-logo img{mix-blend-mode:normal}
 #game .title-cleared .title-menu{mix-blend-mode:normal;gap:6px}
 #game .title-cleared .title-menu button:not(#testRoomButton){
  height:clamp(34px,5.2cqh,56px);background:rgba(18,15,19,.72);

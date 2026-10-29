@@ -97,6 +97,8 @@ test('H02: room five completion records only visible lines until the code is sho
   // Players can dismiss the full-screen panel before its final animation:
   // the follow-up scene must display the number before registering it.
   h.click('.r5-board-panel .device-close');
+  assert.doesNotMatch(h.q('#r5Progress').textContent,/8194/,
+    'The offscreen accessibility progress must not announce the code early');
   assert.match(h.q('.r5-door-reveal-caption').textContent,/8194/,
     'Early close still visibly reveals the four-digit code');
   assert(h.w.GameLog.list().some(entry=>entry.id==='r5_board_complete_digits'&&entry.text==='8194'),

@@ -20,6 +20,7 @@
     naturePark: { url: "audio/se/nature_park.mp3", gain: 0.25, loop: true },
     cityRoad: { url: "audio/se/city_road.mp3", gain: 0.25, loop: true },
     intersection: { url: "audio/se/intersection.mp3", gain: 0.30, loop: true },
+    memoryMusic: { url: "audio/bgm/memories.mp3", gain: 0.22, loop: true, category: "bgm" },
     titleMusic: { url: "audio/bgm/title.mp3", gain: 0.35, loop: true, category: "bgm" },
     explorationMusic: { url: "audio/bgm/exploration.mp3", gain: 0.35, loop: true, category: "bgm" },
     cherryWind: { url: "audio/se/cherry_wind.wav", gain: 0.25, loop: true },
@@ -257,10 +258,14 @@
     } catch (_) {return false;}
   }
 
-  const musicIds=["titleMusic","explorationMusic"];
+  const musicIds=["titleMusic","explorationMusic","memoryMusic"];
   function setMusic(id){
     desiredMusic=musicIds.includes(id)?id:null;
-    musicIds.forEach(other=>{if(other!==desiredMusic)stop(other)});
+    musicIds.forEach(other=>{
+      if(other===desiredMusic)return;
+      if(other==="memoryMusic")fadeOut(other,450);else stop(other);
+    });
+    if(desiredMusic&&playing.get(desiredMusic)?.fading)stop(desiredMusic);
     resumeMusic();
   }
   function resumeMusic(){if(desiredMusic&&!playing.has(desiredMusic))play(desiredMusic);}
@@ -268,8 +273,12 @@
   function syncSceneMusic(scene,logId=""){
     if(scene==="title"){setMusic("titleMusic");return;}
     if(scene==="opening"){setMusic(null);return;}
-    const memory=/^(?:room1_memory_|room1_piano_correct(?:_|$)|room2_memory_|room2_final_|room3_flashback_|room3_final_ringtone(?:_|$)|r4f\d|r5m|r5_memory_|r6_memory_|r7_mem_)/.test(logId);
-    if(memory){setMusic(null);return;}
+    const memory=/^(?:room1_memory_|room1_piano_correct(?:_|$)|room2_memory_|room2_final_|room3_flashback_|room3_final_ringtone(?:_|$)|r4f\d|r5m|r5_memory_|r6_memory_|r6_final_signal(?:_|$)|r7_mem_)/.test(logId);
+    if(memory){
+      const room1=/^room1_/.test(logId);
+      const accident=/^r7_mem_(\d{2})(?:_|$)/.exec(logId);
+      setMusic(room1||(accident&&Number(accident[1])>=26)?null:"memoryMusic");return;
+    }
     setMusic(/^room0[1-7]$/.test(scene)?"explorationMusic":null);
   }
 

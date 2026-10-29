@@ -244,17 +244,18 @@ test('stopping or leaving during ambience decoding cancels playback and permits 
  audio.stopAll();audio.syncMemoryAmbience('room3_flashback_51');await tick();assert.equal(contexts[0].sources.length,2);
 });
 
-test('title and exploration music switch once, stay continuous across rooms, and stop in memories',async()=>{
- const {audio,contexts}=harness();
- audio.syncSceneMusic('title');await tick();const c=contexts[0];assert.equal(c.sources[0].loop,true);
+test('title, exploration and memory music follow scene boundaries without restarting within a phase',async()=>{
+ const {audio,contexts}=harness();audio.syncSceneMusic('title');await tick();const c=contexts[0];
  audio.syncSceneMusic('title');await tick();assert.equal(c.sources.length,1);
  audio.syncSceneMusic('opening');assert.equal(c.sources[0].disconnected,true);
- audio.syncSceneMusic('room01');await tick();assert.equal(c.sources.length,2);
+ audio.syncSceneMusic('room01');await tick();const exploration=c.sources.at(-1);
  audio.syncSceneMusic('room07','r7_book_01');await tick();assert.equal(c.sources.length,2);
- audio.syncSceneMusic('room01','room1_piano_correct_04');assert.equal(c.sources[1].disconnected,true);
- audio.syncSceneMusic('room03','room3_flashback_34');await tick();assert.equal(c.sources.length,2);
- audio.syncSceneMusic('room03','room3_after_01');await tick();assert.equal(c.sources.length,3);
- audio.syncSceneMusic('room08');assert.equal(c.sources[2].disconnected,true);
+ audio.syncSceneMusic('room01','room1_piano_correct_04');assert.equal(exploration.disconnected,true);
+ audio.syncSceneMusic('room03','room3_flashback_34');await tick();const memory=c.sources.at(-1);
+ assert.equal(memory.loop,true);assert.deepEqual(c.gains.at(-1).gain.events.at(-1),['ramp',0.22,12.4]);
+ audio.syncSceneMusic('room03','room3_flashback_35');await tick();assert.equal(c.sources.length,3);
+ audio.syncSceneMusic('room03','room3_after_01');await tick();assert.equal(memory.stopAt,12.45);assert.equal(c.sources.length,4);
+ audio.syncSceneMusic('room08');assert.equal(c.sources.at(-1).disconnected,true);
 });
 test('BGM and ambience obey separate categories, including mute during fade-in',async()=>{
  const {audio,contexts}=harness();audio.setCategoryVolumes(0.2,0.4);
@@ -491,10 +492,10 @@ test('answering or leaving while ringtone decodes cancels it; ringtone follows S
 });
 
 
-test('the ringtone source stays inside memory music selection without restarting exploration BGM',async()=>{
+test('ringtone source keeps the same memory music instead of restarting exploration BGM',async()=>{
  const {audio,contexts}=harness();
  for(const id of ['room3_flashback_04','room3_final_ringtone','room3_final_ringtone_01','room3_flashback_04_call'])audio.syncSceneMusic('room03',id);
- await tick();assert.equal(contexts.length,0);
+ await tick();assert.equal(contexts[0].sources.length,1);assert.deepEqual(contexts[0].gains.at(-1).gain.events.at(-1),['ramp',0.22,12.4]);
 });
 
 
@@ -572,4 +573,28 @@ test('item placement replaces click and previous placement while preserving BGM 
  assert.equal(click.disconnected,true);assert.equal(c.gains.at(-1).gain.value,0.30*0.4);
  await audio.play('itemPlace');assert.equal(first.disconnected,true);const second=c.sources.at(-1);
  await audio.play('answerCorrect');assert.equal(second.disconnected,true);assert.equal(music.disconnected,undefined);
+});
+
+
+test('shared memories include short recollections but preserve room-one performance, accident, hospital and ending',async()=>{
+ const {audio,contexts}=harness();
+ for(const id of ['room1_memory_01','room1_piano_correct_04'])audio.syncSceneMusic('room01',id);
+ await tick();assert.equal(contexts.length,0);
+ for(const id of ['room2_memory_016','room2_final_hanamaru','room3_flashback_04','r4f1','r5m001','r5_memory_01','r6_memory_full_051','r6_final_signal','r7_mem_rabbit_01','r7_mem_25'])audio.syncSceneMusic('room07',id);
+ await tick();const c=contexts[0],memory=c.sources[0];assert.equal(c.sources.length,1);
+ audio.syncSceneMusic('room07','r7_mem_26');assert.equal(memory.stopAt,12.45);
+ for(const id of ['r7_mem_32','r7_mem_35','r7_mem_37','r8_epilogue_01','r8_memory_truth_03'])audio.syncSceneMusic('room08',id);
+ await tick();assert.equal(c.sources.length,1);
+});
+
+test('memory music follows BGM mute, resumes after interruption, and can re-enter during its fade',async()=>{
+ const {audio,contexts}=harness();audio.setCategoryVolumes(0,1);audio.syncSceneMusic('room03','room3_flashback_01');await tick();const c=contexts[0];
+ assert.deepEqual(c.gains.at(-1).gain.events.at(-1),['ramp',0,12.4]);audio.setCategoryVolumes(0.5,1);assert.equal(c.gains.at(-1).gain.value,0.11);
+ c.state='interrupted';c.emit('statechange');audio.resumeMusic();await tick();assert.equal(c.sources.length,2);
+ audio.syncSceneMusic('room08');audio.syncSceneMusic('room03','room3_flashback_02');await tick();assert.equal(c.sources.length,3);
+});
+
+test('leaving a memory before its music finishes loading prevents a stale loop',async()=>{
+ const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});
+ audio.syncSceneMusic('room03','room3_flashback_01');audio.syncSceneMusic('room08');file.resolve(response());await tick();assert.equal(contexts[0].sources.length,0);
 });

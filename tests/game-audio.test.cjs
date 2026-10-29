@@ -374,3 +374,27 @@ test('authored melody cancels result feedback, including while the result is sti
  file.resolve(response());assert.equal(await result,false);assert.equal(await melody,true);
  assert.equal(contexts[0].sources.length,1);
 });
+
+
+test('lever replaces UI click, follows SE volume and yields to result without stopping BGM',async()=>{
+ const {audio,contexts}=harness();audio.setCategoryVolumes(0.5,0.4);
+ await audio.play('titleMusic');const c=contexts[0],music=c.sources[0];
+ await audio.play('uiClick');const click=c.sources.at(-1);
+ await audio.play('leverPull');const lever=c.sources.at(-1);
+ assert.equal(click.disconnected,true);assert.equal(c.gains.at(-1).gain.value,0.35*0.4);
+ await audio.play('answerIncorrect');assert.equal(lever.disconnected,true);assert.equal(music.disconnected,undefined);
+ audio.setCategoryVolumes(0.5,0);await audio.play('leverPull');assert.equal(c.gains.at(-1).gain.value,0);
+});
+
+test('lever waiting for decoding is cancelled by result or page hide, and expires after 200ms',async()=>{
+ for(const action of ['result','hide','slow']){
+  const file=deferred();const {audio,contexts,window}=harness({fetch:()=>file.promise});
+  const lever=audio.play('leverPull');let result;
+  if(action==='result')result=audio.play('answerCorrect');
+  if(action==='hide')window.emit('pagehide');
+  if(action==='slow')await new Promise(resolve=>setTimeout(resolve,220));
+  file.resolve(response());assert.equal(await lever,false);
+  if(result)assert.equal(await result,true);
+  assert.equal(contexts[0].sources.length,action==='result'?1:0);
+ }
+});

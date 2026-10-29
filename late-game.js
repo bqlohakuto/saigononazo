@@ -1258,6 +1258,7 @@
     if(color!==(room6State.moves.length%2===0?'W':'G')){showRoomDialog([line('r6_turn','システム','現在の手番は'+(room6State.moves.length%2===0?'白':'黒')+'。')]);return}
     const previous=room6State.board,placed=room6State.current,next=r6Place(previous,placed,color);
     if(!next){showRoomDialog([line('r6_illegal','システム','この位置では石を返せない。')]);return}
+    globalThis.GameAudio?.play?.("leverPull");
     room6State.moves.push({id:placed,color});room6State.board=next;saveGame();renderR6();
     const turn=room6State.moves.length;
     const afterFlip=()=>{

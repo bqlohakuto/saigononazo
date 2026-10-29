@@ -4,6 +4,7 @@
   const sounds = {
     answerCorrect: { url: "audio/se/answer_correct.mp3", gain: 0.30 },
     answerIncorrect: { url: "audio/se/answer_incorrect.mp3", gain: 0.40 },
+    leverPull: { url: "audio/se/lever_pull.mp3", gain: 0.35 },
     uiClick: { url: "audio/se/ui_click.mp3", gain: 0.22 },
     highSchool: { url: "audio/se/high_school.mp3", gain: 0.30, loop: true },
     naturePark: { url: "audio/se/nature_park.mp3", gain: 0.25, loop: true },
@@ -170,6 +171,8 @@
     if (id === "answerCorrect" || id === "answerIncorrect") {
       stop(id === "answerCorrect" ? "answerIncorrect" : "answerCorrect");
     }
+    // Judgement and story cues take over from the mechanical lever sound.
+    if (id !== "uiClick" && id !== "leverPull" && !sounds[id].loop) stop("leverPull");
     stop(id);
     if (document.hidden) return false;
     const ready = unlock();
@@ -180,7 +183,7 @@
       const [running, buffer] = await Promise.all([ready, loadBuffer(id)]);
       if (playing.get(id) !== entry) return false;
       // Never deliver a stale UI response after a slow load or mobile resume.
-      if ((id === "uiClick" && Date.now() - entry.requestedAt > 200) ||
+      if (((id === "uiClick" || id === "leverPull") && Date.now() - entry.requestedAt > 200) ||
           (/^answer(?:Correct|Incorrect)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
         stop(id);
         return false;
@@ -298,7 +301,7 @@
         button.closest("[inert],[hidden],[aria-hidden='true']")) return;
     // Preserve instruments, scene interactions, and the quiet rhythm of dialogue.
     // data-ui-sound lets future controls explicitly opt out of the common sound.
-    if (button.matches(".object,.item-object,.late-object,.r5-scene-target,.r7-target,.piano-note-key,[data-note],#playMelodyButton,.next-button,.skip-button,#r5FridgeUpper,#r5FridgeLower,[data-ui-sound='off']")) return;
+    if (button.matches(".room2-physical-lever,#r6White,#r6Black,.object,.item-object,.late-object,.r5-scene-target,.r7-target,.piano-note-key,[data-note],#playMelodyButton,.next-button,.skip-button,#r5FridgeUpper,#r5FridgeLower,[data-ui-sound='off']")) return;
     void play("uiClick");
   }, { capture: true });
   global.GameAudio = { createEndingTrack, releaseEndingTrack, fadeForEnding, unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes,syncMemoryAmbience,stopMemoryAmbience,setMusic,syncSceneMusic,resumeMusic };

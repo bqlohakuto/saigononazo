@@ -427,7 +427,7 @@ function showSecondRoomPuzzle(){
  });
  overlay.querySelector(".room2-submit").addEventListener("animationend",event=>{if(event.animationName==="room2LeverPull")event.currentTarget.classList.remove("is-pulling")});
  overlay.querySelector(".room2-submit").addEventListener("click",()=>{
-  if(isChallenge&&room2State.attempts>=8)return;
+  if(pendingMemo||pendingResolution||(isChallenge&&room2State.attempts>=8))return;
   const physicalLever=overlay.querySelector(".room2-submit");
   physicalLever.classList.remove("is-pulling");
   void physicalLever.offsetWidth;
@@ -437,6 +437,7 @@ function showSecondRoomPuzzle(){
    feedback.textContent="この配置は判定済みです。";
    return;
   }
+  globalThis.GameAudio?.play?.("leverPull");
   const result=room2Evaluate(room2State.guess,room2State.answer);room2State.attempts++;
   // The state is saved immediately; the paper entry is revealed later.
   const beforeCount=room2State.history.length;

@@ -100,3 +100,56 @@ test("malformed or unknown legacy saves are rejected safely", () => {
   assert.equal(SaveData.normalize({ scene: "missing" }), null);
   assert.equal(SaveData.normalize({ saveVersion: 2, currentScene: "" }), null);
 });
+
+
+test("H01: slot loading clears all stale live room states before restored scene autosaves", () => {
+  // Use the real resumeGame() rather than a duplicate of its clearing rules.
+  const script = fs.readFileSync(path.join(__dirname, "..", "script.js"), "utf8");
+  const start = script.indexOf("function resumeGame(){");
+  const end = script.indexOf("function showSettings(){", start);
+  assert.ok(start>=0 && end>start, "The live resume entry point exists");
+  const resumeSource = script.slice(start,end);
+  const roomIds = Array.from({length:8}, (_,i)=>"room"+String(i+1).padStart(2,"0"));
+  const sceneNames = ["opening", ...roomIds];
+  for (const scene of sceneNames) {
+    const targetRooms = {room01:{checkpoint:"slot B room 1"},[scene]:{checkpoint:"slot B target"}};
+    const target = {
+      playerName:"別のセーブ",currentScene:scene,opening:{index:7},rooms:targetRooms,
+      logs:[{id:"slot-b-log",text:"Restored log"}]
+    };
+    const staleState = Object.fromEntries(roomIds.map(id=>[id,{checkpoint:"slot A "+id}]));
+    const context = {
+      firstRoomState:staleState.room01,room2State:staleState.room02,
+      room3State:staleState.room03,room4State:staleState.room04,
+      room5State:staleState.room05,room6State:staleState.room06,
+      room7State:staleState.room07,room8State:staleState.room08,
+      roomStates:{...staleState},playerName:"前のセーブ",openingIndex:100,currentScene:"room08",
+      readSavedGame:()=>target,GameAudio:{stopAll(){}},
+      GameLog:{restore(value){context.restoredLogs=value}},
+      showTitle(){throw Error("The slot should load")},
+      loaded:null
+    };
+    function render(room,state){
+      context.loaded={room,state};
+      // Every room saves a checkpoint during its entry or first dialogue;
+      // still-live states from the prior slot must not overwrite it.
+      for(const [id,key] of roomIds.map((id,i)=>[id,i===0?"firstRoomState":"room"+(i+1)+"State"])){
+        if(context[key]!==undefined)context.roomStates[id]=context[key];
+      }
+    }
+    for (const id of roomIds) {
+      const n=Number(id.slice(-2));
+      const words=["","First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eighth"];
+      context["show"+words[n]+"Room"]=state=>render(id,state);
+    }
+    context.showOpening=index=>render("opening",index);
+    vm.runInNewContext(resumeSource+"\nresumeGame();",context);
+    assert.equal(context.playerName,target.playerName,scene+": the selected player's name loads");
+    assert.equal(context.currentScene,scene,scene+": the selected scene loads");
+    assert.equal(context.openingIndex,7,scene+": the title progress loads");
+    assert.equal(context.loaded.room,scene,scene+": the correct scene renderer is invoked");
+    assert.equal(context.loaded.state===targetRooms[scene] || (scene==="opening"&&context.loaded.state===7),true,scene+": the checkpoint is supplied");
+    assert.deepEqual(JSON.parse(JSON.stringify(context.roomStates)),targetRooms,scene+": stale room progress is never mixed into another slot");
+    assert.deepEqual(context.restoredLogs,target.logs,scene+": log history comes from the selected slot");
+  }
+});

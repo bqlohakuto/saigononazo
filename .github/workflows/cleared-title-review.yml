@@ -1,7 +1,7 @@
 name: Cleared title review
 on:
   push:
-    branches: [codex/post-clear-title-20261030]
+    branches: [codex/post-clear-title-20261030, codex/fix-cleared-title-visible-20261030]
 permissions:
   contents: read
 jobs:

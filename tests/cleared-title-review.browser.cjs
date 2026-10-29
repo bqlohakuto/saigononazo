@@ -17,7 +17,7 @@ const fs=require('node:fs');
    localStorage.clear();
    if(cleared)localStorage.setItem('saigononazo-guide-unlocked-v1','1');
   },spec.cleared);
-  if(spec.fail)await page.route('**/title-cleared-background-v2.png',route=>route.abort());
+  if(spec.fail)await page.route('**/title-cleared-background-v2.png*',route=>route.abort());
   await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
   await page.waitForSelector('.title-home:not(.title-art-loading)',{timeout:20000});
   await page.evaluate(()=>document.fonts.ready);
@@ -26,12 +26,15 @@ const fs=require('node:fs');
    assert.equal(await h1.locator('img').getAttribute('src'),'images/ui/title-cleared-logo.jpg');
    assert.equal(await h1.locator('img').getAttribute('alt'),'最後の謎が解けても');
    if(!spec.fail){
-    assert.equal(await h1.evaluate(el=>getComputedStyle(el).filter),'grayscale(1) invert(1) brightness(80)');
+    assert.equal(await h1.evaluate(el=>getComputedStyle(el).filter),'none');
+    assert.match(await h1.locator('img').evaluate(el=>getComputedStyle(el).filter),/cleared-title-ink/);
     assert.equal(await page.locator('.title-menu').evaluate(el=>getComputedStyle(el).mixBlendMode),'normal');
    }
    assert(await page.locator('.title-cleared').count());
    if(spec.fail){
     assert(await page.locator('.title-art-fallback').count());
+    assert.equal(await h1.evaluate(el=>getComputedStyle(el).filter),'none','fallback text must not be inverted to black');
+    assert.equal(await h1.locator('.title-text-fallback').innerText(),'最後の謎が解けても');
     const guide=page.locator('#puzzleGuideButton');
     await guide.waitFor();
     assert.equal(await guide.innerText(),'謎の解説');
@@ -49,6 +52,14 @@ const fs=require('node:fs');
   assert(titleBox.y+titleBox.height<menuBox.y,'title and menu do not overlap');
   fs.mkdirSync('artifacts/title-clear-review',{recursive:true});
   await page.screenshot({path:`artifacts/title-clear-review/${spec.name}.png`});
+  if(spec.cleared&&!spec.fail){
+   const clip={x:Math.round(gameBox.x+gameBox.width*.85),y:Math.round(gameBox.y+gameBox.height*.8),width:8,height:8};
+   const withTitle=await page.screenshot({clip});
+   await h1.evaluate(el=>el.style.visibility='hidden');
+   const withoutTitle=await page.screenshot({clip});
+   assert(withTitle.equals(withoutTitle),'title filter must not paint white bands outside the logo');
+   await h1.evaluate(el=>el.style.visibility='');
+  }
   await page.locator('#settingsButton').click();
   assert(await page.locator('#game').innerText().then(s=>s.includes('設定')));
   assert.deepEqual(errors,[]);

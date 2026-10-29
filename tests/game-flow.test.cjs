@@ -925,3 +925,34 @@ test("phone changes only its LCD while list, detail and next mail retain the sam
  h.click('[data-index="3"]');assert.equal(h.query(".phone-next-mail").disabled,true);
  h.key("Escape");assert.equal(h.game.querySelector(".device-overlay"),null);
 });
+
+test("H01: stale piano result timer must not re-open old memory after switching save slot",()=>{
+  const h=harness();
+  h.room({...unlockedItems,...allMail});
+  h.run("showPianoScreen()");
+  h.query("#melodyInput").value="ソラファミドレドシ";
+  h.click("#playMelodyButton");
+  assert.equal(h.state.melodySolved,true,"correct melody schedules the original delay");
+  assert.ok(h.timers.size>0,"A timer is pending when the puzzle succeeds");
+  // A different save slot replaces the entire room before the 600ms callback.
+  h.run("showFirstRoom({hanaIntroduced:true,questionSeen:true,viewedWall:'front',melodySolved:false,doorUnlocked:false})");
+  h.flushObservers();
+  assert.equal(h.state.melodySolved,false,"the new slot is not solved");
+  assert.equal(h.game.querySelector(".device-overlay"),null,"the old piano is gone");
+  h.tick(700);
+  assert.equal(h.state.melodySolved,false,"the old piano does not solve the loaded slot");
+  assert.equal(h.game.querySelector(".room-dialog-overlay"),null,"the stale timer must not start the previous slot's memory");
+  assert.equal(h.game.querySelector(".device-overlay"),null,"the old modal must not reopen");
+  assert.equal(h.query(".room").inert,false,"the newly loaded room remains interactive");
+});
+
+test("H01: normal piano result delay still starts the memory",()=>{
+  const h=harness();
+  h.room({...unlockedItems,...allMail});
+  h.run("showPianoScreen()");
+  h.query("#melodyInput").value="ソラファミドレドシ";
+  h.click("#playMelodyButton");
+  h.tick(650);
+  assert.ok(h.game.querySelector(".room-dialog-overlay"),"the memory starts when the correct slot remains active");
+  assert.equal(h.state.melodySolved,true);
+});

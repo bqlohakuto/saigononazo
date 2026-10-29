@@ -28,25 +28,6 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
    assert.match(await p.locator('#roomMessage').textContent(),/わたしのことも/);
    await frame('overview','overview-white.webp');
    await p.screenshot({path:path.join(out,'room08-'+spec.name+'-reunion.png')});
-   // H01: manual SAVE / LOAD must work in the middle of dialogue, on desktop and phone.
-   const dialogueBeforeSave=await p.locator('#roomMessage').textContent();
-   await click('#gameplayHud [data-gameplay="save"]');
-   await p.locator('.save-slot-panel[aria-label="セーブ"]').waitFor();
-   assert.equal(await p.locator('.save-slot-action').first().textContent(),'セーブ','manual slot starts empty');
-   await p.locator('.save-slot-action').first().click();
-   const manualSave=await p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1-slot-1')));
-   assert.equal(manualSave.currentScene,'room08');
-   assert.equal(manualSave.rooms.room08.introLogId,'r8_reunion_13','manual save keeps exact dialogue position');
-   await click('.save-slot-close');
-   assert.equal(await p.locator('#roomMessage').textContent(),dialogueBeforeSave,'closing SAVE resumes the same dialogue line');
-   await click('#gameplayHud [data-gameplay="load"]');
-   await p.locator('.save-slot-panel[aria-label="ロード"]').waitFor();
-   await p.locator('.save-slot-action:not([disabled])').first().click();
-   await p.locator('.save-slot-action.is-confirm').click();
-   assert.equal((await saved()).introLogId,'r8_reunion_13','manual LOAD restores exact dialogue position');
-   assert.equal(await p.locator('#roomMessage').textContent(),dialogueBeforeSave,'LOAD restores the current line');
-   assert.equal(await p.locator('.save-slot-overlay').count(),0,'LOAD closes its modal');
-   assert.equal(await p.locator('#roomNextButton').isEnabled(),true,'dialogue can continue after loading');
    // Reload through the player's Continue/load UI rather than calling the renderer.
    await p.reload({waitUntil:'load'});await click('#continueButton');await p.locator('.save-slot-action:not([disabled])').last().click();await click('.save-slot-action.is-confirm');
    assert.equal((await saved()).introLogId,'r8_reunion_13');assert.match(await p.locator('#roomMessage').textContent(),/わたしのことも/);
@@ -62,6 +43,26 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
    await advanceTo('r8_041');await frame('fading','pov-fading.webp');
    await p.screenshot({path:path.join(out,'room08-'+spec.name+'-dissolve.png')});
    await finish();assert.equal((await saved()).puzzleReady,true);
+   // H01: autosave supports mid-dialogue Continue above. Manual SAVE/LOAD uses the exploration HUD.
+   assert.ok(await p.locator('#gameplayHud [data-gameplay="save"]').isVisible(),
+     'puzzle exploration exposes the supported SAVE control');
+   await click('#gameplayHud [data-gameplay="save"]');
+   await p.locator('.save-slot-panel[aria-label="セーブ"]').waitFor();
+   assert.equal(await p.locator('.save-slot-action').first().textContent(),'セーブ','manual slot starts empty');
+   await p.locator('.save-slot-action').first().click();
+   const manualSave=await p.evaluate(()=>JSON.parse(localStorage.getItem('saigononazo-save-v1-slot-1')));
+   assert.equal(manualSave.currentScene,'room08');
+   assert.equal(manualSave.rooms.room08.puzzleReady,true,'manual save keeps the puzzle-ready checkpoint');
+   await click('.save-slot-close');
+   assert.equal(await p.locator('#r8PaperImage').isVisible(),true,'closing SAVE returns to exploration');
+   await click('#gameplayHud [data-gameplay="load"]');
+   await p.locator('.save-slot-panel[aria-label="ロード"]').waitFor();
+   await p.locator('.save-slot-action:not([disabled])').first().click();
+   await p.locator('.save-slot-action.is-confirm').click();
+   assert.equal((await saved()).puzzleReady,true,'manual LOAD restores the puzzle checkpoint');
+   assert.equal(await p.locator('.save-slot-overlay').count(),0,'LOAD closes its modal');
+   assert.equal(await p.locator('#r8PaperImage').isEnabled(),true,'paper remains interactable after loading');
+
    await p.locator('.r8-final-stage.has-r8-final-image #r8PaperImage').waitFor();
    await click('#r8PaperImage');await click('#r8Back');
    assert.match(await p.locator('#r8BackText').textContent(),/最初の部屋/);

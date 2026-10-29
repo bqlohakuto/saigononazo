@@ -30,7 +30,7 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
    await p.screenshot({path:path.join(out,'room08-'+spec.name+'-reunion.png')});
    // H01: manual SAVE / LOAD must work in the middle of dialogue, on desktop and phone.
    const dialogueBeforeSave=await p.locator('#roomMessage').textContent();
-   await click('.manual-data-button[data-action="save"]');
+   await click('#gameplayHud [data-gameplay="save"]');
    await p.locator('.save-slot-panel[aria-label="セーブ"]').waitFor();
    assert.equal(await p.locator('.save-slot-action').first().textContent(),'セーブ','manual slot starts empty');
    await p.locator('.save-slot-action').first().click();
@@ -39,7 +39,7 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
    assert.equal(manualSave.rooms.room08.introLogId,'r8_reunion_13','manual save keeps exact dialogue position');
    await click('.save-slot-close');
    assert.equal(await p.locator('#roomMessage').textContent(),dialogueBeforeSave,'closing SAVE resumes the same dialogue line');
-   await click('.manual-data-button[data-action="load"]');
+   await click('#gameplayHud [data-gameplay="load"]');
    await p.locator('.save-slot-panel[aria-label="ロード"]').waitFor();
    await p.locator('.save-slot-action:not([disabled])').first().click();
    await p.locator('.save-slot-action.is-confirm').click();

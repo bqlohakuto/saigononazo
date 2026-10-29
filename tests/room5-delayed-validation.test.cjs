@@ -81,3 +81,27 @@ test('arbitrary partial placements survive save/load, while old correct placemen
   assert.equal(h.save().codeRevealed,false);
  }finally{await close(h)}
 });
+
+
+test('H02: room five completion records only visible lines until the code is shown',async()=>{
+ const h=start();try{
+  for(const id of items)put(h,id,correct[id]);
+  assert.equal(h.save().codeRevealed,true,'The finished panel is solved');
+  assert.equal(h.q('.r5-inlay-code').hidden,true,'Digits are not visible in the first animation frame');
+  const logged=()=>h.w.GameLog.list().filter(entry=>String(entry.id).startsWith('r5_board_complete_'));
+  assert.deepEqual(logged().map(entry=>entry.id),['r5_board_complete_01','r5_board_complete_02'],
+    'Only the opening two displayed lines enter the record immediately');
+  assert(!h.w.GameLog.list().some(entry=>entry.text==='8194'),
+    'The four-digit answer must not be in LOG before it is visibly revealed');
+
+  // Players can dismiss the full-screen panel before its final animation:
+  // the follow-up scene must display the number before registering it.
+  h.click('.r5-board-panel .device-close');
+  assert.match(h.q('.r5-door-reveal-caption').textContent,/8194/,
+    'Early close still visibly reveals the four-digit code');
+  assert(h.w.GameLog.list().some(entry=>entry.id==='r5_board_complete_digits'&&entry.text==='8194'),
+    'The revealed answer is now part of the record');
+  assert(!h.w.GameLog.list().some(entry=>entry.id==='r5_board_complete_07'),
+    'Later door-reveal narration is not logged before that animation');
+ }finally{await close(h)}
+});

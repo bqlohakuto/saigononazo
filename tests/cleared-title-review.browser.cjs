@@ -25,7 +25,13 @@ const fs=require('node:fs');
   if(spec.cleared){
    assert.equal(await h1.innerText(),'最後の謎が解けても');
    assert(await page.locator('.title-cleared').count());
-   if(spec.fail)assert(await page.locator('.title-art-fallback').count());
+   if(spec.fail){
+    assert(await page.locator('.title-art-fallback').count());
+    const guide=page.locator('#puzzleGuideButton');
+    await guide.waitFor();
+    assert.equal(await guide.innerText(),'謎の解説');
+    assert.equal(await guide.evaluate(el=>getComputedStyle(el,'::after').content),'none');
+   }
    else assert((await page.locator('.title-home').evaluate(el=>el.style.backgroundImage)).includes('title-cleared-background-v2.png'));
   }else{
    assert.equal(await h1.locator('img').getAttribute('alt'),'最後の謎が解けるまで');

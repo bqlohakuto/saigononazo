@@ -2,6 +2,7 @@
   "use strict";
 
   const sounds = {
+    textTyping: { url: "audio/se/message_text.mp3", gain: 0.30 },
     answerCorrect: { url: "audio/se/answer_correct.mp3", gain: 0.30 },
     answerIncorrect: { url: "audio/se/answer_incorrect.mp3", gain: 0.40 },
     itemPlace: { url: "audio/se/item_place.mp3", gain: 0.30 },
@@ -46,11 +47,25 @@
   let mapCue=null;
   let ringtoneActive=false;
   let constellationActive=false;
-  let lastTextTick=0,correctUntil=0;
+  let lastTextTick=-Infinity,correctUntil=0;
+  function stopTextTick(){stop("textTyping");lastTextTick=-Infinity;}
   function textTick(){
-    if(!context||context.state!=="running"||document.hidden||categoryVolumes.se===0)return;
-    const now=context.currentTime;if(now-lastTextTick<.055)return;lastTextTick=now;
-    try{const tone=context.createOscillator(),gain=context.createGain();tone.type="sine";tone.frequency.setValueAtTime(580,now);gain.gain.setValueAtTime(.018*categoryVolumes.se,now);gain.gain.exponentialRampToValueAtTime(.0001,now+.025);tone.connect(gain);gain.connect(master);tone.onended=()=>{tone.disconnect();gain.disconnect()};tone.start(now);tone.stop(now+.027)}catch(_){}
+    if(!context||context.state!=="running"||document.hidden||categoryVolumes.se===0)return false;
+    const now=context.currentTime;
+    if(now-lastTextTick<.055||playing.has("textTyping"))return false;
+    lastTextTick=now;
+    const entry={requestedAt:Date.now()};playing.set("textTyping",entry);
+    return loadBuffer("textTyping").then(buffer=>{
+      if(playing.get("textTyping")!==entry)return false;
+      if(!buffer||document.hidden||context.state!=="running"||Date.now()-entry.requestedAt>200){stop("textTyping");return false;}
+      entry.source=context.createBufferSource();entry.gain=context.createGain();
+      entry.source.buffer=buffer;entry.source.loop=false;
+      entry.gain.gain.value=sounds.textTyping.gain*categoryVolumes.se;
+      entry.source.connect(entry.gain);entry.gain.connect(master);
+      entry.source.onended=()=>{if(playing.get("textTyping")===entry)stop("textTyping");};
+      entry.source.start();
+      return true;
+    }).catch(()=>{if(playing.get("textTyping")===entry)stop("textTyping");return false;});
   }
   let endingTrack=null;
   function syncEndingVolume(){
@@ -380,5 +395,5 @@
     if (button.matches(".room2-physical-lever,#r6White,#r6Black,#r6MapToggle,.object,.item-object,.late-object,.r5-scene-target,.r7-target,.piano-note-key,[data-note],#playMelodyButton,.next-button,.skip-button,#r5FridgeUpper,#r5FridgeLower,[data-ui-sound='off']")) return;
     void play("uiClick");
   }, { capture: true });
-  global.GameAudio = { textTick,correctFeedbackRemaining:()=>Math.max(0,correctUntil-Date.now()),createEndingTrack, releaseEndingTrack, fadeForEnding, unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes,syncMemoryAmbience,stopMemoryAmbience,setMusic,syncSceneMusic,resumeMusic };
+  global.GameAudio = { textTick,stopTextTick,correctFeedbackRemaining:()=>Math.max(0,correctUntil-Date.now()),createEndingTrack, releaseEndingTrack, fadeForEnding, unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes,syncMemoryAmbience,stopMemoryAmbience,setMusic,syncSceneMusic,resumeMusic };
 })(window);

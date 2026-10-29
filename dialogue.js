@@ -56,6 +56,7 @@ const Dialogue=(()=>{
    },SKIP_DELAY);
   };
   const finishTyping=()=>{
+   if(typeof window!=="undefined")window.GameAudio?.stopTextTick?.();
    clearInterval(typingTimer);typingTimer=null;
    if(disposed)return;
    message.textContent=characters.join("");
@@ -198,7 +199,7 @@ const Dialogue=(()=>{
   }
   function dispose(){
    if(disposed)return;
-   disposed=true;clearInterval(typingTimer);clearAuto();clearSkip();skipEnabled=false;
+   disposed=true;if(typeof window!=="undefined")window.GameAudio?.stopTextTick?.();clearInterval(typingTimer);clearAuto();clearSkip();skipEnabled=false;
    nextButton.removeEventListener("click",manualAdvance);
    autoButton.removeEventListener("click",toggleAuto);
    if(skipButton){skipButton.removeEventListener("click",toggleSkip);skipButton.disabled=true;skipButton.setAttribute("aria-pressed","false")}
@@ -218,7 +219,7 @@ const Dialogue=(()=>{
    emitSkipChange(false,false);
    if(active===controller)active=null;
   }
-  const controller={advance:manualAdvance,dispose,toggleAuto,toggleSkip,suspend(){paused=true;clearAuto();clearSkip();clearInterval(typingTimer);typingTimer=null},resume(){if(disposed||!paused)return;paused=false;if(typing&&typingTick)typingTimer=setInterval(typingTick,Math.max(15,Number(getTextSpeed())||45));else if(skipEnabled)scheduleSkip();else scheduleAuto()}};active=controller;
+  const controller={advance:manualAdvance,dispose,toggleAuto,toggleSkip,suspend(){paused=true;if(typeof window!=="undefined")window.GameAudio?.stopTextTick?.();clearAuto();clearSkip();clearInterval(typingTimer);typingTimer=null},resume(){if(disposed||!paused)return;paused=false;if(typing&&typingTick)typingTimer=setInterval(typingTick,Math.max(15,Number(getTextSpeed())||45));else if(skipEnabled)scheduleSkip();else scheduleAuto()}};active=controller;
   nextButton.disabled=false;autoButton.disabled=false;
   nextButton.addEventListener("click",manualAdvance);
   autoButton.addEventListener("click",toggleAuto);

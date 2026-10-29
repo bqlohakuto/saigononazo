@@ -596,3 +596,33 @@ test('leaving a memory before its music finishes loading prevents a stale loop',
  const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});
  audio.syncSceneMusic('room03','room3_flashback_01');audio.syncSceneMusic('room08');file.resolve(response());await tick();assert.equal(contexts[0].sources.length,0);
 });
+
+
+test('provided message clip follows SE volume and never overlaps itself or interrupts a story cue',async()=>{
+ const urls=[];const {audio,contexts}=harness({fetch:async url=>{urls.push(url);return response();}});
+ await audio.unlock();audio.setCategoryVolumes(1,.5);await audio.play('answerCorrect');
+ const story=contexts[0].sources[0],first=audio.textTick();
+ assert.equal(audio.textTick(),false);assert.equal(await first,true);
+ const c=contexts[0],typing=c.sources[1];assert.equal(typing.loop,false);
+ assert.equal(c.gains.at(-1).gain.value,.15);assert.equal(story.disconnected,undefined);
+ assert(urls.some(url=>url.endsWith('audio/se/message_text.mp3')));
+ assert.equal(audio.textTick(),false);assert.equal(c.sources.length,2);
+ audio.stopTextTick();assert.equal(typing.disconnected,true);
+ assert.equal(await audio.textTick(),true);assert.equal(c.sources.length,3);
+});
+
+test('finishing text cancels an undecoded clip and the decoded sample remains reusable',async()=>{
+ const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});await audio.unlock();
+ const pending=audio.textTick();audio.stopTextTick();file.resolve(response());
+ assert.equal(await pending,false);assert.equal(contexts[0].sources.length,0);
+ assert.equal(await audio.textTick(),true);assert.equal(contexts[0].sources.length,1);
+ audio.stopAll();assert.equal(contexts[0].sources[0].disconnected,true);
+});
+
+test('muted, unsupported and hidden text stays silent without loading a clip',async()=>{
+ const h=harness({fetch:async()=>{throw Error('unexpected clip request')}});
+ assert.equal(h.audio.textTick(),false);await h.audio.unlock();h.audio.setCategoryVolumes(1,0);
+ assert.equal(h.audio.textTick(),false);h.audio.setCategoryVolumes(1,1);h.document.hidden=true;
+ assert.equal(h.audio.textTick(),false);assert.equal(h.contexts[0].sources.length,0);
+ const missing=harness({unsupported:true});assert.equal(missing.audio.textTick(),false);missing.audio.stopTextTick();
+});

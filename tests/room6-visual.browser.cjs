@@ -189,7 +189,7 @@ const mobileEngine=process.env.R6_MOBILE_ENGINE==='chromium'?chromium:webkit;
    assert.equal(await page.locator('#r6Next').count(),1,'F10: loading a completed room restores the door');
    await page.mouse.click(scene.x+scene.width*.92,scene.y+scene.height*.45);await finish();
    await page.locator('[data-r6-exit="proceed"]').click();
-   await page.waitForTimeout(900);
+   await page.waitForFunction(()=>currentScene==='room07');
    assert.equal(await page.evaluate(()=>currentScene),'room07','F10: proceed enters Room 7');
    assert.deepEqual(errors,[]);console.log('PASS',spec.name,'assets, fixed-view exits, map travel, F10 inspection/choice and Room 7 transition');
   }finally{await browser.close()}

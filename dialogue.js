@@ -22,7 +22,7 @@ const Dialogue=(()=>{
   let index=Number.isInteger(startIndex)?Math.max(0,Math.min(startIndex,lines.length-1)):0;
   let typingTimer=null,autoTimer=null,skipTimer=null,typing=false,disposed=false,logOpen=false,messageScrollTop=0,skipEnabled=false,currentWasRead=false,paused=false,typingTick=null;
   const hasLog=!!(logButton&&logArea&&dialog);
-  let message=null,characters=[];
+  let message=null,characters=[],advanceLockedUntil=0;
   const clearAuto=()=>{clearTimeout(autoTimer);autoTimer=null};
   const clearSkip=()=>{clearTimeout(skipTimer);skipTimer=null};
   const updateAutoButton=()=>{
@@ -67,6 +67,7 @@ const Dialogue=(()=>{
   function render(){
    clearAuto();clearSkip();clearInterval(typingTimer);typingTimer=null;
    const line=lines[index],kind=kindOf(line);
+   advanceLockedUntil=Date.now()+(typeof window!=="undefined"?window.GameAudio?.correctFeedbackRemaining?.()||0:0);
    currentWasRead=line.uiWasRead??(typeof isRead==="function"&&isRead(line)===true);
    if(skipEnabled&&!currentWasRead)skipEnabled=false;
    const displayedSpeaker=typeof window!=="undefined"&&line.speaker==="ハナ"?(window.HanaIdentity?.getName()||line.speaker):line.speaker;
@@ -95,13 +96,14 @@ const Dialogue=(()=>{
     if(disposed)return;
     count++;
     message.textContent=characters.slice(0,count).join("");
+    if(typeof window!=="undefined"&&kind!=="system"&&!/[\s、。！？…「」]/u.test(characters[count-1]||""))window.GameAudio?.textTick?.();
     if(count>=characters.length)finishTyping();
    };
    if(paused)return;
    typingTimer=setInterval(typingTick,Number.isFinite(speed)?Math.max(15,Math.min(100,speed)):45);
   }
   function advance(){
-   if(disposed||paused||logOpen)return;
+   if(disposed||paused||logOpen||Date.now()<advanceLockedUntil)return;
    clearAuto();
    if(typing){finishTyping();return}
    index++;

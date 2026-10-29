@@ -5,6 +5,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  const root=path.join(__dirname,'..'),dom=new JSDOM('<div id="game-container"><div id="game"></div></div>',{url:'https://game.test/',runScripts:'outside-only',pretendToBeVisual:true});
  const w=dom.window,ctx=dom.getInternalVMContext();w.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});w.scrollTo=()=>{};w.HTMLCanvasElement.prototype.getContext=()=>null;w.HTMLElement.prototype.scrollIntoView=function(){};
  for(const [,file]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<script src="([^?]+)\?/g))vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file});
+ w.GameAudio.correctFeedbackRemaining=()=>0;
  const run=s=>vm.runInContext(s,ctx),q=s=>w.document.querySelector(s),click=s=>{assert.ok(q(s),'control '+s);q(s).click()},saved=()=>JSON.parse(w.localStorage.getItem('saigononazo-save-v1')).rooms.room07;
  const finish=()=>{for(let n=0;n<500&&q('#roomNextButton');n++)click('#roomNextButton');assert.equal(q('#roomNextButton'),null, q('#roomNextButton')?'dialogue remains: '+q('#roomMessage')?.textContent+' disabled='+q('#roomNextButton').disabled:'')};
  run('settings.instantText=true;showSeventhRoom({})');finish();
@@ -98,13 +99,13 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
       assert.equal(q('.memory-background').getAttribute('src'),'images/background/memories/room05/dining-night.png');
       assert.equal(q('#game').dataset.memoryStage,'expressive');
       assert.ok(q('.room-dialog .memory-window-portrait .memory-girl'));
-      assert.equal(q('.memory-prop').dataset.kind,'notebook');assert.equal(q('.memory-prop').hidden,false);
+      assert.equal(q('.memory-prop').dataset.kind,'');assert.equal(q('.memory-prop').hidden,true);
       for(let n=0;n<80&&!saved().shortMemory.progress?.logId.startsWith('r7_mem_monkey_16');n++)click('#roomNextButton');
       const halfway=saved();assert.ok(halfway.shortMemory.progress.logId.startsWith('r7_mem_monkey_16'));
       assert.match(q('#roomMessage').textContent,/うん/);
       run('showSeventhRoom('+JSON.stringify(halfway)+')');
       assert.equal(saved().shortMemory.progress.logId,halfway.shortMemory.progress.logId,'the 2016 memory resumes at the same line');
-      assert.equal(q('.memory-prop').hidden,false,'the notebook remains open after resuming');
+      assert.equal(q('.memory-prop').hidden,true,'resuming does not reintroduce the removed notebook overlay');
       for(let n=0;n<60&&!saved().shortMemory.progress?.logId.startsWith('r7_mem_monkey_22_02');n++)click('#roomNextButton');
       assert.ok(saved().shortMemory.progress.logId.startsWith('r7_mem_monkey_22_02'));
       assert.match(q('#roomMessage').textContent,/彼女はノートを閉じ/);

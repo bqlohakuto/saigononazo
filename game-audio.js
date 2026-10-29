@@ -46,6 +46,12 @@
   let mapCue=null;
   let ringtoneActive=false;
   let constellationActive=false;
+  let lastTextTick=0,correctUntil=0;
+  function textTick(){
+    if(!context||context.state!=="running"||document.hidden||categoryVolumes.se===0)return;
+    const now=context.currentTime;if(now-lastTextTick<.055)return;lastTextTick=now;
+    try{const tone=context.createOscillator(),gain=context.createGain();tone.type="sine";tone.frequency.setValueAtTime(580,now);gain.gain.setValueAtTime(.018*categoryVolumes.se,now);gain.gain.exponentialRampToValueAtTime(.0001,now+.025);tone.connect(gain);gain.connect(master);tone.onended=()=>{tone.disconnect();gain.disconnect()};tone.start(now);tone.stop(now+.027)}catch(_){}
+  }
   let endingTrack=null;
   function syncEndingVolume(){
     if(endingTrack){
@@ -177,6 +183,7 @@
   }
 
   async function play(id) {
+    if(id==="answerCorrect")correctUntil=Date.now()+1800;
     if (!Object.prototype.hasOwnProperty.call(sounds, id)) return false;
     // Authored one-shot effects take priority over a click from the same gesture.
     if (id !== "uiClick" && !sounds[id].loop) stop("uiClick");
@@ -223,12 +230,14 @@
       entry.gain.connect(master);
       entry.source.onended = () => {
         if (playing.get(id) === entry) stop(id);
+        if(id==="memoryBand")resumeMusic();
       };
       entry.source.start();
       if(typeof document.dispatchEvent==="function"&&typeof global.CustomEvent==="function")document.dispatchEvent(new global.CustomEvent("game:sound",{detail:{id}}));
       return true;
     } catch (_) {
       if (playing.get(id) === entry) stop(id);
+      if(id==="memoryBand")resumeMusic();
       return false;
     }
   }
@@ -263,21 +272,23 @@
     desiredMusic=musicIds.includes(id)?id:null;
     musicIds.forEach(other=>{
       if(other===desiredMusic)return;
-      if(other==="memoryMusic")fadeOut(other,450);else stop(other);
+      fadeOut(other,650);
     });
     if(desiredMusic&&playing.get(desiredMusic)?.fading)stop(desiredMusic);
     resumeMusic();
   }
-  function resumeMusic(){if(desiredMusic&&!playing.has(desiredMusic))play(desiredMusic);}
+  function resumeMusic(){if(desiredMusic&&!playing.has(desiredMusic)&&!(desiredMusic==="memoryMusic"&&playing.has("memoryBand")))play(desiredMusic);}
   // Scene music selection lives here so title/room/load and source-line resume agree.
   function syncSceneMusic(scene,logId=""){
     if(scene==="title"){setMusic("titleMusic");return;}
     if(scene==="opening"){setMusic(null);return;}
+    if(/^room2_after_correct_0[6-8](?:_|$)/.test(logId)){setMusic(null);return;}
     const memory=/^(?:room1_memory_|room1_piano_correct(?:_|$)|room2_memory_|room2_final_|room3_flashback_|room3_final_ringtone(?:_|$)|r4f\d|r5m|r5_memory_|r6_memory_|r6_final_signal(?:_|$)|r7_mem_)/.test(logId);
     if(memory){
       const room1=/^room1_/.test(logId);
       const accident=/^r7_mem_(\d{2})(?:_|$)/.exec(logId);
-      setMusic(room1||(accident&&Number(accident[1])>=26)?null:"memoryMusic");return;
+      const firstAfterBand=/^room1_memory_bus_/.test(logId)||/^room1_memory_music_room_(\d+)/.test(logId)&&Number(logId.match(/^room1_memory_music_room_(\d+)/)[1])>=10;
+      setMusic((room1&&!firstAfterBand)||(accident&&Number(accident[1])>=26)?null:"memoryMusic");return;
     }
     setMusic(/^room0[1-7]$/.test(scene)?"explorationMusic":null);
   }
@@ -325,7 +336,6 @@
     const room6=/^r6_memory_full_(\d{3})(?:_|$)/.exec(logId||"");
     const room7=/^r7_mem_(\d{2})(?:_|$)/.exec(logId||"");
     const id=room2&&Number(room2[1])>=16&&Number(room2[1])<=53?"highSchool":
-      (room2&&Number(room2[1])>=54&&Number(room2[1])<=95)||/^room2_final_hanamaru(?:_|$)/.test(logId||"")?"quietClassroom":
       room3&&Number(room3[1])>=34&&Number(room3[1])<=71?"cherryWind":
       (room6&&Number(room6[1])>=51&&Number(room6[1])<=85)||/^r6_memory_0[1-7](?:_|$)/.test(logId||"")||/^r6_final_signal(?:_|$)/.test(logId||"")?"naturePark":
       room7&&Number(room7[1])>=1&&Number(room7[1])<=25?"cityRoad":
@@ -370,5 +380,5 @@
     if (button.matches(".room2-physical-lever,#r6White,#r6Black,#r6MapToggle,.object,.item-object,.late-object,.r5-scene-target,.r7-target,.piano-note-key,[data-note],#playMelodyButton,.next-button,.skip-button,#r5FridgeUpper,#r5FridgeLower,[data-ui-sound='off']")) return;
     void play("uiClick");
   }, { capture: true });
-  global.GameAudio = { createEndingTrack, releaseEndingTrack, fadeForEnding, unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes,syncMemoryAmbience,stopMemoryAmbience,setMusic,syncSceneMusic,resumeMusic };
+  global.GameAudio = { textTick,correctFeedbackRemaining:()=>Math.max(0,correctUntil-Date.now()),createEndingTrack, releaseEndingTrack, fadeForEnding, unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes,syncMemoryAmbience,stopMemoryAmbience,setMusic,syncSceneMusic,resumeMusic };
 })(window);

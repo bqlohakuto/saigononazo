@@ -53,7 +53,7 @@
     const lines = choice.id === "about-hana"
       ? [...firstRoomScenario.hanaFirst, ...firstRoomScenario.hanaAbout]
       : choice.lines;
-    return Array.isArray(lines) && expandScenario(lines).some(line => GameLog.has(line.logId));
+    return Array.isArray(lines) && expandScenario(lines).every(line => GameLog.has(line.logId));
   }
 
   function showScaleReference() {
@@ -109,8 +109,9 @@
       choices.push({id: "piano", label: "ピアノについて", lines: firstRoomScenario.hanaPiano});
     }
     if (firstRoomState.questionSeen && !firstRoomState.doorUnlocked && !firstRoomState.melodySolved) {
-      // ヒントは調査状況と無関係に、直前の段階を読んだ後で一つずつ解放する。
-      const available = Math.min(firstRoomScenario.hanaHints.length, Math.max(1, Number(firstRoomState.hintLevel || 0) + 1));
+      // Later hints require both the poster and the mail evidence.
+      const clueLimit=!firstRoomState.posterInspected?1:!mailSeen?2:firstRoomState.openedInbox.size+firstRoomState.openedSent.size<8?3:firstRoomScenario.hanaHints.length;
+      const available = Math.min(clueLimit,firstRoomScenario.hanaHints.length, Math.max(1, Number(firstRoomState.hintLevel || 0) + 1));
       for (let level = 1; level <= available; level++) {
         choices.push({
           id: `hint-${level}`,
@@ -122,7 +123,7 @@
           }
         });
       }
-      if (Number(firstRoomState.hintLevel || 0) >= firstRoomScenario.hanaHints.length) {
+      if (clueLimit === firstRoomScenario.hanaHints.length && Number(firstRoomState.hintLevel || 0) >= firstRoomScenario.hanaHints.length) {
         choices.push({id: "scale-reference", label: "音階の参考を確認する", reference: true});
       }
     }
@@ -187,7 +188,7 @@
 
   // script.js attaches this function when showFirstRoom() runs, so replacing
   // the global binding here changes only the first-room Hana interaction.
-  window.HanaChoiceUI = { ensureStyle: ensureHanaChoiceStyle, getAvailableChoiceIds: () => getHanaChoices().filter(choice => !choice.cancel).map(choice => choice.id) };
+  window.HanaChoiceUI = { ensureStyle: ensureHanaChoiceStyle, hasUnreadChoices: () => getHanaChoices().some(choice => !choice.cancel && !hasViewedChoice(choice)), getAvailableChoiceIds: () => getHanaChoices().filter(choice => !choice.cancel).map(choice => choice.id) };
   talkToHana = showHanaChoiceMenu;
 })();
 

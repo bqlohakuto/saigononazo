@@ -45,7 +45,7 @@ window.RoomExplorationScenes = {
    ['ハナ','座って考えるのも、いいんじゃない？'],
    ['主人公','ハナさんみたいに、そのまま寝ないようにします。']
   ],quiet:[['ト書き','黒い椅子を少し引いてみる。眠っているハナを起こさないよう、そっと元に戻した。']],repeat:'机の前の椅子だ。使い終わったら、机の下に戻しておこう。'},
-  {id:'lecture-note',label:'講義ノート',view:'right',rect:[.56,.58,.11,.10],asset:'images/items/optional-room03-lecture-notebook.svg?v=20261028-c02',assetAspect:1.75,lines:[
+  {id:'lecture-note',label:'講義ノート',view:'right',rect:[.355,.35,.065,.055],asset:'images/items/optional-room03-lecture-notebook-v2.png',assetAspect:1.75,lines:[
    ['ト書き','黒い机の端に、講義ノートが一冊置いてある。表紙の角が少し折れていた。'],
    ['主人公','この部屋で勉強していたんでしょうか。……なんとなく、自分の字を思い出しそうです。'],
    ['ハナ','ずいぶん使い込んでるみたいだね。']
@@ -89,11 +89,11 @@ window.RoomExplorationScenes = {
    ['主人公','洗い物が残っていないと、すっきりしますね。'],
    ['ハナ','あとは棚に戻すだけ……って思って、そのままにしがちだけどね。']
   ],repeat:'洗い物は片づいている。水切りの食器は乾いていた。'},
-  {id:'mug-pair',label:'二つのマグカップ',view:'right',rect:[.735,.475,.105,.092],asset:'images/items/optional-room05-mugs.svg',assetAspect:1.75,lines:[
-   ['ト書き','カウンターに、色の違うマグカップが二つ並んでいる。どちらも使い込まれていた。'],
-   ['主人公','同じものじゃないのに、並ぶと不思議と合いますね。'],
+  {id:'mug-pair',label:'茶葉の保存缶',view:'right',rect:[.755,.445,.055,.12],asset:'images/items/optional-room05-tea-tin.png',assetAspect:.75,lines:[
+   ['ト書き','カウンターに、小さな茶葉の保存缶が置かれている。ふたの縁には、使い込まれた跡があった。'],
+   ['主人公','お茶の缶ですね。ずいぶん大事に使っていたみたいだ。'],
    ['ハナ','……うん。そうだね。']
-  ],repeat:'色の違う二つのマグカップが、カウンターに並んでいる。'},
+  ],repeat:'使い込まれた茶葉の保存缶が、カウンターに置かれている。'},
   {id:'plant',label:'収納棚の観葉植物',view:'front',rect:[.04,.45,.085,.15],lines:[
    ['ト書き','収納棚の端に、観葉植物が置かれている。葉が、明るいほうへ少し傾いていた。'],
    ['主人公','緑があると、それだけで部屋の感じが違いますね。'],

@@ -27,7 +27,7 @@ test('E08: Room 5 notebook and appliance memories use no substitute prop',()=>{
   }
   assert.equal(visuals.get('room05',{logId:'r5m010'}).prop,'rabbit','existing drawing remains');
   assert.equal(visuals.get('room05',{logId:'r5m248'}).prop,'cards','existing card art remains');
-  assert.equal(visuals.get('room07',{logId:'r7_mem_monkey_01'}).prop,'notebook','Room 7 presentation is unchanged');
+  assert.equal(visuals.get('room07',{logId:'r7_mem_monkey_01'}).prop,null,'Room 7 uses the notebook already painted in its background');
 });
 
 test('Room 1-4 recollections conceal the face', () => {
@@ -155,7 +155,7 @@ test('Monkey-door recollection closes the notebook at the authored moment',()=>{
     assert.equal(v.location,'r7monkey');assert.equal(v.reveal,'expressive');
     assert.equal(v.presentation,'dialogue');
     assert.equal(v.background,'images/background/memories/room05/dining-night.png');
-    assert.equal(v.prop,i<=22?'notebook':null);
+    assert.equal(v.prop,null);
   }
   assert.equal(visuals.get('room07',{logId:'r7_mem_monkey_22_02'}).prop,null);
   assert.equal(visuals.get('room07',{logId:'page',logSource:{logId:'r7_mem_monkey_22_02'}}).prop,null);
@@ -192,7 +192,7 @@ test('A08: every Room 7 zodiac-door recollection has a relevant, authored scene'
    const id='r7_mem_boar_'+String(i).padStart(2,'0');
    const image=visuals.get('room07',{logId:id});
    assert.equal(image.background,'images/background/memories/room01/walk-home.png',id);
-   assert.equal(image.sprite,(i===1||i===28)?undefined:'images/characters/memories/room01/girl-approved.png',id);
+   assert.equal(image.sprite,(i===1||i===28)?undefined:'images/characters/memories/room02/girl-blazer.png',id);
    assert.equal(image.reveal,'concealed',id);
  }
  const tiger=visuals.get('room07',{logId:'r7_mem_tiger_08'});

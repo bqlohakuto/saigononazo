@@ -20,11 +20,11 @@ test("H02 Room 5: a completed board does not log the code before its display sta
  assert.match(complete,/if\(inline\)inline\(lines\);else showRoomDialog\(lines,renderR5\);/);
  assert.doesNotMatch(complete,/lines\.forEach\(recordLog\)/);
  const animation=section("    function playBoardCompletion(lines){","    function select(id){");
- assert.match(animation,/if\(stage\.reveal\)\{[\s\S]*?\.hidden=false/);
- assert.match(animation,/caption\.append\(p\);\s*recordLog\(entry\)/);
+ assert.match(animation,/showRoomDialog\(lines\.slice\(0,7\)/);
+ assert.doesNotMatch(animation,/recordLog/);
  const followup=section("  function r5PlayDoorReveal(lines,showMissedDigits){","  function r5ButterflyHintIfNeeded(inline){");
- assert.match(followup,/if\(showMissedDigits\)[\s\S]*?say\(\[lines\[4\],lines\[5\],lines\[6\]\]\)/);
- assert.match(followup,/if\(!GameLog\.list\(\)\.some\(saved=>saved\.id===entry\.logId\)\)recordLog\(entry\)/);
+ assert.match(followup,/showRoomDialog\(lines\.slice\(showMissedDigits\?4:7\)/);
+ assert.doesNotMatch(followup,/recordLog/);
  assert.match(late,/room5State\.codeRevealed\?"盤が完成した"/);
 });
 test("H02 Room 6: the test-only route stays unavailable on normal saves",()=>{

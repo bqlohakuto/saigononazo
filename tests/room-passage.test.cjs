@@ -88,7 +88,7 @@ test("A05: the existing story gates and critical timing remain connected",()=>{
  assert.match(fourth,/showRoomTravel\(\(\)=>showFourthRoom\(roomStates\.room04\)/);
  assert.match(fourth,/showRoomTravel\(\(\)=>showFifthRoom\(roomStates\.room05\)/);
  assert.doesNotMatch(fourth,/room01_door_halfopen\.png/);
- assert.match(late,/showRoomTravel\(next,\{label,duration:650\}\)/);
+ assert.match(late,/showRoomTravel\(next,\{label,duration:1800\}\)/);
  assert.match(late,/room7State\.completed=true;saveGame\(\);[\s\S]*?showEighthRoom\(roomStates\.room08\);[\s\S]*?game\.classList\.add\("room-entry-from-dark"\)/);
  assert.match(css,/@keyframes roomPassageFade/);
  assert.match(css, /prefers-reduced-motion:reduce/);

@@ -480,7 +480,7 @@ function showThirdRoomHana(){
 function showThirdRoomBoundary(){
  room2State.nextRoomTransitionSeen=true;saveGame();
  showRoomTravel(()=>showThirdRoom(roomStates.room03),{
-  label:"第三の部屋へ移動",duration:1100
+  label:"第三の部屋へ移動",duration:1800
  });
 }
 

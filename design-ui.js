@@ -102,13 +102,35 @@
   // Blink only after all retained frames are decoded; failure keeps the still image.
   Promise.all([1,2,3,4].map(frame=>loadHanaImage('images/characters/hana-hires/idle/0'+frame+'.webp')))
     .then(loaded=>{if(loaded.every(Boolean))game.classList.add('hana-idle-ready')});
-  // Keep the approved high-resolution body stable. Dialogue expressions remain
-  // in the portrait; independent full-body renders introduced shape and alpha noise.
+  const worldExpressions=new Set();
+  const worldExpressionUrl=name=>'images/characters/hana-hires/expressions/'+(name==='excited'?'happy':name)+'.webp';
+  for(const name of ['happy','thought','surprise','concern','serious','sleepy'])loadHanaImage(worldExpressionUrl(name)).then(image=>{
+    if(!image)return;worldExpressions.add(name);
+    const portrait=game.querySelector('.hana-portrait');if(portrait)setExpression(portrait);
+    syncWorldExpression(!game.querySelector('.room-dialog-overlay')||!!game.querySelector('.memory-scene'));
+  });
+  // Portrait, full-body sprite and bubble share the displayed expression.
+
   function syncWorldExpression(clear=false){
     game.classList.remove('has-world-expression');
     game.style.removeProperty('--hana-world-expression');
     const sprite=game.querySelector('#openingHanaSprite');
     if(sprite&&!clear)sprite.dataset.emotion='idle';
+    const bubbleNames={happy:'joy',thought:'thinking',surprise:'question',concern:'sweat',serious:'thinking',excited:'laughter',sleepy:'thinking'};
+    const name=hanaV2Names[expression]||'gentle';
+    const displayed=game.querySelector('.hana-portrait')?.dataset.displayedExpression||name;
+    const worldName=displayed==='excited'?'happy':displayed;
+    const worldUrl=!clear&&worldExpressions.has(worldName)?worldExpressionUrl(worldName):'images/characters/hana-hires/idle/01.webp';
+    if(!clear&&worldExpressions.has(worldName)){game.classList.add('has-world-expression');game.style.setProperty('--hana-world-expression','url("'+worldUrl+'")');}
+    if(sprite&&sprite.getAttribute('src')!==worldUrl)sprite.src=worldUrl;
+    const bubble=clear?'':bubbleNames[displayed]||'';
+    game.querySelectorAll('.hana-object,.room2-hana,.room3-hana,.r4hana,.hana-v2-world').forEach(target=>{
+      let image=target.querySelector('.hana-emotion-bubble');
+      if(!bubble){image?.remove();return;}
+      if(!image){image=document.createElement('img');image.className='hana-emotion-bubble';image.alt='';image.setAttribute('aria-hidden','true');target.append(image);}
+      const src='images/pixel-ui/bubbles-side/right/'+bubble+'.png';
+      if(image.getAttribute('src')!==src)image.src=src;
+    });
   }
   function panel(title){
     if(modal)modal.close();
@@ -366,6 +388,7 @@
   }
   function investigationRevision(el){const s=roomStates[currentScene]||{};const base=['doorUnlocked','unlocked','completed','memorySeen'].map(k=>String(!!s[k])).join(':');return el?.id==='hanaButton'?base+'|topics:'+window.HanaChoiceUI.getAvailableChoiceIds().join(','):base}
   function syncHud(){
+    if(typeof document==='undefined'||!document.documentElement)return;
     const actions=game.querySelector('.gameplay-hud-actions');if(actions&&!actions.dataset.design){actions.dataset.design='true';actions.replaceChildren(button('持ち物',inventory,'gameplay-top-button'),button('記録',records,'gameplay-top-button'),button('設定',options,'gameplay-top-button'),fullscreenButton('gameplay-top-button'))}
     const title=game.querySelector('.title-screen');let titleDisplay=game.querySelector('.design-title-fullscreen');
     if(title&&!titleDisplay){titleDisplay=fullscreenButton('design-title-fullscreen');game.append(titleDisplay)}else if(!title)titleDisplay?.remove();
@@ -382,7 +405,7 @@
         world=document.createElement('div');world.className='hana-v2-world';world.setAttribute('role','img');world.setAttribute('aria-label','ハナ');late.append(world);
       }
     }
-    game.querySelectorAll('.object,.late-object,#r5Board,.r7-target').forEach(el=>{const key=currentScene+':'+(el.id||el.dataset.item||el.textContent.trim());const seen=state().investigated[key];el.classList.toggle('is-investigated',seen===true||seen===investigationRevision(el));if(hooked.has(el))return;hooked.add(el);el.addEventListener('click',event=>{if(pendingUse){if(el.id!==pendingUse.target){event.preventDefault();event.stopImmediatePropagation();const p=game.querySelector('.design-use-prompt p');if(p)p.textContent='ここでは使えません。使う場所を選ぶか、キャンセルしてください。';return}const item=pendingUse;cancelUse();setTimeout(()=>game.querySelector(`[data-tile="${item.id}"]`)?.click(),0)}inspectionTarget=el.querySelector('span,strong')?.textContent||el.getAttribute('aria-label')||el.textContent.trim();state().investigated[key]=investigationRevision(el);el.classList.add('is-investigated');saveGame()},{capture:true})});
+    game.querySelectorAll('.object,.late-object,#r5Board,.r7-target').forEach(el=>{const key=currentScene+':'+(el.id||el.dataset.item||el.textContent.trim());const seen=state().investigated[key];el.classList.toggle('is-investigated',(seen===true||seen===investigationRevision(el))&&!(el.id==='hanaButton'&&window.HanaChoiceUI?.hasUnreadChoices()));if(hooked.has(el))return;hooked.add(el);el.addEventListener('click',event=>{if(pendingUse){if(el.id!==pendingUse.target){event.preventDefault();event.stopImmediatePropagation();const p=game.querySelector('.design-use-prompt p');if(p)p.textContent='ここでは使えません。使う場所を選ぶか、キャンセルしてください。';return}const item=pendingUse;cancelUse();setTimeout(()=>game.querySelector(`[data-tile="${item.id}"]`)?.click(),0)}inspectionTarget=el.querySelector('span,strong')?.textContent||el.getAttribute('aria-label')||el.textContent.trim();state().investigated[key]=investigationRevision(el);el.classList.add('is-investigated');saveGame()},{capture:true})});
     game.querySelectorAll('.hana-choice-button,[data-choice]').forEach(el=>{if(choiceHooked.has(el))return;choiceHooked.add(el);const born=performance.now();el.addEventListener('click',e=>{if(performance.now()-born<250){e.preventDefault();e.stopImmediatePropagation()}},{capture:true})});
     game.querySelectorAll('.device-overlay section').forEach(section=>{if(section.matches('.room-exit-menu,.r4-ratio-exhibit,.r5-handdrawn-panel')||section.querySelector('[data-choice]')||section.querySelector('.design-op-button')||!section.querySelector('input,.room2-palette,.r4-panels,.r5-counter-grid,.r6-othello,.room3-letterboard'))return;section.append(button('操作説明',help,'design-op-button'))});
     game.querySelectorAll('.device-close,.inspection-close').forEach(el=>{if(el.textContent==='×')el.textContent='閉じる'});
@@ -396,7 +419,7 @@
     const p=overlay.querySelector('.room-dialog'),portrait=document.createElement('div');portrait.className='hana-portrait';portrait.setAttribute('role','img');portrait.setAttribute('aria-label','ハナ');p.prepend(portrait);portrait.hidden=!portraitVisible;setExpression(portrait);
     const controls=document.createElement('div');controls.className='design-controls';
     const auto=button('AUTO',()=>Dialogue.toggleAuto()),skip=button('SKIP',()=>p.querySelector('.skip-button')?.click()),hide=button('非表示',()=>{p.classList.add('dialog-hidden');restore.hidden=false;Dialogue.suspend()});auto.dataset.designAuto='';skip.dataset.designSkip='';
-    const log=button('LOG',()=>p.querySelector('.log-button')?.click());log.dataset.designLog='';controls.append(auto,skip,log,hide);p.append(controls);
+    const log=button('LOG',()=>p.querySelector('.log-button')?.click());log.dataset.designLog='';const settingsButton=button('設定',options);controls.append(auto,skip,log,hide,settingsButton);p.append(controls);
     const restore=button('',e=>{} ,'dialogue-restore');restore.setAttribute('aria-label','会話を再表示');restore.hidden=true;restore.onclick=e=>{e.stopPropagation();restore.hidden=true;p.classList.remove('dialog-hidden');Dialogue.resume()};overlay.append(restore);
     p.addEventListener('click',e=>{if(!e.target.closest('button,input'))Dialogue.advance()});syncPlayback();
   }
@@ -404,7 +427,7 @@
     const name=hanaV2Names[expression]||portraitExpressions[0];
     // Keep the last painted expression until the requested one can be painted.
     // Reading the cache here also keeps the decoded idle/portrait images alive.
-    const ready=kind=>hanaV2Ready.has(kind)&&hanaImageCache.has(hanaV2Url(kind));
+    const ready=kind=>hanaV2Ready.has(kind)&&hanaImageCache.has(hanaV2Url(kind))&&(!['happy','thought','surprise','concern','serious','sleepy','excited'].includes(kind)||worldExpressions.has(kind==='excited'?'happy':kind));
     const previous=p.dataset.displayedExpression;
     const displayed=ready(name)?name:ready(previous)?previous:'neutral';
     p.classList.add('hana-v2-portrait');
@@ -440,7 +463,7 @@
     // Effects are visual captions only. No independent sound record category.
   }
   function syncPlayback(){game.querySelectorAll('[data-design-auto]').forEach(b=>{b.setAttribute('aria-pressed',String(Dialogue.isAutoEnabled()));b.disabled=!!game.querySelector('.room-dialog .auto-button')?.disabled;const label=Dialogue.isAutoEnabled()?'AUTO ON':'AUTO OFF';if(b.textContent!==label)b.textContent=label});game.querySelectorAll('[data-design-log]').forEach(b=>b.setAttribute('aria-pressed',String(!!game.querySelector('.room-dialog.is-log-open'))));game.querySelectorAll('[data-design-skip]').forEach(b=>{const source=game.querySelector('.room-dialog .skip-button');b.disabled=!source||source.disabled;b.setAttribute('aria-pressed',source?.getAttribute('aria-pressed')||'false')})}
-  function onInstall(c){cancelUse();config=c;recordRoom=c.sceneId||currentScene;inspectionTarget='';if(!state().visited.includes(recordRoom))state().visited.push(recordRoom);queueMicrotask(()=>{syncHud();if(!localStorage.getItem('saigononazo-help-seen')){localStorage.setItem('saigononazo-help-seen','1');if(!game.querySelector('.room-dialog-overlay,.device-overlay'))help()}})}
+  function onInstall(c){cancelUse();config=c;recordRoom=c.sceneId||currentScene;inspectionTarget='';if(!state().visited.includes(recordRoom))state().visited.push(recordRoom);queueMicrotask(()=>{if(typeof document==='undefined'||!document.documentElement)return;syncHud();if(!localStorage.getItem('saigononazo-help-seen')){localStorage.setItem('saigononazo-help-seen','1');if(!game.querySelector('.room-dialog-overlay,.device-overlay'))help()}})}
   function beginDialogue(lines){dialogueGroup=currentScene+':'+Date.now()+':'+(++sequence);portraitVisible=lines.some(l=>l.speaker==='ハナ'||l.speaker==='花音')&&!lines.some(l=>window.MemoryVisuals?.get(currentScene,l));expression=0;window.MemoryVisuals?.prepare(currentScene,lines)}
   function endDialogue(){syncWorldExpression(true);window.MemoryVisuals?.sync(null);dialogueGroup='';game.classList.remove('has-dialogue');game.querySelector('.inspection-focus-background')?.remove()}
   function savePreview(){
@@ -455,7 +478,7 @@
   document.addEventListener('click',e=>{if(e.target.closest?.('#settingsButton')){e.preventDefault();e.stopImmediatePropagation();options();return}if(e.target.closest?.('#gameplayLogButton')){e.preventDefault();e.stopImmediatePropagation();records()}},{capture:true});
   document.addEventListener('dialogue:autochange',syncPlayback);document.addEventListener('dialogue:skipchange',()=>queueMicrotask(syncPlayback));
   new MutationObserver(syncHud).observe(game,{childList:true,subtree:true});
-  window.DesignUI={onInstall,beginDialogue,endDialogue,paginateDialogue,displayLine,savePreview,pickup,records,options,help,get dialogueGroup(){return dialogueGroup},get inspectionTarget(){return inspectionTarget}};
+  window.DesignUI={refreshWorldExpression:()=>syncWorldExpression(false),onInstall,beginDialogue,endDialogue,paginateDialogue,displayLine,savePreview,pickup,records,options,help,get dialogueGroup(){return dialogueGroup},get inspectionTarget(){return inspectionTarget}};
   showSettings=options;
 })();
 

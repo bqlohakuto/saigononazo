@@ -245,3 +245,6 @@
  .is-r5-revealing .r5-door-reveal-light path{animation:none;stroke-dashoffset:0}
  .is-r5-revealing .r5-door-keypad-art{animation:none;opacity:1;filter:none}
 }
+
+.r5-chair-left,.r5-chair-right{z-index:1}
+.r5-dining-table{z-index:2}

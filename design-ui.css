@@ -2728,3 +2728,21 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .room-dialog.is-log-open .dialog-message-area{
   margin-left:0;
 }
+
+/* Playthrough review: remove residual glass and labels; preserve accessible names. */
+#game .room-dialog{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important}
+#game .object>span,#game .late-object>span,#game .ambient-target>span{display:none!important}
+#game:has(.memory-scene) .gameplay-objective,#game:has(.memory-scene) .gameplay-goal-row{display:none!important}
+#game .title-cleared{background-position:center;background-size:cover}
+
+#game .room3-desk::after{top:-8%!important;left:50%!important}
+#game .r8-final-door{position:absolute;left:42%;top:8%;height:78%;width:24%;border:0;background:transparent url("images/background/room01/room01_door_closeup.png") center/contain no-repeat;font-size:0;color:transparent}
+#game:has(.memory-scene) .memory-prop[data-kind="cards"]{display:none!important}
+
+#game .hana-emotion-bubble{position:absolute;z-index:15;pointer-events:none;width:3.5cqw;height:3.5cqw;object-fit:contain;left:52%;top:calc(100% - var(--hana-head-offset,30cqw) - 4cqw)}
+#game .hana-v2-world .hana-emotion-bubble{top:0;left:60%;width:24%;height:14%}
+
+#game .r8-final-door{inset:0;width:100%;height:100%;background-image:url("images/background/room01/pixel/room01_front_fine.png");background-size:cover}
+#game .r8-dissolve-fallback{display:none!important}
+
+#game.has-world-expression #openingHanaSprite{animation:none!important}

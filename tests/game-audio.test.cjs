@@ -461,3 +461,38 @@ test('skipping or leaving map drawing cancels pending decoding, and unfold respe
  }
  const {audio,contexts}=harness();audio.setCategoryVolumes(1,0);await audio.play('mapUnfold');assert.equal(contexts[0].gains.at(-1).gain.value,0);
 });
+
+
+test('phone rings only at the source ringtone cue and stops when the call is answered',async()=>{
+ const {audio,contexts}=harness();
+ audio.syncMemoryAmbience('room3_flashback_04');await tick();assert.equal(contexts.length,0);
+ audio.syncMemoryAmbience('room3_final_ringtone');await tick();const c=contexts[0],ring=c.sources[0];
+ assert.equal(ring.loop,false);assert.equal(c.gains.at(-1).gain.value,0.35);
+ audio.syncMemoryAmbience('room3_final_ringtone_01');await tick();assert.equal(c.sources.length,1);
+ audio.syncMemoryAmbience('room3_flashback_04_call');assert.equal(ring.disconnected,true);
+ audio.syncMemoryAmbience('room3_flashback_05');await tick();assert.equal(c.sources.length,1);
+});
+
+test('ringtone never restarts after ending or app interruption; fresh memory entry can play once',async()=>{
+ const {audio,contexts,window}=harness();audio.syncMemoryAmbience('room3_final_ringtone');await tick();const c=contexts[0];
+ c.sources[0].onended();audio.syncMemoryAmbience('room3_final_ringtone_01');await tick();assert.equal(c.sources.length,1);
+ window.emit('pagehide');await audio.unlock();audio.syncMemoryAmbience('room3_final_ringtone_02');await tick();assert.equal(c.sources.length,1);
+ audio.stopMemoryAmbience();audio.syncMemoryAmbience('room3_final_ringtone');await tick();assert.equal(c.sources.length,2);
+});
+
+test('answering or leaving while ringtone decodes cancels it; ringtone follows SE mute',async()=>{
+ for(const leave of [false,true]){
+  const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});
+  audio.syncMemoryAmbience('room3_final_ringtone');if(leave)audio.stopMemoryAmbience();else audio.syncMemoryAmbience('room3_flashback_04_call');
+  file.resolve(response());await tick();assert.equal(contexts[0].sources.length,0);
+ }
+ const {audio,contexts}=harness();audio.setCategoryVolumes(1,0);audio.syncMemoryAmbience('room3_final_ringtone');await tick();
+ assert.equal(contexts[0].gains.at(-1).gain.value,0);audio.setCategoryVolumes(1,0.4);assert.equal(contexts[0].gains.at(-1).gain.value,0.35*0.4);
+});
+
+
+test('the ringtone source stays inside memory music selection without restarting exploration BGM',async()=>{
+ const {audio,contexts}=harness();
+ for(const id of ['room3_flashback_04','room3_final_ringtone','room3_final_ringtone_01','room3_flashback_04_call'])audio.syncSceneMusic('room03',id);
+ await tick();assert.equal(contexts.length,0);
+});

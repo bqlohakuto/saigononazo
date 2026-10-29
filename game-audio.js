@@ -4,6 +4,7 @@
   const sounds = {
     answerCorrect: { url: "audio/se/answer_correct.mp3", gain: 0.30 },
     answerIncorrect: { url: "audio/se/answer_incorrect.mp3", gain: 0.40 },
+    phoneRingtone: { url: "audio/se/phone_ringtone.mp3", gain: 0.35 },
     mapWrite: { url: "audio/se/map_write.mp3", gain: 0.45 },
     mapUnfold: { url: "audio/se/map_unfold.mp3", gain: 0.30 },
     carBrake: { url: "audio/se/car_brake.mp3", gain: 0.50 },
@@ -37,6 +38,7 @@
   let desiredMusic=null;
   let accidentCue=null;
   let mapCue=null;
+  let ringtoneActive=false;
   let endingTrack=null;
   function syncEndingVolume(){
     if(endingTrack){
@@ -90,7 +92,7 @@
 
   function stopPlaying(){Array.from(playing.keys()).forEach(stop);}
   function stopAll() {
-    accidentCue=null;mapCue=null;
+    accidentCue=null;mapCue=null;ringtoneActive=false;
     desiredMusic=null;
     if(endingTrack)releaseEndingTrack(endingTrack);
     stopPlaying();
@@ -191,7 +193,7 @@
       if (playing.get(id) !== entry) return false;
       // Never deliver a stale UI response after a slow load or mobile resume.
       if (((id === "uiClick" || id === "leverPull") && Date.now() - entry.requestedAt > 200) ||
-          (/^(?:answerCorrect|answerIncorrect|carBrake|carCrash|mapWrite|mapUnfold)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
+          (/^(?:answerCorrect|answerIncorrect|carBrake|carCrash|mapWrite|mapUnfold|phoneRingtone)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
         stop(id);
         return false;
       }
@@ -258,7 +260,7 @@
   function syncSceneMusic(scene,logId=""){
     if(scene==="title"){setMusic("titleMusic");return;}
     if(scene==="opening"){setMusic(null);return;}
-    const memory=/^(?:room1_memory_|room1_piano_correct(?:_|$)|room2_memory_|room2_final_|room3_flashback_|r4f\d|r5m|r5_memory_|r6_memory_|r7_mem_)/.test(logId);
+    const memory=/^(?:room1_memory_|room1_piano_correct(?:_|$)|room2_memory_|room2_final_|room3_flashback_|room3_final_ringtone(?:_|$)|r4f\d|r5m|r5_memory_|r6_memory_|r7_mem_)/.test(logId);
     if(memory){setMusic(null);return;}
     setMusic(/^room0[1-7]$/.test(scene)?"explorationMusic":null);
   }
@@ -269,6 +271,7 @@
     memoryAmbienceIds.forEach(stop);
     stopAccidentSounds();accidentCue=null;
     stopMapSounds();mapCue=null;
+    stop("phoneRingtone");ringtoneActive=false;
   }
   function syncAccidentSounds(beat){
     // A source-line phase survives pagination, interruption and an ended source.
@@ -286,6 +289,12 @@
     stopMapSounds();mapCue=cue;
     if(cue)play(cue);
   }
+  function syncRingtone(logId){
+    const active=/^room3_final_ringtone(?:_|$)/.test(logId||"");
+    if(active===ringtoneActive)return;
+    stop("phoneRingtone");ringtoneActive=active;
+    if(active)play("phoneRingtone");
+  }
   function syncMemoryAmbience(logId){
     const room2=/^room2_memory_(\d{3})(?:_|$)/.exec(logId||"");
     const room3=/^room3_flashback_(\d{2})(?:_|$)/.exec(logId||"");
@@ -301,6 +310,7 @@
     if(id&&!playing.has(id))play(id);
     syncAccidentSounds(room7?Number(room7[1]):null);
     syncMapSounds(logId);
+    syncRingtone(logId);
   }
 
   function setVolume(value) {

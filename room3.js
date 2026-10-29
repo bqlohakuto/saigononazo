@@ -142,8 +142,11 @@ function showThirdRoom(savedState){
  document.getElementById("r3Hana").addEventListener("click",showThirdRoomHana);
  if(savedState){
   showRoomNotice("続きから再開しました。","room3_resumed","narration");
-  if(room3State.nextRoomTransitionSeen)setTimeout(showFourthRoomBoundary,150);
-  else if(room3State.unlocked&&!room3State.memorySeen)setTimeout(playThirdRoomMemory,150);
+  // A different save slot (even in this room) may load before the timer fires.
+  const resumedState=room3State;
+  const stillResuming=()=>currentScene==="room03"&&room3State===resumedState;
+  if(room3State.nextRoomTransitionSeen)setTimeout(()=>{if(stillResuming())showFourthRoomBoundary()},150);
+  else if(room3State.unlocked&&!room3State.memorySeen)setTimeout(()=>{if(stillResuming())playThirdRoomMemory()},150);
  }else showRoomDialog(room3IntroLines);
  if(window.GameplayUI)GameplayUI.installRoom({sceneId:"room03",title:"第三の部屋",objective:()=>room3State.unlocked?"開いた扉の先へ進む":"扉の謎を解く",onCompanion:showThirdRoomHana,getHighlights:()=>!!room3State.highlightEnabled,setHighlights:enabled=>{room3State.highlightEnabled=!!enabled;saveGame()}});
  saveGame();

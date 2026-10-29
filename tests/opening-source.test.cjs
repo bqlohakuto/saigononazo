@@ -34,7 +34,8 @@ test("browser loads the canonical opening sequence after shared game code", () =
 test("shared game code delegates new-game and resume flow to the canonical opening", () => {
   const script = read("script.js");
 
-  assert.match(script, /clearSave\(\);flashRed\(\)/);
+  assert.match(script, /clearSave\(\);playerName=input\.value/);
+  assert.match(script, /setTimeout\(\(\)=>\{if\(button\.isConnected\)flashRed\(\)\},2000\)/);
   assert.match(script, /showOpening\(saved\.opening\.index\)/);
   assert.match(script, /function\s+endOpening\s*\(/);
 });

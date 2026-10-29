@@ -2214,7 +2214,17 @@
     Dialogue.stop();currentScene="room08";GameAudio.syncSceneMusic?.(currentScene);room8State=normalizeR8(savedState);saveGame();
     if(room8State.ended){if(room8State.epilogueSeen)r8EndScreen();else r8Epilogue();return}
     if(room8State.solved&&room8State.finalTalkSeen){r8AfterSolved();return}
-    if(room8State.solved&&!room8State.finalTalkSeen){r8PuzzleRoom();setTimeout(r8SolvedDialogue,80);return}
+    if(room8State.solved&&!room8State.finalTalkSeen){
+      r8PuzzleRoom();
+      // H01: another slot or title can replace this room during the 80ms delay.
+      const resumeState=room8State;
+      const resumeScreen=game.querySelector(".r8-empty");
+      setTimeout(()=>{
+        if(currentScene!=="room08"||room8State!==resumeState||!resumeScreen?.isConnected)return;
+        r8SolvedDialogue();
+      },80);
+      return;
+    }
     if(room8State.puzzleReady){r8PuzzleRoom();return}
     r8Living();
     setHud("room08","第八の部屋",()=>"ハナとの最後の時間",()=>{});
@@ -2594,7 +2604,13 @@
   function r8EpilogueFade(){
     Dialogue.stop();
     game.innerHTML='<div class="r8-epilogue-fade" aria-label="暗転"></div>';
-    setTimeout(r8Epilogue,650);
+    // H01: finish this fade only if its own scene and saved state still exist.
+    const fadeState=room8State;
+    const fadeScreen=game.querySelector(".r8-epilogue-fade");
+    setTimeout(()=>{
+      if(currentScene!=="room08"||room8State!==fadeState||!fadeScreen?.isConnected)return;
+      r8Epilogue();
+    },650);
   }
   function r8Epilogue(){
     Dialogue.stop();

@@ -102,7 +102,7 @@ async function assertFits(page){
    await page.screenshot({path:path.join(output,spec.name+'-first-fit.png')});
    // Close/reload the saved partial puzzle, then use keyboard for the next fit.
    await page.keyboard.press('Escape');await page.reload({waitUntil:'load'});
-   const partial=await saved(page);await page.evaluate(s=>showFifthRoom(s),partial);await page.locator('#r5Board').click();
+   const partial=await saved(page);await page.evaluate(s=>{settings.instantText=true;showFifthRoom(s)},partial);await page.locator('#r5Board').click();
    assert.match(await page.locator('[data-counter="面"] img').getAttribute('src'),/mirror-mask\.png$/);
    assert.equal(await page.locator('[data-tile="mirror"]').count(),0);
    await page.locator('[data-tile="fish"]').focus();await page.keyboard.press('Enter');await page.locator('[data-counter="尾"]').focus();await page.keyboard.press('Space');

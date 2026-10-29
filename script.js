@@ -265,6 +265,12 @@ function resumeGame(){
  playerName=saved.playerName||"主人公";
  openingIndex=saved.opening.index;
  currentScene=saved.currentScene;
+ // Discard transient state from every room before the selected slot is restored.
+ // Otherwise an immediate save after loading can mix progress from another slot.
+ firstRoomState=undefined;
+ room2State=undefined;
+ room3State=undefined;
+ room4State=undefined;
  room5State=undefined;
  room6State=undefined;
  room7State=undefined;

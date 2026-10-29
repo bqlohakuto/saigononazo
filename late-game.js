@@ -337,7 +337,7 @@
       });
     }
     // Only the finished board gets a cinematic sequence; ordinary fit feedback is unchanged.
-    // The existing scripted lines are logged once in r5CompleteBoard, then shown here automatically.
+    // H02: register each completion line only when it becomes visible.
     function playBoardCompletion(lines){
       completionPlaying=true;completionDigitVisible=false;completionLines=lines;
       panel.classList.add('r5-completing');
@@ -373,6 +373,7 @@
             const speaker=document.createElement('b');speaker.textContent=entry.speaker;p.append(speaker);
           }
           p.append(document.createTextNode(entry.text));caption.append(p);
+          recordLog(entry);
         });
         completionTimer=setTimeout(advance,reduced()?1100:stage.ms);
       };
@@ -527,6 +528,8 @@
           const speaker=document.createElement('b');speaker.textContent=entry.speaker;p.append(speaker);
         }
         p.append(document.createTextNode(entry.text));caption.append(p);
+        // Do not append later reveal dialogue to LOG before the player sees it.
+        if(!GameLog.list().some(saved=>saved.id===entry.logId))recordLog(entry);
       });
     };
     const start=()=>{
@@ -547,7 +550,7 @@
     };
     if(showMissedDigits){
       // Closing early must not hide the newly discovered answer.
-      scene.classList.add('is-r5-reveal-waiting');say([lines[5],lines[6]]);
+      scene.classList.add('is-r5-reveal-waiting');say([lines[4],lines[5],lines[6]]);
       setTimeout(start,2100);
     }else start();
   }
@@ -581,7 +584,7 @@
       line("r5_board_complete_08","主人公","入力しろ、ということですね。"),
       line("r5_board_complete_09","ハナ","そうみたい。")
     ];
-    if(inline){lines.forEach(recordLog);inline(lines);}else showRoomDialog(lines,renderR5);
+    if(inline)inline(lines);else showRoomDialog(lines,renderR5);
   }
 
   function r5Keypad(){

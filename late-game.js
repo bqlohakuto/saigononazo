@@ -184,7 +184,7 @@
     document.getElementById("r5Keypad")?.addEventListener("click",r5Keypad);
     document.getElementById("r5Rabbit")?.addEventListener("click",r5RabbitMemoryStart);
     document.getElementById("r5Next")?.addEventListener("click",()=>transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06)));
-    document.getElementById("r5Progress").textContent=room5State.completed?"記憶を取り戻した":room5State.codeRevealed?"暗証番号 8194":room5State.collected.length+"枚入手";
+    document.getElementById("r5Progress").textContent=room5State.completed?"記憶を取り戻した":room5State.codeRevealed?"盤が完成した":room5State.collected.length+"枚入手";
     window.RoomExploration?.mount('room05',game.querySelector('#r5Scene'),view,room5State,{image:'images/background/room05/'+backgrounds[view],imageAspect:16/9});
     setHud("room05","第五の部屋",r5Objective,r5Hana);
   }

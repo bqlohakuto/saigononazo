@@ -697,7 +697,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .title-home:is(.title-art-loading,.title-art-fallback) .title-logo img,
 #game .title-home:is(.title-art-loading,.title-art-fallback) .title-menu button img{visibility:hidden}
 #game .title-home:is(.title-art-loading,.title-art-fallback) .title-text-fallback{display:block;font:clamp(18px,3.8cqw,54px)/1.7 'DotGothic16',sans-serif;color:#fff;text-align:center}
-#game .title-home:is(.title-art-loading,.title-art-fallback) .title-menu button:not(#testRoomButton)::after{content:attr(aria-label);color:#fff;font:clamp(14px,1.5cqw,22px)/1.5 'DotGothic16',sans-serif}
+#game .title-home:is(.title-art-loading,.title-art-fallback) .title-menu button:not(#testRoomButton):not(#puzzleGuideButton)::after{content:attr(aria-label);color:#fff;font:clamp(14px,1.5cqw,22px)/1.5 'DotGothic16',sans-serif}
 #game .title-art-loading .title-art-status{display:block;position:absolute;top:40%;left:50%;transform:translateX(-50%);color:#ddd;font-size:clamp(12px,1.2cqw,18px)}
 #game .title-art-status[hidden]{display:none}
 
@@ -2734,6 +2734,8 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .object>span,#game .late-object>span,#game .ambient-target>span{display:none!important}
 #game:has(.memory-scene) .gameplay-objective,#game:has(.memory-scene) .gameplay-goal-row{display:none!important}
 #game .title-cleared{background-position:center;background-size:cover}
+/* Use the verified handwritten title image; readable text remains as fallback. */
+#game .title-cleared .title-logo{mix-blend-mode:screen}
 
 #game .room3-desk::after{top:-8%!important;left:50%!important}
 #game .r8-final-door{position:absolute;left:42%;top:8%;height:78%;width:24%;border:0;background:transparent url("images/background/room01/room01_door_closeup.png") center/contain no-repeat;font-size:0;color:transparent}

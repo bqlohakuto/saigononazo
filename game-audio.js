@@ -4,6 +4,7 @@
   const sounds = {
     answerCorrect: { url: "audio/se/answer_correct.mp3", gain: 0.30 },
     answerIncorrect: { url: "audio/se/answer_incorrect.mp3", gain: 0.40 },
+    bookPageTurn: { url: "audio/se/book_page_turn.mp3", gain: 0.30 },
     phoneRingtone: { url: "audio/se/phone_ringtone.mp3", gain: 0.35 },
     mapWrite: { url: "audio/se/map_write.mp3", gain: 0.45 },
     mapUnfold: { url: "audio/se/map_unfold.mp3", gain: 0.30 },
@@ -182,6 +183,7 @@
     }
     // Judgement and story cues take over from the mechanical lever sound.
     if (id !== "uiClick" && id !== "leverPull" && !sounds[id].loop) stop("leverPull");
+    if (id !== "uiClick" && id !== "bookPageTurn" && !sounds[id].loop) stop("bookPageTurn");
     stop(id);
     if (document.hidden) return false;
     const ready = unlock();
@@ -192,7 +194,7 @@
       const [running, buffer] = await Promise.all([ready, loadBuffer(id)]);
       if (playing.get(id) !== entry) return false;
       // Never deliver a stale UI response after a slow load or mobile resume.
-      if (((id === "uiClick" || id === "leverPull") && Date.now() - entry.requestedAt > 200) ||
+      if (((id === "uiClick" || id === "leverPull" || id === "bookPageTurn") && Date.now() - entry.requestedAt > 200) ||
           (/^(?:answerCorrect|answerIncorrect|carBrake|carCrash|mapWrite|mapUnfold|phoneRingtone)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
         stop(id);
         return false;

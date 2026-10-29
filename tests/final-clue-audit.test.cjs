@@ -145,7 +145,7 @@ test("G04: Room 4's mandatory success scene retains a flower even without viewin
 
 test("G04: Room 7's bookshelf completion records flowers without opening a book",()=>{
   const begin=late.indexOf("  function r7BooksGlow(){");
-  const end=late.indexOf("  function r7Read(id){",begin);
+  const end=late.indexOf("  function r7Read(",begin);
   assert.ok(begin>0&&end>begin);
   let observed=[];
   const ctx={

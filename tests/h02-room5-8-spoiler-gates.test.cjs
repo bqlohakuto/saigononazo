@@ -39,7 +39,7 @@ test("H02 Room 6: the test-only route stays unavailable on normal saves",()=>{
  assert.match(hints,/if\(room6State\.othelloKnown&&room6State\.hintLevel>=3\)/);
 });
 test("H02 Room 7: bookshelf book contents cannot appear before arrangement success",()=>{
- const opening=section("  function r7Read(id){","  function r7DialMarkup(interactive){");
+ const opening=section("  function r7Read(","  function r7DialMarkup(interactive){");
  assert.match(opening,/if\(!book\|\|!room7State\.booksSolved\|\|!room7State\.placed\.includes\(id\)\)return;/);
  assert.match(opening,/recordLog\(\{logId:id==='bremen'/);
  const shelf=section("  function r7Shelf(selectedId){","  function r7BooksGlow(){");

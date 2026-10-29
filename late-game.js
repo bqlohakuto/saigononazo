@@ -2046,7 +2046,7 @@
       line('r7_books_glow_04','ト書き','でも、何か変わったところがあるのかもしれない。')
     ]);
   }
-  function r7Read(id){
+  function r7Read(id,playTurn=true){
     const book=r7Book(id);if(!book||!room7State.booksSolved||!room7State.placed.includes(id))return;
     if(!room7State.firstBookOpened){
       room7State.firstBookOpened=true;saveGame();
@@ -2054,13 +2054,16 @@
         line('r7_first_open_01','ト書き','本を一冊、手に取った。'),
         line('r7_first_open_02','ト書き','さっきは動かなかった表紙が、今度はすんなりと開いた。'),
         line('r7_first_open_03','主人公','……開いた。')
-      ],()=>r7Read(id));return;
+      ],()=>r7Read(id,false),entry=>{
+        if(entry.logId==='r7_first_open_02')globalThis.GameAudio?.play?.("bookPageTurn");
+      });return;
     }
     if(!room7State.read.includes(id))room7State.read.push(id);
     recordLog({logId:id==='bremen'?'r7_final_bremen':'r7_read_'+id,logType:'investigation',speaker:'ト書き',text:id==='bremen'?'『ブレーメンの音楽隊』\n\n'+book.body:book.body});
     recordLog({logId:'r7_final_pressed_flower',logType:'investigation',speaker:'ト書き',text:'左のページに、赤いリボンの付いた押し花の栞が挟まっている。'});saveGame();
     const m=r7Modal('栞のページ','<div class="r7-reader"><div class="r7-reading-viewport"><img class="r7-open-book" src="'+r7Asset(id,'open')+'" alt="左ページに'+book.animals+'の挿絵と押し花の栞。右ページにひらがなの本文。"><p class="r7-sr-only">'+r7Escape(book.body)+'</p></div><button type="button" id="r7Zoom" aria-pressed="false">拡大</button><button type="button" id="r7BackShelf">本棚に戻る</button></div>','r7Shelf');
     m.panel.classList.add('r7-reader-panel');
+    if(playTurn)globalThis.GameAudio?.play?.("bookPageTurn");
     m.panel.querySelector('#r7Zoom').onclick=e=>{const large=m.panel.classList.toggle('is-zoomed');e.currentTarget.textContent=large?'縮小':'拡大';e.currentTarget.setAttribute('aria-pressed',String(large))};
     m.panel.querySelector('#r7BackShelf').onclick=()=>{m.close();r7Shelf()};
   }

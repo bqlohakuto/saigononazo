@@ -496,3 +496,20 @@ test('the ringtone source stays inside memory music selection without restarting
  for(const id of ['room3_flashback_04','room3_final_ringtone','room3_final_ringtone_01','room3_flashback_04_call'])audio.syncSceneMusic('room03',id);
  await tick();assert.equal(contexts.length,0);
 });
+
+
+test('book page sound replaces click and previous turn, follows SE gain, and yields to story effects',async()=>{
+ const {audio,contexts}=harness();audio.setCategoryVolumes(1,0.4);await audio.play('titleMusic');const c=contexts[0],music=c.sources[0];
+ await audio.play('uiClick');const click=c.sources.at(-1);await audio.play('bookPageTurn');const first=c.sources.at(-1);
+ assert.equal(click.disconnected,true);assert.equal(first.loop,false);assert.equal(c.gains.at(-1).gain.value,0.30*0.4);
+ await audio.play('bookPageTurn');assert.equal(first.disconnected,true);const second=c.sources.at(-1);
+ await audio.play('doorOpen');assert.equal(second.disconnected,true);assert.equal(music.disconnected,undefined);
+});
+
+test('pending page sound is cancelled on leaving and does not arrive after a slow decode',async()=>{
+ for(const leave of [true,false]){
+  const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});const pending=audio.play('bookPageTurn');
+  if(leave)audio.stopAll();else await new Promise(resolve=>setTimeout(resolve,220));
+  file.resolve(response());assert.equal(await pending,false);assert.equal(contexts[0].sources.length,0);
+ }
+});

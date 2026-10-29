@@ -1096,7 +1096,7 @@
         scroll.scrollTop=Math.max(0,scroll.scrollTop+(rect.top-box.top-(box.height-rect.height)/2)/(scaleY||1));
       }
     }
-    game.querySelector('#r6MapToggle')?.addEventListener('click',()=>{if(r6Busy())return;room6State.mapOpen=!room6State.mapOpen;saveGame();renderR6()});
+    game.querySelector('#r6MapToggle')?.addEventListener('click',()=>{if(r6Busy())return;room6State.mapOpen=!room6State.mapOpen;globalThis.GameAudio?.play?.(room6State.mapOpen?"mapUnfold":"uiClick");saveGame();renderR6()});
     game.querySelector('#r6MapExpand')?.addEventListener('click',()=>{if(r6Busy())return;room6State.mapExpanded=!room6State.mapExpanded;saveGame();renderR6()});
     game.querySelector('#r6White')?.addEventListener('click',()=>r6Move('W'));
     game.querySelector('#r6Black')?.addEventListener('click',()=>r6Move('G'));

@@ -4,6 +4,8 @@
   const sounds = {
     answerCorrect: { url: "audio/se/answer_correct.mp3", gain: 0.30 },
     answerIncorrect: { url: "audio/se/answer_incorrect.mp3", gain: 0.40 },
+    mapWrite: { url: "audio/se/map_write.mp3", gain: 0.45 },
+    mapUnfold: { url: "audio/se/map_unfold.mp3", gain: 0.30 },
     carBrake: { url: "audio/se/car_brake.mp3", gain: 0.50 },
     carCrash: { url: "audio/se/car_crash.mp3", gain: 0.55 },
     leverPull: { url: "audio/se/lever_pull.mp3", gain: 0.35 },
@@ -34,6 +36,7 @@
   const category=id=>sounds[id]?.category||(id==="memoryBand"?"bgm":"se");
   let desiredMusic=null;
   let accidentCue=null;
+  let mapCue=null;
   let endingTrack=null;
   function syncEndingVolume(){
     if(endingTrack){
@@ -87,7 +90,7 @@
 
   function stopPlaying(){Array.from(playing.keys()).forEach(stop);}
   function stopAll() {
-    accidentCue=null;
+    accidentCue=null;mapCue=null;
     desiredMusic=null;
     if(endingTrack)releaseEndingTrack(endingTrack);
     stopPlaying();
@@ -188,7 +191,7 @@
       if (playing.get(id) !== entry) return false;
       // Never deliver a stale UI response after a slow load or mobile resume.
       if (((id === "uiClick" || id === "leverPull") && Date.now() - entry.requestedAt > 200) ||
-          (/^(?:answerCorrect|answerIncorrect|carBrake|carCrash)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
+          (/^(?:answerCorrect|answerIncorrect|carBrake|carCrash|mapWrite|mapUnfold)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
         stop(id);
         return false;
       }
@@ -265,6 +268,7 @@
   function stopMemoryAmbience(){
     memoryAmbienceIds.forEach(stop);
     stopAccidentSounds();accidentCue=null;
+    stopMapSounds();mapCue=null;
   }
   function syncAccidentSounds(beat){
     // A source-line phase survives pagination, interruption and an ended source.
@@ -272,6 +276,14 @@
     const cue=beat>=32&&beat<=34?"carBrake":beat===35?"carCrash":null;
     if(cue===accidentCue)return;
     stopAccidentSounds();accidentCue=cue;
+    if(cue)play(cue);
+  }
+  function stopMapSounds(){stop("mapWrite");stop("mapUnfold");}
+  function syncMapSounds(logId){
+    const cue=/^r6_fullmap_draw(?:_|$)/.test(logId||"")?"mapWrite":
+      /^r6_map_03(?:_|$)/.test(logId||"")?"mapUnfold":null;
+    if(cue===mapCue)return;
+    stopMapSounds();mapCue=cue;
     if(cue)play(cue);
   }
   function syncMemoryAmbience(logId){
@@ -288,6 +300,7 @@
     memoryAmbienceIds.forEach(other=>{if(other!==id)stop(other)});
     if(id&&!playing.has(id))play(id);
     syncAccidentSounds(room7?Number(room7[1]):null);
+    syncMapSounds(logId);
   }
 
   function setVolume(value) {
@@ -318,7 +331,7 @@
         button.closest("[inert],[hidden],[aria-hidden='true']")) return;
     // Preserve instruments, scene interactions, and the quiet rhythm of dialogue.
     // data-ui-sound lets future controls explicitly opt out of the common sound.
-    if (button.matches(".room2-physical-lever,#r6White,#r6Black,.object,.item-object,.late-object,.r5-scene-target,.r7-target,.piano-note-key,[data-note],#playMelodyButton,.next-button,.skip-button,#r5FridgeUpper,#r5FridgeLower,[data-ui-sound='off']")) return;
+    if (button.matches(".room2-physical-lever,#r6White,#r6Black,#r6MapToggle,.object,.item-object,.late-object,.r5-scene-target,.r7-target,.piano-note-key,[data-note],#playMelodyButton,.next-button,.skip-button,#r5FridgeUpper,#r5FridgeLower,[data-ui-sound='off']")) return;
     void play("uiClick");
   }, { capture: true });
   global.GameAudio = { createEndingTrack, releaseEndingTrack, fadeForEnding, unlock, play, playPianoNote, stop, stopAll, fadeOut, setVolume,setCategoryVolumes,syncMemoryAmbience,stopMemoryAmbience,setMusic,syncSceneMusic,resumeMusic };

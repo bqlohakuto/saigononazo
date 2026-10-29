@@ -431,3 +431,33 @@ test('leaving accident memory cancels pending sound and crash follows SE mute',a
  assert.equal(contexts[0].gains.at(-1).gain.value,0);audio.setCategoryVolumes(1,0.4);assert.equal(contexts[0].gains.at(-1).gain.value,0.55*0.4);
  audio.syncMemoryAmbience('r8_entry_01');assert.equal(contexts[0].sources[0].disconnected,true);
 });
+
+
+test('map writing follows its source line once, stops at completion, and obeys SE volume',async()=>{
+ const {audio,contexts}=harness();audio.setCategoryVolumes(1,0.4);
+ audio.syncMemoryAmbience('r6_fullmap_03');await tick();assert.equal(contexts.length,0);
+ audio.syncMemoryAmbience('r6_fullmap_draw');await tick();const c=contexts[0],write=c.sources[0];
+ assert.equal(write.loop,false);assert.equal(c.gains.at(-1).gain.value,0.45*0.4);
+ audio.syncMemoryAmbience('r6_fullmap_draw_01');await tick();assert.equal(c.sources.length,1);
+ audio.syncMemoryAmbience('r6_fullmap_done');assert.equal(write.disconnected,true);
+ audio.syncMemoryAmbience('r6_fullmap_04');await tick();assert.equal(c.sources.length,1);
+});
+
+test('map handover unfolds once and completed writing never restarts on pagination or app resume',async()=>{
+ const {audio,contexts,window}=harness();
+ audio.syncMemoryAmbience('r6_map_03');await tick();const c=contexts[0];assert.equal(c.gains.at(-1).gain.value,0.30);
+ audio.syncMemoryAmbience('r6_map_03_01');await tick();assert.equal(c.sources.length,1);
+ audio.syncMemoryAmbience('r6_map_04');assert.equal(c.sources[0].disconnected,true);
+ audio.syncMemoryAmbience('r6_fullmap_draw');await tick();c.sources.at(-1).onended();
+ audio.syncMemoryAmbience('r6_fullmap_draw_01');await tick();assert.equal(c.sources.length,2);
+ window.emit('pagehide');await audio.unlock();audio.syncMemoryAmbience('r6_fullmap_draw_02');await tick();assert.equal(c.sources.length,2);
+});
+
+test('skipping or leaving map drawing cancels pending decoding, and unfold respects mute',async()=>{
+ for(const leave of [false,true]){
+  const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});
+  audio.syncMemoryAmbience('r6_fullmap_draw');if(leave)audio.stopMemoryAmbience();else audio.syncMemoryAmbience('r6_fullmap_done');
+  file.resolve(response());await tick();assert.equal(contexts[0].sources.length,0);
+ }
+ const {audio,contexts}=harness();audio.setCategoryVolumes(1,0);await audio.play('mapUnfold');assert.equal(contexts[0].gains.at(-1).gain.value,0);
+});

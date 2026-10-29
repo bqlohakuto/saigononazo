@@ -4,6 +4,8 @@
   const sounds = {
     answerCorrect: { url: "audio/se/answer_correct.mp3", gain: 0.30 },
     answerIncorrect: { url: "audio/se/answer_incorrect.mp3", gain: 0.40 },
+    carBrake: { url: "audio/se/car_brake.mp3", gain: 0.50 },
+    carCrash: { url: "audio/se/car_crash.mp3", gain: 0.55 },
     leverPull: { url: "audio/se/lever_pull.mp3", gain: 0.35 },
     uiClick: { url: "audio/se/ui_click.mp3", gain: 0.22 },
     highSchool: { url: "audio/se/high_school.mp3", gain: 0.30, loop: true },
@@ -31,6 +33,7 @@
   let categoryVolumes={bgm:1,se:1};
   const category=id=>sounds[id]?.category||(id==="memoryBand"?"bgm":"se");
   let desiredMusic=null;
+  let accidentCue=null;
   let endingTrack=null;
   function syncEndingVolume(){
     if(endingTrack){
@@ -84,6 +87,7 @@
 
   function stopPlaying(){Array.from(playing.keys()).forEach(stop);}
   function stopAll() {
+    accidentCue=null;
     desiredMusic=null;
     if(endingTrack)releaseEndingTrack(endingTrack);
     stopPlaying();
@@ -184,7 +188,7 @@
       if (playing.get(id) !== entry) return false;
       // Never deliver a stale UI response after a slow load or mobile resume.
       if (((id === "uiClick" || id === "leverPull") && Date.now() - entry.requestedAt > 200) ||
-          (/^answer(?:Correct|Incorrect)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
+          (/^(?:answerCorrect|answerIncorrect|carBrake|carCrash)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
         stop(id);
         return false;
       }
@@ -257,7 +261,19 @@
   }
 
   const memoryAmbienceIds=["cherryWind","quietClassroom","highSchool","naturePark","cityRoad","intersection"];
-  function stopMemoryAmbience(){memoryAmbienceIds.forEach(stop);}
+  function stopAccidentSounds(){stop("carBrake");stop("carCrash");}
+  function stopMemoryAmbience(){
+    memoryAmbienceIds.forEach(stop);
+    stopAccidentSounds();accidentCue=null;
+  }
+  function syncAccidentSounds(beat){
+    // A source-line phase survives pagination, interruption and an ended source.
+    // Fast advance cancels queued decoding rather than delivering a late impact.
+    const cue=beat>=32&&beat<=34?"carBrake":beat===35?"carCrash":null;
+    if(cue===accidentCue)return;
+    stopAccidentSounds();accidentCue=cue;
+    if(cue)play(cue);
+  }
   function syncMemoryAmbience(logId){
     const room2=/^room2_memory_(\d{3})(?:_|$)/.exec(logId||"");
     const room3=/^room3_flashback_(\d{2})(?:_|$)/.exec(logId||"");
@@ -271,6 +287,7 @@
       room7&&Number(room7[1])>=26&&Number(room7[1])<=34?"intersection":null;
     memoryAmbienceIds.forEach(other=>{if(other!==id)stop(other)});
     if(id&&!playing.has(id))play(id);
+    syncAccidentSounds(room7?Number(room7[1]):null);
   }
 
   function setVolume(value) {

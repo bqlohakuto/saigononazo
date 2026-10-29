@@ -290,13 +290,19 @@ test('nature ambience continues across all walk source IDs and stops on whiteout
  await tick();const c=contexts[0];assert.equal(c.sources.length,1);assert.equal(c.sources[0].loop,true);
  audio.syncMemoryAmbience('r6_memory_full_086_01');assert.equal(c.sources[0].disconnected,true);
 });
-test('room seven changes from city road to intersection before impact, then goes silent',async()=>{
+test('room seven moves through street, intersection, braking, impact and silence',async()=>{
  const {audio,contexts}=harness();audio.syncMemoryAmbience('r7_mem_01');await tick();const c=contexts[0],street=c.sources[0];
  audio.syncMemoryAmbience('r7_mem_25_01');await tick();assert.equal(c.sources.length,1);
  audio.syncMemoryAmbience('r7_mem_26_01');await tick();assert.equal(street.disconnected,true);assert.equal(c.sources.length,2);
- audio.syncMemoryAmbience('r7_mem_34');await tick();assert.equal(c.sources.length,2);
- audio.syncMemoryAmbience('r7_mem_35_01');assert.equal(c.sources[1].disconnected,true);
- audio.syncMemoryAmbience('r7_mem_37');await tick();assert.equal(c.sources.length,2);
+ const crossing=c.sources[1];audio.syncMemoryAmbience('r7_mem_32');await tick();const brake=c.sources[2];
+ assert.equal(brake.loop,false);assert.equal(c.gains.at(-1).gain.value,0.50);
+ for(const id of ['r7_mem_32_01','r7_mem_33','r7_mem_34'])audio.syncMemoryAmbience(id);
+ await tick();assert.equal(c.sources.length,3);assert.equal(crossing.disconnected,undefined);
+ audio.syncMemoryAmbience('r7_mem_35_01');await tick();assert.equal(crossing.disconnected,true);assert.equal(brake.disconnected,true);
+ const impact=c.sources[3];assert.equal(impact.loop,false);assert.equal(c.gains.at(-1).gain.value,0.55);
+ audio.syncMemoryAmbience('r7_mem_35_02');await tick();assert.equal(c.sources.length,4);
+ audio.syncMemoryAmbience('r7_mem_36');assert.equal(impact.disconnected,true);
+ audio.syncMemoryAmbience('r7_mem_37');await tick();assert.equal(c.sources.length,4);
 });
 
 
@@ -397,4 +403,31 @@ test('lever waiting for decoding is cancelled by result or page hide, and expire
   if(result)assert.equal(await result,true);
   assert.equal(contexts[0].sources.length,action==='result'?1:0);
  }
+});
+
+
+test('fast accident advance cancels brake and impact still waiting for decoding',async()=>{
+ const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});
+ audio.syncMemoryAmbience('r7_mem_32');audio.syncMemoryAmbience('r7_mem_35');audio.syncMemoryAmbience('r7_mem_36');
+ file.resolve(response());await tick();assert.equal(contexts[0].sources.length,0);
+});
+
+test('accident sources do not replay on pagination, after ending, or after page hide',async()=>{
+ for(const beat of [32,35]){
+  const {audio,contexts,window}=harness();audio.syncMemoryAmbience('r7_mem_'+beat);await tick();
+  const c=contexts[0],source=c.sources.find(s=>!s.loop),count=c.sources.length;
+  source.onended();audio.syncMemoryAmbience('r7_mem_'+beat+'_01');await tick();assert.equal(c.sources.length,count);
+  window.emit('pagehide');await audio.unlock();audio.syncMemoryAmbience('r7_mem_'+beat+'_02');await tick();
+  // Intersection ambience may resume; the one-shot must not.
+  assert.equal(c.sources.filter(s=>!s.loop).length,1);
+  audio.stopMemoryAmbience();audio.syncMemoryAmbience('r7_mem_'+beat);await tick();assert.equal(c.sources.filter(s=>!s.loop).length,2);
+ }
+});
+
+test('leaving accident memory cancels pending sound and crash follows SE mute',async()=>{
+ const file=deferred();const h=harness({fetch:()=>file.promise});h.audio.syncMemoryAmbience('r7_mem_35');h.audio.stopMemoryAmbience();
+ file.resolve(response());await tick();assert.equal(h.contexts[0].sources.length,0);
+ const {audio,contexts}=harness();audio.setCategoryVolumes(1,0);audio.syncMemoryAmbience('r7_mem_35');await tick();
+ assert.equal(contexts[0].gains.at(-1).gain.value,0);audio.setCategoryVolumes(1,0.4);assert.equal(contexts[0].gains.at(-1).gain.value,0.55*0.4);
+ audio.syncMemoryAmbience('r8_entry_01');assert.equal(contexts[0].sources[0].disconnected,true);
 });

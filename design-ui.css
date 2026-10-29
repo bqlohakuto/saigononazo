@@ -158,8 +158,6 @@ html[data-game-text-size=large] #game .room-dialog .message{font-size:clamp(18px
 #game .design-orientation{position:absolute;inset:0;z-index:200;display:none;place-items:center;background:#202820;color:var(--paper);text-align:center;padding:24px}
 #game .design-orientation h2{margin:12px;font-size:24px}
 #game .design-orientation p{font-size:15px}
-#game .design-sound-caption{position:absolute;bottom:34%;left:30%;right:5%;z-index:90;pointer-events:none;text-align:center;background:#faf7eeec;border:1px solid var(--paper-line);border-radius:4px;padding:5px;font-size:clamp(11px,1.2cqw,17px)}
-#game .design-sound-caption[hidden]{display:none}
 #game .is-keyboard-open{max-height:100%;overflow:auto}
 #game .is-keyboard-open input:focus{scroll-margin:20px}
 @media(orientation:portrait) and (pointer:coarse){#game .design-orientation{display:grid}}

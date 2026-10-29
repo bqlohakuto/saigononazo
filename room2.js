@@ -309,7 +309,8 @@ function showSecondRoomPuzzle(){
    const item=document.createElement("div");item.className="room2-reaction-line "+(line.speaker==="ハナ"?"is-hana":"is-protagonist");
    const name=document.createElement("strong");name.className="room2-reaction-name";name.textContent=line.speaker;
    const message=document.createElement("p");message.className="room2-reaction-speech";message.textContent=line.text;
-   item.append(name,message);list.append(item);
+   if(line.speaker==="ハナ")item.append(name);
+   item.append(message);list.append(item);
    recordLog(line);
   }
   reactionPanel.hidden=false;

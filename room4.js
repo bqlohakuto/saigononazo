@@ -129,7 +129,7 @@ function renderFourthRoomView(){
  stage.dataset.view=view;
  document.getElementById("r4Background").src=`images/background/room04/room04_${view}.webp`;
  const targets={front:["r4Door","r4Wall","r4Box","r4Hana"],right:["r4Const","r4Flowers","r4P1"],back:["r4Meteor","r4Moon","r4P2","r4P3"],left:["r4Light","r4Stand"]};
- for(const b of stage.querySelectorAll(".r4obj")){b.hidden=!targets[view].includes(b.id);b.setAttribute("aria-label",b.querySelector("span").textContent);}
+ for(const b of stage.querySelectorAll(".r4obj")){b.hidden=!targets[view].includes(b.id)||(b.id==='r4Wall'&&room4State.wall);b.setAttribute("aria-label",b.querySelector("span").textContent);}
  window.RoomExploration?.mount('room04',stage,view,room4State,{image:`images/background/room04/room04_${view}.webp`,imageAspect:16/9});
 }
 function turnFourthRoom(step){
@@ -504,7 +504,7 @@ function r4Wall(){if(room4State.wall){showRoomNotice("壁の透明パネルは�
 function r4Box(){if(room4State.box){showRoomNotice("質問箱の透明パネルは取り外してある。","r4boxdone");return}showRoomDialog([{logId:"r4b1",logType:"investigation",speaker:"ト書き",text:"質問箱を調べる。何気なく眺めていると、一面だけ材質が違う。"},{logId:"r4b2",logType:"dialogue",speaker:"主人公",text:"……あれ？ この部分だけ、透明な板になってる……？"},{logId:"r4b3",logType:"investigation",speaker:"ト書き",text:"端に手をかけると外せそうだ。箱から透明なパネルを取り外した。"}],()=>{room4State.box=true;saveGame();r4Refresh("box")})}
 function r4Refresh(key){
  const wall=document.getElementById("r4Wall");
- if(wall&&room4State.wall)wall.disabled=true;
+ if(wall&&room4State.wall){wall.disabled=true;wall.hidden=true;}
  const index=R4_PANEL_KEYS.indexOf(key);
  if(index<0||!room4State[key])return;
  const number=String(index+1).padStart(2,"0");

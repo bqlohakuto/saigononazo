@@ -2755,7 +2755,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
  background-image:url("images/ui/title-cleared-background-v2.png")!important;
  background-size:100% 100%!important;
 }
-#game .title-cleared .title-logo{filter:invert(1) brightness(80);mix-blend-mode:screen}
+#game .title-cleared .title-logo{filter:grayscale(1) invert(1) brightness(80);mix-blend-mode:screen}
 #game .title-cleared .title-logo img{mix-blend-mode:normal}
 #game .title-cleared .title-menu{mix-blend-mode:normal;gap:6px}
 #game .title-cleared .title-menu button:not(#testRoomButton){

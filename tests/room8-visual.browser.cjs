@@ -48,6 +48,48 @@ const root=path.join(__dirname,'..'),out=process.env.UI_SCREENSHOT_DIR||path.joi
    assert.match(await p.locator('#r8BackText').textContent(),/最初の部屋/);
    assert.doesNotMatch(await p.locator('#r8BackText').textContent(),/未確定|花音/);
    await p.screenshot({path:path.join(out,'room08-'+spec.name+'-paper.png')});
+   // G02/G03/G04: real-browser record list navigation, including the narrow touch viewport.
+   await p.locator('.device-overlay .device-close').click();
+   await p.evaluate(()=>{
+    for(let i=0;i<21;i++)GameLog.record({
+      logId:'visual_log_'+i,logRoom:'room08',logType:'investigation',
+      speaker:'ト書き',text:'調査記録 '+String(i).padStart(2,'0')+'。'.repeat(55)
+    });
+   });
+   await p.locator('.gameplay-hud-actions button').filter({hasText:'記録'}).click();
+   const recordPanel=p.locator('.design-panel[aria-label="記録"]');
+   await recordPanel.waitFor();
+   const roomJump=recordPanel.locator('select[aria-label="記録の部屋へジャンプ"]');
+   assert.equal(await roomJump.inputValue(),'room08','the viewed room remains selected');
+   await recordPanel.locator('.design-record-categories [data-category="investigation"]').click();
+   const pagePicker=recordPanel.locator('select[aria-label="記録のページを選択"]');
+   assert.ok(await pagePicker.locator('option').count()>=3,'record pages are directly selectable');
+   const recordList=recordPanel.locator('.design-content');
+   const scrolling=await recordList.evaluate(el=>{
+    const initial={height:el.style.height,maxHeight:el.style.maxHeight,minHeight:el.style.minHeight};
+    el.style.height='56px';el.style.maxHeight='56px';el.style.minHeight='0px';
+    const style=getComputedStyle(el);
+    const info={overflow:style.overflowY,touch:style.touchAction,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight};
+    el.scrollTop=100;
+    info.scrollTop=el.scrollTop;
+    Object.assign(el.style,initial);
+    return info;
+   });
+   assert.equal(scrolling.overflow,'auto','record list keeps vertical scrolling in '+spec.name);
+   assert.ok(scrolling.touch.includes('pan-y'),'touch gestures can scroll records');
+   assert.ok(scrolling.scrollHeight>scrolling.clientHeight&&scrolling.scrollTop>0,
+     'the browser can scroll the record list when the viewport is short');
+   const lastPage=(await pagePicker.locator('option').count())-1;
+   await pagePicker.selectOption(String(lastPage));
+   assert.equal(await pagePicker.inputValue(),String(lastPage),'last record page can be selected');
+   await recordPanel.locator('.design-record').last().click();
+   await recordPanel.locator('.design-page').waitFor();
+   assert.ok(await recordPanel.locator('.design-record-pager').isHidden(),'detail hides list pager');
+   await recordPanel.locator('.design-actions button').filter({hasText:'一覧に戻る'}).click();
+   assert.ok(await recordPanel.locator('.design-record').count()>0,'returning restores the list');
+   await p.screenshot({path:path.join(out,'room08-'+spec.name+'-record-navigation.png')});
+   await recordPanel.locator('header button').click();
+   await click('#r8PaperImage');
    await p.locator('#r8Answer').fill('ハナ');await click('#r8Submit');assert.match(await p.locator('#r8Feedback').textContent(),/この名前じゃない/);
    await p.locator('#r8Answer').fill('花音');await click('#r8Submit');
    await advanceFinal('r8_return_02');await frame('reunion','pov-reunion.webp');

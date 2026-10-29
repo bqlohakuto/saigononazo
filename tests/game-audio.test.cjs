@@ -564,3 +564,12 @@ test('room sparkle preserves door and BGM, follows SE volume, and can fade at ar
  assert.equal(c.sources.length,3);assert.equal(music.disconnected,undefined);assert.equal(c.sources[1].disconnected,undefined);
  assert.equal(c.gains.at(-1).gain.value,0.12*0.5);assert.equal(audio.fadeOut('roomSparkle',180),true);assert.equal(c.sources.at(-1).stopAt,12.18);
 });
+
+
+test('item placement replaces click and previous placement while preserving BGM and yielding to judgement',async()=>{
+ const {audio,contexts}=harness();audio.setCategoryVolumes(1,0.4);await audio.play('explorationMusic');const c=contexts[0],music=c.sources[0];
+ await audio.play('uiClick');const click=c.sources.at(-1);await audio.play('itemPlace');const first=c.sources.at(-1);
+ assert.equal(click.disconnected,true);assert.equal(c.gains.at(-1).gain.value,0.30*0.4);
+ await audio.play('itemPlace');assert.equal(first.disconnected,true);const second=c.sources.at(-1);
+ await audio.play('answerCorrect');assert.equal(second.disconnected,true);assert.equal(music.disconnected,undefined);
+});

@@ -474,7 +474,8 @@
           animation.finished.then(()=>ghost.remove(),()=>ghost.remove());
         }
       }
-      boardState.placed[id]=counter;selected=null;saveGame();
+      boardState.placed[id]=counter;selected=null;
+      globalThis.GameAudio?.play?.("itemPlace");saveGame();
       drawSlots();drawTray();r5RefreshWall();
       const fitted=grid.querySelector('[data-counter="'+counter+'"]');
       if(!reduced())fitted?.animate?.([{filter:'brightness(1)',transform:'scale(.88)'},{filter:'brightness(1.25)',transform:'scale(1.03)'},{filter:'brightness(1)',transform:'scale(1)'}],{duration:380,easing:'ease-out'});

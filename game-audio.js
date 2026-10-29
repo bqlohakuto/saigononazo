@@ -4,6 +4,7 @@
   const sounds = {
     answerCorrect: { url: "audio/se/answer_correct.mp3", gain: 0.30 },
     answerIncorrect: { url: "audio/se/answer_incorrect.mp3", gain: 0.40 },
+    itemPlace: { url: "audio/se/item_place.mp3", gain: 0.30 },
     roomSparkle: { url: "audio/se/room_sparkle.mp3", gain: 0.12 },
     constellationGlow: { url: "audio/se/constellation_glow.mp3", gain: 0.40 },
     hospitalMonitor: { url: "audio/se/hospital_monitor.mp3", gain: 0.25, loop: true },
@@ -188,6 +189,7 @@
     // Judgement and story cues take over from the mechanical lever sound.
     if (id !== "uiClick" && id !== "leverPull" && !sounds[id].loop) stop("leverPull");
     if (id !== "uiClick" && id !== "bookPageTurn" && !sounds[id].loop) stop("bookPageTurn");
+    if (id !== "uiClick" && id !== "itemPlace" && !sounds[id].loop) stop("itemPlace");
     stop(id);
     if (document.hidden) return false;
     const ready = unlock();
@@ -198,7 +200,7 @@
       const [running, buffer] = await Promise.all([ready, loadBuffer(id)]);
       if (playing.get(id) !== entry) return false;
       // Never deliver a stale UI response after a slow load or mobile resume.
-      if (((id === "uiClick" || id === "leverPull" || id === "bookPageTurn" || id === "roomSparkle") && Date.now() - entry.requestedAt > 200) ||
+      if (((id === "uiClick" || id === "leverPull" || id === "bookPageTurn" || id === "roomSparkle" || id === "itemPlace") && Date.now() - entry.requestedAt > 200) ||
           (/^(?:answerCorrect|answerIncorrect|carBrake|carCrash|mapWrite|mapUnfold|phoneRingtone|constellationGlow)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
         stop(id);
         return false;

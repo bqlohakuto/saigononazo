@@ -326,6 +326,7 @@ function showSecondRoomPuzzle(){
    if(!token||!ROOM2_SYMBOLS.includes(token.symbol)||!ROOM2_COLORS.includes(token.color))return;
    if(!Number.isInteger(index)||index<0||index>=5)return;
    const guess=room2State.guess;
+   const beforePlacement=JSON.stringify(guess);
    // A board piece moves or swaps; a tray piece replaces a target well.
    if(Number.isInteger(sourceSlot)&&sourceSlot>=0&&sourceSlot<5&&
       guess[sourceSlot]?.symbol===token.symbol&&guess[sourceSlot]?.color===token.color){
@@ -337,6 +338,7 @@ function showSecondRoomPuzzle(){
     if(previous>=0&&previous!==index)guess[previous]=null;
     guess[index]={symbol:token.symbol,color:token.color};
    }
+   if(JSON.stringify(guess)!==beforePlacement)globalThis.GameAudio?.play?.("itemPlace");
    selectedSlot=null;heldToken=null;lastPlacedSlot=index;feedback.textContent="";
    saveGame();render();
   };
@@ -367,6 +369,7 @@ function showSecondRoomPuzzle(){
      feedback.textContent="";saveGame();
     }else{
      [room2State.guess[selectedSlot],room2State.guess[index]]=[room2State.guess[index],room2State.guess[selectedSlot]];
+     globalThis.GameAudio?.play?.("itemPlace");
      lastPlacedSlot=index;selectedSlot=null;feedback.textContent="";saveGame();
     }
     render();

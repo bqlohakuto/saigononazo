@@ -355,6 +355,7 @@ function r4Stand(){
   if(!room4State[R4_PANEL_KEYS[i]])return;
   if(!r4Mounted(i)){
    room4State.mountedPanels[i]=true;
+   globalThis.GameAudio?.play?.("itemPlace");
    button.classList.add("is-mounted");
    button.setAttribute("aria-label","ガラスパネル"+(i+1)+"を右に90度回す");
    stackImages[i].hidden=false;

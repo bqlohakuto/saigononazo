@@ -25,6 +25,10 @@ const fs=require('node:fs');
   if(spec.cleared){
    assert.equal(await h1.locator('img').getAttribute('src'),'images/ui/title-cleared-logo.jpg');
    assert.equal(await h1.locator('img').getAttribute('alt'),'最後の謎が解けても');
+   if(!spec.fail){
+    assert.equal(await h1.locator('img').evaluate(el=>getComputedStyle(el).filter),'invert(1) brightness(80)');
+    assert.equal(await page.locator('.title-menu').evaluate(el=>getComputedStyle(el).mixBlendMode),'normal');
+   }
    assert(await page.locator('.title-cleared').count());
    if(spec.fail){
     assert(await page.locator('.title-art-fallback').count());

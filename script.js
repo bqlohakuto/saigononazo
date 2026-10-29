@@ -207,7 +207,7 @@ function showTitle(notice=""){
  // The supplied JPEG stores faint yellow handwriting on white. Its blue
  // channel preserves the ink; map that signal to alpha instead of blending
  // an opaque JPEG rectangle over the background (especially in WebKit).
- if(cleared)title.insertAdjacentHTML('afterbegin','<svg class="title-ink-filter" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><filter id="cleared-title-ink" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 -80 0 80"/></filter></defs></svg>');
+ if(cleared)title.insertAdjacentHTML('afterbegin','<svg class="title-ink-filter" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><filter id="cleared-title-ink" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 -80 80 0"/></filter></defs></svg>');
  background.src=cleared?'images/ui/title-cleared-background-v2.png?v=20261030-restored':'images/pixel-ui/title-background-pixel.png';
  if(cleared){title.classList.add('title-cleared');title.style.backgroundImage='url("'+background.src+'")';}
  const images=[background,...title.querySelectorAll('img')];

@@ -2755,7 +2755,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
  background-image:url("images/ui/title-cleared-background-v2.png?v=20261030-restored")!important;
  background-size:100% 100%!important;
 }
-#game .title-cleared .title-logo{filter:none;mix-blend-mode:normal;overflow:visible}
+#game .title-cleared .title-logo{filter:none;mix-blend-mode:normal}
 #game .title-cleared .title-logo img{filter:url(#cleared-title-ink) drop-shadow(0 2px 2px #000);mix-blend-mode:normal}
 #game .title-cleared .title-ink-filter{position:absolute;width:0;height:0;pointer-events:none}
 #game .title-cleared .title-menu{mix-blend-mode:normal;gap:6px}

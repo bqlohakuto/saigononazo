@@ -52,6 +52,14 @@ const fs=require('node:fs');
   assert(titleBox.y+titleBox.height<menuBox.y,'title and menu do not overlap');
   fs.mkdirSync('artifacts/title-clear-review',{recursive:true});
   await page.screenshot({path:`artifacts/title-clear-review/${spec.name}.png`});
+  if(spec.cleared&&!spec.fail){
+   const clip={x:Math.round(gameBox.x+gameBox.width*.85),y:Math.round(gameBox.y+gameBox.height*.8),width:8,height:8};
+   const withTitle=await page.screenshot({clip});
+   await h1.evaluate(el=>el.style.visibility='hidden');
+   const withoutTitle=await page.screenshot({clip});
+   assert(withTitle.equals(withoutTitle),'title filter must not paint white bands outside the logo');
+   await h1.evaluate(el=>el.style.visibility='');
+  }
   await page.locator('#settingsButton').click();
   assert(await page.locator('#game').innerText().then(s=>s.includes('設定')));
   assert.deepEqual(errors,[]);

@@ -241,6 +241,7 @@ function r4Light(){
  }
  if(!r4AllMounted()){r4ScheduleFailedLightOff();showRoomNotice("はめたパネルの星が、壁に映っている。まだ空いている枠がある。","r4partial");return}
  if(!r4Correct()){
+  globalThis.GameAudio?.play?.("answerIncorrect");
   r4ScheduleFailedLightOff();
   showRoomDialog([{logId:"r4lw1",logType:"investigation",speaker:"ト書き",text:"ライトの光がパネルを通り、左の壁にいくつもの星が映し出される。"},{logId:"r4lw2",logType:"dialogue",speaker:"主人公",text:"……星は映ったけど。これじゃ、まだ何の形か分からないな"},{logId:"r4lw3",logType:"dialogue",speaker:"主人公",text:"パネルの向きが違うのかもしれない"}]);return;
  }
@@ -394,7 +395,7 @@ function r4WordPuzzle(kind){
  }
  input.addEventListener("input",()=>{fb.textContent=""});
  input.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.isComposing&&!event.repeat){event.preventDefault();o.querySelector(".r4-answer").click()}});
- o.querySelector(".r4-answer").onclick=()=>{const answer=input.value.normalize("NFKC").trim().toUpperCase();if(!answer){fb.textContent="答えを入力してください。";return}if(answer!==kind){fb.textContent="鍵は開かない。";return}if(kind==="STAR")room4State.star=true;else room4State.lightPuzzle=true;saveGame();close();showRoomDialog([{logId:"r4"+kind+"ok1",logType:"dialogue",speaker:"主人公",text:`${kind}……${kind==="STAR"?"星":"光"}、か`},{logId:"r4"+kind+"ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースのロックが外れた。中から透明なパネルを取り出す。"}],()=>r4Refresh(kind==="STAR"?"star":"lightPuzzle"))};
+ o.querySelector(".r4-answer").onclick=()=>{const answer=input.value.normalize("NFKC").trim().toUpperCase();if(!answer){fb.textContent="答えを入力してください。";return}if(answer!==kind){globalThis.GameAudio?.play?.("answerIncorrect");fb.textContent="鍵は開かない。";return}globalThis.GameAudio?.play?.("answerCorrect");if(kind==="STAR")room4State.star=true;else room4State.lightPuzzle=true;saveGame();close();showRoomDialog([{logId:"r4"+kind+"ok1",logType:"dialogue",speaker:"主人公",text:`${kind}……${kind==="STAR"?"星":"光"}、か`},{logId:"r4"+kind+"ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースのロックが外れた。中から透明なパネルを取り出す。"}],()=>r4Refresh(kind==="STAR"?"star":"lightPuzzle"))};
 }
 function r4P1(){r4WordPuzzle("STAR")} function r4P2(){r4WordPuzzle("LIGHT")}
 function r4P3(){
@@ -428,6 +429,7 @@ function r4P3(){
   if(room4State.rainbow.map(v=>v.slice(-1)).join("")!=="METEORS")return false;
   // Let the player actually see the completed order before revealing it.
   earnedThisOpen=true;
+  globalThis.GameAudio?.play?.("answerCorrect");
   room4State.meteors=true;saveGame();draw();
   o.classList.add("is-solved");
   revealTimer=window.setTimeout(()=>{
@@ -531,6 +533,7 @@ function r4Hana(){
 function r4Complete(){
  if(room4State.completed)return;
  r4CancelFailedLightOff();
+ globalThis.GameAudio?.play?.("answerCorrect");
  room4State.completed=true;room4State.lightOn=true;saveGame();r4Projection();game.querySelector(".room-four")?.classList.add("is-restored");const status=game.querySelector(".room-four .room-color-status");if(status)status.textContent="記憶を取り戻した部屋";
  showRoomDialog([{logId:"r4ok1",logType:"investigation",speaker:"ト書き",text:"ライトの光が、五枚のパネルを通り抜ける。左の壁に、いくつもの星が映し出された。今までばらばらだった星が、ひとつの形を描いている。"},{logId:"r4ok2",logType:"dialogue",speaker:"主人公",text:"これ……星座だ"},{logId:"r4ok3",logType:"narration",speaker:"ト書き",text:"右の壁にある星座一覧へ目を向ける。その隣には、星座にまつわる花の絵が並んでいた。"},{logId:"r4ok4",logType:"dialogue",speaker:"主人公",text:"……おとめ座"},{logId:"r4ok5",logType:"narration",speaker:"ト書き",text:"もう一度、壁を見る。その瞬間――おとめ座を形作る星のひとつが、強く輝き始めた。光は次第に強くなり、辺りを白く染めていく。"},{logId:"r4ok6",logType:"dialogue",speaker:"ハナ",text:"……スピカ"},{logId:"r4ok7",logType:"dialogue",speaker:"主人公",text:"え？"},{logId:"r4ok8",logType:"narration",speaker:"ト書き",text:"ハナの方を振り返ろうとした瞬間、視界がまばゆい光に包まれた。"}],r4Memory);
 }

@@ -601,7 +601,8 @@
     o.querySelectorAll("[data-digit]").forEach(b=>b.onclick=()=>{if(value.length<4){value+=b.dataset.digit;draw()}});
     o.querySelector('[data-key="clear"]').onclick=()=>{value="";fb.textContent="";draw()};
     o.querySelector('[data-key="enter"]').onclick=()=>{
-      if(value!=="8194"){fb.textContent="……違う。";value="";draw();return}
+      if(value!=="8194"){if(value.length===4)globalThis.GameAudio?.play?.("answerIncorrect");fb.textContent="……違う。";value="";draw();return}
+      globalThis.GameAudio?.play?.("answerCorrect");
       o.remove();room5State.doorUnlocked=true;saveGame();
       showRoomDialog([
         line("r5_keypad_ok_01","ト書き","――ピッ。"),
@@ -2107,7 +2108,9 @@
     if(r7DoorBusy)return;
     if(!room7State.doorExamined||!room7State.booksSolved){r7InspectDoor();return;}
     if(room7State.completed)return;
-    if(z!==R7_DOORS[room7State.doorIndex])return; // Wrong selections leave the puzzle unchanged.
+    if(z!==R7_DOORS[room7State.doorIndex]){globalThis.GameAudio?.play?.("answerIncorrect");return;} // Keep puzzle state unchanged.
+    // The last door keeps its authored door sound and memory transition.
+    if(room7State.doorIndex<R7_DOORS.length-1)globalThis.GameAudio?.play?.("answerCorrect");
     const isLast=room7State.doorIndex===R7_DOORS.length-1;
     room7State.doorIndex++;
     if(R7_SHORT_MEMORIES[z])room7State.shortMemory={zodiac:z,progress:null};
@@ -2463,6 +2466,7 @@
       const value=o.querySelector("#r8Answer").value.trim();
       if(!value){o.querySelector("#r8Feedback").textContent="……名前を、思い出そう。";return}
       if(!["花音","かのん","カノン"].includes(value)){
+        globalThis.GameAudio?.play?.("answerIncorrect");
         o.querySelector("#r8Feedback").textContent="……違う。僕が呼びたいのは、この名前じゃない。\nもう一度、ここまでの出来事を思い返そう。";return
       }
       o.remove();room8State.solved=true;saveGame();r8SolvedDialogue();

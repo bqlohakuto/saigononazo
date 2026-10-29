@@ -343,3 +343,34 @@ test('slow-loading UI clicks expire instead of sounding during a later scene',as
   await new Promise(resolve=>setTimeout(resolve,220));file.resolve(response());
   assert.equal(await pending,false);assert.equal(contexts[0].sources.length,0);
 });
+
+
+test('answer feedback replaces opposite feedback and click while keeping BGM playing',async()=>{
+ const {audio,contexts}=harness();audio.setCategoryVolumes(0.5,0.6);
+ await audio.play('explorationMusic');const c=contexts[0],music=c.sources[0];
+ await audio.play('uiClick');const click=c.sources.at(-1);
+ await audio.play('answerIncorrect');const incorrect=c.sources.at(-1);
+ assert.equal(click.disconnected,true);assert.equal(c.gains.at(-1).gain.value,0.40*0.6);
+ await audio.play('answerCorrect');assert.equal(incorrect.disconnected,true);
+ assert.equal(c.gains.at(-1).gain.value,0.30*0.6);assert.equal(music.disconnected,undefined);
+ const correct=c.sources.at(-1);await audio.play('answerCorrect');assert.equal(correct.disconnected,true);
+ audio.setCategoryVolumes(0.5,0);assert.equal(c.gains.at(-1).gain.value,0);
+ c.sources.at(-1).onended();assert.equal(c.sources.at(-1).disconnected,true);
+});
+
+test('pending result feedback is cancelled on hide and expires after a slow load',async()=>{
+ for(const hide of [true,false]){
+  const file=deferred();const {audio,contexts,window}=harness({fetch:()=>file.promise});
+  const pending=audio.play('answerCorrect');
+  if(hide)window.emit('pagehide');else await new Promise(resolve=>setTimeout(resolve,520));
+  file.resolve(response());assert.equal(await pending,false);assert.equal(contexts[0].sources.length,0);
+ }
+});
+
+
+test('authored melody cancels result feedback, including while the result is still loading',async()=>{
+ const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});
+ const result=audio.play('answerCorrect');const melody=audio.play('memoryMelody');
+ file.resolve(response());assert.equal(await result,false);assert.equal(await melody,true);
+ assert.equal(contexts[0].sources.length,1);
+});

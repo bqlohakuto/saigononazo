@@ -302,6 +302,7 @@ function showThirdRoomChat(){
   room3State.chatRead=true;room3State.phoneInspected=true;
   appendMessage("主人公",reply);input.value="";
   if(correct&&stage==="morse"){
+   globalThis.GameAudio?.play?.("answerCorrect");
    room3State.morseSolved=true;receiveBoard();
    showReference("letterboard");
   }else if(correct&&stage==="final"){
@@ -315,6 +316,7 @@ function showThirdRoomChat(){
    window.setTimeout(()=>{if(overlay.isConnected)close()},650);
    return;
   }else{
+   globalThis.GameAudio?.play?.("answerIncorrect");
    appendMessage("先輩","んー、もう一度考えてみて");
   }
   saveGame();scrollToBottom();

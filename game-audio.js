@@ -2,6 +2,8 @@
   "use strict";
 
   const sounds = {
+    answerCorrect: { url: "audio/se/answer_correct.mp3", gain: 0.30 },
+    answerIncorrect: { url: "audio/se/answer_incorrect.mp3", gain: 0.40 },
     uiClick: { url: "audio/se/ui_click.mp3", gain: 0.22 },
     highSchool: { url: "audio/se/high_school.mp3", gain: 0.30, loop: true },
     naturePark: { url: "audio/se/nature_park.mp3", gain: 0.25, loop: true },
@@ -161,6 +163,13 @@
     if (!Object.prototype.hasOwnProperty.call(sounds, id)) return false;
     // Authored one-shot effects take priority over a click from the same gesture.
     if (id !== "uiClick" && !sounds[id].loop) stop("uiClick");
+    if (id !== "uiClick" && !sounds[id].loop && !/^answer(?:Correct|Incorrect)$/.test(id)) {
+      stop("answerCorrect");
+      stop("answerIncorrect");
+    }
+    if (id === "answerCorrect" || id === "answerIncorrect") {
+      stop(id === "answerCorrect" ? "answerIncorrect" : "answerCorrect");
+    }
     stop(id);
     if (document.hidden) return false;
     const ready = unlock();
@@ -171,7 +180,8 @@
       const [running, buffer] = await Promise.all([ready, loadBuffer(id)]);
       if (playing.get(id) !== entry) return false;
       // Never deliver a stale UI response after a slow load or mobile resume.
-      if (id === "uiClick" && Date.now() - entry.requestedAt > 200) {
+      if ((id === "uiClick" && Date.now() - entry.requestedAt > 200) ||
+          (/^answer(?:Correct|Incorrect)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
         stop(id);
         return false;
       }

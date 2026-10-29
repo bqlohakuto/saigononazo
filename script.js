@@ -776,6 +776,7 @@ function showPianoScreen(){
   const melody=normalize();
   const melodyMatches=melody===firstRoomScenario.melody.join("");
   if(!melodyMatches){
+   if(melody)GameAudio.play("answerIncorrect");
    const guidance=firstRoomScenario.pianoIncorrect.map(line=>line.text).join("\n");
    showLoggedText(result,guidance,"room1_piano_incorrect","investigation","#8f1c1c");
    return;

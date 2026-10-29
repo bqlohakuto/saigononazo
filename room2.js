@@ -454,6 +454,7 @@ function showSecondRoomPuzzle(){
   // The machine reveals its digits before anything is written on paper.
   screenTimer=window.setTimeout(()=>{
    screenTimer=null;if(!overlay.isConnected)return;
+   globalThis.GameAudio?.play?.(result.hit===5?"answerCorrect":"answerIncorrect");
    digitalHit.textContent=String(result.hit);
    digitalBlow.textContent=String(result.blow);
    digital.classList.remove("is-scanning");digital.classList.add("has-result");

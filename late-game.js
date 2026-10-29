@@ -2447,7 +2447,7 @@
     finalImage.onload=()=>{if(finalArt.isConnected){finalArt.prepend(finalImage);finalArt.parentElement.classList.add("has-r8-final-image");}};
     finalImage.onerror=()=>{ /* Retain the interactive CSS desk as a fallback. */ };
     finalImage.src=R8_DISSOLVE_IMAGES[3];
-    setHud("room08","最後の謎",()=>"彼女の名前を思い出す",()=>{},r8IsFinalClue);
+    setHud("room08","最後の謎",()=>"机の上の紙を調べる",()=>{},r8IsFinalClue);
     if(room8State.backSeen)queueMicrotask(r8ArmLogHint);
   }
   function r8Paper(){

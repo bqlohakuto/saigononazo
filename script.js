@@ -841,7 +841,7 @@ function showUnlockedDoorChoices(){
 // Issue #25 A05: one transition for consecutive room changes.
 // The first room keeps its authored door image; other rooms never borrow that artwork.
 function showRoomTravel(next,{label="次の部屋へ",tone="dark",image=null,duration=650,sound=true}={}){
- if(sound)GameAudio.play("doorOpen");
+ if(sound){GameAudio.play("doorOpen");GameAudio.play("roomSparkle");}
  Dialogue.stop();
  const screen=document.createElement("div");
  screen.className="room-transition "+(image?"room-transition-illustrated":"room-transition-abstract")+" room-transition-"+tone;
@@ -861,6 +861,7 @@ function showRoomTravel(next,{label="次の部屋へ",tone="dark",image=null,dur
  game.replaceChildren(screen);
  window.setTimeout(()=>{
   if(!screen.isConnected)return;
+  GameAudio.fadeOut?.("roomSparkle",180);
   next();
   // Fade the entire scene, including the HUD or opening dialogue,
   // so controls never appear to float ahead of the room background.

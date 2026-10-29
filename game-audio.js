@@ -4,6 +4,8 @@
   const sounds = {
     answerCorrect: { url: "audio/se/answer_correct.mp3", gain: 0.30 },
     answerIncorrect: { url: "audio/se/answer_incorrect.mp3", gain: 0.40 },
+    roomSparkle: { url: "audio/se/room_sparkle.mp3", gain: 0.12 },
+    constellationGlow: { url: "audio/se/constellation_glow.mp3", gain: 0.40 },
     hospitalMonitor: { url: "audio/se/hospital_monitor.mp3", gain: 0.25, loop: true },
     bookPageTurn: { url: "audio/se/book_page_turn.mp3", gain: 0.30 },
     phoneRingtone: { url: "audio/se/phone_ringtone.mp3", gain: 0.35 },
@@ -41,6 +43,7 @@
   let accidentCue=null;
   let mapCue=null;
   let ringtoneActive=false;
+  let constellationActive=false;
   let endingTrack=null;
   function syncEndingVolume(){
     if(endingTrack){
@@ -94,7 +97,7 @@
 
   function stopPlaying(){Array.from(playing.keys()).forEach(stop);}
   function stopAll() {
-    accidentCue=null;mapCue=null;ringtoneActive=false;
+    accidentCue=null;mapCue=null;ringtoneActive=false;constellationActive=false;
     desiredMusic=null;
     if(endingTrack)releaseEndingTrack(endingTrack);
     stopPlaying();
@@ -195,8 +198,8 @@
       const [running, buffer] = await Promise.all([ready, loadBuffer(id)]);
       if (playing.get(id) !== entry) return false;
       // Never deliver a stale UI response after a slow load or mobile resume.
-      if (((id === "uiClick" || id === "leverPull" || id === "bookPageTurn") && Date.now() - entry.requestedAt > 200) ||
-          (/^(?:answerCorrect|answerIncorrect|carBrake|carCrash|mapWrite|mapUnfold|phoneRingtone)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
+      if (((id === "uiClick" || id === "leverPull" || id === "bookPageTurn" || id === "roomSparkle") && Date.now() - entry.requestedAt > 200) ||
+          (/^(?:answerCorrect|answerIncorrect|carBrake|carCrash|mapWrite|mapUnfold|phoneRingtone|constellationGlow)$/.test(id) && Date.now() - entry.requestedAt > 500)) {
         stop(id);
         return false;
       }
@@ -275,6 +278,7 @@
     stopAccidentSounds();accidentCue=null;
     stopMapSounds();mapCue=null;
     stop("phoneRingtone");ringtoneActive=false;
+    stop("constellationGlow");constellationActive=false;
   }
   function syncAccidentSounds(beat){
     // A source-line phase survives pagination, interruption and an ended source.
@@ -298,6 +302,12 @@
     stop("phoneRingtone");ringtoneActive=active;
     if(active)play("phoneRingtone");
   }
+  function syncConstellation(logId){
+    const active=/^r4ok[1-8](?:_|$)/.test(logId||"");
+    if(active===constellationActive)return;
+    stop("constellationGlow");constellationActive=active;
+    if(active)play("constellationGlow");
+  }
   function syncMemoryAmbience(logId){
     const room2=/^room2_memory_(\d{3})(?:_|$)/.exec(logId||"");
     const room3=/^room3_flashback_(\d{2})(?:_|$)/.exec(logId||"");
@@ -315,6 +325,7 @@
     syncAccidentSounds(room7?Number(room7[1]):null);
     syncMapSounds(logId);
     syncRingtone(logId);
+    syncConstellation(logId);
   }
 
   function setVolume(value) {

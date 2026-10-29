@@ -542,3 +542,25 @@ test('fast epilogue advance or leaving cancels hospital audio while decoding; pa
  }
  const {audio,contexts,window}=harness();audio.syncMemoryAmbience('r8_epilogue_03');await tick();window.emit('pagehide');assert.equal(contexts[0].sources[0].disconnected,true);
 });
+
+
+test('constellation completion glows once across source pages, then stops before memory',async()=>{
+ const {audio,contexts}=harness();audio.syncMemoryAmbience('r4partial');await tick();assert.equal(contexts.length,0);
+ audio.syncMemoryAmbience('r4ok1');await tick();const c=contexts[0],glow=c.sources[0];assert.equal(glow.loop,false);assert.equal(c.gains.at(-1).gain.value,0.40);
+ for(const id of ['r4ok1_01','r4ok2','r4ok5','r4ok8'])audio.syncMemoryAmbience(id);
+ await tick();assert.equal(c.sources.length,1);audio.stopMemoryAmbience();assert.equal(glow.disconnected,true);
+ audio.syncMemoryAmbience('r4f1');await tick();assert.equal(c.sources.length,1);
+});
+
+test('completed glow never restarts on later lines and fast completion cancels queued decoding',async()=>{
+ const {audio,contexts}=harness();audio.syncMemoryAmbience('r4ok1');await tick();contexts[0].sources[0].onended();
+ audio.syncMemoryAmbience('r4ok8');await tick();assert.equal(contexts[0].sources.length,1);
+ const file=deferred(),h=harness({fetch:()=>file.promise});h.audio.syncMemoryAmbience('r4ok1');h.audio.stopMemoryAmbience();file.resolve(response());await tick();assert.equal(h.contexts[0].sources.length,0);
+});
+
+test('room sparkle preserves door and BGM, follows SE volume, and can fade at arrival',async()=>{
+ const {audio,contexts}=harness();audio.setCategoryVolumes(1,0.5);await audio.play('explorationMusic');const c=contexts[0],music=c.sources[0];
+ const door=audio.play('doorOpen'),sparkle=audio.play('roomSparkle');assert.equal(await door,true);assert.equal(await sparkle,true);
+ assert.equal(c.sources.length,3);assert.equal(music.disconnected,undefined);assert.equal(c.sources[1].disconnected,undefined);
+ assert.equal(c.gains.at(-1).gain.value,0.12*0.5);assert.equal(audio.fadeOut('roomSparkle',180),true);assert.equal(c.sources.at(-1).stopAt,12.18);
+});

@@ -11,7 +11,7 @@ function travelHarness(){
  const source=read("script.js"),start=source.indexOf("function showRoomTravel("),end=source.indexOf("function showNextRoomBoundary()",start);
  assert(start>=0&&end>start,"Find the shared transition helper");
  let screen=null,activeRoom=null;
- const timers=[],sounds=[];
+ const timers=[],sounds=[],fades=[];
  const document={
   createElement(tag){
    const node={
@@ -36,9 +36,9 @@ function travelHarness(){
   },
   querySelector(selector){return selector===".room"?activeRoom:null}
  };
- const ctx={document,game,GameAudio:{play(name){sounds.push(name)}},Dialogue:{stop(){}},window:{setTimeout(fn,ms){timers.push({fn,ms})}}};
+ const ctx={document,game,GameAudio:{play(name){sounds.push(name)},fadeOut(id,ms){fades.push({id,ms})}},Dialogue:{stop(){}},window:{setTimeout(fn,ms){timers.push({fn,ms})}}};
  const travel=vm.runInNewContext(source.slice(start,end)+"\nshowRoomTravel;",ctx);
- return {travel,timers,sounds,game,get screen(){return screen},set room(node){activeRoom=node}};
+ return {travel,timers,sounds,fades,game,get screen(){return screen},set room(node){activeRoom=node}};
 }
 
 test("A05: the Room 1 door art remains exclusive to the first doorway",()=>{
@@ -49,7 +49,7 @@ test("A05: the Room 1 door art remains exclusive to the first doorway",()=>{
  assert.equal(t.screen.children[0].tagName,"img");
  assert.match(t.screen.children[0].src,/room01_door_halfopen\.png$/);
  assert.equal(t.screen.attributes["aria-label"],"第二の部屋");
- assert.deepEqual(t.sounds,["doorOpen"]);
+ assert.deepEqual(t.sounds,["doorOpen","roomSparkle"]);
  assert.equal(t.timers[0].ms,1100);
  t.timers[0].fn();
  assert.equal(called,1);
@@ -92,4 +92,12 @@ test("A05: the existing story gates and critical timing remain connected",()=>{
  assert.match(late,/room7State\.completed=true;saveGame\(\);[\s\S]*?showEighthRoom\(roomStates\.room08\);[\s\S]*?game\.classList\.add\("room-entry-from-dark"\)/);
  assert.match(css,/@keyframes roomPassageFade/);
  assert.match(css, /prefers-reduced-motion:reduce/);
+});
+
+
+test('passage sparkle fades at unchanged arrival time; sound=false stays silent',()=>{
+ const t=travelHarness();let arrived=0;t.travel(()=>arrived++,{duration:650});
+ assert.deepEqual(t.sounds,['doorOpen','roomSparkle']);assert.deepEqual(t.fades,[]);
+ assert.equal(t.timers[0].ms,650);t.timers[0].fn();assert.equal(arrived,1);assert.deepEqual(t.fades,[{id:'roomSparkle',ms:180}]);
+ const quiet=travelHarness();quiet.travel(()=>{}, {sound:false});assert.deepEqual(quiet.sounds,[]);
 });

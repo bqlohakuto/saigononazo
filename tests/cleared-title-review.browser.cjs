@@ -23,7 +23,8 @@ const fs=require('node:fs');
   await page.evaluate(()=>document.fonts.ready);
   const h1=page.locator('.title-logo');
   if(spec.cleared){
-   assert.equal(await h1.innerText(),'最後の謎が解けても');
+   assert.equal(await h1.locator('img').getAttribute('src'),'images/ui/title-cleared-logo.jpg');
+   assert.equal(await h1.locator('img').getAttribute('alt'),'最後の謎が解けても');
    assert(await page.locator('.title-cleared').count());
    if(spec.fail){
     assert(await page.locator('.title-art-fallback').count());

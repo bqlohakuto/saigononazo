@@ -201,7 +201,7 @@ function showTitle(notice=""){
  GameAudio.syncSceneMusic?.("title");
  const hasSave=!!readSavedGame();
  const cleared=!!localStorage.getItem("saigononazo-guide-unlocked-v1")||!!readSavedGame()?.rooms?.room08?.ended;
- const titleLogo=cleared?'最後の謎が解けても':'<img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span>';
+ const titleLogo=cleared?'<img src="images/ui/title-cleared-logo.jpg" alt="最後の謎が解けても"><span class="title-text-fallback">最後の謎が解けても</span>':'<img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span>';
  game.innerHTML=`<div class="title-screen title-home title-art-loading"><h1 class="title-logo">${titleLogo}</h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button>${AUTHOR_PREVIEW?'<button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button>':""}<button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-art-status" role="status">画像を読み込み中…</p><p class="title-notice" aria-live="polite">${notice}</p></div>`;
  const title=game.querySelector('.title-home'),background=new Image();
  background.src=cleared?'images/ui/title-cleared-background-v2.png':'images/pixel-ui/title-background-pixel.png';

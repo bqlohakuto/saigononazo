@@ -4,6 +4,7 @@
   const sounds = {
     answerCorrect: { url: "audio/se/answer_correct.mp3", gain: 0.30 },
     answerIncorrect: { url: "audio/se/answer_incorrect.mp3", gain: 0.40 },
+    hospitalMonitor: { url: "audio/se/hospital_monitor.mp3", gain: 0.25, loop: true },
     bookPageTurn: { url: "audio/se/book_page_turn.mp3", gain: 0.30 },
     phoneRingtone: { url: "audio/se/phone_ringtone.mp3", gain: 0.35 },
     mapWrite: { url: "audio/se/map_write.mp3", gain: 0.45 },
@@ -267,7 +268,7 @@
     setMusic(/^room0[1-7]$/.test(scene)?"explorationMusic":null);
   }
 
-  const memoryAmbienceIds=["cherryWind","quietClassroom","highSchool","naturePark","cityRoad","intersection"];
+  const memoryAmbienceIds=["cherryWind","quietClassroom","highSchool","naturePark","cityRoad","intersection","hospitalMonitor"];
   function stopAccidentSounds(){stop("carBrake");stop("carCrash");}
   function stopMemoryAmbience(){
     memoryAmbienceIds.forEach(stop);
@@ -307,7 +308,8 @@
       room3&&Number(room3[1])>=34&&Number(room3[1])<=71?"cherryWind":
       (room6&&Number(room6[1])>=51&&Number(room6[1])<=85)||/^r6_memory_0[1-7](?:_|$)/.test(logId||"")||/^r6_final_signal(?:_|$)/.test(logId||"")?"naturePark":
       room7&&Number(room7[1])>=1&&Number(room7[1])<=25?"cityRoad":
-      room7&&Number(room7[1])>=26&&Number(room7[1])<=34?"intersection":null;
+      room7&&Number(room7[1])>=26&&Number(room7[1])<=34?"intersection":
+      /^r8_epilogue_0[1-4](?:_|$)/.test(logId||"")?"hospitalMonitor":null;
     memoryAmbienceIds.forEach(other=>{if(other!==id)stop(other)});
     if(id&&!playing.has(id))play(id);
     syncAccidentSounds(room7?Number(room7[1]):null);

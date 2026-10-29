@@ -513,3 +513,32 @@ test('pending page sound is cancelled on leaving and does not arrive after a slo
   file.resolve(response());assert.equal(await pending,false);assert.equal(contexts[0].sources.length,0);
  }
 });
+
+
+test('hospital monitor loops continuously only in the epilogue hospital source lines',async()=>{
+ const {audio,contexts}=harness();audio.syncMemoryAmbience('r8_end_05');await tick();assert.equal(contexts.length,0);
+ audio.syncMemoryAmbience('r8_epilogue_01');await tick();const c=contexts[0],monitor=c.sources[0];
+ assert.equal(monitor.loop,true);assert.deepEqual(c.gains.at(-1).gain.events.at(-1),['ramp',0.25,12.4]);
+ for(const id of ['r8_epilogue_01_01','r8_epilogue_02','r8_epilogue_02_ceiling','r8_epilogue_03','r8_epilogue_04_02'])audio.syncMemoryAmbience(id);
+ await tick();assert.equal(c.sources.length,1);
+ audio.syncMemoryAmbience('r8_epilogue_05');assert.equal(monitor.disconnected,true);
+ for(const id of ['r8_epilogue_06','r8_epilogue_home_notebook','r8_epilogue_07','r8_epilogue_08'])audio.syncMemoryAmbience(id);
+ await tick();assert.equal(c.sources.length,1);
+});
+
+test('hospital resume starts the monitor but resuming at home stays silent; SE mute is respected',async()=>{
+ const {audio,contexts}=harness();audio.setCategoryVolumes(1,0);audio.syncMemoryAmbience('r8_epilogue_02_ceiling');await tick();
+ const c=contexts[0];assert.deepEqual(c.gains.at(-1).gain.events.at(-1),['ramp',0,12.4]);
+ audio.setCategoryVolumes(1,0.4);assert.equal(c.gains.at(-1).gain.value,0.25*0.4);
+ audio.stopAll();audio.syncMemoryAmbience('r8_epilogue_04');await tick();assert.equal(c.sources.length,2);
+ audio.stopAll();audio.syncMemoryAmbience('r8_epilogue_06');await tick();assert.equal(c.sources.length,2);
+});
+
+test('fast epilogue advance or leaving cancels hospital audio while decoding; page hide stops its loop',async()=>{
+ for(const leave of [false,true]){
+  const file=deferred();const {audio,contexts}=harness({fetch:()=>file.promise});
+  audio.syncMemoryAmbience('r8_epilogue_01');if(leave)audio.stopMemoryAmbience();else audio.syncMemoryAmbience('r8_epilogue_05');
+  file.resolve(response());await tick();assert.equal(contexts[0].sources.length,0);
+ }
+ const {audio,contexts,window}=harness();audio.syncMemoryAmbience('r8_epilogue_03');await tick();window.emit('pagehide');assert.equal(contexts[0].sources[0].disconnected,true);
+});

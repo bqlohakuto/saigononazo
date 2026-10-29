@@ -121,8 +121,8 @@ function showThirdRoom(savedState){
  room3State={view:"front",doorInspected:false,deskInspected:false,bedInspected:false,shelfInspected:false,trumpetInspected:false,trumpetAwakeTalkSeen:false,phoneInspected:false,chatRead:false,morseSolved:false,puzzleAttempts:0,hanaVisits:0,hintLevel:0,unlocked:false,highlightEnabled:true,memorySeen:false,morseChartNoticeSeen:false,morseChartLogged:false,nextRoomTransitionSeen:false,...savedState};
  if(room3State.unlocked)room3State.morseSolved=true;
  game.innerHTML=`<main class="room room-three room3-arriving ${room3State.unlocked?"is-restored":""}" aria-label="第三の部屋">
-  <header class="room-header"><p class="room-label">第三の部屋</p><p class="room-color-status">${room3State.unlocked?"記憶を取り戻した部屋":"大学時代の自室"}</p></header>
-  <div class="room-stage-wrap"><section class="room-stage room3-stage" aria-label="大学時代の自室">
+  <header class="room-header"><p class="room-label">第三の部屋</p><p class="room-color-status">${room3State.unlocked?"記憶を取り戻した部屋":"静かな部屋"}</p></header>
+  <div class="room-stage-wrap"><section class="room-stage room3-stage" aria-label="部屋の中">
    <img class="room3-background-art" id="r3Background" src="images/background/room03/room03_front.webp" alt="" aria-hidden="true"><div class="room3-shared-door" aria-hidden="true"></div><div class="room3-sleeping-hana" aria-hidden="true"><span class="sleep-head"></span><span class="sleep-body"></span><span class="sleep-legs"></span></div><div class="room3-sleep-shoes" aria-hidden="true"></div><button type="button" class="object room3-object room3-sleep-target" id="r3SleepingHana" aria-label="眠っているハナ"><span>ハナ</span></button>
    <button class="object room3-object room3-door" id="r3Door"><span>扉</span></button><button class="object room3-object room3-bed" id="r3Bed"><span>ベッド</span></button>
    <button class="object room3-object room3-desk" id="r3Desk" ${room3State.doorInspected?"":"disabled"}><span>机</span></button><button class="object room3-object room3-phone" id="r3Phone" ${room3State.deskInspected?"":"disabled"}><span>スマートフォン</span></button>

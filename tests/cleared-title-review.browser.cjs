@@ -47,6 +47,10 @@ const fs=require('node:fs');
   assert(titleBox&&menuBox&&gameBox);
   assert(titleBox.x>=gameBox.x-1&&titleBox.x+titleBox.width<=gameBox.x+gameBox.width+1,'title remains in game');
   assert(titleBox.y+titleBox.height<menuBox.y,'title and menu do not overlap');
+  if(spec.name==='pc-clear')console.log('VISUAL_DEBUG',await page.evaluate(()=>{
+   const el=document.querySelector('.title-home'), logo=el.querySelector('.title-logo'), at=document.elementFromPoint(innerWidth/2,innerHeight/2);
+   const cs=getComputedStyle(el);return {box:el.getBoundingClientRect().toJSON(),background:cs.backgroundImage,backgroundSize:cs.backgroundSize,pseudo:getComputedStyle(el,'::before').backgroundImage,logoBox:logo.getBoundingClientRect().toJSON(),at:at?.outerHTML.slice(0,200),body:getComputedStyle(document.body).backgroundColor};
+  }));
   fs.mkdirSync('artifacts/title-clear-review',{recursive:true});
   await page.screenshot({path:`artifacts/title-clear-review/${spec.name}.png`});
   await page.locator('#settingsButton').click();

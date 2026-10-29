@@ -27,7 +27,7 @@ const fs=require('node:fs');
    assert.equal(await h1.locator('img').getAttribute('alt'),'最後の謎が解けても');
    if(!spec.fail){
     assert.equal(await h1.evaluate(el=>getComputedStyle(el).filter),'none');
-    assert.equal(await h1.locator('img').evaluate(el=>getComputedStyle(el).filter),'grayscale(1) invert(1) brightness(180) contrast(2)');
+    assert.match(await h1.locator('img').evaluate(el=>getComputedStyle(el).filter),/cleared-title-ink/);
     assert.equal(await page.locator('.title-menu').evaluate(el=>getComputedStyle(el).mixBlendMode),'normal');
    }
    assert(await page.locator('.title-cleared').count());

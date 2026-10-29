@@ -204,6 +204,10 @@ function showTitle(notice=""){
  const titleLogo=cleared?'<img src="images/ui/title-cleared-logo.jpg" alt="最後の謎が解けても"><span class="title-text-fallback">最後の謎が解けても</span>':'<img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span>';
  game.innerHTML=`<div class="title-screen title-home title-art-loading"><h1 class="title-logo">${titleLogo}</h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button>${AUTHOR_PREVIEW?'<button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button>':""}<button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/menu-locked.jpg" alt=""></button></div><p class="title-art-status" role="status">画像を読み込み中…</p><p class="title-notice" aria-live="polite">${notice}</p></div>`;
  const title=game.querySelector('.title-home'),background=new Image();
+ // The supplied JPEG stores faint yellow handwriting on white. Its blue
+ // channel preserves the ink; map that signal to alpha instead of blending
+ // an opaque JPEG rectangle over the background (especially in WebKit).
+ if(cleared)title.insertAdjacentHTML('afterbegin','<svg class="title-ink-filter" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><filter id="cleared-title-ink" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 -80 0 80"/></filter></defs></svg>');
  background.src=cleared?'images/ui/title-cleared-background-v2.png?v=20261030-restored':'images/pixel-ui/title-background-pixel.png';
  if(cleared){title.classList.add('title-cleared');title.style.backgroundImage='url("'+background.src+'")';}
  const images=[background,...title.querySelectorAll('img')];

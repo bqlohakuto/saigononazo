@@ -443,6 +443,9 @@
         delete overlay.dataset.memoryPresentation;
       }
     }
+    if(currentScene==='opening')portraitVisible=kind==='heroine'&&!!game.querySelector('.opening[data-hana-visible="true"]');else portraitVisible=!flashback&&kind==='heroine';
+    if(line.expression){const choice=hanaV2Names.indexOf(line.expression);expression=choice>=0?choice:0}else if(kind==='heroine'){expression=/眠|ふぁ|スー、スー/.test(line.text)?6:/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}
+    decorateDialogue(game.querySelector('.room-dialog-overlay')||document.createElement('div'));
     // Temporary safeguard for the Room 4 hand-holding CG: keep the dialogue
     // window visible over the existing image until its hand art is corrected.
     // All other memory beats retain the normal hide/restore control.
@@ -452,9 +455,6 @@
       hideControl.disabled=protectHandCG;
       hideControl.title=protectHandCG?'この場面では会話ウィンドウを非表示にできません':'';
     }
-    if(currentScene==='opening')portraitVisible=kind==='heroine'&&!!game.querySelector('.opening[data-hana-visible="true"]');else portraitVisible=!flashback&&kind==='heroine';
-    if(line.expression){const choice=hanaV2Names.indexOf(line.expression);expression=choice>=0?choice:0}else if(kind==='heroine'){expression=/眠|ふぁ|スー、スー/.test(line.text)?6:/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}
-    decorateDialogue(game.querySelector('.room-dialog-overlay')||document.createElement('div'));
     const p=game.querySelector('.hana-portrait');if(p){p.hidden=!portraitVisible;p.setAttribute('aria-label',line.speaker==='花音'?'花音':window.HanaIdentity?.getName?.()||'ハナ');setExpression(p)}
     syncWorldExpression(flashback);
     const row=game.querySelector('.message-row'),message=row?.querySelector('.message');

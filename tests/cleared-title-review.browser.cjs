@@ -45,9 +45,26 @@ const fs=require('node:fs');
   }
   const titleBox=await h1.boundingBox(),menuBox=await page.locator('.title-menu').boundingBox();
   const gameBox=await page.locator('#game').boundingBox();
-  assert(titleBox&&menuBox&&gameBox);
+  const community=page.locator('.title-community');
+  assert.equal(await community.count(),1,'author link exists on normal and cleared titles');
+  const profile=community.locator('.title-community-account');
+  assert.equal(await profile.getAttribute('href'),'https://x.com/arissa_juno');
+  assert.equal(await profile.getAttribute('target'),'_blank');
+  assert.match(await profile.getAttribute('rel'),/noopener/);
+  assert.match(await community.innerText(),/質問・不具合報告は、XのDMまで/);
+  assert.match(await community.innerText(),/#最後の謎が解けるまで/);
+  const communityBox=await community.boundingBox();
+  assert(titleBox&&menuBox&&gameBox&&communityBox);
   assert(titleBox.x>=gameBox.x-1&&titleBox.x+titleBox.width<=gameBox.x+gameBox.width+1,'title remains in game');
   assert(titleBox.y+titleBox.height<menuBox.y,'title and menu do not overlap');
+  assert(communityBox.x>=menuBox.x+menuBox.width-1,'social information cannot cover handwritten menu');
+  assert(communityBox.x>=gameBox.x-1&&communityBox.y>=gameBox.y-1&&communityBox.x+communityBox.width<=gameBox.x+gameBox.width+1&&communityBox.y+communityBox.height<=gameBox.y+gameBox.height+1,'community info stays in game');
+  if(spec.cleared){
+    const reset=page.locator('#resetProgressButton');
+    await reset.waitFor({state:'visible'});
+    const resetBox=await reset.boundingBox();
+    assert(communityBox.y+communityBox.height<resetBox.y,'social information stays above the reset button');
+  }
   fs.mkdirSync('artifacts/title-clear-review',{recursive:true});
   await page.screenshot({path:`artifacts/title-clear-review/${spec.name}.png`});
   if(spec.cleared&&!spec.fail){

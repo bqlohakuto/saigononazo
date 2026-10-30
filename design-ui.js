@@ -109,28 +109,19 @@
     const portrait=game.querySelector('.hana-portrait');if(portrait)setExpression(portrait);
     syncWorldExpression(!game.querySelector('.room-dialog-overlay')||!!game.querySelector('.memory-scene'));
   });
-  // Portrait, full-body sprite and bubble share the displayed expression.
+  // Keep portrait and full-body sprite expressions synchronized.
 
   function syncWorldExpression(clear=false){
     game.classList.remove('has-world-expression');
     game.style.removeProperty('--hana-world-expression');
     const sprite=game.querySelector('#openingHanaSprite');
     if(sprite&&!clear)sprite.dataset.emotion='idle';
-    const bubbleNames={happy:'joy',thought:'thinking',surprise:'question',concern:'sweat',serious:'thinking',excited:'laughter',sleepy:'thinking'};
     const name=hanaV2Names[expression]||'gentle';
     const displayed=game.querySelector('.hana-portrait')?.dataset.displayedExpression||name;
     const worldName=displayed==='excited'?'happy':displayed;
     const worldUrl=!clear&&worldExpressions.has(worldName)?worldExpressionUrl(worldName):'images/characters/hana-hires/idle/01.webp';
     if(!clear&&worldExpressions.has(worldName)){game.classList.add('has-world-expression');game.style.setProperty('--hana-world-expression','url("'+worldUrl+'")');}
     if(sprite&&sprite.getAttribute('src')!==worldUrl)sprite.src=worldUrl;
-    const bubble=clear?'':bubbleNames[displayed]||'';
-    game.querySelectorAll('.hana-object,.room2-hana,.room3-hana,.r4hana,.hana-v2-world').forEach(target=>{
-      let image=target.querySelector('.hana-emotion-bubble');
-      if(!bubble){image?.remove();return;}
-      if(!image){image=document.createElement('img');image.className='hana-emotion-bubble';image.alt='';image.setAttribute('aria-hidden','true');target.append(image);}
-      const src='images/pixel-ui/bubbles-side/right/'+bubble+'.png';
-      if(image.getAttribute('src')!==src)image.src=src;
-    });
   }
   function panel(title){
     if(modal)modal.close();

@@ -30,6 +30,21 @@ test('E08: Room 5 notebook and appliance memories use no substitute prop',()=>{
   assert.equal(visuals.get('room07',{logId:'r7_mem_monkey_01'}).prop,null,'Room 7 uses the notebook already painted in its background');
 });
 
+test('Room 6 post-Othello memory shows no separately overlaid notebook',()=>{
+  const documented=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../docs/MEMORY_SCENES_IMPLEMENTATION.json')));
+  const scene=documented.find(s=>s.key==='r6return');
+  assert.equal(scene?.prop,null);
+  for(let n=1;n<=17;n++){
+    const id='r6_memory_full_'+String(n).padStart(3,'0');
+    for(const line of [{logId:id},{logId:'page',logSource:{logId:id}}]){
+      const visual=visuals.get('room06',line);
+      assert.equal(visual.location,'r6return',id);
+      assert.equal(visual.prop,null,id);
+      assert.ok(visual.background.endsWith('/room05/dining-night.png'),id);
+    }
+  }
+});
+
 test('Room 1-4 recollections conceal the face', () => {
   const examples = [
     ['room01', 'room1_memory_music_room_09'],

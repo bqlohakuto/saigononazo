@@ -48,7 +48,7 @@ const mobileEngine=process.env.ROOM4_MOBILE_ENGINE==='chromium'?chromium:webkit;
  const browser=await spec.engine.launch({headless:true,...(spec.channel?{channel:spec.channel}:{})});
  try{
  const ctx=await browser.newContext({viewport:spec.viewport,isMobile:spec.mobile,hasTouch:spec.mobile,reducedMotion:'reduce'});
- await ctx.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
+ await ctx.addInitScript(()=>{localStorage.setItem('saigononazo-help-seen','1');localStorage.setItem('saigononazo-first-visit-notice-v1', 'accepted');});
  const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  if(local)await page.route('https://room4.local/**',async route=>{
   const file=path.resolve(root,decodeURIComponent(new URL(route.request().url()).pathname).replace(/^\//,'')||'index.html');

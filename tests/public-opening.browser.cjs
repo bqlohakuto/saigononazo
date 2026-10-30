@@ -28,6 +28,7 @@ async function runCase(spec) {
   });
   await context.addInitScript(() => {
     localStorage.setItem('saigononazo-help-seen', '1');
+    localStorage.setItem('saigononazo-first-visit-notice-v1', 'accepted');
   });
   const page = await context.newPage();
   const errors = [];

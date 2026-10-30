@@ -16,6 +16,7 @@ const specs=[
    const context=await browser.newContext({viewport:{width:spec.width,height:spec.height},isMobile:!!spec.touch,hasTouch:!!spec.touch});
    await context.addInitScript(()=>{
     localStorage.setItem('saigononazo-help-seen','1');
+     localStorage.setItem('saigononazo-first-visit-notice-v1', 'accepted');
     localStorage.setItem('saigononazo-settings-v1',JSON.stringify({instantText:true,volume:0}));
    });
    const p=await context.newPage(),errors=[],missing=[];

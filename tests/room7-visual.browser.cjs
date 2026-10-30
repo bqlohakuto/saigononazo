@@ -8,7 +8,7 @@ const specs=[{name:'desktop',width:1366,height:768},{name:'phone-landscape',widt
   const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_EXECUTABLE?{executablePath:process.env.CHROMIUM_EXECUTABLE}:{})});
   try{
    const context=await browser.newContext({viewport:{width:spec.width,height:spec.height},isMobile:!!spec.touch,hasTouch:!!spec.touch});
-   await context.addInitScript(()=>{localStorage.setItem('saigononazo-help-seen','1');localStorage.setItem('saigononazo-settings-v1',JSON.stringify({instantText:true}))});
+   await context.addInitScript(()=>{localStorage.setItem('saigononazo-help-seen','1');localStorage.setItem('saigononazo-first-visit-notice-v1', 'accepted');localStorage.setItem('saigononazo-settings-v1',JSON.stringify({instantText:true}))});
    const p=await context.newPage(),errors=[],missing=[];p.on('pageerror',e=>errors.push(e.message));p.setDefaultTimeout(10000);
    const base=process.env.PUBLIC_BASE_URL||'https://room7.local/';
    if(!process.env.PUBLIC_BASE_URL)await p.route('https://room7.local/**',async route=>{const rel=decodeURIComponent(new URL(route.request().url()).pathname).replace(/^\//,'')||'index.html',file=path.resolve(root,rel);if(!file.startsWith(root+path.sep)){await route.fulfill({status:403,body:''});return}if(!fs.existsSync(file)){missing.push(rel);await route.fulfill({status:404,body:''});return}await route.fulfill({path:file})});

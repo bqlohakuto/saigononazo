@@ -30,7 +30,7 @@ function inside(a, b, tolerance = 3) {
         viewport: spec.viewport, isMobile: spec.mobile, hasTouch: spec.mobile,
         deviceScaleFactor: spec.mobile ? 2 : 1
       });
-      await context.addInitScript(() => localStorage.setItem('saigononazo-help-seen', '1'));
+      await context.addInitScript(() => { localStorage.setItem('saigononazo-help-seen', '1'); localStorage.setItem('saigononazo-first-visit-notice-v1', 'accepted'); });
       const page = await context.newPage();
       page.setDefaultTimeout(12000);
       const errors = [];

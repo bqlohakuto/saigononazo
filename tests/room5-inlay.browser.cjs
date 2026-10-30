@@ -21,7 +21,7 @@ async function assertFits(page){
  try{
   for(const spec of [{name:'pc',viewport:{width:1366,height:768},mobile:false},{name:'phone-landscape',viewport:{width:852,height:393},mobile:true}]){
    const ctx=await browser.newContext({viewport:spec.viewport,isMobile:spec.mobile,hasTouch:spec.mobile,reducedMotion:spec.mobile?'reduce':'no-preference'});
-   await ctx.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
+   await ctx.addInitScript(()=>{localStorage.setItem('saigononazo-help-seen','1');localStorage.setItem('saigononazo-first-visit-notice-v1', 'accepted');});
    const page=await ctx.newPage(),errors=[],missing=[];
    page.on('pageerror',e=>errors.push(e.message));
    page.on('response',r=>{if(r.url().includes('/combinations/')&&!r.ok())missing.push(r.url());});

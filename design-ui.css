@@ -2737,7 +2737,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 /* Use the verified handwritten title image; readable text remains as fallback. */
 #game .title-cleared .title-logo{mix-blend-mode:screen}
 
-#game .room3-desk::after{top:-8%!important;left:50%!important}
+#game .room3-desk::after{top:15%!important;left:85%!important}
 #game .r8-final-door{position:absolute;left:42%;top:8%;height:78%;width:24%;border:0;background:transparent url("images/background/room01/room01_door_closeup.png") center/contain no-repeat;font-size:0;color:transparent}
 #game:has(.memory-scene) .memory-prop[data-kind="cards"]{display:none!important}
 

@@ -1,7 +1,7 @@
 /* Fixed-view room cells; approved pixel assets remain separate from live state. */
 #game .r6-full{position:absolute;inset:0;padding:0;overflow:hidden;background:#dad9df}
 .r6-scene{position:absolute;inset:0;isolation:isolate;--r6-floor-tint:#fff}
-.r6-space{position:absolute;inset:0;transition:transform 280ms ease-out;transform-origin:50% 50%}
+.r6-space{position:absolute;inset:0;transition:transform 560ms ease-out;transform-origin:50% 50%}
 .r6-scene[data-color=black]{--r6-floor-tint:#282831}
 .r6-scene[data-color=green]{--r6-floor-tint:#37815b}
 .r6-floor,.r6-walls{position:absolute;inset:0;pointer-events:none;background:url('images/background/room06/clean-room-v2.webp') center/100% 100%;image-rendering:pixelated}
@@ -80,7 +80,7 @@
 #game .r6-space[data-travel=west].arriving{transform:translateX(-4%) scale(1.08)}
 #game .r6-space[data-travel=map]{transform:none}
 #game .r6-door.is-travel-target{filter:brightness(1.35)}
-#game .r6-travel-shade{position:absolute;inset:0;z-index:100;display:grid;place-items:center;background:#080b12;opacity:0;pointer-events:auto;transition:opacity 200ms ease-in}
+#game .r6-travel-shade{position:absolute;inset:0;z-index:100;display:grid;place-items:center;background:#080b12;opacity:0;pointer-events:auto;transition:opacity 400ms ease-in}
 #game .r6-travel-shade.covered{opacity:1}
 #game .r6-travel-label{color:#eee6ce;font-size:clamp(14px,1.8cqw,23px);letter-spacing:.12em;text-shadow:1px 2px #000}
 #game .r6-arrival{position:absolute;left:50%;bottom:10%;transform:translateX(-50%);z-index:7;padding:5px 14px;background:#18222de8;color:#f5e9ca;border:1px solid #b49a62;font-size:clamp(11px,1.25cqw,16px);pointer-events:none;animation:r6Arrival 1500ms both}

@@ -160,7 +160,7 @@ function renderThirdRoomView(){
  stage.dataset.view=view;
  stage.classList.toggle("hana-asleep",!room3State.bedInspected);
  document.getElementById("r3Background").src=`images/background/room03/room03_${view}.webp`;
- const targets={front:room3State.bedInspected?["r3Door","r3Hana"]:["r3Door"],right:["r3Desk","r3Phone"],back:["r3Shelf","r3Trumpet"],left:room3State.bedInspected?["r3Bed"]:["r3Bed","r3SleepingHana"]};
+ const targets={front:room3State.bedInspected?["r3Door","r3Hana"]:["r3Door"],right:room3State.deskInspected?["r3Desk","r3Phone"]:["r3Desk"],back:["r3Shelf","r3Trumpet"],left:room3State.bedInspected?["r3Bed"]:["r3Bed","r3SleepingHana"]};
  for(const button of stage.querySelectorAll(".room3-object")){button.hidden=!targets[view].includes(button.id);button.setAttribute("aria-label",button.querySelector("span").textContent);}
  window.RoomExploration?.mount('room03',stage,view,room3State,{image:`images/background/room03/room03_${view}.webp`,imageAspect:16/9});
 }
@@ -182,6 +182,7 @@ function inspectThirdRoomDoor(){
 function inspectThirdRoomDesk(){
  if(room3State.deskInspected){showRoomNotice("黒い天板の机だ。スマートフォンがある。","room3_desk_repeat","investigation");return}
  room3State.deskInspected=true;saveGame();document.getElementById("r3Phone").disabled=false;
+ renderThirdRoomView(); // Reveal the phone marker only after the desk investigation.
  showRoomDialog([{logId:"room3_desk_01",logType:"investigation",speaker:"ト書き",text:"黒い天板の机だ。一人で組み立てるのに2時間かかったことを思い出す。"},{logId:"room3_desk_02",logType:"narration",speaker:"主人公",thought:true,text:"どうして、そんなことを覚えているんだろう。"},{logId:"room3_desk_03",logType:"investigation",speaker:"ト書き",text:"机の上にはスマートフォンが置かれている。"}]);
 }
 function room3ReplyIsCorrect(text,stage){

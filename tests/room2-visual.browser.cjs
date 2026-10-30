@@ -230,7 +230,7 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-reaction').evaluate(el=>getComputedStyle(el).position),'relative','Dialogue has its own scrollable row above the history');
    assert.equal(await page.locator('.room2-reaction').evaluate(el=>getComputedStyle(el).pointerEvents),'auto','Dialogue text supports scrolling while puzzle controls remain available');
    assert.equal(await page.locator('.room2-reaction-line').count(),2,'Both judgement lines appear simultaneously');
-   assert.deepEqual(await page.locator('.room2-reaction-name').allTextContents(),['ハナ','主人公'],'Hana and protagonist share the same dialogue window');
+   assert.deepEqual(await page.locator('.room2-reaction-name').allTextContents(),['ハナ'],'Only Hana has a name tag; the protagonist keeps an unlabeled speech bubble');
    const speechSize=await page.locator('.room2-reaction-speech').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
    assert(speechSize>=15,'Room two speech bubbles must stay legible on landscape devices: '+speechSize);
    assert.equal(await page.locator('.room2-reaction-speech').count(),2,'Both characters use the larger dialogue style');

@@ -56,6 +56,8 @@ async function finishDialogue(page){
   assert(noteDimensions.width>=90&&noteDimensions.height>=45,'C02: notebook has usable rasterized dimensions');
   assert.equal(await noteArt.evaluate(img=>getComputedStyle(img).objectFit),'contain','C02: notebook prop is not stretched or cropped');
   const [desk,noteBounds]=await Promise.all([page.locator('#r3Desk').boundingBox(),note.boundingBox()]);
+   await page.screenshot({path:path.join(dir,'lecture-notebook-position-diagnostic.png')});
+   console.log('C02_NOTEBOOK_BOUNDS',spec.name,JSON.stringify({desk,noteBounds}));
   assert(noteBounds.x>=desk.x-2&&noteBounds.y>=desk.y-2,'C02: notebook begins on the tabletop');
   assert(noteBounds.x+noteBounds.width<=desk.x+desk.width+2&&noteBounds.y+noteBounds.height<=desk.y+desk.height+2,'C02: notebook remains on the tabletop');
   await page.screenshot({path:path.join(dir,'lecture-notebook-on-desk.png')});

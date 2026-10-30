@@ -45,7 +45,17 @@ function inside(a, b, tolerance = 3) {
 
       const opts = page.locator('.test-room-options');
       const buttons = opts.locator('button[data-room]');
-      assert.equal(await buttons.count(), 8, spec.name + ': all eight rooms must be in the picker');
+      if (await buttons.count() !== 8) {
+         console.error('Picker diagnostic', spec.name, JSON.stringify(await page.evaluate(() => ({
+           preview: typeof GameBuild === 'object' ? GameBuild.preview : null,
+           title: !!document.querySelector('.title-home'),
+           firstVisit: !!document.querySelector('#firstVisitNotice'),
+           overlayCount: document.querySelectorAll('.test-room-overlay').length,
+           overlay: document.querySelector('.test-room-overlay')?.outerHTML.slice(0, 1600) || null,
+           currentScene: typeof currentScene !== 'undefined' ? currentScene : null
+         }))));
+       }
+       assert.equal(await buttons.count(), 8, spec.name + ': all eight rooms must be in the picker');
       const initial = await page.evaluate(() => {
         const r = selector => document.querySelector(selector).getBoundingClientRect().toJSON();
         const el = document.querySelector('.test-room-options');

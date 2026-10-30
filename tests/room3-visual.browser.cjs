@@ -14,7 +14,7 @@ async function finishDialogue(page){
  const browser=await spec.engine.launch({headless:true,...(spec.channel?{channel:spec.channel}:{})});
  try{
  const context=await browser.newContext({viewport:spec.viewport,isMobile:!spec.channel,hasTouch:!spec.channel,reducedMotion:'reduce'});
- await context.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
+ await context.addInitScript(()=>{localStorage.setItem('saigononazo-help-seen','1');localStorage.setItem('saigononazo-first-visit-notice-v1','accepted');});
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  let deployed=false;
  for(let retry=0;retry<24;retry++){
@@ -51,17 +51,17 @@ async function finishDialogue(page){
     await img.decode();
     return {width:img.naturalWidth,height:img.naturalHeight,complete:img.complete};
   });
-  assert.equal(noteDimensions.complete,true,'C02: notebook SVG decodes');
+  assert.match(await noteArt.getAttribute('src'),/optional-room03-lecture-notebook-v2\.png$/,'C02: current notebook asset is the approved PNG');
+   assert.equal(noteDimensions.complete,true,'C02: notebook artwork decodes');
   assert(noteDimensions.width>=90&&noteDimensions.height>=45,'C02: notebook has usable rasterized dimensions');
-  assert(Math.abs(noteDimensions.width/noteDimensions.height-168/96)<.03,
-    'C02: SVG keeps its authored notebook aspect ratio on mobile WebKit');
+  assert.equal(await noteArt.evaluate(img=>getComputedStyle(img).objectFit),'contain','C02: notebook prop is not stretched or cropped');
   const [desk,noteBounds]=await Promise.all([page.locator('#r3Desk').boundingBox(),note.boundingBox()]);
   assert(noteBounds.x>=desk.x-2&&noteBounds.y>=desk.y-2,'C02: notebook begins on the tabletop');
   assert(noteBounds.x+noteBounds.width<=desk.x+desk.width+2&&noteBounds.y+noteBounds.height<=desk.y+desk.height+2,'C02: notebook remains on the tabletop');
   await page.screenshot({path:path.join(dir,'lecture-notebook-on-desk.png')});
   await note.click();
   assert.equal(await page.locator('.inspection-title').textContent(),'講義ノート','C02: investigating the notebook opens its own art');
-  assert.match(await page.locator('.inspection-image').getAttribute('src'),/optional-room03-lecture-notebook\.svg\?v=20261028-c02$/);
+  assert.match(await page.locator('.inspection-image').getAttribute('src'),/optional-room03-lecture-notebook-v2\.png$/);
   await page.locator('.inspection-image').evaluate(async img=>{await img.decode()});
   await page.screenshot({path:path.join(dir,'lecture-notebook-closeup.png')});
   await page.locator('.inspection-close').click();

@@ -226,9 +226,9 @@ function within(inner,outer,tolerance=3){
    assert.equal(await page.locator('.room2-reaction-skip').count(),0,'Speech bubbles have no manual dismiss button');
    assert.equal(await page.locator('.room2-reaction .room2-reaction-line.is-hana').count(),1);
    assert.equal(await page.locator('.room2-reaction .room2-reaction-line.is-protagonist').count(),1);
-   assert.equal(await page.locator('.room2-reaction').evaluate(el=>el.parentElement.classList.contains('room2-sidebar')),true,'Bubbles hover above the handwritten ledger');
-   assert.equal(await page.locator('.room2-reaction').evaluate(el=>getComputedStyle(el).position),'absolute','Bubbles overlay paper rather than occupy a bottom row');
-   assert.equal(await page.locator('.room2-reaction').evaluate(el=>getComputedStyle(el).pointerEvents),'none','Bubbles never block puzzle controls');
+   assert.equal(await page.locator('.room2-reaction').evaluate(el=>el.parentElement.classList.contains('room2-sidebar')),true,'Dialogue stays within the notebook sidebar');
+   assert.equal(await page.locator('.room2-reaction').evaluate(el=>getComputedStyle(el).position),'relative','Dialogue has its own scrollable row above the history');
+   assert.equal(await page.locator('.room2-reaction').evaluate(el=>getComputedStyle(el).pointerEvents),'auto','Dialogue text supports scrolling while puzzle controls remain available');
    assert.equal(await page.locator('.room2-reaction-line').count(),2,'Both judgement lines appear simultaneously');
    assert.deepEqual(await page.locator('.room2-reaction-name').allTextContents(),['ハナ','主人公'],'Hana and protagonist share the same dialogue window');
    const speechSize=await page.locator('.room2-reaction-speech').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));

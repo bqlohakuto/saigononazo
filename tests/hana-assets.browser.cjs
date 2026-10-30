@@ -10,7 +10,7 @@ async function finish(page){
  const browser=await spec.engine.launch({headless:true});
  try{
   const context=await browser.newContext({viewport:spec.viewport,isMobile:!!spec.mobile,hasTouch:!!spec.mobile,reducedMotion:'reduce'});
-  await context.addInitScript(()=>localStorage.setItem('saigononazo-help-seen','1'));
+  await context.addInitScript(()=>{localStorage.setItem('saigononazo-help-seen','1');localStorage.setItem('saigononazo-first-visit-notice-v1','accepted');});
   const page=await context.newPage(),errors=[],legacy=[],failed=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('request',r=>{if(/hana-v[258]\/|hana-expressions|archive\/characters/.test(r.url()))legacy.push(r.url())});
@@ -47,7 +47,7 @@ async function finish(page){
    await readyImages(page);await page.screenshot({path:path.join(dir,id+'.png')});
    await page.evaluate(()=>showRoomDialog([{logId:'hana-review-talk',speaker:'ハナ',text:'一緒に考えてみよう！'}]));
    await page.waitForSelector('.hana-portrait:not([hidden])');
-   assert.equal(await page.locator('#game').evaluate(e=>e.classList.contains('has-world-expression')),false,'Dialogue never restores a retired full-body variant');
+   assert.equal(await page.locator('.room-dialog .hana-portrait:not([hidden])').count(),1,'Dialogue uses the current dedicated portrait even when a world expression is active');
    assert.match(await page.locator('.hana-portrait').evaluate(e=>getComputedStyle(e).backgroundImage),/hana-current\/portraits\//);
    await readyImages(page);await page.screenshot({path:path.join(dir,id+'-dialogue.png')});await finish(page);
   }

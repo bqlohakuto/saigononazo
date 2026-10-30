@@ -21,6 +21,7 @@ const specs = [
       });
       await context.addInitScript(() => {
         localStorage.setItem('saigononazo-help-seen', '1');
+        localStorage.setItem('saigononazo-first-visit-notice-v1', 'accepted');
         localStorage.setItem('saigononazo-settings-v1', JSON.stringify({ instantText: true, volume: 0 }));
       });
       const page = await context.newPage();

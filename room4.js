@@ -39,7 +39,7 @@ function showFourthRoom(savedState){
  r4CancelFailedLightOff();
  r4HanaGazeObserver?.disconnect();r4HanaGazeObserver=null;
  Dialogue.stop();firstRoomState=undefined;room2State=undefined;room3State=undefined;currentScene="room04";GameAudio.syncSceneMusic?.(currentScene);
- room4State={door:false,wall:false,box:false,star:false,lightPuzzle:false,meteors:false,angles:[...R4_INITIAL],panelRotationVersion:1,rainbow:[...R4_RAINBOW],lightOn:false,lightUsed:false,completed:false,memorySeen:false,nextRoomTransitionSeen:false,hanaSleepSeen:false,standInspected:false,highlightEnabled:true,view:"front",...savedState};
+ room4State={door:false,wall:false,box:false,star:false,lightPuzzle:false,meteors:false,angles:[...R4_INITIAL],panelRotationVersion:1,rainbow:[...R4_RAINBOW],lightOn:false,lightUsed:false,completed:false,memorySeen:false,nextRoomTransitionSeen:false,hanaSleepSeen:false,standInspected:false,starPuzzleInspected:false,lightPuzzleInspected:false,rainbowPuzzleInspected:false,highlightEnabled:true,view:"front",...savedState};
  // A failed projection is transient, including when restoring a legacy lit save.
  if(!room4State.completed)room4State.lightOn=false;
  if(!Array.isArray(room4State.angles)||room4State.angles.length!==5)room4State.angles=[...R4_INITIAL];
@@ -385,6 +385,10 @@ function r4WordPuzzle(kind){
  const exhibitClass=kind==="STAR"?" r4-color-exhibit":" r4-color-exhibit r4-ratio-exhibit";
  o.innerHTML=`<section class="r4-mini ${solved?"r4-mini-inspected":""}${exhibitClass}" aria-label="${kind==="STAR"?"色と数字":"色の割合"}"><button class="device-close" aria-label="閉じる">×</button>${body}${answerView}</section>`;
  game.appendChild(o);
+ // Unlock this puzzle's Hana hints only after its exhibit has been opened.
+ if(kind==="STAR")room4State.starPuzzleInspected=true;
+ else room4State.lightPuzzleInspected=true;
+ saveGame();
  const input=o.querySelector("input"),fb=o.querySelector(".r4-feedback");
  const close=activateDeviceModal(o,kind==="STAR"?"r4P1":"r4P2",solved?o.querySelector(".device-close"):input);
  // Reinspection is deliberately read-only: no validation, reward, or duplicate log.
@@ -409,6 +413,8 @@ function r4P3(){
   '<p class="r4-plate-status" role="status" aria-live="polite"></p>'+
   '</section>';
  game.appendChild(o);
+ // The seven-color hint stays hidden until the plate puzzle is opened.
+ room4State.rainbowPuzzleInspected=true;saveGame();
  const list=o.querySelector(".r4-rainbow"),status=o.querySelector(".r4-plate-status");
  let revealTimer=null,successTimer=null,dialogueStarted=false,earnedThisOpen=false;
  const finishSuccess=()=>{
@@ -525,9 +531,9 @@ function r4Hana(){
  if(room4State.completed){showRoomDialog([{logId:'r4_hint_done',logType:'dialogue',speaker:'ハナ',text:'星がつながったね。扉の先へ進もう。'}]);return;}
  const topics=[];
  if(!r4All())topics.push({id:'r4_panels',label:'パネルの探し方',steps:['透明なパネルは五枚必要みたい。見つけたものは、一枚から台にはめられるよ。展示の謎だけでなく、部屋そのものも見てみよう。','三つの小謎でもらえるもののほかに、正面の壁と質問箱を調べてみて。']});
- if(!room4State.star)topics.push({id:'r4_star',label:'謎1：色と数字',steps:['色の名前と、その隣の数字を一緒に使えないかな？','色の名前を英語にして、数字の番目の文字を拾ってみよう。','銀はSILVER。その一文字目はSだよ。同じ方法で、表示された順に四文字を読もう。']});
- if(!room4State.lightPuzzle)topics.push({id:'r4_light',label:'謎2：色の割合',steps:['色の組み合わせと割合が表しているものを、この部屋の展示で探してみよう。','紋章の色も含めて、国旗の同じ色ごとの割合を比べてみよう。展示の国旗と見比べてみて。','国名を英語にして、下の数字の番目の文字を拾おう。白と赤が半分ずつなのは、展示の中ではポーランド。POLANDの三文字目はLだよ。']});
- if(!room4State.meteors)topics.push({id:'r4_rainbow',label:'謎3：七つの色',steps:['七つの色が一緒に現れる、空の景色を思い浮かべてみて。','虹の色の並びに合わせて、札を並べ直してみよう。','赤・橙・黄・緑・青・藍・紫の順だよ。色に付いた文字も一緒に動かしてね。']});
+ if(room4State.starPuzzleInspected&&!room4State.star)topics.push({id:'r4_star',label:'謎1：色と数字',steps:['色の名前と、その隣の数字を一緒に使えないかな？','色の名前を英語にして、数字の番目の文字を拾ってみよう。','銀はSILVER。その一文字目はSだよ。同じ方法で、表示された順に四文字を読もう。']});
+ if(room4State.lightPuzzleInspected&&!room4State.lightPuzzle)topics.push({id:'r4_light',label:'謎2：色の割合',steps:['色の組み合わせと割合が表しているものを、この部屋の展示で探してみよう。','紋章の色も含めて、国旗の同じ色ごとの割合を比べてみよう。展示の国旗と見比べてみて。','国名を英語にして、下の数字の番目の文字を拾おう。白と赤が半分ずつなのは、展示の中ではポーランド。POLANDの三文字目はLだよ。']});
+ if(room4State.rainbowPuzzleInspected&&!room4State.meteors)topics.push({id:'r4_rainbow',label:'謎3：七つの色',steps:['七つの色が一緒に現れる、空の景色を思い浮かべてみて。','虹の色の並びに合わせて、札を並べ直してみよう。','赤・橙・黄・緑・青・藍・紫の順だよ。色に付いた文字も一緒に動かしてね。']});
  if(r4All())topics.push({id:'r4_projection',label:'五枚のパネルの使い方',steps:['左側のパネル台に、手元のパネルをはめてみよう。ライトをつけて、映った星を星座一覧と見比べてみて。','重ねる順番より、それぞれの向きが大事みたい。一枚ずつ回して、星の位置を見てみよう。','星座一覧のおとめ座を手がかりにしてみて。五枚の星が、その形を作る向きを探そう。']});
  PuzzleHints.choose('r4Hana',topics);
 }

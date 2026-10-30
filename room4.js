@@ -283,7 +283,11 @@ function r4Projection(){
 function r4Stand(){
  if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
  if(room4State.completed){showRoomNotice("星座は完成している。","r4stand_complete","investigation");return}
- room4State.standInspected=true;saveGame();
+ // A collected pane is already visible in the apparatus; make its saved state match.
+ // Opening the stand mounts all owned panes so the first touch rotates, not inserts.
+ room4State.standInspected=true;
+ room4State.mountedPanels=R4_PANEL_KEYS.map(key=>!!room4State[key]);
+ saveGame();
  const o=document.createElement("div");o.className="device-overlay r4-panel-overlay";
  o.innerHTML='<section class="r4-panel-ui r4-linked-puzzle" aria-label="ガラスパネルの操作">'+
   '<button type="button" class="device-close" aria-label="閉じる">×</button>'+
@@ -352,15 +356,8 @@ function r4Stand(){
  };
  grid.querySelectorAll(".r4-rotate-plate").forEach(button=>button.onclick=()=>{
   const i=Number(button.dataset.i);
-  if(!room4State[R4_PANEL_KEYS[i]])return;
-  if(!r4Mounted(i)){
-   room4State.mountedPanels[i]=true;
-   globalThis.GameAudio?.play?.("itemPlace");
-   button.classList.add("is-mounted");
-   button.setAttribute("aria-label","ガラスパネル"+(i+1)+"を右に90度回す");
-   stackImages[i].hidden=false;
-   fb.textContent="";drawLinks();r4Projection();saveGame();
-  }else rotatePanes([i]);
+  if(!r4Mounted(i))return;
+  rotatePanes([i]);
  });
  stack.onclick=()=>{if(allLinked())rotatePanes([0,1,2,3,4])};
  drawLinks(true);
@@ -530,11 +527,11 @@ function r4Hana(){
  if(!room4State.hanaSleepSeen){showRoomDialog([{logId:"r4h1",logType:"dialogue",speaker:"ハナ",text:"ふぁ……"},{logId:"r4h2",logType:"dialogue",speaker:"主人公",text:"眠いんですか？"},{logId:"r4h3",logType:"dialogue",speaker:"ハナ",text:"んー……ちょっと眠いかも"},{logId:"r4h4",logType:"dialogue",speaker:"ハナ",text:"大丈夫。謎、解こっか"}],()=>{room4State.hanaSleepSeen=true;saveGame()});return}
  if(room4State.completed){showRoomDialog([{logId:'r4_hint_done',logType:'dialogue',speaker:'ハナ',text:'星がつながったね。扉の先へ進もう。'}]);return;}
  const topics=[];
- if(!r4All())topics.push({id:'r4_panels',label:'パネルの探し方',steps:['透明なパネルは五枚必要みたい。見つけたものは、一枚から台にはめられるよ。展示の謎だけでなく、部屋そのものも見てみよう。','三つの小謎でもらえるもののほかに、正面の壁と質問箱を調べてみて。']});
+ if(!r4All())topics.push({id:'r4_panels',label:'パネルの探し方',steps:['透明なパネルは五枚必要みたい。見つけたパネルは台に並ぶよ。台を開いたら、一枚ずつ向きを変えてみて。展示の謎だけでなく、部屋そのものも見てみよう。','三つの小謎でもらえるもののほかに、正面の壁と質問箱を調べてみて。']});
  if(room4State.starPuzzleInspected&&!room4State.star)topics.push({id:'r4_star',label:'謎1：色と数字',steps:['色の名前と、その隣の数字を一緒に使えないかな？','色の名前を英語にして、数字の番目の文字を拾ってみよう。','銀はSILVER。その一文字目はSだよ。同じ方法で、表示された順に四文字を読もう。']});
  if(room4State.lightPuzzleInspected&&!room4State.lightPuzzle)topics.push({id:'r4_light',label:'謎2：色の割合',steps:['色の組み合わせと割合が表しているものを、この部屋の展示で探してみよう。','紋章の色も含めて、国旗の同じ色ごとの割合を比べてみよう。展示の国旗と見比べてみて。','国名を英語にして、下の数字の番目の文字を拾おう。白と赤が半分ずつなのは、展示の中ではポーランド。POLANDの三文字目はLだよ。']});
  if(room4State.rainbowPuzzleInspected&&!room4State.meteors)topics.push({id:'r4_rainbow',label:'謎3：七つの色',steps:['七つの色が一緒に現れる、空の景色を思い浮かべてみて。','虹の色の並びに合わせて、札を並べ直してみよう。','赤・橙・黄・緑・青・藍・紫の順だよ。色に付いた文字も一緒に動かしてね。']});
- if(r4All())topics.push({id:'r4_projection',label:'五枚のパネルの使い方',steps:['左側のパネル台に、手元のパネルをはめてみよう。ライトをつけて、映った星を星座一覧と見比べてみて。','重ねる順番より、それぞれの向きが大事みたい。一枚ずつ回して、星の位置を見てみよう。','星座一覧のおとめ座を手がかりにしてみて。五枚の星が、その形を作る向きを探そう。']});
+ if(r4All())topics.push({id:'r4_projection',label:'五枚のパネルの使い方',steps:['左側のパネル台で、集めたパネルの向きを変えてみよう。ライトをつけて、映った星を星座一覧と見比べてみて。','重ねる順番より、それぞれの向きが大事みたい。一枚ずつ回して、星の位置を見てみよう。','星座一覧のおとめ座を手がかりにしてみて。五枚の星が、その形を作る向きを探そう。']});
  PuzzleHints.choose('r4Hana',topics);
 }
 function r4Complete(){

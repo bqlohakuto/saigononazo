@@ -58,8 +58,11 @@ async function finishDialogue(page){
   const [desk,noteBounds]=await Promise.all([page.locator('#r3Desk').boundingBox(),note.boundingBox()]);
    await page.screenshot({path:path.join(dir,'lecture-notebook-position-diagnostic.png')});
    console.log('C02_NOTEBOOK_BOUNDS',spec.name,JSON.stringify({desk,noteBounds}));
-  assert(noteBounds.x>=desk.x-2&&noteBounds.y>=desk.y-2,'C02: notebook begins on the tabletop');
-  assert(noteBounds.x+noteBounds.width<=desk.x+desk.width+2&&noteBounds.y+noteBounds.height<=desk.y+desk.height+2,'C02: notebook remains on the tabletop');
+  assert(noteBounds.x>=desk.x-2&&noteBounds.x+noteBounds.width<=desk.x+desk.width+2,'C02: notebook stays horizontally aligned with the desk');
+  // The desk's interactive hit region covers its front. A notebook on the top surface
+  // straddles the hit region's top edge; do not require it to be inside the front face.
+  assert(noteBounds.y<=desk.y+desk.height*.15&&noteBounds.y>=desk.y-noteBounds.height*1.5&&noteBounds.y+noteBounds.height>=desk.y-2,
+    'C02: notebook sits at the upper edge of the desk rather than floating away');
   await page.screenshot({path:path.join(dir,'lecture-notebook-on-desk.png')});
   await note.click();
   assert.equal(await page.locator('.inspection-title').textContent(),'講義ノート','C02: investigating the notebook opens its own art');

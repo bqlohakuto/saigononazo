@@ -66,6 +66,16 @@ test('first-visit notice has no story spoilers and releases its keyboard trap on
  assert.equal(q('.title-home').inert,true,'the title controls are blocked until acceptance');
  assert.match(notice.textContent,/ホーム画面に追加/);
  assert.match(notice.textContent,/横画面でのみ/);
+ assert.match(notice.textContent,/謎が難しいと思ったら、ヒントを見てください/);
+ assert.match(notice.textContent,/ヒントは段階的に表示され/);
+ assert.match(notice.textContent,/ほぼ答えまで/);
+ const social=q('.title-community'),profile=q('.title-community-account');
+ assert.ok(social&&profile,'author contact appears on the title');
+ assert.equal(profile.getAttribute('href'),'https://x.com/arissa_juno');
+ assert.equal(profile.getAttribute('target'),'_blank');
+ assert.match(profile.getAttribute('rel'),/noopener/);
+ assert.match(social.textContent,/XのDMまで/);
+ assert.match(social.textContent,/#最後の謎が解けるまで/);
  assert.doesNotMatch(notice.textContent,/事故|死亡|花音|最終謎/,'the notice must not reveal the story');
  run('showNameInput()');
  await new Promise(resolve=>setTimeout(resolve,0));

@@ -1,12 +1,4 @@
 /* Puzzle explanations — styled as a memory notebook, inside the existing 16:9 game viewport. */
-#game .title-home .title-menu #puzzleGuideButton{
-  height:42px;border:1px solid rgba(242,232,217,.68);border-radius:8px;
-  background:rgba(38,30,38,.78);color:#fff;font:14px "DotGothic16",sans-serif;
-  letter-spacing:.1em;text-shadow:0 1px 5px #000;mix-blend-mode:normal
-}
-#game .title-home .title-menu #puzzleGuideButton:hover{
-  background:rgba(93,75,84,.9);transform:translateX(4px)
-}
 .pguide{
   display:flex;flex-direction:column;gap:8px;width:100%;height:100%;
   padding:20px 30px;background:#241f27;color:#42382e;
@@ -39,7 +31,6 @@
 .pguide-pager{display:flex;justify-content:space-between;gap:12px;margin-top:20px}
 .pguide-pager button{min-height:39px;padding:8px 14px;border:1px solid #bca083;border-radius:4px;background:#efe1ca;color:#4d4034}
 @container game-viewport (max-width:780px){
-  #game .title-home .title-menu #puzzleGuideButton{height:35px;font-size:12px}
   .pguide{padding:9px 11px;gap:4px;font-size:12px}
   .pguide-top h1{font-size:18px}.pguide-top button{min-width:110px;min-height:32px;font-size:12px}
   .pguide-lead{font-size:9px}
@@ -68,3 +59,6 @@
 .pguide-author-comment{display:grid;gap:11px;padding:13px 15px;border-left:3px solid #ad8e79;background:#fff8ed}
 .pguide-section .pguide-author-comment p{margin:0;line-height:1.85}
 @container game-viewport (max-width:780px){.pguide-author-comment{gap:7px;padding:9px 11px}}
+
+/* The afterword shares the notebook layout and keeps its contents scrollable. */
+.afterword > .pguide-article{flex:1}

@@ -6,6 +6,8 @@ const path = require("node:path");
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 const expectedAssets = [
   "ending-credits.css",
+  "reset-progress.css",
+  "first-visit-notice.css",
   "browser-navigation.css",
   "style.css",
   "viewport-scaler.js",
@@ -44,7 +46,9 @@ const expectedAssets = [
   "memory-visuals.js",
   "design-ui.js",
   "puzzle-explanations.js",
-  "browser-navigation.js"
+  "browser-navigation.js",
+  "reset-progress.js",
+  "first-visit-notice.js"
 ];
 
 function localAssetReferences() {
@@ -97,7 +101,9 @@ test("script load order remains intentional", () => {
   "memory-visuals.js",
   "design-ui.js",
   "puzzle-explanations.js",
-  "browser-navigation.js"
+  "browser-navigation.js",
+  "reset-progress.js",
+  "first-visit-notice.js"
   ]);
 });
 

@@ -73,5 +73,5 @@ test("H02: public answer guide is locked without an epilogue or author preview",
  assert.match(game,/const AUTHOR_PREVIEW=new URLSearchParams\(window\.location\.search\)\.get\("preview"\)==="1"/);
  assert.match(guide,/return completed\?\.ended===true && completed\.epilogueSeen===true/);
  assert.match(guide,/const enabled = \(\) => TEST_MODE \|\| localStorage\.getItem\(UNLOCK_KEY\) === "1" \|\| completedSave\(\)/);
- assert.match(guide,/if\(!home \|\| home\.querySelector\("#puzzleGuideButton"\) \|\| !enabled\(\)\) return/);
+ assert.match(guide,/if\(!home \|\| !enabled\(\)\) return/);
 });

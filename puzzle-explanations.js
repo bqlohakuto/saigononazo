@@ -236,15 +236,28 @@
   function titleLink(){
     if(typeof document==='undefined'||!document.documentElement)return;
     const home = document.querySelector("#game .title-home");
-    if(!home || home.querySelector("#puzzleGuideButton") || !enabled()) return;
-    const menu = home.querySelector(".title-menu");
-    const before = home.querySelector("#settingsButton");
-    if(!menu || !before)return;
-    const button = document.createElement("button");
-    button.type="button";button.id="puzzleGuideButton";button.textContent="謎の解説";
-    button.setAttribute("aria-label","謎の解説を見る");
-    button.addEventListener("click",()=>openGuide(0));
-    menu.insertBefore(button,before);
+    if(!home || !enabled()) return;
+    const button = home.querySelector("#commentButton");
+    if(!button || button.dataset.afterwordReady)return;
+    button.dataset.afterwordReady="true";
+    button.disabled=false;
+    button.setAttribute("aria-label","あとがき");
+    const image=button.querySelector("img");
+    if(image.getAttribute("src")!=="images/ui/menu-afterword.jpg")image.src="images/ui/menu-afterword.jpg";
+    button.addEventListener("click",openAfterword);
+  }
+  function openAfterword(){
+    if(!enabled())return;
+    Dialogue.stop();
+    game.innerHTML='<main class="pguide afterword" aria-label="あとがき"><header class="pguide-top"><h1>あとがき</h1><button type="button" id="afterwordBack">タイトルへ戻る</button></header>'+
+      '<article class="pguide-article" tabindex="0"><h2>謎の解説</h2><p>各部屋の謎の解き方と、作者コメントを読むことができます。</p><div class="pguide-pager"><button type="button" id="puzzleGuideButton">謎の解説を読む</button></div></article></main>';
+    game.querySelector("#afterwordBack").addEventListener("click",()=>{
+      showTitle();
+      titleLink();
+      game.querySelector("#commentButton")?.focus({preventScroll:true});
+    });
+    game.querySelector("#puzzleGuideButton").addEventListener("click",()=>openGuide(0));
+    game.querySelector(".pguide-article")?.focus({preventScroll:true});
   }
   function pageSection(label,html){
     return '<section class="pguide-section"><h3>'+esc(label)+'</h3>'+html+'</section>';
@@ -253,7 +266,7 @@
     const c=CHAPTERS[selected];
     const nav=CHAPTERS.map((v,i)=>'<button type="button" data-pguide-chapter="'+i+'" class="'+(selected===i?"is-active":"")+'" aria-current="'+(selected===i?"page":"false")+'"><small>第'+(i+1)+'の謎</small><span>'+esc(v.title)+'</span></button>').join("");
     const items=c.steps.map((step,i)=>'<li><b>'+String(i+1).padStart(2,"0")+'</b><span>'+esc(step)+'</span></li>').join("");
-    game.innerHTML='<main class="pguide" aria-label="謎の解説"><header class="pguide-top"><h1>謎の解説</h1><button type="button" id="pguideBack">タイトルへ戻る</button></header>'+
+    game.innerHTML='<main class="pguide" aria-label="謎の解説"><header class="pguide-top"><h1>謎の解説</h1><button type="button" id="pguideBack">あとがきへ戻る</button></header>'+
       '<p class="pguide-lead">※ このページには全8章の解答と物語のネタバレが含まれます。</p>'+
       '<div class="pguide-body"><nav class="pguide-nav" aria-label="解説する謎を選ぶ">'+nav+'</nav>'+
       '<article class="pguide-article" tabindex="0"><div class="pguide-index">第'+(selected+1)+'の謎 / 全8章</div><h2>'+esc(c.title)+'</h2>'+
@@ -265,7 +278,7 @@
       pageSection("記憶とのつながり",'<p>'+esc(c.after)+'</p>')+
       (c.authorComment?pageSection("作者コメント",'<div class="pguide-author-comment">'+c.authorComment.map(line=>'<p>'+esc(line)+'</p>').join("")+'</div>'):"")+
       '<div class="pguide-pager"><button type="button" id="pguidePrev" '+(selected===0?"disabled":"")+'>← 前の謎</button><button type="button" id="pguideNext" '+(selected===CHAPTERS.length-1?"disabled":"")+'>次の謎 →</button></div></article></div></main>';
-    game.querySelector("#pguideBack").addEventListener("click",()=>showTitle());
+    game.querySelector("#pguideBack").addEventListener("click",openAfterword);
     game.querySelectorAll("[data-pguide-chapter]").forEach(b=>b.addEventListener("click",()=>openGuide(Number(b.dataset.pguideChapter))));
     game.querySelector("#pguidePrev").addEventListener("click",()=>openGuide(selected-1));
     game.querySelector("#pguideNext").addEventListener("click",()=>openGuide(selected+1));

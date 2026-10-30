@@ -15,6 +15,7 @@ const fs=require('node:fs');
   page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(cleared=>{
    localStorage.clear();
+   localStorage.setItem('saigononazo-first-visit-notice-v1','accepted');
    if(cleared)localStorage.setItem('saigononazo-guide-unlocked-v1','1');
   },spec.cleared);
   if(spec.fail)await page.route('**/title-cleared-background-v2.png*',route=>route.abort());
@@ -23,22 +24,19 @@ const fs=require('node:fs');
   await page.evaluate(()=>document.fonts.ready);
   const h1=page.locator('.title-logo');
   if(spec.cleared){
-   assert.equal(await h1.locator('img').getAttribute('src'),'images/ui/title-cleared-logo.jpg');
-   assert.equal(await h1.locator('img').getAttribute('alt'),'最後の謎が解けても');
+   assert.equal(await h1.locator('img').getAttribute('src'),'images/ui/title-logo.jpg');
+   assert.equal(await h1.locator('img').getAttribute('alt'),'最後の謎が解けるまで');
    if(!spec.fail){
     assert.equal(await h1.evaluate(el=>getComputedStyle(el).filter),'none');
-    assert.match(await h1.locator('img').evaluate(el=>getComputedStyle(el).filter),/cleared-title-ink/);
-    assert.equal(await page.locator('.title-menu').evaluate(el=>getComputedStyle(el).mixBlendMode),'normal');
+    assert.equal(await h1.locator('img').evaluate(el=>getComputedStyle(el).filter),'none');
+    assert.equal(await page.locator('.title-menu').evaluate(el=>getComputedStyle(el).mixBlendMode),'screen');
    }
    assert(await page.locator('.title-cleared').count());
    if(spec.fail){
     assert(await page.locator('.title-art-fallback').count());
     assert.equal(await h1.evaluate(el=>getComputedStyle(el).filter),'none','fallback text must not be inverted to black');
-    assert.equal(await h1.locator('.title-text-fallback').innerText(),'最後の謎が解けても');
-    const guide=page.locator('#puzzleGuideButton');
-    await guide.waitFor();
-    assert.equal(await guide.innerText(),'謎の解説');
-    assert.equal(await guide.evaluate(el=>getComputedStyle(el,'::after').content),'none');
+    assert.equal(await h1.locator('.title-text-fallback').innerText(),'最後の謎が解けるまで');
+    assert.equal(await page.locator('#commentButton').getAttribute('aria-label'),'あとがき');
    }
    else assert((await page.locator('.title-home').evaluate(el=>el.style.backgroundImage)).includes('title-cleared-background-v2.png'));
   }else{
@@ -60,6 +58,25 @@ const fs=require('node:fs');
    assert(withTitle.equals(withoutTitle),'title filter must not paint white bands outside the logo');
    await h1.evaluate(el=>el.style.visibility='');
   }
+  assert.equal(await page.locator('.title-menu #puzzleGuideButton').count(),0);
+  if(spec.cleared){
+   const afterword=page.locator('#commentButton');
+   assert.equal(await afterword.getAttribute('aria-label'),'あとがき');
+   assert.equal(await afterword.locator('img').getAttribute('src'),'images/ui/menu-afterword.jpg');
+   if(!spec.fail){
+    for(const image of await page.locator('.title-menu img').all()){
+     assert(await image.isVisible(),'handwritten menu artwork is visible');
+    }
+   }
+   await afterword.click();
+   assert(await page.locator('.afterword').count());
+   await page.locator('#puzzleGuideButton').click();
+   assert(await page.locator('.pguide:not(.afterword)').count());
+   await page.locator('#pguideNext').click();
+   assert.match(await page.locator('.pguide-index').innerText(),/第2/);
+   await page.locator('#pguideBack').click();
+   await page.locator('#afterwordBack').click();
+  }else assert(await page.locator('#commentButton').isDisabled());
   await page.locator('#settingsButton').click();
   assert(await page.locator('#game').innerText().then(s=>s.includes('設定')));
   assert.deepEqual(errors,[]);

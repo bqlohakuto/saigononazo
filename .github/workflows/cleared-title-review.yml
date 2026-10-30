@@ -1,7 +1,15 @@
 name: Cleared title review
 on:
   push:
-    branches: [codex/post-clear-title-20261030, codex/fix-cleared-title-visible-20261030]
+    branches: [main, codex/post-clear-title-20261030, codex/fix-cleared-title-visible-20261030]
+    paths:
+      - 'script.js'
+      - 'design-ui.css'
+      - 'puzzle-explanations.js'
+      - 'puzzle-explanations.css'
+      - 'images/ui/**'
+      - 'tests/cleared-title-review.browser.cjs'
+      - '.github/workflows/cleared-title-review.yml'
 permissions:
   contents: read
 jobs:

@@ -36,10 +36,15 @@ test('public visitors cannot jump rooms or read solutions before completing the 
   w.localStorage.setItem('saigononazo-save-v1',save(true,true));
   assert.equal(w.PuzzleGuide.markCleared(),true);
   run('showTitle()');await new Promise(resolve=>setTimeout(resolve,0));
-  assert.ok(q('#puzzleGuideButton'),'finished epilogue reveals all explanations');
-  q('#puzzleGuideButton').click();assert.ok(q('.pguide'));
+  assert.equal(q('#puzzleGuideButton'),null,'guide is nested inside the afterword');
+  assert.equal(q('#commentButton').disabled,false);
+  assert.equal(q('#commentButton').getAttribute('aria-label'),'あとがき');
+  q('#commentButton').click();assert.ok(q('.afterword'));
+  q('#puzzleGuideButton').click();assert.ok(q('.pguide:not(.afterword)'));
+  q('#pguideBack').click();assert.ok(q('.afterword'));
+  q('#afterwordBack').click();assert.ok(q('.title-home'));
   run('clearSave();showTitle()');await new Promise(resolve=>setTimeout(resolve,0));
-  assert.ok(q('#puzzleGuideButton'),'earned guide remains unlocked on a new run');
+  assert.equal(q('#commentButton').disabled,false,'earned afterword remains unlocked on a new run');
  }finally{ /* Keep DOM intact while queued image promises and title observers settle. */ }
 });
 test('author preview preserves eight-room picker and full guide for QA',async()=>{
@@ -47,7 +52,7 @@ test('author preview preserves eight-room picker and full guide for QA',async()=
  try{
   assert.equal(w.GameBuild.preview,true);
   assert.ok(q('#testRoomButton'));
-  assert.ok(q('#puzzleGuideButton'));
+  assert.equal(q('#commentButton').disabled,false);
   assert.equal(w.PuzzleGuide.isTestMode(),true);
   q('#testRoomButton').click();
   assert.equal(q('.test-room-options').querySelectorAll('[data-room]').length,8);

@@ -27,7 +27,6 @@
         <p><strong>画面について</strong>スマートフォンは横向きでのプレイを推奨します。</p>
         <p><strong>音について</strong>BGM・効果音が流れます。音量はタイトル画面の「設定」から調整できます。</p>
         <p><strong>セーブについて</strong>進行状況はこのブラウザ内に保存されます。サイトデータを削除するとセーブが失われます。プライベートブラウズでは保存が残らない場合があります。</p>
-        <p><strong>物語について</strong>交通事故や死別に関する描写が含まれます。</p>
       </div>
       <div class="first-visit-footer">
         <button type="button" id="firstVisitAccept">確認してはじめる</button>

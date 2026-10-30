@@ -297,7 +297,13 @@
   function syncSceneMusic(scene,logId=""){
     if(scene==="title"){setMusic("titleMusic");return;}
     if(scene==="opening"){setMusic(null);return;}
-    if(/^room2_after_correct_0[6-8](?:_|$)/.test(logId)){setMusic(null);return;}
+    // The Room 2 recollection lead-in is deliberately silent (no reused Room 1 band).
+    if(/^room2_after_correct_0[1-8](?:_|$)/.test(logId)){
+      setMusic(null);
+      musicIds.forEach(stop); // Stop immediately instead of leaving a fading exploration BGM.
+      stop("memoryBand"); // Also cancel any pending legacy cue after resume.
+      return;
+    }
     const memory=/^(?:room1_memory_|room1_piano_correct(?:_|$)|room2_memory_|room2_final_|room3_flashback_|room3_final_ringtone(?:_|$)|r4f\d|r5m|r5_memory_|r6_memory_|r6_final_signal(?:_|$)|r7_mem_)/.test(logId);
     if(memory){
       const room1=/^room1_/.test(logId);

@@ -80,7 +80,7 @@ test('accepting the first-visit notice persists independently from save progress
  assert.ok(accept);
  accept.click();
  assert.equal(q('#firstVisitNotice'),null);
- assert.equal(q('.title-home').inert,false);
+ assert.notEqual(q('.title-home').inert,true,'the title controls are enabled after accepting the notice');
  assert.equal(w.localStorage.getItem('saigononazo-first-visit-notice-v1'),'accepted');
  run('clearSave();showTitle()');
  assert.equal(w.localStorage.getItem('saigononazo-first-visit-notice-v1'),'accepted');

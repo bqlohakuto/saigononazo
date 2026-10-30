@@ -12,7 +12,8 @@
     // Still show the notice when storage is unavailable.
   }
 
-  const overlay = document.createElement("div");
+  const doc = document;
+  const overlay = doc.createElement("div");
   overlay.id = OVERLAY_ID;
   overlay.className = "first-visit-overlay";
   overlay.innerHTML = `
@@ -43,7 +44,7 @@
     // A preview or resumed scene can replace the title before confirmation.
     // Never leave a detached notice trapping keys in another game screen.
     if (!overlay.isConnected) {
-      document.removeEventListener("keydown", keepFocus, true);
+      doc.removeEventListener("keydown", keepFocus, true);
       title.inert = priorInert;
       return;
     }
@@ -58,7 +59,7 @@
     // Confirmation is the only time this flag is written. It is intentionally
     // not erased by the completed-game progress reset.
     try { localStorage.setItem(STORAGE_KEY, "accepted"); } catch (_) {}
-    document.removeEventListener("keydown", keepFocus, true);
+    doc.removeEventListener("keydown", keepFocus, true);
     observer.disconnect();
     title.inert = priorInert;
     overlay.remove();
@@ -67,12 +68,12 @@
 
   const observer = new MutationObserver(() => {
     if (overlay.isConnected) return;
-    document.removeEventListener("keydown", keepFocus, true);
+    doc.removeEventListener("keydown", keepFocus, true);
     title.inert = priorInert;
     observer.disconnect();
   });
   observer.observe(game, { childList: true });
-  document.addEventListener("keydown", keepFocus, true);
+  doc.addEventListener("keydown", keepFocus, true);
   button.addEventListener("click", accept);
   button.focus({ preventScroll: true });
 })();

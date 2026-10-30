@@ -798,7 +798,7 @@
     "background": "images/background/memories/room05/dining-night.png",
     "sprite": "images/characters/memories/room05/girl-home.png",
     "layout": "standing",
-    "prop": "notebook",
+    "prop": null,
     "ids": [
       "r6_memory_full_001",
       "r6_memory_full_002",
@@ -1160,8 +1160,7 @@
       "r7_mem_monkey_24",
       "r7_mem_monkey_25"
     ]
-  }
-,
+  },
   {
     "key": "r7boar",
     "room": "room07",

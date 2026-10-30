@@ -2537,7 +2537,8 @@ body{background:#0b1322!important;display:grid;place-items:center}
   background:radial-gradient(ellipse at center,#fff 0,#f7f6f1 50%,#eae7e0 100%);
 }
 #game .room-transition-illustrated{
-  --room-passage-ms:1100ms;
+  --room-passage-ms:2200ms;
+  animation-duration:var(--room-passage-ms);
 }
 #game.room-entry-fade{
   animation:roomArrivalFromPassage 650ms ease-out both;

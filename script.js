@@ -166,10 +166,9 @@ function clearSave(){
 }
 
 // Sound cues follow source lines, so pagination and LOG viewing do not replay them.
-const dialogueSoundCues={room2_after_correct_06:"memoryBand",room2_after_memory_003:"doorUnlock",r5_keypad_ok_02:"doorUnlock",r4x2:"doorOpen",r7_last_01:"doorOpen",r8_end_01:"doorOpen"};
+const dialogueSoundCues={room2_after_memory_003:"doorUnlock",r5_keypad_ok_02:"doorUnlock",r4x2:"doorOpen",r7_last_01:"doorOpen",r8_end_01:"doorOpen"};
 function recordLog(line){
  GameAudio.syncSceneMusic?.(currentScene,line.logId);
- if(/^room2_memory_001(?:_|$)/.test(line.logId||""))GameAudio.fadeOut("memoryBand",1000);
  const cue=dialogueSoundCues[line.logId]||dialogueSoundCues[line.logId?.replace(/_01$/u,"")];
  if(cue)GameAudio.play(cue);
  GameLog.record({...line,logRoom:line.logRoom||currentScene,logGroup:line.logGroup||window.DesignUI?.dialogueGroup||null,logTarget:line.logTarget||window.DesignUI?.inspectionTarget||null});

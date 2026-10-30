@@ -2756,26 +2756,63 @@ body{background:#0b1322!important;display:grid;place-items:center}
 }
 #game .title-home #commentButton[data-afterword-ready]{--art-width:220%;--art-left:-40%;--art-y:-39%}
 
-/* Public title: community information stays outside the handwritten menu. */
+/* The title art stays uncluttered; contact details live behind a quiet footer control. */
 #game .title-home .title-community{
  position:absolute;z-index:2;right:3%;bottom:5%;
- box-sizing:border-box;width:min(390px,41%);
- display:grid;gap:6px;
- padding:12px 16px;
- border:1px solid rgba(255,246,223,.5);
- background:rgba(13,17,23,.83);
- box-shadow:0 4px 18px rgba(0,0,0,.25);
- color:#fff9ee;
- font:clamp(13px,1.6cqw,16px)/1.5 "DotGothic16",sans-serif;
- text-shadow:0 1px 2px #000;
 }
-#game .title-home .title-community p{margin:0}
-#game .title-home .title-community .title-community-account{
- display:flex;align-items:center;min-height:40px;width:max-content;max-width:100%;
- color:#fff9ee;text-decoration:underline;text-decoration-thickness:1px;
- text-underline-offset:3px;font-weight:bold;
+#game .title-home .title-community-trigger{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+ width:auto;min-width:182px;max-width:28cqw;height:44px;
+ padding:7px 13px;margin:0;border:1px solid rgba(255,251,241,.24);
+ border-radius:2px;background:rgba(9,16,26,.32);
+ color:rgba(255,249,237,.77);font:clamp(12px,1.4cqw,16px)/1.4 "DotGothic16",sans-serif;
+ letter-spacing:.05em;text-shadow:0 1px 3px #000;box-shadow:none;
+ cursor:pointer;transition:color .15s,background .15s,border-color .15s;
 }
-#game .title-home .title-community .title-community-account:hover{color:#f6d9a7}
-#game .title-home .title-community .title-community-account:focus-visible{outline:3px solid #fff;outline-offset:3px}
-#game .title-home .title-community strong{color:#ffe6ba;font-weight:normal}
+#game .title-home .title-community-trigger:hover{
+ background:rgba(9,16,26,.65);border-color:rgba(255,251,241,.65);color:#fff9ee;
+}
+#game .title-home .title-community-trigger:focus-visible{
+ outline:2px solid #fff8e7;outline-offset:3px;
+}
 #game .title-home.title-cleared .title-community{bottom:18%}
+#game .title-home .title-community-overlay[hidden]{display:none!important}
+#game .title-home .title-community-overlay{
+ position:absolute;inset:0;z-index:70;display:grid;place-items:center;
+ padding:3%;box-sizing:border-box;background:rgba(6,10,17,.82);
+}
+#game .title-home .title-community-panel{
+ position:relative;box-sizing:border-box;width:min(630px,88%);max-height:88%;
+ overflow-y:auto;overscroll-behavior:contain;
+ padding:clamp(28px,4cqw,48px) clamp(20px,4cqw,45px);
+ border:2px solid rgba(237,220,184,.72);
+ outline:3px solid rgba(4,8,14,.9);
+ background:#101d28;color:#fbf5e9;
+ box-shadow:0 10px 32px rgba(0,0,0,.4);
+ text-align:center;font:clamp(13px,1.6cqw,19px)/1.7 "DotGothic16",sans-serif;
+ text-shadow:0 1px 2px rgba(0,0,0,.5);
+}
+#game .title-home .title-community-panel h2{
+ margin:0 40px 14px;font:clamp(17px,2.3cqw,27px)/1.4 "DotGothic16",sans-serif;
+ color:#f8e6c4;
+}
+#game .title-home .title-community-panel p{margin:12px 0}
+#game .title-home .title-community-panel .title-community-account{
+ color:#f4dba6;text-decoration:underline;text-underline-offset:4px;
+}
+#game .title-home .title-community-panel strong{color:#f4dba6;font-weight:normal}
+#game .title-home .title-community-panel :is(a,button):focus-visible{
+ outline:2px solid #fff;outline-offset:3px;
+}
+#game .title-home .title-community-panel .title-community-close{
+ position:absolute;right:8px;top:8px;display:grid;place-items:center;
+ padding:0;margin:0;width:42px;height:42px;min-width:42px;
+ border:1px solid rgba(250,234,209,.42);border-radius:2px;
+ background:transparent;color:#fff2d6;cursor:pointer;
+ font:28px/1 sans-serif;
+}
+@container game-viewport (max-height:490px){
+ #game .title-home .title-community-panel{padding:22px 30px;max-height:90%}
+ #game .title-home .title-community-panel p{margin:6px 0}
+ #game .title-home .title-community-panel h2{margin-bottom:7px}
+}

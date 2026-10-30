@@ -884,6 +884,7 @@ function showUnlockedDoorChoices(){
 // Issue #25 A05: one transition for consecutive room changes.
 // The first room keeps its authored door image; other rooms never borrow that artwork.
 function showRoomTravel(next,{label="次の部屋へ",tone="dark",image=null,duration=1800,sound=true}={}){
+ const passageDuration=duration*2; // Double the existing room-to-room travel duration.
  if(sound){GameAudio.play("doorOpen");GameAudio.play("roomSparkle");}
  Dialogue.stop();
  const screen=document.createElement("div");
@@ -900,7 +901,7 @@ function showRoomTravel(next,{label="次の部屋へ",tone="dark",image=null,dur
   light.setAttribute("aria-hidden","true");
   screen.appendChild(light);
  }
- screen.style.setProperty("--room-passage-ms",duration+"ms");
+ screen.style.setProperty("--room-passage-ms",passageDuration+"ms");
  game.replaceChildren(screen);
  window.setTimeout(()=>{
   if(!screen.isConnected)return;
@@ -911,7 +912,7 @@ function showRoomTravel(next,{label="次の部屋へ",tone="dark",image=null,dur
   game.classList.remove("room-entry-fade");
   game.classList.add("room-entry-fade");
   window.setTimeout(()=>game.classList.remove("room-entry-fade"),700);
- },duration);
+ },passageDuration);
 }
 function showNextRoomBoundary(){
  showRoomTravel(()=>showSecondRoom(roomStates.room02),{

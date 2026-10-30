@@ -211,7 +211,7 @@ function showTitle(notice=""){
   <section class="title-community-panel" role="dialog" aria-modal="true" aria-labelledby="titleCommunityHeading">
    <button type="button" class="title-community-close" aria-label="閉じる">×</button>
    <h2 id="titleCommunityHeading">作者・お問い合わせ</h2>
-   <p><a class="title-community-account" href="https://x.com/arissa_juno" target="_blank" rel="noopener noreferrer" aria-label="はくとのX（@arissa_juno）を新しいタブで開く">はくと（@arissa_juno）のX</a></p>
+   <p><a class="title-community-account" href="https://x.com/arisa_juno" target="_blank" rel="noopener noreferrer" aria-label="はくとのX（@arisa_juno）を新しいタブで開く">はくと（@arisa_juno）のX</a></p>
    <p>謎に関する質問・不具合報告は、XのDMまで。</p>
    <p>感想はぜひ <strong>#最後の謎が解けるまで</strong> をつけてポストしてください！</p>
   </section>

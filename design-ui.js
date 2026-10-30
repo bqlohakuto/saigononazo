@@ -409,7 +409,7 @@
     if(!overlay?.querySelector('.room-dialog')||overlay.dataset.design)return;overlay.dataset.design='true';
     const p=overlay.querySelector('.room-dialog'),portrait=document.createElement('div');portrait.className='hana-portrait';portrait.setAttribute('role','img');portrait.setAttribute('aria-label','ハナ');p.prepend(portrait);portrait.hidden=!portraitVisible;setExpression(portrait);
     const controls=document.createElement('div');controls.className='design-controls';
-    const auto=button('AUTO',()=>Dialogue.toggleAuto()),skip=button('SKIP',()=>p.querySelector('.skip-button')?.click()),hide=button('非表示',()=>{p.classList.add('dialog-hidden');restore.hidden=false;Dialogue.suspend()});auto.dataset.designAuto='';skip.dataset.designSkip='';
+    const auto=button('AUTO',()=>Dialogue.toggleAuto()),skip=button('SKIP',()=>p.querySelector('.skip-button')?.click()),hide=button('非表示',()=>{if(hide.disabled)return;p.classList.add('dialog-hidden');restore.hidden=false;Dialogue.suspend()});auto.dataset.designAuto='';skip.dataset.designSkip='';hide.dataset.designHide='';
     const log=button('LOG',()=>p.querySelector('.log-button')?.click());log.dataset.designLog='';const settingsButton=button('設定',options);controls.append(auto,skip,log,hide,settingsButton);p.append(controls);
     const restore=button('',e=>{} ,'dialogue-restore');restore.setAttribute('aria-label','会話を再表示');restore.hidden=true;restore.onclick=e=>{e.stopPropagation();restore.hidden=true;p.classList.remove('dialog-hidden');Dialogue.resume()};overlay.append(restore);
     p.addEventListener('click',e=>{if(!e.target.closest('button,input'))Dialogue.advance()});syncPlayback();
@@ -442,6 +442,15 @@
         delete overlay.dataset.memoryStage;
         delete overlay.dataset.memoryPresentation;
       }
+    }
+    // Temporary safeguard for the Room 4 hand-holding CG: keep the dialogue
+    // window visible over the existing image until its hand art is corrected.
+    // All other memory beats retain the normal hide/restore control.
+    const protectHandCG=currentScene==='room04'&&memoryVisual?.background==='images/cg/memories/room04/quiet-hand.png';
+    const hideControl=overlay?.querySelector('[data-design-hide]');
+    if(hideControl){
+      hideControl.disabled=protectHandCG;
+      hideControl.title=protectHandCG?'この場面では会話ウィンドウを非表示にできません':'';
     }
     if(currentScene==='opening')portraitVisible=kind==='heroine'&&!!game.querySelector('.opening[data-hana-visible="true"]');else portraitVisible=!flashback&&kind==='heroine';
     if(line.expression){const choice=hanaV2Names.indexOf(line.expression);expression=choice>=0?choice:0}else if(kind==='heroine'){expression=/眠|ふぁ|スー、スー/.test(line.text)?6:/！|嬉|楽しい|正解/.test(line.text)?1:/え？|えっ|びっくり/.test(line.text)?3:/悲|泣|ごめん|大丈夫/.test(line.text)?4:/考|かな|……？/.test(line.text)?2:0}

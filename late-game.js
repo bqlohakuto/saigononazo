@@ -1074,8 +1074,8 @@
       setTimeout(()=>{
         if(!valid())return;
         shade.remove();game.querySelector('.r6-full').inert=false;r6Moving=false;arrived();r6Arrival(trip);
-      },330);
-    },230);
+      },660);
+    },460);
   }
   function r6Visit(id,fromMap=false){
     if(r6Busy()||!r6Valid(id)||id===room6State.current)return;

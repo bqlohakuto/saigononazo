@@ -33,3 +33,18 @@
  outline:2px solid var(--gold,#e9c36a);
  outline-offset:3px;
 }
+
+/* Room 3: keep the lecture notebook visible by moving its investigation ring
+   just above the artwork. Extend the tap target to include the ring on mobile. */
+#game #explore-room03-lecture-note::after{
+  left:50%!important;
+  top:-14px!important;
+}
+#game #explore-room03-lecture-note::before{
+  content:"";
+  display:block;
+  position:absolute;
+  inset:-30px 0 0;
+  background:transparent;
+  pointer-events:auto;
+}

@@ -58,3 +58,30 @@ test('author preview preserves eight-room picker and full guide for QA',async()=
   assert.equal(q('.test-room-options').querySelectorAll('[data-room]').length,8);
  }finally{ /* Keep DOM intact while queued image promises and title observers settle. */ }
 });
+
+test('first-visit notice has no story spoilers and releases its keyboard trap on scene replacement',async()=>{
+ const {w,run,q}=await boot(false);
+ const notice=q('#firstVisitNotice');
+ assert.ok(notice,'new visitors see the initial instructions');
+ assert.equal(q('.title-home').inert,true,'the title controls are blocked until acceptance');
+ assert.match(notice.textContent,/ホーム画面に追加/);
+ assert.match(notice.textContent,/横画面でのみ/);
+ assert.doesNotMatch(notice.textContent,/事故|死亡|花音|最終謎/,'the notice must not reveal the story');
+ run('showNameInput()');
+ await new Promise(resolve=>setTimeout(resolve,0));
+ assert.equal(q('#firstVisitNotice'),null,'scene replacement removes the old notice');
+ const key=new w.KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true});
+ w.document.dispatchEvent(key);
+ assert.equal(key.defaultPrevented,false,'a detached first-visit notice never captures keyboard controls');
+});
+test('accepting the first-visit notice persists independently from save progress',async()=>{
+ const {w,run,q}=await boot(false);
+ const accept=q('#firstVisitAccept');
+ assert.ok(accept);
+ accept.click();
+ assert.equal(q('#firstVisitNotice'),null);
+ assert.equal(q('.title-home').inert,false);
+ assert.equal(w.localStorage.getItem('saigononazo-first-visit-notice-v1'),'accepted');
+ run('clearSave();showTitle()');
+ assert.equal(w.localStorage.getItem('saigononazo-first-visit-notice-v1'),'accepted');
+});

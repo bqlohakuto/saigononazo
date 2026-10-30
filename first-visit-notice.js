@@ -40,6 +40,13 @@
   const button = overlay.querySelector("#firstVisitAccept");
 
   function keepFocus(event) {
+    // A preview or resumed scene can replace the title before confirmation.
+    // Never leave a detached notice trapping keys in another game screen.
+    if (!overlay.isConnected) {
+      document.removeEventListener("keydown", keepFocus, true);
+      title.inert = priorInert;
+      return;
+    }
     if (event.key === "Tab" || event.key === "Escape") {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -52,11 +59,19 @@
     // not erased by the completed-game progress reset.
     try { localStorage.setItem(STORAGE_KEY, "accepted"); } catch (_) {}
     document.removeEventListener("keydown", keepFocus, true);
+    observer.disconnect();
     title.inert = priorInert;
     overlay.remove();
     title.querySelector("#startButton")?.focus({ preventScroll: true });
   }
 
+  const observer = new MutationObserver(() => {
+    if (overlay.isConnected) return;
+    document.removeEventListener("keydown", keepFocus, true);
+    title.inert = priorInert;
+    observer.disconnect();
+  });
+  observer.observe(game, { childList: true });
   document.addEventListener("keydown", keepFocus, true);
   button.addEventListener("click", accept);
   button.focus({ preventScroll: true });

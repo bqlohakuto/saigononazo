@@ -177,7 +177,7 @@
     document.getElementById("r5Door").onclick=()=>{
       if(room5State.completed){transition("第六の部屋へ",()=>showSixthRoom(roomStates.room06));return;}
       if(room5State.codeRevealed&&!room5State.doorUnlocked){r5Keypad();return;}
-      r5Notice(room5State.doorUnlocked?"扉は開いた。中央パネルのウサギが気になる。":"扉はまだ開かない。","r5_door_status");
+      r5Notice(room5State.doorUnlocked?"扉は開いた。パネルのウサギが気になる。":"扉はまだ開かない。","r5_door_status");
     };
     document.getElementById("r5FridgeUpper").onclick=()=>{room5State.fridgeUpperOpen=!room5State.fridgeUpperOpen;GameAudio.stop(room5State.fridgeUpperOpen?"fridgeClose":"fridgeOpen");GameAudio.play(room5State.fridgeUpperOpen?"fridgeOpen":"fridgeClose");saveGame();renderR5();};
     document.getElementById("r5FridgeLower").onclick=()=>{room5State.fridgeLowerOpen=!room5State.fridgeLowerOpen;GameAudio.stop(room5State.fridgeLowerOpen?"fridgeClose":"fridgeOpen");GameAudio.play(room5State.fridgeLowerOpen?"fridgeOpen":"fridgeClose");saveGame();renderR5();};

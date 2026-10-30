@@ -203,12 +203,19 @@ function showTitle(notice=""){
  const cleared=!!localStorage.getItem("saigononazo-guide-unlocked-v1")||!!readSavedGame()?.rooms?.room08?.ended;
  const afterwordUnlocked=AUTHOR_PREVIEW||localStorage.getItem("saigononazo-guide-unlocked-v1")==="1"||!!(readSavedGame()?.rooms?.room08?.ended&&readSavedGame()?.rooms?.room08?.epilogueSeen);
  const titleLogo='<img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span>';
- // Community information is separate from the original handwritten title menu.
- const community=`<aside class="title-community" aria-label="作者への連絡と感想">
-  <a class="title-community-account" href="https://x.com/arissa_juno" target="_blank" rel="noopener noreferrer" aria-label="はくとのX（@arissa_juno）を新しいタブで開く">はくと（@arissa_juno）のX</a>
-  <p>謎に関する質問・不具合報告は、XのDMまで。</p>
-  <p>感想はぜひ <strong>#最後の謎が解けるまで</strong> をつけてポストしてください！</p>
- </aside>`;
+ // Keep the public title quiet; contact details appear only when requested.
+ const community=`<div class="title-community">
+  <button id="titleCommunityButton" class="title-community-trigger" type="button" aria-haspopup="dialog" aria-controls="titleCommunityOverlay" aria-expanded="false">作者・お問い合わせ</button>
+ </div>
+ <div id="titleCommunityOverlay" class="title-community-overlay" hidden>
+  <section class="title-community-panel" role="dialog" aria-modal="true" aria-labelledby="titleCommunityHeading">
+   <button type="button" class="title-community-close" aria-label="閉じる">×</button>
+   <h2 id="titleCommunityHeading">作者・お問い合わせ</h2>
+   <p><a class="title-community-account" href="https://x.com/arissa_juno" target="_blank" rel="noopener noreferrer" aria-label="はくとのX（@arissa_juno）を新しいタブで開く">はくと（@arissa_juno）のX</a></p>
+   <p>謎に関する質問・不具合報告は、XのDMまで。</p>
+   <p>感想はぜひ <strong>#最後の謎が解けるまで</strong> をつけてポストしてください！</p>
+  </section>
+ </div>`;
  game.innerHTML=`<div class="title-screen title-home title-art-loading"><h1 class="title-logo">${titleLogo}</h1><div class="title-menu"><button id="startButton" aria-label="はじめる"><img src="images/ui/menu-start.jpg" alt=""></button><button id="continueButton" aria-label="つづきから" ${hasSave?"":"disabled"}><img src="images/ui/menu-continue.jpg" alt=""></button>${AUTHOR_PREVIEW?'<button id="testRoomButton" aria-label="テストプレイ：部屋を選ぶ">テストプレイ</button>':""}<button id="settingsButton" aria-label="設定"><img src="images/ui/menu-settings.jpg" alt=""></button><button id="commentButton" aria-label="？？？" disabled><img src="images/ui/${afterwordUnlocked?'menu-afterword':'menu-locked'}.jpg" alt=""></button></div>${community}<p class="title-art-status" role="status">画像を読み込み中…</p><p class="title-notice" aria-live="polite">${notice}</p></div>`;
  const title=game.querySelector('.title-home'),background=new Image();
  background.src=cleared?'images/ui/title-cleared-background-v2.png?v=20261030-restored':'images/pixel-ui/title-background-pixel.png';
@@ -223,6 +230,31 @@ function showTitle(notice=""){
  }).catch(()=>{
   if(!title.isConnected)return;
   title.classList.replace('title-art-loading','title-art-fallback');title.querySelector('.title-art-status').hidden=true;
+ });
+ const communityButton=title.querySelector("#titleCommunityButton");
+ const communityOverlay=title.querySelector("#titleCommunityOverlay");
+ const communityClose=title.querySelector(".title-community-close");
+ const closeCommunity=()=>{
+  if(communityOverlay.hidden)return;
+  communityOverlay.hidden=true;
+  communityButton.setAttribute("aria-expanded","false");
+  communityButton.focus();
+ };
+ communityButton.addEventListener("click",()=>{
+  communityOverlay.hidden=false;
+  communityButton.setAttribute("aria-expanded","true");
+  communityClose.focus();
+ });
+ communityClose.addEventListener("click",closeCommunity);
+ communityOverlay.addEventListener("click",event=>{if(event.target===communityOverlay)closeCommunity()});
+ communityOverlay.addEventListener("keydown",event=>{
+  if(event.key==="Escape"){event.preventDefault();closeCommunity();return}
+  if(event.key!=="Tab")return;
+  const focusables=[...communityOverlay.querySelectorAll('button:not(:disabled),a[href]')];
+  const first=focusables[0],last=focusables[focusables.length-1];
+  if(!first||!last)return;
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
  });
  document.getElementById("startButton").addEventListener("click",showNameInput);
  document.getElementById("continueButton").addEventListener("click",resumeGame);

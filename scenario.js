@@ -40,15 +40,64 @@ const openingScenario = [
     { logId: "opening_33", logType: "narration", speaker: "ト書き", text: "そして、こちらを誘っているかのように。" },
     { logId: "opening_34", logType: "dialogue", speaker: "主人公", text: "一体、何が起きているんだ……？" },
     { logId: "opening_35", logType: "narration", speaker: "ト書き", text: "突然の出来事に、頭の整理が追いつかない。" },
-    { logId: "opening_36", logType: "dialogue", speaker: "ハナ", text: "大丈夫だよ" },
-    { logId: "opening_37", logType: "dialogue", speaker: "ハナ", text: "さあ、扉を開けて？" },
-    { logId: "opening_38", logType: "narration", speaker: "ト書き", text: "彼女に背中を押され、僕はドアノブへと手を伸ばした。" },
+    { logId: "opening_36", logType: "dialogue", speaker: "ハナ", text: "……びっくりするよね" },
+    { logId: "opening_37", logType: "dialogue", speaker: "ハナ", text: "でも、大丈夫。焦らなくていいから" },
+    { logId: "opening_37_gesture", logType: "narration", speaker: "ト書き", text: "彼女はそう言って、静かに微笑んだ。" },
+    { logId: "opening_exit_01", logType: "narration", speaker: "ト書き", text: "僕は一度、彼女のほうを振り返った。" },
+    { logId: "opening_exit_02", logType: "narration", speaker: "ト書き", text: "彼女は何も言わず、小さくうなずいた。" },
+    { logId: "opening_exit_03", logType: "narration", speaker: "主人公", thought: true, text: "まだ、わからないことばかりだ。" },
+    { logId: "opening_exit_04", logType: "narration", speaker: "主人公", thought: true, text: "それでも、ここに留まっていても何も変わらない。" },
+    { logId: "opening_38", logType: "narration", speaker: "ト書き", text: "僕は意を決してドアノブへと手を伸ばした。" },
     { logId: "opening_39", logType: "narration", speaker: "ト書き", text: "その瞬間、扉がひとりでに開く。" },
     { logId: "opening_40", logType: "narration", speaker: "ト書き", text: "扉の向こうへ、身体が吸い込まれていくような感覚に襲われた。" },
     { logId: "opening_41", logType: "narration", speaker: "ト書き", text: "視界が、瞬く間にまばゆい光に包まれていく。" },
     { logId: "opening_42", logType: "dialogue", speaker: "ハナ", text: "大丈夫。わたしが一緒にいるから" },
     { logId: "opening_43", logType: "dialogue", speaker: "ハナ", text: "最後の謎が解けるまで……" }
 ];
+
+// プロローグの自由調査。女性の正体・仮名は第一の部屋まで明かさない。
+const openingIntroEndId = "opening_37_gesture";
+const openingExitStartId = "opening_exit_01";
+const openingTopics = [
+    { id: "about", label: "あなたについて", lines: [
+        { logId: "opening_topic_about_01", logType: "dialogue", speaker: "主人公", text: "……あなたは、一体誰なんですか？" },
+        { logId: "opening_topic_about_02", logType: "dialogue", speaker: "ハナ", text: "ごめんね。今はまだ、話せないの" },
+        { logId: "opening_topic_about_03", logType: "dialogue", speaker: "主人公", text: "どうしてですか？" },
+        { logId: "opening_topic_about_04", logType: "dialogue", speaker: "ハナ", text: "……それも、まだ秘密" },
+        { logId: "opening_topic_about_05", logType: "dialogue", speaker: "主人公", text: "……秘密ばかりですね" },
+        { logId: "opening_topic_about_06", logType: "dialogue", speaker: "ハナ", text: "そうだね。ごめんね" }
+    ] },
+    { id: "place", label: "この場所について", lines: [
+        { logId: "opening_topic_place_01", logType: "dialogue", speaker: "主人公", text: "ここは、どこなんですか？" },
+        { logId: "opening_topic_place_02", logType: "dialogue", speaker: "ハナ", text: "……今は、うまく説明できないんだ" },
+        { logId: "opening_topic_place_03", logType: "dialogue", speaker: "主人公", text: "外に出ることはできるんですか？" },
+        { logId: "opening_topic_place_04", logType: "dialogue", speaker: "ハナ", text: "あの扉の先に進めば、何かわかると思うよ" },
+        { logId: "opening_topic_place_05", logType: "dialogue", speaker: "主人公", text: "……そうですか" }
+    ] },
+    { id: "memory", label: "記憶について", lines: [
+        { logId: "opening_topic_memory_01", logType: "dialogue", speaker: "主人公", text: "自分のことが何も思い出せないなんて……" },
+        { logId: "opening_topic_memory_02", logType: "dialogue", speaker: "主人公", text: "……本当に、元に戻れるんでしょうか" },
+        { logId: "opening_topic_memory_03", logType: "dialogue", speaker: "ハナ", text: "……不安だよね" },
+        { logId: "opening_topic_memory_04", logType: "dialogue", speaker: "ハナ", text: "でも、無理に思い出そうとしなくてもいいよ" },
+        { logId: "opening_topic_memory_05", logType: "dialogue", speaker: "ハナ", text: "少しずつ、思い出していこう" }
+    ] },
+    { id: "door", label: "扉について", lines: [
+        { logId: "opening_topic_door_01", logType: "dialogue", speaker: "主人公", text: "あの扉は……何なんですか？" },
+        { logId: "opening_topic_door_02", logType: "dialogue", speaker: "ハナ", text: "先へ進むための扉だよ" },
+        { logId: "opening_topic_door_03", logType: "dialogue", speaker: "主人公", text: "……あなたも一緒に来るんですか？" },
+        { logId: "opening_topic_door_04", logType: "dialogue", speaker: "ハナ", text: "もちろん" },
+        { logId: "opening_topic_door_05", logType: "dialogue", speaker: "ハナ", text: "君をひとりにはしないよ" }
+    ] }
+];
+const openingDoorFirst = [
+    { logId: "opening_inspect_door_01", logType: "narration", speaker: "ト書き", text: "目の前に、白い扉がある。" },
+    { logId: "opening_inspect_door_02", logType: "narration", speaker: "ト書き", text: "さっきまで、ここには何もなかったはずだ。" },
+    { logId: "opening_inspect_door_03", logType: "narration", speaker: "ト書き", text: "そっとドアノブに触れる。" },
+    { logId: "opening_inspect_door_04", logType: "narration", speaker: "ト書き", text: "冷たい感触が、手のひらに伝わってきた。" },
+    { logId: "opening_inspect_door_05", logType: "narration", speaker: "主人公", thought: true, text: "……本当に、この先に進むしかないのか" }
+];
+// 二度目は長い調査文を繰り返さず選択肢に進む。
+const openingExitScenario = openingScenario.slice(openingScenario.findIndex(line => line.logId === openingExitStartId));
 
 // 第一の部屋。調査・会話・回想もここを正本とし、script.js には進行だけを持たせる。
 // アップロード原稿の重複する導入は hanaFirst に統合。吹奏楽音源の再生タイミングは script.js で管理する。

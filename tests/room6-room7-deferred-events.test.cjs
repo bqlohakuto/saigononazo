@@ -49,12 +49,12 @@ function room6Harness(){
  );
  return {context,timers,events,travel};
 }
-test("H01 Room 6: normal travel preserves the 230ms+330ms movement and arrival",()=>{
+test("H01 Room 6: normal travel preserves the doubled 460ms+660ms movement and arrival",()=>{
  const h=room6Harness();h.travel();
- assert.deepEqual(h.timers.map(t=>t.delay),[230]);
+ assert.deepEqual(h.timers.map(t=>t.delay),[460]);
  h.timers[0].callback();
  assert.deepEqual(h.events,["change"]);
- assert.deepEqual(h.timers.map(t=>t.delay),[230,330]);
+ assert.deepEqual(h.timers.map(t=>t.delay),[460,660]);
  h.timers[1].callback();
  assert.deepEqual(h.events,["change","arrived","arrival"]);
 });

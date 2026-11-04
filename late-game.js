@@ -1582,6 +1582,26 @@
       line('r7_mem_rooster_22','ト書き','先に玄関を出た彼女が、こちらを振り返る。僕は鍵をかけて、その隣に並んだ。')
     ]
   };
+  // The flashbacks themselves remain unchanged; these two lines return the
+  // player to the library before the next zodiac choice. They share the same
+  // resumable dialogue so a save during the return scene resumes correctly.
+  const R7_RETURN_LINES={
+    '寅':['tiger','……こんな約束もしてたんだ'],
+    '卯':['rabbit','……あの時、そんな話をしてたな'],
+    '未':['sheep','……あのマグカップ、懐かしいな'],
+    '申':['monkey','……少しずつ、元に戻っていったんだ'],
+    '亥':['boar','……こんなことも、覚えてなかったんだな']
+  };
+  function r7ShortMemoryWithReturn(zodiac){
+    const original=R7_SHORT_MEMORIES[zodiac];
+    if(!original)return null;
+    const reaction=R7_RETURN_LINES[zodiac];
+    return reaction?[
+      ...original,
+      line('r7_return_'+reaction[0]+'_01','ト書き','視界が、図書室に戻る。'),
+      line('r7_return_'+reaction[0]+'_02','主人公',reaction[1])
+    ]:original;
+  }
   let r7DoorBusy=false,r7DoorTimer=null;
   const r7Book=id=>R7_BOOKS.find(b=>b.id===id);
   const r7Asset=(id,part)=>'images/items/room07/'+id+'-'+part+'.webp';
@@ -1615,7 +1635,7 @@
     let shortMemory=null;
     if(placement.booksSolved&&!s.completed&&R7_DOORS[index-1]===zodiac&&R7_SHORT_MEMORIES[zodiac]){
       const progress=s.shortMemory.progress;
-      const ids=new Set(expandScenario(R7_SHORT_MEMORIES[zodiac]).map(entry=>entry.logId));
+      const ids=new Set(expandScenario(r7ShortMemoryWithReturn(zodiac)).map(entry=>entry.logId));
       shortMemory={zodiac,progress:progress&&ids.has(progress.logId)?{
         logId:progress.logId,uiPage:Number.isInteger(progress.uiPage)&&progress.uiPage>=0?progress.uiPage:0
       }:null};
@@ -1631,50 +1651,20 @@
   }
   const R7_TEXT={
   "intro": [
-    [
-      "ト書き",
-      "扉を抜け、白く染まった視界が戻るのを待つ。"
-    ],
-    [
-      "ト書き",
-      "もう何度も繰り返した感覚だ。"
-    ],
-    [
-      "ト書き",
-      "初めは戸惑うばかりだったけれど、いつの間にか慣れてきていた。"
-    ],
-    [
-      "ト書き",
-      "少しずつ、目の前の景色が輪郭を取り戻していく。"
-    ],
-    [
-      "ト書き",
-      "壁に沿って並ぶ本棚。"
-    ],
-    [
-      "ト書き",
-      "その中に、たくさんの本が収まっている。"
-    ],
-    [
-      "ト書き",
-      "……図書室のような、誰かの書斎のような。"
-    ],
-    [
-      "ト書き",
-      "隣を見ると、これまでと同じようにハナさんがいる。"
-    ],
-    [
-      "ト書き",
-      "この部屋の謎を解けば、きっと一番大事なことを思い出せる――。"
-    ],
-    [
-      "ト書き",
-      "でも、なぜ大事なことを忘れてしまったのか。"
-    ],
-    [
-      "ト書き",
-      "それが、一向にわからないままだった。"
-    ]
+    ["ト書き","扉を抜け、白く染まった視界が戻るのを待つ。"],
+    ["ト書き","もう何度も繰り返した感覚だ。"],
+    ["ト書き","初めは戸惑うばかりだったけれど、いつの間にか慣れてきていた。"],
+    ["ト書き","白い光が薄れ、壁に沿って並ぶ本棚が見えてくる。"],
+    ["ト書き","その中に、たくさんの本が収まっている。"],
+    ["主人公","……図書室、でしょうか"],
+    ["ト書き","隣を見ると、これまでと同じようにハナさんがいる。"],
+    ["ハナ","本がたくさんあるね"],
+    ["主人公・心の声","……さっきは、ありがとうと言えた"],
+    ["主人公・心の声","でも、まだ聞けていないことがある"],
+    ["主人公","……調べてみましょう"],
+    ["ト書き","ハナは小さく頷いた。"],
+    ["主人公・心の声","この部屋の謎を解けば、きっと一番大事なことを思い出せる――。"],
+    ["主人公・心の声","でも、なぜ大事なことを忘れてしまったのか。それが、一向にわからないままだった。"]
   ],
   "door": [
     [
@@ -1865,7 +1855,7 @@
     ]
   ]
 };
-  const r7Lines=(key,suffix="")=>R7_TEXT[key].map(([speaker,text],i)=>line("r7_"+key+suffix+"_"+(i+1),speaker,text));
+  const r7Lines=(key,suffix="")=>R7_TEXT[key].map(([speaker,text],i)=>line("r7_"+key+suffix+"_"+(i+1),speaker,text,speaker==="主人公・心の声"?{thought:true}:{}));
   function r7Objective(){return room7State.completed?'第八の部屋へ':room7State.booksSolved?'物語が導く道を調べる':'部屋を調べる'}
   function r7Notice(text,id){showRoomDialog(text.split('\n').map((text,i)=>line((id||'r7_notice')+'_'+i,'ト書き',text)))}
   function r7Hana(){
@@ -2006,10 +1996,13 @@
     setTimeout(()=>shelf?.classList.remove('r7-books-glow'),950);
     showRoomDialog([
       line('r7_books_glow_01','ト書き','棚に並んだ本が、一瞬、淡く光った。'),
-      line('r7_books_glow_02','主人公','……今、光った？'),
+      line('r7_books_glow_02','主人公','……あ、光った'),
+      line('r7_books_glow_success','主人公','……よし、並びは合ってたみたいですね'),
+      line('r7_books_glow_hana','ハナ','……うん、そうみたい'),
       line('r7_books_glow_03','ト書き','見た目は、さっきと変わらない。'),
       line('r7_books_glow_flower','ト書き','一冊のページの端から、押し花の栞が少しだけのぞいている。'),
-      line('r7_books_glow_04','ト書き','でも、何か変わったところがあるのかもしれない。')
+      line('r7_books_glow_04','ト書き','でも、何か変わったところがあるのかもしれない。'),
+      line('r7_books_glow_try_open','主人公','……さっきの本も、開けるかもしれない')
     ]);
   }
   function r7Read(id,playTurn=true){
@@ -2060,7 +2053,7 @@
   }
   window.Room7LibraryUI={items:()=>currentScene==='room07'&&room7State?['wolf','bremen','ikkyu','monkey','mitten','rabbit'].map(r7Book).filter(b=>b&&room7State.collected.includes(b.id)&&!room7State.placed.includes(b.id)).map(b=>({id:b.id,name:b.title,art:'本',description:'赤い栞の挟まれた本。',target:'r7Shelf'})):[],use:id=>r7Cover(id)};
   function r7PlayShortMemory(){
-    const pending=room7State.shortMemory,lines=pending&&R7_SHORT_MEMORIES[pending.zodiac];
+    const pending=room7State.shortMemory,lines=pending&&r7ShortMemoryWithReturn(pending.zodiac);
     if(!lines)return;
     const activeState=room7State;
     showRoomDialog(lines,()=>{
@@ -2102,8 +2095,13 @@
     // The last correct door first shows a peaceful memory of the day they left home.
     // Its completion triggers the existing accident recollection and Room 8.
     showRoomDialog([
-      line('r7_last_01','ト書き','酉に合わせた扉が開く。'),
-      line('r7_last_before_memory','ト書き','扉の向こうに、見覚えのある景色が広がっていく。')
+      line('r7_last_dial_ready','ト書き','操作盤を「酉」に合わせる。'),
+      line('r7_last_touch','ト書き','扉に手をかける。'),
+      line('r7_last_resolve','主人公','……これで、最後だ'),
+      line('r7_last_01','ト書き','酉に合わせた扉が静かに開く。'),
+      line('r7_last_before_memory','ト書き','その向こうに、見覚えのある景色が広がっていく。'),
+      line('r7_last_recognize','主人公','……この景色は……'),
+      line('r7_last_enter','ト書き','視界が、記憶の中へ移っていく。')
     ],r7PlayShortMemory);
   }
   function r7LastTransition(){

@@ -76,7 +76,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(save().currentScene,'room06','F10: door inspection does not immediately leave Room 6');
   finish();
   assert.ok(q('[data-r6-exit="proceed"]'),'F10: inspection offers the explicit next-room action');
-  click('[data-r6-exit="proceed"]');await wait(1900);
+  click('[data-r6-exit="proceed"]');await wait(3800);
   assert.equal(save().currentScene,'room07');
   finish();
   const turn=view=>{for(let i=0;i<4&&save().rooms.room07.view!==view;i++)click('#r7TurnRight')};

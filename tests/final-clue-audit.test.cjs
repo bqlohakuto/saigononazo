@@ -16,7 +16,7 @@ const sources=scenarios.map(name=>name==="late-game.js"
 const match=late.match(/  const R8_FINAL_LOG_IDS=\[([\s\S]*?)\];/);
 const clueIds=match?[...match[1].matchAll(/"([^"]+)"/g)].map(m=>m[1]):[];
 const pairs=[
- ["room1_hana_first_07","room1_piano_correct_04"],
+ ["room1_hana_flower_thought_01","room1_piano_correct_04"],
  ["room1_poster_03","room1_piano_introduction_02"],
  ["room2_memory_053_flower_01","room2_memory_003"],
  ["room3_flashback_34","room3_final_ringtone"],
@@ -110,7 +110,7 @@ test("G04: Room 1 remembers flower and music without checking the optional poste
   };
   vm.runInNewContext(script.slice(introStart,introEnd)+"\ntalkToHana();",ctx);
   vm.runInNewContext(script.slice(memoryStart,memoryEnd)+"\nshowFirstRoomMemory();",ctx);
-  const flower=observed.find(line=>line.logId==="room1_hana_first_07");
+  const flower=observed.find(line=>line.logId==="room1_hana_flower_thought_01");
   const sound=observed.find(line=>line.logId==="room1_piano_correct_04");
   assert.match(flower?.text||"",/花/);
   assert.match(sound?.text||"",/音楽/);

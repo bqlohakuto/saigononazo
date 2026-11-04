@@ -10,11 +10,12 @@ const sandbox={};
 vm.runInNewContext(source+"\nthis.thirdMemory={flashback:room3FlashbackLines,after:room3AfterMemoryLines};",sandbox);
 const after=Array.from(sandbox.thirdMemory.after,x=>({id:x.logId,who:x.speaker,text:x.text}));
 function observeTrumpet(state){
+ let recorded;
  const ctx={room3State:{trumpetInspected:false,bedInspected:true,trumpetAwakeTalkSeen:false,...state},
-  saveGame(){},showRoomDialog(lines){this.lines=Array.from(lines,x=>({id:x.logId,who:x.speaker,text:x.text}));},
+  saveGame(){},showRoomDialog(lines){recorded=Array.from(lines,x=>({id:x.logId,who:x.speaker,text:x.text}));},
   showRoomNotice(){throw Error("No repeated notice expected")} };
  vm.runInNewContext(source+"\ninspectThirdRoomTrumpet();",ctx);
- return {lines:ctx.lines,state:ctx.room3State};
+ return {lines:recorded,state:ctx.room3State};
 }
 test("Hana acts as a memory guide when the trumpet is inspected after waking her",()=>{
  const {lines,state}=observeTrumpet({});

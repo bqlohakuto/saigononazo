@@ -20,10 +20,12 @@ test("H02 Room 5: a completed board does not log the code before its display sta
  assert.match(complete,/if\(inline\)inline\(lines\);else showRoomDialog\(lines,renderR5\);/);
  assert.doesNotMatch(complete,/lines\.forEach\(recordLog\)/);
  const animation=section("    function playBoardCompletion(lines){","    function select(id){");
- assert.match(animation,/showRoomDialog\(lines\.slice\(0,7\)/);
+ assert.match(animation,/const revealIndex=lines\.findIndex\(item=>item\.logId==='r5_board_complete_07'\)/);
+ assert.match(animation,/showRoomDialog\(lines\.slice\(0,revealIndex>=0\?revealIndex:lines\.length\)/);
  assert.doesNotMatch(animation,/recordLog/);
  const followup=section("  function r5PlayDoorReveal(lines,showMissedDigits){","  function r5ButterflyHintIfNeeded(inline){");
- assert.match(followup,/showRoomDialog\(lines\.slice\(showMissedDigits\?4:7\)/);
+ assert.match(followup,/const entryId=showMissedDigits\?'r5_board_complete_04':'r5_board_complete_07'/);
+ assert.match(followup,/showRoomDialog\(lines\.slice\(entryIndex>=0\?entryIndex:0\)/);
  assert.doesNotMatch(followup,/recordLog/);
  assert.match(late,/room5State\.codeRevealed\?"盤が完成した"/);
 });

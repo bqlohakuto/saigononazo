@@ -344,7 +344,8 @@
     function playBoardCompletion(lines){
       completionPlaying=true;completionDigitVisible=true;completionLines=null;
       panel.querySelector('.device-close').click();
-      showRoomDialog(lines.slice(0,7),()=>r5PlayDoorReveal(lines,false));
+      const revealIndex=lines.findIndex(item=>item.logId==='r5_board_complete_07');
+      showRoomDialog(lines.slice(0,revealIndex>=0?revealIndex:lines.length),()=>r5PlayDoorReveal(lines,false));
     }
     function select(id){
       if(!valid())return;

@@ -40,5 +40,7 @@ test("game calls the existing room 2 return scene and busts cache for its new te
   const room=fs.readFileSync(path.join(root,"room2.js"),"utf8");
   const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
   assert.ok(room.includes("...room2AfterFlashbackContent.map"));
-  assert.ok(html.includes("room2-after-flashback.js?v=20261104-narrative-v2"));
+  const version=(html.match(/href="style\\.css\\?v=(\\d{8}-[a-z0-9-]+)"/)||[])[1];
+  assert.ok(version, "shared asset cache version must exist");
+  assert.ok(html.includes(`room2-after-flashback.js?v=${version}`));
 });

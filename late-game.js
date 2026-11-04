@@ -1855,7 +1855,7 @@
     ]
   ]
 };
-  const r7Lines=(key,suffix="")=>R7_TEXT[key].map(([speaker,text],i)=>line("r7_"+key+suffix+"_"+(i+1),speaker,text));
+  const r7Lines=(key,suffix="")=>R7_TEXT[key].map(([speaker,text],i)=>line("r7_"+key+suffix+"_"+(i+1),speaker,text,speaker==="主人公・心の声"?{thought:true}:{}));
   function r7Objective(){return room7State.completed?'第八の部屋へ':room7State.booksSolved?'物語が導く道を調べる':'部屋を調べる'}
   function r7Notice(text,id){showRoomDialog(text.split('\n').map((text,i)=>line((id||'r7_notice')+'_'+i,'ト書き',text)))}
   function r7Hana(){

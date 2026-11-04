@@ -1,0 +1,33 @@
+name: Room 7 narrative reactions review
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'late-game.js'
+      - 'SCENARIO.md'
+      - 'scenario/07_room7.md'
+      - 'scenario/FULL_SCENARIO.md'
+      - 'index.html'
+      - 'tests/room7-narrative-reactions.test.cjs'
+      - '.github/workflows/room7-narrative-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  room7-story:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install DOM regression test dependency
+        run: npm install --no-save --no-package-lock jsdom@26
+      - name: Validate Room 7 dialogue, memories, save compatibility, and continuity
+        run: |
+          node --check late-game.js
+          node --test tests/room7-narrative-reactions.test.cjs tests/cache-version.test.cjs tests/final-clue-audit.test.cjs
+          node tests/room7-flow.test.cjs

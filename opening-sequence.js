@@ -8,7 +8,7 @@ let openingWhiteFadeStarted = false;
 let openingExplorationState = null;
 
 // Kept in SaveData.rooms.opening so older saves retain their existing schema.
-window.OpeningExploration = {
+if (typeof window !== "undefined") window.OpeningExploration = {
   getState() {
     if (!openingExplorationState) return null;
     return {...openingExplorationState, readTopics: [...openingExplorationState.readTopics]};

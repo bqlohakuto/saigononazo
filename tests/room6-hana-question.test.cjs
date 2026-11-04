@@ -62,7 +62,7 @@ test("Room 6: Hana's optional question is unlocked by the map, not by puzzle hin
   click("#gameplayHanaButton");
   assert.ok(q('[data-r6-hint="why-help"]'),"available after a saved-room reload");
   click('[data-r6-hint="cancel"]');
- }finally{dom.window.close();}
+ }finally{ /* Let pending artwork and audio asset checks finish before process exit. */ }
 });
 
 test("Room 6: source text, canonical manuscripts and shared asset cache remain synchronized",()=>{

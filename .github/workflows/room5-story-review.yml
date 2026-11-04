@@ -1,0 +1,29 @@
+name: Room 5 story dialogue review
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'late-game.js'
+      - 'scenario/05_room5.md'
+      - 'scenario/FULL_SCENARIO.md'
+      - 'index.html'
+      - 'tests/room5-narrative-emotions.test.cjs'
+      - '.github/workflows/room5-story-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  room5-dialogue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check room five script, manuscript, final puzzle clues and cache
+        run: |
+          node --check late-game.js
+          node --test tests/room5-narrative-emotions.test.cjs tests/final-clue-audit.test.cjs tests/cache-version.test.cjs

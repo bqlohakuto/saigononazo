@@ -33,7 +33,10 @@ test("object conversations become available only after their relevant discoverie
   h.state.openedSent.add("sent-1");
   h.state.pianoIntroductionSeen = true;
   h.state.questionSeen = true;
-  for (const id of ["poster", "phone", "piano", "hint-1", "hint-2"]) assert.ok(h.ids().includes(id));
+  for (const id of ["poster", "phone", "piano", "hint-1"]) assert.ok(h.ids().includes(id));
+  assert.equal(h.ids().includes("hint-2"), false, "hint 2 unlocks only after reading hint 1");
+  h.choices().find(item => item.id === "hint-1").onComplete();
+  assert.ok(h.ids().includes("hint-2"));
   assert.equal(h.ids().includes("first-puzzle"), false);
 });
 
@@ -43,15 +46,22 @@ test("four hints advance on completion, remain repeatable and stop at level four
   assert.deepEqual(hintIds(), ["hint-1"]);
   h.state.posterInspected = true;
   h.state.openedInbox.add("inbox-1");
+  assert.deepEqual(hintIds(), ["hint-1"], "new hints require reading the previous level");
+  h.choices().find(item => item.id === "hint-1").onComplete();
   assert.deepEqual(hintIds(), ["hint-1", "hint-2"]);
-  for (const level of [2, 3, 4]) {
+  for (const level of [2, 3]) {
     const choice = h.choices().find(item => item.id === `hint-${level}`);
     assert.ok(choice);
     assert.ok(h.state.hintLevel < level);
     choice.onComplete();
     assert.equal(h.state.hintLevel, level);
   }
+  assert.deepEqual(hintIds(), ["hint-1", "hint-2", "hint-3"], "the final hint waits until all eight mails are read");
+  for (const n of [2, 3, 4]) h.state.openedInbox.add(`inbox-${n}`);
+  for (const n of [1, 2, 3, 4]) h.state.openedSent.add(`sent-${n}`);
   assert.deepEqual(hintIds(), ["hint-1", "hint-2", "hint-3", "hint-4"]);
+  h.choices().find(item => item.id === "hint-4").onComplete();
+  assert.equal(h.state.hintLevel, 4);
   assert.equal(h.state.mailHintGiven, true);
   h.choices().find(item => item.id === "hint-1").onComplete();
   assert.equal(h.state.hintLevel, 4);

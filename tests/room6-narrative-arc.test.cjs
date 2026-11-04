@@ -13,7 +13,7 @@ function section(start,end){
  return game.slice(a,b);
 }
 const intro=section("  window.showSixthRoom=function(savedState){","  function r6MapMarkup(){");
-const after=section('    line("r6_after_001"','  ];\n  function r6RevealExit(){');
+const after=section('    line("r6_after_return_01"','  ];\n  function r6RevealExit(){');
 const winning=section("  function r6Complete(){","  // ---------- Room 7 ----------");
 test("new room entry remembers the bunny painting without disclosing Hana's identity",()=>{
  const ordered=["r6_intro_01","r6_intro_thought_01","r6_intro_thought_02","r6_intro_glance_01","r6_intro_hana_01","r6_intro_reply_01","r6_intro_entry_03","r6_intro_02","r6_intro_03"];
@@ -45,7 +45,7 @@ test("the door is revealed precisely at the return narration, never during the m
  let lines,onEntry,shown=0;
  const ctx={
   line:(id,speaker,text)=>({logId:id,speaker,text}),
-  R6_MEMORY_AND_AFTER:[{logId:"r6_memory_full_086"},{logId:"r6_after_001"}],
+  R6_MEMORY_AND_AFTER:[{logId:"r6_memory_full_086"},{logId:"r6_after_return_01_01"},{logId:"r6_after_001_01"}],
   showRoomDialog:(entries,_done,callback)=>{lines=entries;onEntry=callback;},
   r6RevealExit:()=>{shown++}
  };
@@ -55,7 +55,9 @@ test("the door is revealed precisely at the return narration, never during the m
  assert.equal(shown,0);
  onEntry({logId:"r6_memory_full_086"});
  assert.equal(shown,0,"not while a memory scene is showing");
- onEntry({logId:"r6_after_001"});
+ onEntry({logId:"r6_after_return_01_01"});
+ assert.equal(shown,0,"not before the door is described");
+ onEntry({logId:"r6_after_001_01"});
  assert.equal(shown,1,"when the newly visible door is described");
  assert.ok(game.includes("door.disabled=true"),"the door stays inaccessible during dialogue");
  assert.ok(game.includes("room6State.completed=true;r6ExitRevealed=true;saveGame()"),"completion still persists");

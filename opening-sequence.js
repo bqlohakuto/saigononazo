@@ -205,9 +205,7 @@ function startOpeningExit() {
   saveGame();
   showRoomDialog(openingExitScenario, () => {
     endOpening();
-  }, {
-    resume: openingExplorationState.exitLogId ? {logId: openingExplorationState.exitLogId} : undefined,
-    onDisplay(line) {
+  }, line => {
       openingExplorationState.exitLogId = line.logId;
       const index = openingScenario.findIndex(item => item.logId === line.logId);
       if (index >= 0) {
@@ -216,7 +214,8 @@ function startOpeningExit() {
       }
       updatePixelOpening(line);
       saveGame();
-    }
+  }, {
+    resume: openingExplorationState.exitLogId ? {logId: openingExplorationState.exitLogId} : undefined
   });
 }
 

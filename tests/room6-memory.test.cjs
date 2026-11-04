@@ -21,7 +21,7 @@ test('Room 6 adopted first-person recollection text agrees with the manuscript',
   '玄関の扉を開け、部屋に入る。',
   '僕はそのままソファに腰を下ろす。',
   '夜道の景色が、ゆっくりと遠ざかっていく。',
-  '確かな根拠はない。'
+  '……ここまで、ありがとうございました'
  ]){
   assert(script.includes(approved),'Approved manuscript keeps: '+approved);
   assert(runtime.includes(approved),'Playable dialogue keeps: '+approved);

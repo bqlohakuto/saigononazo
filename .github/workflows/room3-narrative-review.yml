@@ -1,0 +1,29 @@
+name: Room 3 narrative continuity review
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'room3.js'
+      - 'scenario/03_room3.md'
+      - 'scenario/FULL_SCENARIO.md'
+      - 'index.html'
+      - 'tests/room3-emotional-continuity.test.cjs'
+      - '.github/workflows/room3-narrative-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  room3-emotional-continuity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check scene syntax and continuity, including save-resume and final clues
+        run: |
+          node --check room3.js
+          node --test tests/room3-emotional-continuity.test.cjs tests/room3-memory-resume.test.cjs tests/final-clue-audit.test.cjs tests/cache-version.test.cjs

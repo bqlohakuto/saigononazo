@@ -135,6 +135,35 @@ async function runCase(spec) {
     assert(Number(await page.locator('.pixel-opening-door').evaluate(el => getComputedStyle(el).opacity)) > 0.98);
     await shot('06-door-closed');
 
+    // The new prologue pauses for player-controlled exploration before the door opens.
+    await advanceTo('opening_37_gesture');
+    await page.evaluate(() => Dialogue.advance());
+    await page.locator('#openingHanaTarget').waitFor();
+    assert.equal(await page.locator('.opening-target').count(), 2, 'Only the woman and the door may be investigated');
+    await shot('07-free-exploration');
+
+    await page.locator('#openingHanaTarget').click();
+    assert.equal(await page.locator('.opening-choice-button').count(), 4);
+    await page.locator('.opening-choice-button').first().click();
+    await page.evaluate(() => {
+      for (let i=0; i<24 && document.querySelector('.room-dialog-overlay'); i++) Dialogue.advance();
+    });
+    assert(!(await page.locator('.room-dialog-overlay').count()), 'Optional Hana conversation must return to exploration');
+    const savedAfterTopic = await page.evaluate(() => JSON.parse(localStorage.getItem('saigononazo-save-v1')));
+    assert(savedAfterTopic?.rooms?.opening?.readTopics?.includes('about'), 'Prologue topic completion must save');
+    await shot('07-hana-conversation-complete');
+
+    await page.locator('#openingDoorTarget').click();
+    await page.evaluate(() => {
+      for (let i=0; i<24 && !document.getElementById('openingProceed'); i++) Dialogue.advance();
+    });
+    await page.locator('#openingProceed').waitFor();
+    await shot('07-door-choice');
+    await page.locator('#openingStay').click();
+    assert(await page.locator('#openingDoorTarget').isVisible(), 'Cancel must return to exploration');
+    await page.locator('#openingDoorTarget').click();
+    await page.locator('#openingProceed').click();
+
     await advanceTo('opening_39');
     assert(await page.locator('.pixel-opening-door').evaluate(el => el.classList.contains('open')),
       'Door did not enter opening state');

@@ -954,9 +954,10 @@
     const choices=room6State.othelloKnown?hints.slice(0,Math.min(3,room6State.hintLevel+1)).map((text,i)=>({id:'hint-'+(i+1),label:'ヒント'+(i+1),text,level:i+1})):
       [{id:'exploration',label:'探索について',text:'まだ通っていない扉を進んでみよう。部屋の様子をよく確かめてみて。'}];
     if(room6State.othelloKnown&&room6State.hintLevel>=3)choices.push({id:'next-move',label:'もっとヒント（次の一手）',specific:true});
+    if(room6State.mapEvent)choices.push({id:'why-help',label:'手伝ってくれる理由'});
     choices.push({id:'cancel',label:'なんでもない'});
     const overlay=document.createElement('div');overlay.className='device-overlay hana-choice-overlay';
-    overlay.innerHTML='<section class="menu-panel hana-choice-menu" aria-label="ハナにヒントを聞く"><button type="button" class="device-close" aria-label="閉じる">×</button><p class="hana-choice-speaker">ハナ</p><h2>どうしたの？</h2><div class="hana-choice-list"></div></section>';
+    overlay.innerHTML='<section class="menu-panel hana-choice-menu" aria-label="ハナに話しかける"><button type="button" class="device-close" aria-label="閉じる">×</button><p class="hana-choice-speaker">ハナ</p><h2>どうしたの？</h2><div class="hana-choice-list"></div></section>';
     game.appendChild(overlay);
     const list=overlay.querySelector('.hana-choice-list');
     for(const choice of choices){const button=document.createElement('button');button.type='button';button.className='hana-choice-button';button.dataset.r6Hint=choice.id;button.textContent=choice.label;list.appendChild(button)}
@@ -965,6 +966,18 @@
       const button=event.target.closest('[data-r6-hint]');if(!button)return;
       const choice=choices.find(c=>c.id===button.dataset.r6Hint);if(!choice)return;
       close();if(choice.id==='cancel')return;
+      if(choice.id==='why-help'){
+        showRoomDialog([
+          line('r6_hana_why_01','主人公','……ハナさん'),
+          line('r6_hana_why_02','ハナ','なに？'),
+          line('r6_hana_why_03','主人公','どうして、僕をここまで手伝ってくれるんですか'),
+          line('r6_hana_why_04','ハナ','……君に、ちゃんと思い出してほしいから'),
+          line('r6_hana_why_05','主人公','……そうですか'),
+          line('r6_hana_why_06','ハナ','うん。だから、もう少し一緒に探そう'),
+          line('r6_hana_why_07','主人公','……はい')
+        ]);
+        return;
+      }
       showRoomDialog([line('r6_hint_'+choice.id+(choice.specific?'_'+room6State.moves.map(m=>m.id).join('-'):''),'ハナ',choice.specific?r6SpecificHint():choice.text)],()=>{
         if(choice.level){room6State.hintLevel=Math.max(room6State.hintLevel,choice.level);saveGame()}
       });

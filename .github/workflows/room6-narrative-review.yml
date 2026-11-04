@@ -1,0 +1,32 @@
+name: Room 6 narrative arc review
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'late-game.js'
+      - 'SCENARIO.md'
+      - 'scenario/06_room6.md'
+      - 'scenario/FULL_SCENARIO.md'
+      - 'index.html'
+      - 'tests/room6-narrative-arc.test.cjs'
+      - 'tests/room6-intro-copy.test.cjs'
+      - 'tests/room6-memory.test.cjs'
+      - '.github/workflows/room6-narrative-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  narrative-arc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check source syntax and narrative continuity
+        run: |
+          node --check late-game.js
+          node --test tests/room6-narrative-arc.test.cjs tests/room6-intro-copy.test.cjs tests/room6-memory.test.cjs tests/room6-logic.test.cjs tests/final-clue-audit.test.cjs tests/cache-version.test.cjs

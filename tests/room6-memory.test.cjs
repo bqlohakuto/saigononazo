@@ -7,7 +7,7 @@ test('Room 6 recollection and connection reproduce the complete recorded script'
  const context=vm.createContext({line:(logId,speaker,text,extra={})=>({logId,speaker,text,...extra})});
  vm.runInContext(source.slice(start,end)+';globalThis.entries=R6_MEMORY_AND_AFTER',context);
  const entries=Array.from(context.entries),actual=entries.filter(e=>e.logId!=='r6_final_signal').map(e=>({speaker:e.speaker,text:e.text}));
- assert.deepEqual(actual,expected);assert.equal(expected.length,106);
+ assert.deepEqual(actual,expected);assert.equal(expected.length,107);
  assert.equal(new Set(entries.map(e=>e.logId)).size,entries.length);
  assert(entries.filter(e=>e.speaker==='主人公・心の声').every(e=>e.thought));
  const signal=entries.findIndex(e=>e.logId==='r6_final_signal');assert(entries[signal-1].text.startsWith('夜道。'));
@@ -21,7 +21,7 @@ test('Room 6 adopted first-person recollection text agrees with the manuscript',
   '玄関の扉を開け、部屋に入る。',
   '僕はそのままソファに腰を下ろす。',
   '夜道の景色が、ゆっくりと遠ざかっていく。',
-  '確かな根拠はない。'
+  '……ここまで、ありがとうございました'
  ]){
   assert(script.includes(approved),'Approved manuscript keeps: '+approved);
   assert(runtime.includes(approved),'Playable dialogue keeps: '+approved);

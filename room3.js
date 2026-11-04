@@ -98,16 +98,17 @@ const room3FlashbackLines=[
 const room3AfterMemoryLines=[
  {logId:"room3_after_01",logType:"narration",speaker:"ト書き",text:"視界が、元の部屋に戻る。"},
  {logId:"room3_after_02",logType:"dialogue",speaker:"主人公",text:"……"},
- {logId:"room3_after_03",logType:"narration",speaker:"ト書き",text:"右手を見る。もう誰とも繋いではいない。それでも、あのときのぬくもりがまだ残っているような気がした。"},
- {logId:"room3_after_04",logType:"dialogue",speaker:"主人公",text:"……思い出した"},
- {logId:"room3_after_05",logType:"dialogue",speaker:"主人公",text:"あの人と……付き合い始めた日のこと"},
- {logId:"room3_after_06",logType:"dialogue",speaker:"ハナ",text:"そっか……"},
- {logId:"room3_after_07",logType:"narration",speaker:"ト書き",text:"ハナは、少し嬉しそうに笑った。"},
- {logId:"room3_after_08",logType:"dialogue",speaker:"ハナ",text:"ちゃんと思い出せたんだね"},
- {logId:"room3_after_09",logType:"dialogue",speaker:"主人公",text:"はい"},
- {logId:"room3_after_10",logType:"dialogue",speaker:"主人公",text:"……なんだか、すごく大事なことだった気がします"},
- {logId:"room3_after_11",logType:"dialogue",speaker:"ハナ",text:"うん。きっと、大事な思い出だよ"},
- {logId:"room3_after_12",logType:"narration",speaker:"ト書き",text:"一瞬だけ、ハナが懐かしそうに目を細めたように見えた。"},
+ {logId:"room3_after_03",logType:"narration",speaker:"ト書き",text:"右手を見る。もう誰とも手をつないではいない。それでも、あのときのぬくもりがまだ残っているような気がした。"},
+ {logId:"room3_after_04",logType:"dialogue",speaker:"主人公",text:"……思い出しました"},
+ {logId:"room3_after_question_01",logType:"dialogue",speaker:"ハナ",text:"何を？"},
+ {logId:"room3_after_05",logType:"dialogue",speaker:"主人公",text:"あの人と……付き合い始めた日のことです"},
+ {logId:"room3_after_06",logType:"dialogue",speaker:"ハナ",text:"……そっか"},
+ {logId:"room3_after_07",logType:"dialogue",speaker:"主人公",text:"名前は、まだ思い出せないんですけど"},
+ {logId:"room3_after_08",logType:"dialogue",speaker:"主人公",text:"あの人に、自分の気持ちを伝えたことは……はっきり覚えています"},
+ {logId:"room3_after_09",logType:"dialogue",speaker:"ハナ",text:"うん"},
+ {logId:"room3_after_10",logType:"dialogue",speaker:"ハナ",text:"大切な思い出だね"},
+ {logId:"room3_after_11",logType:"dialogue",speaker:"主人公",text:"……はい"},
+ {logId:"room3_after_12",logType:"narration",speaker:"ト書き",text:"ハナは、優しく微笑んだ。"},
  {logId:"room3_after_13",logType:"narration",speaker:"主人公",thought:true,text:"鍵は開いた。次の部屋に行こう。"}
 ];
 const room3NextRoomLines=[
@@ -437,8 +438,11 @@ function inspectThirdRoomTrumpet(){
   const lines=[
    ...(!seenBefore?[{logId:"room3_trumpet_01",logType:"investigation",speaker:"ト書き",text:"部屋の奥に、トランペットが置かれている。"}]:[]),
    {logId:"room3_trumpet_hana_01",logType:"dialogue",speaker:"ハナ",text:"これ、君のじゃない？"},
-   {logId:"room3_trumpet_hana_02",logType:"dialogue",speaker:"主人公",text:seenBefore?"……はい。記憶の中で使っていたものと同じです。やっぱり、ここは僕の部屋なんですね。":"……本当だ。記憶の中で使っていたトランペットと同じだ。じゃあ、やっぱりここは……僕の部屋だ。"},
-   {logId:"room3_trumpet_hana_03",logType:"narration",speaker:"主人公",thought:true,text:"ハナさんは、どうしてこれが僕のものだって分かったんだ？ やっぱり、僕のことを知っているのか……？"}
+   {logId:"room3_trumpet_hana_02",logType:"dialogue",speaker:"主人公",text:seenBefore?"……はい。記憶の中で使っていたものと同じです":"……本当だ"},
+   ...(!seenBefore?[{logId:"room3_trumpet_hana_02_memory",logType:"dialogue",speaker:"主人公",text:"記憶の中で使っていたトランペットと同じだ"}]:[]),
+   {logId:"room3_trumpet_hana_memory_01",logType:"dialogue",speaker:"ハナ",text:"ちゃんと覚えてるんだね"},
+   {logId:"room3_trumpet_hana_memory_02",logType:"dialogue",speaker:"主人公",text:"……はい"},
+   {logId:"room3_trumpet_hana_03",logType:"dialogue",speaker:"主人公",text:"やっぱりここは、僕が住んでいた部屋なのかもしれません"}
   ];
   showRoomDialog(lines);
   return;

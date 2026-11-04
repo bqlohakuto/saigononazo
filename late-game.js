@@ -484,7 +484,11 @@
     const effect=document.createElement('div');effect.className='r5-door-reveal';
     effect.innerHTML='<svg class="r5-door-reveal-light" viewBox="0 0 1672 941" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M 310 260 Q 570 165 898 360" /></svg>';
     scene.append(effect);scene.classList.add('is-r5-revealing');
-    showRoomDialog(lines.slice(showMissedDigits?4:7),()=>{
+    // The dialogue can grow without shifting the door effect's entry point.
+    // Starting early repeats the clue/digits; otherwise start at the keypad reveal.
+    const entryId=showMissedDigits?'r5_board_complete_04':'r5_board_complete_07';
+    const entryIndex=lines.findIndex(item=>item.logId===entryId);
+    showRoomDialog(lines.slice(entryIndex>=0?entryIndex:0),()=>{
       effect.remove();scene.classList.remove('is-r5-revealing');
       if(scene.isConnected)document.getElementById('r5Keypad')?.focus({preventScroll:true});
     });

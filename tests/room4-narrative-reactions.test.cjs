@@ -82,6 +82,9 @@ test("chapter and combined manuscripts include all approved reactions",()=>{
   assert.ok(combined.includes(phrase),"combined missing "+phrase);
  }
  const index=read("index.html");
- assert.ok(index.includes("room4.js?v=20261104-room4-emotion-v1"));
- assert.ok(index.includes("room4-scenario.js?v=20261104-room4-emotion-v1"));
+ const html=index;
+ const version=(html.match(/href="style\.css\?v=(\d{8}-[a-z0-9-]+)"/)||[])[1];
+ assert.ok(version);
+ assert.ok(index.includes(`room4.js?v=${version}`));
+ assert.ok(index.includes(`room4-scenario.js?v=${version}`));
 });

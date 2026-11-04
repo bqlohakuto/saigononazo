@@ -57,6 +57,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
       run('showSeventhRoom('+JSON.stringify(halfway)+')');
       assert.equal(saved().shortMemory.progress.logId,halfway.shortMemory.progress.logId,'reload resumes the displayed line');
       assert.match(q('#roomMessage').textContent,/いえ、別に/);
+      for(let n=0;n<140&&!saved().shortMemory.progress?.logId.startsWith('r7_return_tiger_02');n++)click('#roomNextButton');
+      assert.ok(saved().shortMemory.progress?.logId.startsWith('r7_return_tiger_02'),'the first return line is resumable');
+      const duringReturn=saved();
+      run('showSeventhRoom('+JSON.stringify(duringReturn)+')');
+      assert.match(q('#roomMessage').textContent,/こんな約束もしてたんだ/,'a saved return resumes the short reaction');
       finish();assert.equal(saved().shortMemory,null,'finishing the memory returns to the puzzle');
       assert.equal(saved().doorIndex,1);assert.equal(q('.memory-scene'),null);
     }else if(i===1){
@@ -120,10 +125,13 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
       assert.ok(q('#roomNextButton'),'the 2007 memory can be read after the door opens');
       finish();assert.equal(saved().shortMemory,null,'the 2007 memory returns to the last door');
       assert.equal(saved().doorIndex,5);
-    }}
+    }
+    const expectedReturn=['……こんな約束もしてたんだ','……あの時、そんな話をしてたな','……あのマグカップ、懐かしいな','……少しずつ、元に戻っていったんだ','……こんなことも、覚えてなかったんだな'][i];
+    assert.ok(run('GameLog.list()').some(x=>x.text===expectedReturn),'the return line is logged after '+target);
+   }
   else{
     assert.equal(saved().shortMemory.zodiac,'酉','the last door schedules the departure memory before the accident');
-    assert.match(q('#roomMessage').textContent,/酉に合わせた扉が開く/);
+    assert.match(q('#roomMessage').textContent,/操作盤を「酉」に合わせる/);
     const duringPrelude=saved();
     run('showSeventhRoom('+JSON.stringify(duringPrelude)+')');
     assert.equal(q('.memory-scene').dataset.location,'r7rooster','reloading during the last door enters the departure memory');

@@ -8,6 +8,7 @@ const expectedAssets = [
   "ending-credits.css",
   "reset-progress.css",
   "first-visit-notice.css",
+  "opening-exploration.css",
   "browser-navigation.css",
   "style.css",
   "viewport-scaler.js",

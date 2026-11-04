@@ -79,7 +79,7 @@ test('first-visit notice has no story spoilers and releases its keyboard trap on
  assert.equal(trigger.getAttribute('aria-expanded'),'true');
  const profile=q('.title-community-account');
  assert.ok(profile);
- assert.equal(profile.getAttribute('href'),'https://x.com/arissa_juno');
+ assert.equal(profile.getAttribute('href'),'https://x.com/arisa_juno');
  assert.equal(profile.getAttribute('target'),'_blank');
  assert.match(profile.getAttribute('rel'),/noopener/);
  assert.match(overlay.textContent,/XのDMまで/);

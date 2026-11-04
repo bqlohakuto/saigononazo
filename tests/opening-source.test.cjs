@@ -36,6 +36,6 @@ test("shared game code delegates new-game and resume flow to the canonical openi
 
   assert.match(script, /clearSave\(\);playerName=input\.value/);
   assert.match(script, /setTimeout\(\(\)=>\{if\(button\.isConnected\)flashRed\(\)\},2000\)/);
-  assert.match(script, /showOpening\(saved\.opening\.index\)/);
+  assert.ok(script.includes("showOpening(saved.opening.index,saved.rooms.opening)"));
   assert.match(script, /function\s+endOpening\s*\(/);
 });

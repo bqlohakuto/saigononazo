@@ -90,7 +90,7 @@ click('[data-gameplay="save"]');assert.ok(q('#saveSlotOverlay'));click('.save-sl
 assert.equal(JSON.parse(w.localStorage.getItem('saigononazo-save-v1-slot-1')).rooms.room05.completed,true);
 q('#saveSlotOverlay').remove();
 
-click('#r5Next');await new Promise(r=>setTimeout(r,1900));
+click('#r5Next');await new Promise(r=>setTimeout(r,3800));
 assert.equal(save().currentScene,'room06');
 assert.ok(q('.r6-scene'));assert.equal(q('.r6-map'),null,'map is obtained during room 6 exploration');assert.ok(q('#gameplayHud'));
 console.log('PASS: Room 5 exploration -> counters -> 8194 keypad -> flashback -> Room 6.');

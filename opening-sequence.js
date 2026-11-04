@@ -44,6 +44,7 @@ function flashRed() {
 }
 
 function showOpening(startIndex = 0, savedState = null) {
+  Dialogue.stop();
   currentScene="opening";
   const legacyLines = openingScenario.filter(line => line.logId !== "opening_37_gesture" && !line.logId.startsWith("opening_exit_"));
   const legacyExitIndex = legacyLines.findIndex(line => line.logId === "opening_38");
@@ -203,8 +204,6 @@ function startOpeningExit() {
   if (woman) woman.hidden = false;
   saveGame();
   showRoomDialog(openingExitScenario, () => {
-    openingExplorationState.phase = "complete";
-    saveGame();
     endOpening();
   }, {
     resume: openingExplorationState.exitLogId ? {logId: openingExplorationState.exitLogId} : undefined,

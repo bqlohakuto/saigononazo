@@ -58,7 +58,7 @@ async function finishBoard(page){
    await page.screenshot({path:path.join(out,'02-code.png')});
    for(let i=0;i<20&&await page.locator('.r5-door-reveal').count()===0;i++)await page.locator('#roomNextButton').click();
    const effect=page.locator('.r5-door-reveal');await effect.waitFor();
-   assert.match(await page.locator('#roomMessage').textContent(),/正面の扉へ細い光/);
+   assert.match(await page.locator('#roomMessage').textContent(),/正面の扉に、四桁のテンキーが現れる/);
    assert.equal(await page.locator('.r5-door-reveal-light path').count(),1);
    await page.screenshot({path:path.join(out,'03-door-reveal.png')});
    for(let i=0;i<30&&await page.locator('#roomNextButton').count();i++)await page.locator('#roomNextButton').click();

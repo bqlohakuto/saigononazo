@@ -1342,7 +1342,8 @@
     line("r6_memory_full_084","主人公・心の声","答えが出ない時に、隣にいてくれる人がいた。",{thought:true}),
     line("r6_memory_full_085","主人公・心の声","そして彼女は――そんな僕を、何度も少しだけ前へ進ませてくれた。",{thought:true}),
     line("r6_memory_full_086","ト書き","視界が白く染まっていく。"),
-    line("r6_after_001","ト書き","視界が、元の部屋に戻る。\nさっきまで何もなかった壁に、もう何度も見てきた扉が現れていた。"),
+    line("r6_after_return_01","ト書き","視界が、元の部屋に戻る。"),
+    line("r6_after_001","ト書き","さっきまで何もなかった壁に、もう何度も見てきた扉が現れていた。"),
     line("r6_after_002","主人公・心の声","……あの頃の僕は、何でも一人で解決しようとしていた。",{thought:true}),
     line("r6_after_003","主人公・心の声","でも、隣にいてくれる人がいた。",{thought:true}),
     line("r6_after_004","主人公・心の声","そのぬくもりが、まだ胸に残っていた。",{thought:true}),
@@ -1404,7 +1405,7 @@
       line("r6_final_lavender","ト書き","光に包まれる中、ほのかにラベンダーの香りがした。"),
       ...R6_MEMORY_AND_AFTER
     ],()=>{room6State.memorySeen=true;room6State.completed=true;r6ExitRevealed=true;saveGame();renderR6();},entry=>{
-      if(entry.logId==='r6_after_001')r6RevealExit();
+      if(entry.logId?.startsWith('r6_after_001_'))r6RevealExit();
     });
   }
 

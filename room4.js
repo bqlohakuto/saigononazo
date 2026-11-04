@@ -373,6 +373,17 @@ function r4Stand(){
 }
 function r4Const(){showRoomDialog([{logId:"r4c1",logType:"investigation",speaker:"ト書き",text:"12星座の名前と、星の位置を示す図が並んでいる。"},{logId:"r4_final_zodiac_flowers",logType:"investigation",speaker:"ト書き",text:"隣には、12星座それぞれにまつわる花を紹介する展示も並んでいる。"},{logId:"r4c2",logType:"dialogue",speaker:"主人公",text:"……十二星座が、ひとつずつ載ってるんだな"}],r4OpenZodiacExhibit)}
 function r4Meteor(){showRoomDialog([{logId:"r4m1",logType:"investigation",speaker:"ト書き",text:"流れ星についての展示だ。流れ星は、宇宙空間の小さなちりや岩石が大気に飛び込み、高温になって光って見える現象らしい。地球が彗星の残したちりの中を通ると、流星群が見られることもある。"},{logId:"r4m2",logType:"dialogue",speaker:"主人公",text:"こんな小さいものが、あんなに明るく見えるんだな"}])}
+function r4WordSuccessLines(kind){
+ const isStar=kind==="STAR";
+ return [
+  {logId:"r4"+kind+"ok_intro",logType:"dialogue",speaker:"主人公",text:isStar?"……よし、合ってた":"……なるほど、そういうことか"},
+  {logId:"r4"+kind+"ok1",logType:"dialogue",speaker:"主人公",text:isStar?"STAR……星、か":"LIGHT……光、か"},
+  ...(!isStar?[{logId:"r4LIGHTok_discovery",logType:"dialogue",speaker:"主人公",text:"なるほど、色の組み合わせにはそういう意味があったのか……"}]:[]),
+  {logId:"r4"+kind+"ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースのロックが外れた。"},
+  {logId:"r4"+kind+"ok_reaction",logType:"dialogue",speaker:"主人公",text:isStar?"お、開いた":"よし、これも正解だな"},
+  {logId:"r4"+kind+"ok_pickup",logType:"investigation",speaker:"ト書き",text:"中から透明なパネルを取り出す。"}
+ ];
+}
 function r4WordPuzzle(kind){
  if(game.querySelector(".device-overlay,.room-dialog-overlay,.design-overlay,.inspection-overlay"))return;
  const solved=kind==="STAR"?room4State.star:room4State.lightPuzzle;
@@ -397,7 +408,7 @@ function r4WordPuzzle(kind){
  }
  input.addEventListener("input",()=>{fb.textContent=""});
  input.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.isComposing&&!event.repeat){event.preventDefault();o.querySelector(".r4-answer").click()}});
- o.querySelector(".r4-answer").onclick=()=>{const answer=input.value.normalize("NFKC").trim().toUpperCase();if(!answer){fb.textContent="答えを入力してください。";return}if(answer!==kind){globalThis.GameAudio?.play?.("answerIncorrect");fb.textContent="鍵は開かない。";return}globalThis.GameAudio?.play?.("answerCorrect");if(kind==="STAR")room4State.star=true;else room4State.lightPuzzle=true;saveGame();close();showRoomDialog([{logId:"r4"+kind+"ok1",logType:"dialogue",speaker:"主人公",text:`${kind}……${kind==="STAR"?"星":"光"}、か`},{logId:"r4"+kind+"ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースのロックが外れた。中から透明なパネルを取り出す。"}],()=>r4Refresh(kind==="STAR"?"star":"lightPuzzle"))};
+ o.querySelector(".r4-answer").onclick=()=>{const answer=input.value.normalize("NFKC").trim().toUpperCase();if(!answer){fb.textContent="答えを入力してください。";return}if(answer!==kind){globalThis.GameAudio?.play?.("answerIncorrect");fb.textContent="鍵は開かない。";return}globalThis.GameAudio?.play?.("answerCorrect");if(kind==="STAR")room4State.star=true;else room4State.lightPuzzle=true;saveGame();close();showRoomDialog(r4WordSuccessLines(kind),()=>r4Refresh(kind==="STAR"?"star":"lightPuzzle"))};
 }
 function r4P1(){r4WordPuzzle("STAR")} function r4P2(){r4WordPuzzle("LIGHT")}
 function r4P3(){
@@ -417,7 +428,7 @@ function r4P3(){
  const finishSuccess=()=>{
   if(dialogueStarted||!earnedThisOpen||currentScene!=="room04"||!room4State.meteors)return;
   dialogueStarted=true;
-  showRoomDialog([{logId:"r4p3ok1",logType:"dialogue",speaker:"主人公",text:"METEORS……流れ星、か"},{logId:"r4p3ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースの中から透明なパネルを取り出す。"}],()=>r4Refresh("meteors"));
+  showRoomDialog([{logId:"r4p3ok_intro",logType:"narration",speaker:"ト書き",text:"七色のプレートが、正しい順番に並んだ。"},{logId:"r4p3ok_reaction",logType:"dialogue",speaker:"主人公",text:"……あ、そろった"},{logId:"r4p3ok1",logType:"dialogue",speaker:"主人公",text:"METEORS……流れ星、か"},{logId:"r4p3ok_done",logType:"dialogue",speaker:"主人公",text:"……よし、できた"},{logId:"r4p3ok2",logType:"investigation",speaker:"ト書き",text:"カチッ――展示ケースのロックが外れた。中から透明なパネルを取り出す。"}],()=>r4Refresh("meteors"));
  };
  const close=activateDeviceModal(o,"r4P3",o.querySelector(".device-close"),()=>{
   window.clearTimeout(revealTimer);
@@ -538,7 +549,7 @@ function r4Complete(){
  if(room4State.completed)return;
  r4CancelFailedLightOff();
  room4State.completed=true;room4State.lightOn=true;saveGame();r4Projection();game.querySelector(".room-four")?.classList.add("is-restored");const status=game.querySelector(".room-four .room-color-status");if(status)status.textContent="記憶を取り戻した部屋";
- showRoomDialog([{logId:"r4ok1",logType:"investigation",speaker:"ト書き",text:"ライトの光が、五枚のパネルを通り抜ける。左の壁に、いくつもの星が映し出された。今までばらばらだった星が、ひとつの形を描いている。"},{logId:"r4ok2",logType:"dialogue",speaker:"主人公",text:"これ……星座だ"},{logId:"r4ok3",logType:"narration",speaker:"ト書き",text:"右の壁にある星座一覧へ目を向ける。その隣には、星座にまつわる花の絵が並んでいた。"},{logId:"r4ok4",logType:"dialogue",speaker:"主人公",text:"……おとめ座"},{logId:"r4ok5",logType:"narration",speaker:"ト書き",text:"もう一度、壁を見る。その瞬間――おとめ座を形作る星のひとつが、強く輝き始めた。光は次第に強くなり、辺りを白く染めていく。"},{logId:"r4ok6",logType:"dialogue",speaker:"ハナ",text:"……スピカ"},{logId:"r4ok7",logType:"dialogue",speaker:"主人公",text:"え？"},{logId:"r4ok8",logType:"narration",speaker:"ト書き",text:"ハナの方を振り返ろうとした瞬間、視界がまばゆい光に包まれた。"}],r4Memory);
+ showRoomDialog([{logId:"r4ok1",logType:"investigation",speaker:"ト書き",text:"ライトの光が、五枚のパネルを通り抜ける。左の壁に、いくつもの星が映し出された。今までばらばらだった星が、ひとつの形を描いている。"},{logId:"r4ok2",logType:"dialogue",speaker:"主人公",text:"……あ"},{logId:"r4ok2_hana",logType:"dialogue",speaker:"主人公",text:"ハナさん、見てください"},{logId:"r4ok2_stars",logType:"dialogue",speaker:"主人公",text:"星が……ちゃんとつながってる"},{logId:"r4ok2_success",logType:"dialogue",speaker:"主人公",text:"……できた"},{logId:"r4ok3",logType:"narration",speaker:"ト書き",text:"右の壁にある星座一覧へ目を向ける。その隣には、星座にまつわる花の絵が並んでいた。"},{logId:"r4ok4",logType:"dialogue",speaker:"主人公",text:"これ……おとめ座だ"},{logId:"r4ok5",logType:"narration",speaker:"ト書き",text:"もう一度、壁を見る。その瞬間――おとめ座を形作る星のひとつが、強く輝き始めた。光は次第に強くなり、辺りを白く染めていく。"},{logId:"r4ok6",logType:"dialogue",speaker:"ハナ",text:"……スピカ"},{logId:"r4ok7",logType:"dialogue",speaker:"主人公",text:"スピカ……？"},{logId:"r4ok8",logType:"narration",speaker:"ト書き",text:"ハナの方を振り返ろうとした瞬間、視界がまばゆい光に包まれた。"}],r4Memory);
 }
 function r4Memory(){
  if(room4State.memorySeen||currentScene!=="room04"||game.querySelector(".r4-memory-bridge"))return;

@@ -1,0 +1,46 @@
+name: Opening free exploration browser review
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scenario.js'
+      - 'opening-sequence.js'
+      - 'opening-exploration.css'
+      - 'script.js'
+      - 'index.html'
+      - 'tests/public-opening.browser.cjs'
+      - '.github/workflows/opening-exploration-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prologue-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium and WebKit for desktop and landscape-mobile tests
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Verify local preview in both screen sizes
+        env:
+          PUBLIC_BASE_URL: http://127.0.0.1:8765/
+          UI_SCREENSHOT_DIR: artifacts/opening-review
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/opening-server.log 2>&1 &
+          sleep 2
+          node tests/public-opening.browser.cjs
+      - name: Retain opening review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opening-review-desktop-landscape-mobile
+          path: artifacts/opening-review/
+          if-no-files-found: warn
+          retention-days: 14

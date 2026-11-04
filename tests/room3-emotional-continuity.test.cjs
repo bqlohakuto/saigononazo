@@ -61,7 +61,9 @@ test("room 3 answer logic and shared static asset version are not regressed",()=
  assert.ok(source.includes('letters==="ONAJIMOJINOAIDA"'));
  assert.ok(source.includes('kana==="イツモトナリニ"'));
  const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
- assert.ok(html.includes('room3.js?v=20261104-narrative-v3'));
+ const version=(html.match(/href="style\.css\?v=(\d{8}-[a-z0-9-]+)"/)||[])[1];
+ assert.ok(version);
+ assert.ok(html.includes(`room3.js?v=${version}`));
  const versions=[...html.matchAll(/(?:href|src)="[^"]+\.(?:css|js)\?v=(\d{8}-[a-z0-9-]+)"/g)].map(x=>x[1]);
  assert.ok(versions.length>20);
  assert.equal(new Set(versions).size,1);

@@ -1,0 +1,31 @@
+name: Room 4 narrative reactions review
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'room4.js'
+      - 'room4-scenario.js'
+      - 'scenario/04_room4.md'
+      - 'scenario/FULL_SCENARIO.md'
+      - 'index.html'
+      - 'tests/room4-narrative-reactions.test.cjs'
+      - '.github/workflows/room4-narrative-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  room4-narrative:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify narrative, panel logic, memory fade, and final-name clues
+        run: |
+          node --check room4.js
+          node --check room4-scenario.js
+          node --test tests/room4-narrative-reactions.test.cjs tests/room4-memory-fade.test.cjs tests/room4-projection.test.cjs tests/room4-first-pane-dialogue.test.cjs tests/final-clue-audit.test.cjs tests/cache-version.test.cjs

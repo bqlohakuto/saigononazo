@@ -82,19 +82,21 @@ const room4FlashbackLines=[
 ];
 const room4AfterMemoryLines=[
 {logId:"r4a01",logType:"narration",speaker:"ト書き",text:"視界が、元の部屋に戻る。"},
-{logId:"r4a02",logType:"dialogue",speaker:"主人公",text:"……くそっ"},
+{logId:"r4a02",logType:"dialogue",speaker:"主人公",text:"……なんでだよ"},
 {logId:"r4a03",logType:"narration",speaker:"ト書き",text:"思わず、拳を強く握る。"},
-{logId:"r4a04",logType:"dialogue",speaker:"主人公",text:"今までは全部思い出せたのに……"},
-{logId:"r4a05",logType:"dialogue",speaker:"主人公",text:"あの人の名前だけ、思い出せない"},
-{logId:"r4a06",logType:"narration",speaker:"ト書き",text:"それだけじゃない。記憶の中で、あの人は確かに僕の名前を呼んでいた。なのに、その部分だけが抜け落ちている。"},
-{logId:"r4a07",logType:"dialogue",speaker:"主人公",text:"……なんでだよ"},
-{logId:"r4a08",logType:"dialogue",speaker:"ハナ",text:"……"},
-{logId:"r4a09",logType:"dialogue",speaker:"主人公",text:"……次だ"},
-{logId:"r4a10",logType:"dialogue",speaker:"ハナ",text:"え？"},
-{logId:"r4a11",logType:"dialogue",speaker:"主人公",text:"ここまで、次の部屋に進むたびに思い出してきた"},
-{logId:"r4a12",logType:"dialogue",speaker:"主人公",text:"だったら、次に行けば……"},
-{logId:"r4a13",logType:"dialogue",speaker:"主人公",text:"名前のことも、思い出せるかもしれない"},
-{logId:"r4a14",logType:"dialogue",speaker:"ハナ",text:"……うん"},
-{logId:"r4a15",logType:"narration",speaker:"ト書き",text:"気づけば、もう扉へ向かって歩き出していた。今はただ、一刻も早く先へ進みたかった。"}
+{logId:"r4a04",logType:"dialogue",speaker:"ハナ",text:"……どうしたの？"},
+{logId:"r4a05",logType:"dialogue",speaker:"主人公",text:"あの人の名前……まだ思い出せないんです"},
+{logId:"r4a06",logType:"dialogue",speaker:"主人公",text:"でも、今の記憶では……確かに呼んだんです"},
+{logId:"r4a06_names",logType:"dialogue",speaker:"主人公",text:"あの人も、僕の名前を呼んでくれた"},
+{logId:"r4a07",logType:"dialogue",speaker:"主人公",text:"なのに……そこだけ、どうしても思い出せない"},
+{logId:"r4a08",logType:"dialogue",speaker:"ハナ",text:"…………"},
+{logId:"r4a09",logType:"dialogue",speaker:"ハナ",text:"……焦らなくてもいいんだよ"},
+{logId:"r4a10",logType:"dialogue",speaker:"主人公",text:"……次の部屋に行きましょう"},
+{logId:"r4a11",logType:"dialogue",speaker:"ハナ",text:"え？"},
+{logId:"r4a12",logType:"dialogue",speaker:"主人公",text:"この先にも、僕の記憶があるんですよね"},
+{logId:"r4a13",logType:"dialogue",speaker:"ハナ",text:"……うん"},
+{logId:"r4a14",logType:"dialogue",speaker:"主人公",text:"だったら……次に進めば、何かわかるかもしれません"},
+{logId:"r4a15",logType:"dialogue",speaker:"ハナ",text:"……わかった"},
+{logId:"r4a16",logType:"narration",speaker:"ト書き",text:"主人公は扉へと歩き出す。今はただ、少しでも早く先へ進みたかった。"}
 ];
 

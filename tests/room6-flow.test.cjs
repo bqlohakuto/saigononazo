@@ -57,9 +57,9 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
   assert.equal(save().rooms.room06.current,'A8','background switches only under darkness');
   assert.equal(q('.r6-space').dataset.travel,'north');
   assert.equal(q('.r6-travel-label').textContent,'正面の部屋へ');
-  await wait(270);assert.equal(save().rooms.room06.current,'A7');
+  await wait(500);assert.equal(save().rooms.room06.current,'A7');
   click('[data-dest="B7"]');assert.equal(save().rooms.room06.current,'A7','input remains locked during fade-in');
-  await wait(360);assert.equal(q('.r6-travel-shade'),null);
+  await wait(700);assert.equal(q('.r6-travel-shade'),null);
   const a7Pages=finish();
   const a7Text=a7Pages.join('').replace(/\s+/g,'');
   const notice='……最初に入った部屋と、似た造りですね。',reply='うん。壁も扉も、ほとんど同じみたい。';

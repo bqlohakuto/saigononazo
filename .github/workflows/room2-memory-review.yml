@@ -1,0 +1,29 @@
+name: Room 2 memory dialogue review
+
+on:
+  pull_request:
+    paths:
+      - 'room2-after-flashback.js'
+      - 'scenario/02_room2.md'
+      - 'scenario/FULL_SCENARIO.md'
+      - 'index.html'
+      - 'tests/room2-after-memory-text.test.cjs'
+      - '.github/workflows/room2-memory-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  room2-script:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify chapter 2 narrative and existing dialogue flows
+        run: |
+          node --check room2-after-flashback.js
+          node --test tests/room2-after-memory-text.test.cjs tests/room2-intro-dialogue-sync.test.cjs tests/room2-correct-dialogue.test.cjs

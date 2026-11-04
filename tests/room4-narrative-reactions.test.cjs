@@ -77,7 +77,7 @@ test("after-memory scene links the missing names to urgency without changing the
 });
 test("chapter and combined manuscripts include all approved reactions",()=>{
  const chapter=read("scenario/04_room4.md"),combined=read("scenario/FULL_SCENARIO.md");
- for(const phrase of ["……よし、合ってた","よし、これも正解だな","……あ、そろった","ハナさん、見てください","名前だけが抜け落ちている","焦らなくてもいいんだよ"]){
+ for(const phrase of ["……よし、合ってた","よし、これも正解だな","……あ、そろった","ハナさん、見てください","呼び合ったはずの名前だけが記憶の中でも欠落している","焦らなくてもいいんだよ"]){
   assert.ok(chapter.includes(phrase),"chapter missing "+phrase);
   assert.ok(combined.includes(phrase),"combined missing "+phrase);
  }

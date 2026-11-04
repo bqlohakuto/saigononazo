@@ -136,6 +136,10 @@ function serializeFirstRoomState(state=firstRoomState){
 }
 
 function saveGame(){
+ if(currentScene==="opening"){
+  const openingState=window.OpeningExploration?.getState?.();
+  if(openingState)roomStates.opening=openingState;
+ }
  if(firstRoomState)roomStates.room01=serializeFirstRoomState();
  if(room2State)roomStates.room02={...room2State,answer:room2State.answer.map(piece=>({...piece})),guess:room2State.guess.map(piece=>({...piece})),history:room2State.history.map(entry=>({...entry,guess:entry.guess.map(piece=>({...piece}))}))};
  if(room3State)roomStates.room03={...room3State};
@@ -291,7 +295,7 @@ function resumeGame(){
  const saved=readSavedGame();
  if(!saved){showTitle("再開できるデータがありません。");return}
  const loaders={
-  opening:()=>{firstRoomState=undefined;showOpening(saved.opening.index)},
+  opening:()=>{firstRoomState=undefined;showOpening(saved.opening.index,saved.rooms.opening)},
   room01:()=>showFirstRoom(saved.rooms.room01)
   ,room02:()=>showSecondRoom(saved.rooms.room02)
   ,room03:()=>showThirdRoom(saved.rooms.room03)

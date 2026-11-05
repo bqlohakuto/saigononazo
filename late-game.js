@@ -2514,8 +2514,8 @@
   // Use exact log IDs (or sentence-split descendants), never broad scene prefixes.
   // Neither the clues nor their order are displayed as the final answer.
   const R8_FINAL_LOG_IDS=[
-    // Room 1: mandatory thought about Hana's flower-like name and melody memory; optional poster and piano support.
-    "room1_hana_flower_thought_01","room1_piano_correct_04","room1_poster_03","room1_piano_introduction_02",
+    // Room 1: melody memory, with optional poster and piano recollections.
+    "room1_piano_correct_04","room1_poster_03","room1_piano_introduction_02",
     // Room 2: a flower-shaped compliment -> the sound of the trumpet
     "room2_memory_053_flower_01","room2_final_hanamaru","room2_memory_003",
     // Room 3: cherry blossoms -> a ringing phone

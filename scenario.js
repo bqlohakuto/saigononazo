@@ -114,7 +114,6 @@ const firstRoomScenario = {
         { logId: "room1_hana_first_03", logType: "dialogue", speaker: "ハナ", text: "ハナって呼んで！" },
         { logId: "room1_hana_first_04", logType: "dialogue", speaker: "主人公", text: "ハナさん……ですか？" },
         { logId: "room1_hana_first_05", logType: "dialogue", speaker: "ハナ", text: "そう！　ハナ！" },
-        { logId: "room1_hana_flower_thought_01", logType: "narration", speaker: "主人公", thought: true, text: "ハナ……花、か" },
         { logId: "room1_hana_first_06", logType: "dialogue", speaker: "主人公", text: "ハナさんは……ここで何をしているんですか？" },
         { logId: "room1_hana_first_07", logType: "dialogue", speaker: "ハナ", text: "わたしは、君の案内役……かな" },
         { logId: "room1_hana_first_08", logType: "dialogue", speaker: "主人公", text: "案内役？" },

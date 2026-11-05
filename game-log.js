@@ -26,6 +26,8 @@ const GameLog=(()=>{
   // Array order is canonical. Preserve repeated IDs and normalize optional/malformed fields from older saves.
   for(const entry of saved){
    if(!entry||typeof entry!=="object")continue;
+   // Remove the unintended first-room thought from previously saved dialogue logs.
+   if(entry.id==="room1_hana_flower_thought_01")continue;
    const text=r7FirstPersonIds.has(entry.id)&&typeof entry.text==="string"?entry.text.replace("主人公","僕"):entry.text;
    record({logId:entry.id,text,logType:entry.type,speaker:typeof entry.speaker==="string"?entry.speaker:"",thought:entry.thought===true,logKind:entry.kind,logColor:entry.color,logRoom:entry.room,logGroup:entry.group,logTarget:entry.target});
   }

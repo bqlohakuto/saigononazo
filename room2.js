@@ -67,7 +67,7 @@ function showRoomChoices(choices){
 
 const room2IntroLines=[
  {logId:"room2_intro_01",logType:"narration",speaker:"ト書き",text:"光が薄れ、視界が戻る。そこは、また別の部屋だった。正面には一枚の扉。中央には机が一つ。"},
- {logId:"room2_intro_02",logType:"narration",speaker:"主人公",thought:true,text:"今度は、ずいぶん何もない部屋だな……"},
+ {logId:"room2_intro_02",logType:"narration",speaker:"主人公",thought:true,text:"……さっきの部屋とは、ずいぶん雰囲気が違うな"},
  {logId:"room2_intro_03",logType:"narration",speaker:"ト書き",text:"机の上には、何かが並べられているようだ。"},
  {logId:"room2_intro_04",logType:"dialogue",speaker:"ハナ",text:"今度は、どんな部屋なんだろうね"}
 ];

@@ -2282,6 +2282,11 @@
         line("r8_reunion_22","主人公","……やっぱり、君だったんだ。"),
         line("r8_reunion_23","ハナ","うん。"),
         line("r8_reunion_24","ハナ","ずっと、そばにいたよ。"),
+        line("r8_recognition_walk","ト書き","何度も隣を歩いた。"),
+        line("r8_recognition_voice","ト書き","何度も声を聞いた。"),
+        line("r8_recognition_reason","ト書き","ずっと懐かしいと感じていた理由が、ようやくわかった。"),
+        line("r8_recognition_answer","主人公","……そうだったんだ"),
+        line("r8_recognition_together","主人公","ずっと、一緒にいてくれたんだね"),
         line("r8_reunion_25","ト書き","聞きたいことは、まだたくさんあった。"),
         line("r8_reunion_26","ト書き","どうして、ここにいるのか。\n現実に戻ったら、彼女はどこにいるのか。"),
         line("r8_reunion_27","ト書き","それなのに、次の言葉が出てこない。"),
@@ -2376,8 +2381,11 @@
         line("r8_stand_03","ト書き","その時、彼女の姿に白い光が重なった。"),
       line("r8_046","ト書き","部屋の景色が、一気に消えていく。"),
       line("r8_047","ト書き","残っていた家具も、椅子も。最後に残ったのは、一つの机だけ。"),
-      line("r8_048","主人公","……！"),
-      line("r8_049","ト書き","そこに、もう彼女の姿はなかった。机の上には、一枚の紙が置かれている。")
+      line("r8_048","主人公","……待って"),
+      line("r8_049","ト書き","手を伸ばした先には、もう誰もいなかった。"),
+      line("r8_disappear_resolve","主人公","……まだ、終わってない"),
+      line("r8_last_paper","ト書き","机の上に、一枚の紙が置かれている。"),
+      line("r8_last_reach","ト書き","その紙へ、ゆっくりと手を伸ばした。")
     ];
     const found=lines.findIndex(entry=>entry.logId===room8State.introLogId);
     const start=found<0?0:found;
@@ -2600,6 +2608,12 @@
       line("r8_epilogue_home_notebook","ト書き","机の上には、彼女が書きためたノートがあった。"),
       line("r8_epilogue_07","ト書き","作りかけの謎。何度も引き直した線。小さな書き込み。ページをめくるたびに、彼女の姿が浮かんだ。"),
       line("r8_epilogue_08","ト書き","パソコンの前に座り、ノートを広げた。"),
+      line("r8_epilogue_create_01","ト書き","彼女の書いた謎を、一つずつ画面に映していく。"),
+      line("r8_epilogue_create_02","ト書き","思うように動かない仕掛けを、何度も作り直す。"),
+      line("r8_epilogue_create_03","ト書き","ノートの端に、小さなウサギの絵が描かれていた。"),
+      line("r8_epilogue_create_04","主人公","……相変わらず、クマみたいだな"),
+      line("r8_epilogue_create_05","ト書き","思わず、小さく笑ってしまった。"),
+      line("r8_epilogue_create_06","ト書き","また画面に向き直る。"),
       line("r8_epilogue_09","主人公・心の声","彼女が作った謎を、今度は僕が届けていく。",{thought:true})
     ];
     const found=lines.findIndex(entry=>entry.logId===room8State.epilogueLogId);

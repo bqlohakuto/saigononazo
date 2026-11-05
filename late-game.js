@@ -197,7 +197,7 @@
     const topic=room5State.codeRevealed?'r5_code':room5State.boardIntroSeen?'r5_counters':'r5_search';
     const hints={
       r5_search:['部屋にある絵のパネルを集めてみよう。向きを変えると、まだ見ていない場所もあるよ。','冷蔵庫は上と下を別々に調べられるよ。集めたパネルは、数え方が書かれた盤に置いてみよう。'],
-      r5_counters:['盤に書かれている漢字は、ものを数えるときの言葉みたい。','絵のものを「一つ」以外でどう数えるか考えてみて。ウサギの「羽」が見本になるよ。','鏡は面、魚は尾、花は輪、イカは杯、椅子は脚、大砲は門。そして蝶には「頭」という数え方もあるんだ。'],
+      r5_counters:['盤に書かれている漢字は、ものを数えるときの言葉みたい。','絵のものを「一つ」以外でどう数えるか考えてみて。ウサギの「羽」が見本になるよ。','たとえば、鏡は「一面」、蝶は「一頭」と数えることがあるよ。他の絵も、普段の数え方と違うものがないか考えてみて。'],
       r5_code:['そろった絵の光が集まった、盤の中央を見てみよう。','盤に現れた四桁の数字を、左から順に扉の入力欄へ入れてみよう。']
     };
     PuzzleHints.show(topic,'r5Hana',hints[topic]);
@@ -914,6 +914,37 @@
     }
     return null;
   }
+  // Collect every next move that belongs to at least one complete winning route.
+  // Memoizing positions avoids repeatedly exploring equivalent branches.
+  const r6CandidateCache=new Map();
+  function r6WinningCandidates(board,turn){
+    if(turn>=6)return [];
+    const cacheKey=turn+'|'+board.join('');
+    if(r6CandidateCache.has(cacheKey))return r6CandidateCache.get(cacheKey);
+    const memo=new Map();
+    function canWin(position,step){
+      if(step===9)return position.every(value=>value==='W');
+      const key=step+'|'+position.join('');
+      if(memo.has(key))return memo.get(key);
+      const color=step%2===0?'W':'G';
+      for(let i=0;i<64;i++){
+        if(position[i]!=='E')continue;
+        const id=String.fromCharCode(65+i%8)+(Math.floor(i/8)+1);
+        const next=r6Place(position,id,color);
+        if(next&&canWin(next,step+1)){memo.set(key,true);return true}
+      }
+      memo.set(key,false);return false;
+    }
+    const color=turn%2===0?'W':'G',candidates=[];
+    for(let i=0;i<64;i++){
+      if(board[i]!=='E')continue;
+      const id=String.fromCharCode(65+i%8)+(Math.floor(i/8)+1);
+      const next=r6Place(board,id,color);
+      if(next&&canWin(next,turn+1))candidates.push(id);
+    }
+    r6CandidateCache.set(cacheKey,candidates);
+    return candidates;
+  }
   function normalizeR6(saved){
     const s=saved&&typeof saved==="object"?saved:{},visited=[...new Set(["A8",...(Array.isArray(s.visited)?s.visited:[]).filter(r6Valid)])];
     const current=r6Valid(s.current)?s.current:"A8";if(!visited.includes(current))visited.push(current);
@@ -924,6 +955,7 @@
       greenSeen:visited.some(id=>R6_INITIAL[r6Index(id)]==="E"),interview4:!!s.interview4,mapEvent:!!s.mapEvent,
       mapOpen:s.mapOpen!==false,mapExpanded:!!s.mapExpanded,mapComplete:!!s.mapComplete,othelloKnown:!!s.othelloKnown,
       hintLevel:Math.min(3,Math.max(0,Math.floor(Number(s.hintLevel)||0))),
+      hintCandidatesVisible:s.hintCandidatesVisible===true,
       testGuide:!!s.testGuide,resetUsed:!!s.resetUsed,
       memorySeen:!!s.memorySeen,completed:!!s.completed,introSeen:!!s.introSeen};
   }
@@ -933,9 +965,9 @@
   function r6SpecificHint(){
     const count=room6State.moves.length;
     if(count>=6)return "ここから先の3手は、自分で考えてみよう。白と黒の手番と、返る列を地図で確かめてみて。";
-    const route=r6WinningRoute(room6State.board,count);
-    if(route?.length)return '次は'+route[0]+'の部屋で、レバーを'+(count%2===0?'左に倒して白':'右に倒して黒')+'にしてみて。';
-    if(route)return '黒は全部消えたね。開いた扉へ進もう。';
+    const candidates=r6WinningCandidates(room6State.board,count);
+    if(candidates.length)return 'この盤面から最後まで進める場所を、地図に印をつけたよ。どの候補から進むかは、君が決めてね。';
+    if(!room6State.board.includes('G'))return '黒は全部消えたね。開いた扉へ進もう。';
     for(let back=1;back<=count;back++){
       const replay=r6Replay(room6State.moves.slice(0,count-back));
       if(r6WinningRoute(replay.board,replay.moves.length)!==null)return '今の盤面からは、9手で全部白にできないみたい。UNDOで'+back+'手戻してから、もう一度聞いてみて。';
@@ -953,7 +985,7 @@
     ];
     const choices=room6State.othelloKnown?hints.slice(0,Math.min(3,room6State.hintLevel+1)).map((text,i)=>({id:'hint-'+(i+1),label:'ヒント'+(i+1),text,level:i+1})):
       [{id:'exploration',label:'探索について',text:'まだ通っていない扉を進んでみよう。部屋の様子をよく確かめてみて。'}];
-    if(room6State.othelloKnown&&room6State.hintLevel>=3)choices.push({id:'next-move',label:'もっとヒント（次の一手）',specific:true});
+    if(room6State.othelloKnown&&room6State.hintLevel>=3)choices.push({id:'next-move',label:'もっとヒント（地図に候補を表示）',specific:true});
     if(room6State.mapEvent)choices.push({id:'why-help',label:'手伝ってくれる理由'});
     choices.push({id:'cancel',label:'なんでもない'});
     const overlay=document.createElement('div');overlay.className='device-overlay hana-choice-overlay';
@@ -977,6 +1009,9 @@
           line('r6_hana_why_07','主人公','……はい')
         ]);
         return;
+      }
+      if(choice.specific&&room6State.moves.length<6){
+        room6State.hintCandidatesVisible=true;saveGame();renderR6();
       }
       showRoomDialog([line('r6_hint_'+choice.id+(choice.specific?'_'+room6State.moves.map(m=>m.id).join('-'):''),'ハナ',choice.specific?r6SpecificHint():choice.text)],()=>{
         if(choice.level){room6State.hintLevel=Math.max(room6State.hintLevel,choice.level);saveGame()}
@@ -1013,12 +1048,14 @@
     if(!room6State.mapEvent)return "";
     if(!room6State.mapOpen)return '<button class="r6-map-toggle" id="r6MapToggle" aria-label="地図を開く">地図</button>';
     const displayed=room6State.mapComplete?Array.from({length:64},(_,i)=>String.fromCharCode(65+i%8)+(Math.floor(i/8)+1)):room6State.visited;
+    const showCandidates=room6State.othelloKnown&&room6State.hintCandidatesVisible&&room6State.moves.length<6;
+    const candidates=new Set(showCandidates?r6WinningCandidates(room6State.board,room6State.moves.length):[]);
     const points=displayed.map(id=>[id.charCodeAt(0)-65,Number(id[1])-1]);
     const minX=Math.min(...points.map(p=>p[0])),maxX=Math.max(...points.map(p=>p[0])),minY=Math.min(...points.map(p=>p[1])),maxY=Math.max(...points.map(p=>p[1]));
     const cols=maxX-minX+1,rows=maxY-minY+1;
     let cells=displayed.map(id=>{
       const x=id.charCodeAt(0)-65-minX,y=Number(id[1])-1-minY;
-      return '<button class="r6-cell '+r6Color(room6State.board[r6Index(id)])+(id===room6State.current?' current':'')+'" data-cell="'+id+'" style="grid-column:'+(x+1)+';grid-row:'+(y+1)+'" aria-label="'+(room6State.othelloKnown?id+'：':'')+r6Color(room6State.board[r6Index(id)])+'の部屋" '+(id===room6State.current?'aria-current="location"':'')+'>'+(id===room6State.current?'<span aria-hidden="true">▲</span>':'')+'</button>';
+      return '<button class="r6-cell '+r6Color(room6State.board[r6Index(id)])+(id===room6State.current?' current':'')+(candidates.has(id)?' r6-hint-candidate':'')+'" data-cell="'+id+'" style="grid-column:'+(x+1)+';grid-row:'+(y+1)+'" aria-label="'+(candidates.has(id)?'ヒント候補：':'')+(room6State.othelloKnown?id+'：':'')+r6Color(room6State.board[r6Index(id)])+'の部屋" '+(id===room6State.current?'aria-current="location"':'')+'>'+(id===room6State.current?'<span aria-hidden="true">▲</span>':'')+'</button>';
     }).join('');
     const connections=room6State.mapComplete?displayed.flatMap(id=>{const x=id.charCodeAt(0)-65,y=Number(id[1]);return [...(x<7?[[id,String.fromCharCode(66+x)+y]]:[]),...(y<8?[[id,id[0]+(y+1)]]:[])]}):room6State.edges;
     const paths=connections.map(([a,b])=>{
@@ -1029,7 +1066,10 @@
     const coordinates=room6State.othelloKnown?
       '<div class="r6-map-coordinates" style="--cols:'+cols+';--rows:'+rows+'" aria-label="地図座標"><span class="r6-coordinate-corner" aria-hidden="true">↗</span><div class="r6-coordinate-columns" aria-hidden="true">'+Array.from({length:cols},(_,i)=>'<span>'+String.fromCharCode(65+minX+i)+'</span>').join('')+'</div><div class="r6-coordinate-rows" aria-hidden="true">'+Array.from({length:rows},(_,i)=>'<span>'+(minY+i+1)+'</span>').join('')+'</div>'+map+'</div>':map;
     const compass=room6State.othelloKnown?'<div class="r6-map-compass" aria-label="地図の方向：上は正面、右は右、下は手前、左は左"><span>↑ 正面</span><span>→ 右</span><span>↓ 手前</span><span>← 左</span></div>':'';
-    return '<aside class="r6-map-paper'+(room6State.mapExpanded?' expanded':'')+'" aria-label="探索地図"><div class="r6-map-location">現在地'+(room6State.othelloKnown?' '+room6State.current:'')+'</div><div class="r6-map-tools"><button id="r6MapExpand" aria-label="地図を'+(room6State.mapExpanded?'縮小':'拡大')+'">'+(room6State.mapExpanded?'−':'＋')+'</button><button id="r6MapToggle" aria-label="地図を畳む">×</button></div><div class="r6-map-scroll">'+coordinates+'</div>'+compass+'</aside>';
+    const canToggle=room6State.othelloKnown&&room6State.hintLevel>=3&&room6State.moves.length<6;
+    const hintToggle=canToggle?'<button id="r6HintToggle" class="r6-hint-toggle" aria-pressed="'+showCandidates+'" aria-label="ヒント候補の強調表示を切り替える">候補'+(showCandidates?'ON':'OFF')+'</button>':'';
+    const hintNote=showCandidates?'<p class="r6-hint-note" role="status">'+(candidates.size?'候補 '+candidates.size+'か所（次の一手）':'クリアへの候補なし。UNDOで戻ろう。')+'</p>':'';
+    return '<aside class="r6-map-paper'+(room6State.mapExpanded?' expanded':'')+'" aria-label="探索地図"><div class="r6-map-location">現在地'+(room6State.othelloKnown?' '+room6State.current:'')+'</div><div class="r6-map-tools"><button id="r6MapExpand" aria-label="地図を'+(room6State.mapExpanded?'縮小':'拡大')+'">'+(room6State.mapExpanded?'−':'＋')+'</button><button id="r6MapToggle" aria-label="地図を畳む">×</button></div><div class="r6-map-scroll">'+coordinates+'</div>'+compass+(canToggle?'<div class="r6-hint-actions">'+hintToggle+'</div>':'')+hintNote+'</aside>';
   }
   function renderR6(){
     const id=room6State.current,x=id.charCodeAt(0)-65,y=Number(id[1])-1,color=r6Color(room6State.board[r6Index(id)]);
@@ -1060,6 +1100,11 @@
     }
     game.querySelector('#r6MapToggle')?.addEventListener('click',()=>{if(r6Busy())return;room6State.mapOpen=!room6State.mapOpen;globalThis.GameAudio?.play?.(room6State.mapOpen?"mapUnfold":"uiClick");saveGame();renderR6()});
     game.querySelector('#r6MapExpand')?.addEventListener('click',()=>{if(r6Busy())return;room6State.mapExpanded=!room6State.mapExpanded;saveGame();renderR6()});
+    game.querySelector('#r6HintToggle')?.addEventListener('click',()=>{
+      if(r6Busy()||room6State.moves.length>=6)return;
+      room6State.hintCandidatesVisible=!room6State.hintCandidatesVisible;
+      saveGame();renderR6();
+    });
     game.querySelector('#r6White')?.addEventListener('click',()=>r6Move('W'));
     game.querySelector('#r6Black')?.addEventListener('click',()=>r6Move('G'));
     game.querySelector('#r6Undo')?.addEventListener('click',()=>r6History(false));
@@ -1863,7 +1908,7 @@
     if(room7State.completed){showRoomDialog(r7Lines('hana'));return;}
     const id=room7State.booksSolved?'r7_animals':'r7_books';
     PuzzleHints.show(id,'r7Hana',id==='r7_books'?[
-      '赤い栞が挟まれた本を探してみよう。本棚の動かない本も、並べ方の手がかりになるよ。',
+      '部屋の中にある本を集めてみよう。本棚の動かない本も、並べ方の手がかりになるよ。',
       '題名の読み方に注目してみて。動かない四冊も合わせて、五十音順に並べられないかな？',
       '「一休さん」は「いっきゅうさん」だから、「赤ずきん」と「ウサギとカメ」の間だよ。残りの本も、題名の読みで場所を決めよう。'
     ]:[
@@ -2176,7 +2221,7 @@
   ];
   function normalizeR8(saved){
     const s=saved&&typeof saved==="object"?saved:{};
-    return {introSeen:!!s.introSeen,introLogId:typeof s.introLogId==="string"?s.introLogId:null,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,finalTalkLogId:typeof s.finalTalkLogId==="string"?s.finalTalkLogId:null,finalEndLogId:typeof s.finalEndLogId==="string"?s.finalEndLogId:null,ended:!!s.ended,epilogueSeen:!!s.epilogueSeen,epilogueLogId:typeof s.epilogueLogId==="string"?s.epilogueLogId:null};
+    return {introSeen:!!s.introSeen,introLogId:typeof s.introLogId==="string"?s.introLogId:null,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,finalHintLevel:Math.max(0,Math.min(3,Math.floor(Number(s.finalHintLevel)||0))),solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,finalTalkLogId:typeof s.finalTalkLogId==="string"?s.finalTalkLogId:null,finalEndLogId:typeof s.finalEndLogId==="string"?s.finalEndLogId:null,ended:!!s.ended,epilogueSeen:!!s.epilogueSeen,epilogueLogId:typeof s.epilogueLogId==="string"?s.epilogueLogId:null};
   }
   function r8AuthoredIndex(lines,expandedId){
     // Sentence splitting adds exactly one numeric suffix. Do not use a prefix
@@ -2434,10 +2479,27 @@
     o.innerHTML='<section class="late-panel r8-puzzle"><button class="device-close" aria-label="閉じる">×</button><h2>最後の謎</h2>'+
       '<div class="r8-paper-face"><p class="r8-question">私はだーれだ？</p><p>ヒント！<br>君のことが一番好きな人だよ</p></div>'+
       '<button class="late-sub-action" id="r8Back">紙の裏を見る</button>'+
-      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>「記録」を開いて、ここまでの思い出をもう一度振り返ってみて。</p><p>七つの部屋と、そこで思い出した出来事に繰り返し登場するもの。二つの共通点を、それぞれ一文字で表してみて。</p><p>順番に迷ったら、一番最初の部屋を思い出してね。</p><p>……わかったら、名前を呼んでね。</p></div>'+
+      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>「記録」を開いて、ここまでの思い出をもう一度振り返ってみて。</p><p>七つの部屋と、そこで思い出した出来事に繰り返し登場するもの。二つの共通点を、それぞれ一文字で表してみて。</p><p>順番に迷ったら、一番最初の部屋を思い出してね。</p><p>……わかったら、名前を呼んでね。</p><button type="button" class="late-sub-action" id="r8MoreHints">もう少し考えるためのヒント</button><p id="r8MoreHintText" aria-live="polite"></p></div>'+
       '<label class="r8-answer">答え<input id="r8Answer" type="text" autocomplete="off" maxlength="12"></label><button class="late-main-action" id="r8Submit">答える</button><p id="r8Feedback"></p></section>';
     game.appendChild(o);activateDeviceModal(o,"r8Paper",o.querySelector("#r8Back"));
     o.querySelector("#r8Back").onclick=()=>{room8State.backSeen=true;saveGame();o.querySelector("#r8BackText").classList.add("show");r8ArmLogHint()};
+    const finalHintSteps=[
+      '七つの部屋で見たものと、そこで思い出した出来事を振り返ってみよう。何度も登場しているものはないだろうか。',
+      '共通点は二つある。一つは目にしてきたもの、もう一つは耳に残っているものだ。',
+      'それぞれの共通点を漢字一文字にしてみよう。二文字を並べる順番は、最初の部屋で出会った彼女の呼び名を思い出してみよう。'
+    ];
+    let finalHintLevel=room8State.finalHintLevel||0;
+    const moreHintButton=o.querySelector("#r8MoreHints"),moreHintText=o.querySelector("#r8MoreHintText");
+    if(finalHintLevel>0)moreHintText.textContent=finalHintSteps[finalHintLevel-1];
+    if(finalHintLevel===finalHintSteps.length)moreHintButton.hidden=true;
+    else if(finalHintLevel>0)moreHintButton.textContent='さらにヒントを見る（'+(finalHintLevel+1)+'/3）';
+    moreHintButton.onclick=()=>{
+      if(finalHintLevel>=finalHintSteps.length)return;
+      moreHintText.textContent=finalHintSteps[finalHintLevel++];
+      room8State.finalHintLevel=finalHintLevel;saveGame();
+      if(finalHintLevel===finalHintSteps.length)moreHintButton.hidden=true;
+      else moreHintButton.textContent='さらにヒントを見る（'+(finalHintLevel+1)+'/3）';
+    };
     o.querySelector("#r8Submit").onclick=()=>{
       const value=o.querySelector("#r8Answer").value.trim();
       if(!value){o.querySelector("#r8Feedback").textContent="……名前を、思い出そう。";return}

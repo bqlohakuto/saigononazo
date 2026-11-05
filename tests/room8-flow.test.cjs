@@ -31,6 +31,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  assert.equal(q('.r8-living').dataset.hanaPose,'seated');
  advanceTo('r8_reunion_19');assert.equal(q('.r8-dissolve-stage').dataset.r8Visual,'white','sitting shows the white-haired first-person image');
  advanceTo('r8_reunion_21');assert.equal(q('.r8-dissolve-stage').dataset.r8Visual,'brown','recognition returns her brown hair');
+ advanceTo('r8_recognition_together');
+ assert.match(q('#roomMessage').textContent,/ずっと、一緒にいてくれたんだね/);
+ const recognition=saved().rooms.room08;run('showEighthRoom('+JSON.stringify(recognition)+')');
+ assert.equal(saved().rooms.room08.introLogId,'r8_recognition_together','recognition keeps its stable progress ID');
+ assert.match(q('#roomMessage').textContent,/ずっと、一緒にいてくれたんだね/,'recognition resumes mid-scene');
  advanceTo('r8_memories_04');assert.equal(q('.r8-dissolve-stage').dataset.r8Visual,'pout','rabbit dialogue changes expression');
  advanceTo('r8_041');assert.equal(q('.r8-dissolve-stage').dataset.r8Visual,'fading','furniture disappears during the conversation');
  advanceTo('r8_stand_01');assert.equal(q('.r8-living').dataset.hanaPose,'standing');
@@ -38,6 +43,14 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  assert.equal(q('.r8-living').dataset.hanaPose,'standing','pose restored with dialogue position');
  assert.equal(q('.r8-dissolve-stage').dataset.r8Visual,'reunion','standing artwork is restored');
  advanceTo('r8_stand_03');assert.equal(q('.r8-story-art').dataset.glow,'soft');
+ advanceTo('r8_disappear_resolve');
+ assert.match(q('#roomMessage').textContent,/まだ、終わってない/);
+ assert.equal(q('.r8-living').dataset.hanaPose,'gone','Hana has gone before the paper appears');
+ assert.equal(q('.r8-dissolve-stage').dataset.dissolveStep,'3','desk-only final background is selected');
+ const disappearance=saved().rooms.room08;run('showEighthRoom('+JSON.stringify(disappearance)+')');
+ assert.equal(saved().rooms.room08.introLogId,'r8_disappear_resolve','disappearance reaction resumes');
+ assert.equal(q('.r8-living').dataset.hanaPose,'gone');
+ assert.match(q('#roomMessage').textContent,/まだ、終わってない/);
  finish();assert.ok(q('#r8Paper'));assert.equal(saved().rooms.room08.puzzleReady,true);
  const logs=run('GameLog.list()');
  assert.ok(logs.some(e=>e.text==='全身に汗をかいていた。'));
@@ -84,6 +97,13 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  assert.equal(run("GameLog.list().find(e=>e.id?.startsWith('r8_end_03'))?.text"),'じゃあね、白兎','Kanon says the player-entered name at farewell');
  await new Promise(r=>setTimeout(r,700));
  assert.ok(q('#roomNextButton'),'epilogue should play before END');
+ for(let i=0;i<100&&saved().rooms.room08.epilogueLogId!=='r8_epilogue_create_04';i++)click('#roomNextButton');
+ assert.equal(saved().rooms.room08.epilogueLogId,'r8_epilogue_create_04','the rabbit is revisited in the epilogue');
+ assert.match(q('#roomMessage').textContent,/相変わらず、クマみたいだな/);
+ const building=saved().rooms.room08;run('showEighthRoom('+JSON.stringify(building)+')');
+ assert.equal(saved().rooms.room08.epilogueLogId,'r8_epilogue_create_04','epilogue resumes the game-making scene');
+ assert.match(q('#roomMessage').textContent,/相変わらず、クマみたいだな/);
+ assert.equal(q('.r8-epilogue-stage').dataset.place,'home');
  finish();assert.equal(saved().rooms.room08.epilogueSeen,true);
  assert.ok(q('.ending-pc-transition'),'epilogue connects to credits');
  // Completed old room-seven saves should not require another door click.

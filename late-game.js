@@ -1064,7 +1064,7 @@
     const compass=room6State.othelloKnown?'<div class="r6-map-compass" aria-label="地図の方向：上は正面、右は右、下は手前、左は左"><span>↑ 正面</span><span>→ 右</span><span>↓ 手前</span><span>← 左</span></div>':'';
     const canToggle=room6State.othelloKnown&&room6State.hintLevel>=3&&room6State.moves.length<6;
     const hintToggle=canToggle?'<button id="r6HintToggle" class="r6-hint-toggle" aria-pressed="'+showCandidates+'" aria-label="ヒント候補の強調表示を切り替える">候補'+(showCandidates?'ON':'OFF')+'</button>':'';
-    const hintNote=showCandidates?'<p class="r6-hint-note" role="status">'+(candidates.size?'候補 '+candidates.size+'か所（順番は自由）':'クリアへの候補なし。UNDOで戻ろう。')+'</p>':'';
+    const hintNote=showCandidates?'<p class="r6-hint-note" role="status">'+(candidates.size?'候補 '+candidates.size+'か所（次の一手）':'クリアへの候補なし。UNDOで戻ろう。')+'</p>':'';
     return '<aside class="r6-map-paper'+(room6State.mapExpanded?' expanded':'')+'" aria-label="探索地図"><div class="r6-map-location">現在地'+(room6State.othelloKnown?' '+room6State.current:'')+'</div><div class="r6-map-tools">'+hintToggle+'<button id="r6MapExpand" aria-label="地図を'+(room6State.mapExpanded?'縮小':'拡大')+'">'+(room6State.mapExpanded?'−':'＋')+'</button><button id="r6MapToggle" aria-label="地図を畳む">×</button></div><div class="r6-map-scroll">'+coordinates+'</div>'+compass+hintNote+'</aside>';
   }
   function renderR6(){
@@ -2217,7 +2217,7 @@
   ];
   function normalizeR8(saved){
     const s=saved&&typeof saved==="object"?saved:{};
-    return {introSeen:!!s.introSeen,introLogId:typeof s.introLogId==="string"?s.introLogId:null,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,finalTalkLogId:typeof s.finalTalkLogId==="string"?s.finalTalkLogId:null,finalEndLogId:typeof s.finalEndLogId==="string"?s.finalEndLogId:null,ended:!!s.ended,epilogueSeen:!!s.epilogueSeen,epilogueLogId:typeof s.epilogueLogId==="string"?s.epilogueLogId:null};
+    return {introSeen:!!s.introSeen,introLogId:typeof s.introLogId==="string"?s.introLogId:null,puzzleReady:!!s.puzzleReady,backSeen:!!s.backSeen,finalHintLevel:Math.max(0,Math.min(3,Math.floor(Number(s.finalHintLevel)||0))),solved:!!s.solved,finalTalkSeen:!!s.finalTalkSeen,finalTalkLogId:typeof s.finalTalkLogId==="string"?s.finalTalkLogId:null,finalEndLogId:typeof s.finalEndLogId==="string"?s.finalEndLogId:null,ended:!!s.ended,epilogueSeen:!!s.epilogueSeen,epilogueLogId:typeof s.epilogueLogId==="string"?s.epilogueLogId:null};
   }
   function r8AuthoredIndex(lines,expandedId){
     // Sentence splitting adds exactly one numeric suffix. Do not use a prefix
@@ -2484,11 +2484,15 @@
       '共通点は二つある。一つは目にしてきたもの、もう一つは耳に残っているものだ。',
       'それぞれの共通点を漢字一文字にしてみよう。二文字を並べる順番は、最初の部屋で出会った彼女の呼び名を思い出してみよう。'
     ];
-    let finalHintLevel=0;
+    let finalHintLevel=room8State.finalHintLevel||0;
     const moreHintButton=o.querySelector("#r8MoreHints"),moreHintText=o.querySelector("#r8MoreHintText");
+    if(finalHintLevel>0)moreHintText.textContent=finalHintSteps[finalHintLevel-1];
+    if(finalHintLevel===finalHintSteps.length)moreHintButton.hidden=true;
+    else if(finalHintLevel>0)moreHintButton.textContent='さらにヒントを見る（'+(finalHintLevel+1)+'/3）';
     moreHintButton.onclick=()=>{
       if(finalHintLevel>=finalHintSteps.length)return;
       moreHintText.textContent=finalHintSteps[finalHintLevel++];
+      room8State.finalHintLevel=finalHintLevel;saveGame();
       if(finalHintLevel===finalHintSteps.length)moreHintButton.hidden=true;
       else moreHintButton.textContent='さらにヒントを見る（'+(finalHintLevel+1)+'/3）';
     };

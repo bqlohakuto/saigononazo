@@ -541,8 +541,8 @@ function r4Hana(){
  if(!r4All())topics.push({id:'r4_panels',label:'パネルの探し方',steps:['透明なパネルは五枚必要みたい。見つけたパネルは台に並ぶよ。台を開いたら、一枚ずつ向きを変えてみて。展示の謎だけでなく、部屋そのものも見てみよう。','三つの小謎でもらえるもののほかに、正面の壁と質問箱を調べてみて。']});
  if(room4State.starPuzzleInspected&&!room4State.star)topics.push({id:'r4_star',label:'謎1：色と数字',steps:['色の名前と、その隣の数字を一緒に使えないかな？','色の名前を英語にして、数字の番目の文字を拾ってみよう。','銀はSILVER。その一文字目はSだよ。同じ方法で、表示された順に四文字を読もう。']});
  if(room4State.lightPuzzleInspected&&!room4State.lightPuzzle)topics.push({id:'r4_light',label:'謎2：色の割合',steps:['色の組み合わせと割合が表しているものを、この部屋の展示で探してみよう。','紋章の色も含めて、国旗の同じ色ごとの割合を比べてみよう。展示の国旗と見比べてみて。','国名を英語にして、下の数字の番目の文字を拾おう。白と赤が半分ずつなのは、展示の中ではポーランド。POLANDの三文字目はLだよ。']});
- if(room4State.rainbowPuzzleInspected&&!room4State.meteors)topics.push({id:'r4_rainbow',label:'謎3：七つの色',steps:['七つの色が一緒に現れる、空の景色を思い浮かべてみて。','虹の色の並びに合わせて、札を並べ直してみよう。','赤・橙・黄・緑・青・藍・紫の順だよ。色に付いた文字も一緒に動かしてね。']});
- if(r4All())topics.push({id:'r4_projection',label:'五枚のパネルの使い方',steps:['左側のパネル台で、集めたパネルの向きを変えてみよう。ライトをつけて、映った星を星座一覧と見比べてみて。','重ねる順番より、それぞれの向きが大事みたい。一枚ずつ回して、星の位置を見てみよう。','星座一覧のおとめ座を手がかりにしてみて。五枚の星が、その形を作る向きを探そう。']});
+ if(room4State.rainbowPuzzleInspected&&!room4State.meteors)topics.push({id:'r4_rainbow',label:'謎3：七つの色',steps:['七つの色が一緒に現れる、空の景色を思い浮かべてみて。','虹の色の並びに合わせて、札を並べ直してみよう。','虹は外側が赤、内側が紫だよ。その間の色も虹の並びに合わせて、札の文字ごと動かしてみよう。']});
+ if(r4All())topics.push({id:'r4_projection',label:'五枚のパネルの使い方',steps:['左側のパネル台で、集めたパネルの向きを変えてみよう。ライトをつけて、映った星を星座一覧と見比べてみて。','重ねる順番より、それぞれの向きが大事みたい。一枚ずつ回して、星の位置を見てみよう。','五枚の星がつながったら、重なった星の図を押すと全体を回せるよ。右の星座一覧と、形や向きを見比べてみよう。']});
  PuzzleHints.choose('r4Hana',topics);
 }
 function r4Complete(){

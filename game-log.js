@@ -28,7 +28,11 @@ const GameLog=(()=>{
    if(!entry||typeof entry!=="object")continue;
    // Remove the unintended first-room thought from previously saved dialogue logs.
    if(entry.id==="room1_hana_flower_thought_01")continue;
-   const text=r7FirstPersonIds.has(entry.id)&&typeof entry.text==="string"?entry.text.replace("主人公","僕"):entry.text;
+   const originalText=r7FirstPersonIds.has(entry.id)&&typeof entry.text==="string"?entry.text.replace("主人公","僕"):entry.text;
+   // Keep older saves' chair logs consistent with the updated pre-discovery dialogue.
+   const text=typeof entry.id==="string"&&entry.id.startsWith("explore_room03_chair_quiet_")&&typeof originalText==="string"
+    ?originalText.replace("眠っているハナを起こさないよう、そっと元に戻した。","脚が床を軽くこすったので、元の位置に戻した。")
+    :originalText;
    record({logId:entry.id,text,logType:entry.type,speaker:typeof entry.speaker==="string"?entry.speaker:"",thought:entry.thought===true,logKind:entry.kind,logColor:entry.color,logRoom:entry.room,logGroup:entry.group,logTarget:entry.target});
   }
  }

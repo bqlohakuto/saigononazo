@@ -600,7 +600,7 @@ function showSecondRoomHana(){
  list.querySelectorAll("[data-topic]").forEach(button=>button.addEventListener("click",()=>{const topic=topics.find(item=>item.id===button.dataset.topic);close();if(!topic)return;if(topic.hint){PuzzleHints.show('r2_strategy','r2Hana',[
   '判定は、どの記号が合っているかまでは教えてくれないんだ。一度に全部変えず、前の結果と比べてみよう。',
   'HITとBLOWを足すと、位置に関係なく、色が合っている記号の数になるよ。並びはそのまま、一つだけ赤と青を入れ替えて比べてみて。',
-  '合計が一つ増えたら、変えた記号は今の色が正解。減ったら元の色だよ。色がわかったら固定して、位置を交換しながらHITの変化を比べよう。'
+  'たとえば一つだけ青から赤に替えてHITとBLOWの合計が増えたら、その記号は赤が正解だよ。減ったら青だね。色を確かめたら、位置を入れ替えてHITの変化を比べよう。'
  ]);return;}showRoomDialog(topic.lines,()=>{room2State.hanaHints++;saveGame()})}));
 }
 

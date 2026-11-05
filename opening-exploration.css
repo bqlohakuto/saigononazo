@@ -2,12 +2,17 @@
 #game .opening-targets{position:absolute;inset:0;z-index:8;pointer-events:none}
 #game .opening-target{
   position:absolute;display:block;pointer-events:auto;cursor:pointer;
-  appearance:none;border:2px solid rgba(85,128,158,.55);
-  background:rgba(193,220,239,.065);color:#283f4c;
-  touch-action:manipulation;transition:background .15s,border-color .15s;
+  appearance:none;border:0;padding:0;outline:none;box-shadow:none;
+  background:transparent;color:#283f4c;
+  touch-action:manipulation;
 }
+/* Keep the large invisible tap targets without drawing rectangles over the art. */
 #game .opening-target:hover,#game .opening-target:focus-visible{
-  background:rgba(184,215,234,.2);border-color:#5685a1;outline:2px solid #325c76;outline-offset:2px;
+  background:transparent;border:0;outline:none;box-shadow:none;
+}
+/* Keyboard navigation remains visible on the small text label only. */
+#game .opening-target:focus-visible span{
+  outline:2px solid #325c76;outline-offset:2px;
 }
 #game .opening-target-hana{left:65%;bottom:13%;width:20%;height:71%}
 #game .opening-target-door{left:43.5%;bottom:28%;width:13%;height:41%}

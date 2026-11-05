@@ -916,8 +916,11 @@
   }
   // Collect every next move that belongs to at least one complete winning route.
   // Memoizing positions avoids repeatedly exploring equivalent branches.
+  const r6CandidateCache=new Map();
   function r6WinningCandidates(board,turn){
     if(turn>=6)return [];
+    const cacheKey=turn+'|'+board.join('');
+    if(r6CandidateCache.has(cacheKey))return r6CandidateCache.get(cacheKey);
     const memo=new Map();
     function canWin(position,step){
       if(step===9)return position.every(value=>value==='W');
@@ -939,6 +942,7 @@
       const next=r6Place(board,id,color);
       if(next&&canWin(next,turn+1))candidates.push(id);
     }
+    r6CandidateCache.set(cacheKey,candidates);
     return candidates;
   }
   function normalizeR6(saved){
@@ -1065,7 +1069,7 @@
     const canToggle=room6State.othelloKnown&&room6State.hintLevel>=3&&room6State.moves.length<6;
     const hintToggle=canToggle?'<button id="r6HintToggle" class="r6-hint-toggle" aria-pressed="'+showCandidates+'" aria-label="ヒント候補の強調表示を切り替える">候補'+(showCandidates?'ON':'OFF')+'</button>':'';
     const hintNote=showCandidates?'<p class="r6-hint-note" role="status">'+(candidates.size?'候補 '+candidates.size+'か所（次の一手）':'クリアへの候補なし。UNDOで戻ろう。')+'</p>':'';
-    return '<aside class="r6-map-paper'+(room6State.mapExpanded?' expanded':'')+'" aria-label="探索地図"><div class="r6-map-location">現在地'+(room6State.othelloKnown?' '+room6State.current:'')+'</div><div class="r6-map-tools">'+hintToggle+'<button id="r6MapExpand" aria-label="地図を'+(room6State.mapExpanded?'縮小':'拡大')+'">'+(room6State.mapExpanded?'−':'＋')+'</button><button id="r6MapToggle" aria-label="地図を畳む">×</button></div><div class="r6-map-scroll">'+coordinates+'</div>'+compass+hintNote+'</aside>';
+    return '<aside class="r6-map-paper'+(room6State.mapExpanded?' expanded':'')+'" aria-label="探索地図"><div class="r6-map-location">現在地'+(room6State.othelloKnown?' '+room6State.current:'')+'</div><div class="r6-map-tools"><button id="r6MapExpand" aria-label="地図を'+(room6State.mapExpanded?'縮小':'拡大')+'">'+(room6State.mapExpanded?'−':'＋')+'</button><button id="r6MapToggle" aria-label="地図を畳む">×</button></div><div class="r6-map-scroll">'+coordinates+'</div>'+compass+(canToggle?'<div class="r6-hint-actions">'+hintToggle+'</div>':'')+hintNote+'</aside>';
   }
   function renderR6(){
     const id=room6State.current,x=id.charCodeAt(0)-65,y=Number(id[1])-1,color=r6Color(room6State.board[r6Index(id)]);

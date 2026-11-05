@@ -87,6 +87,23 @@
 #game:has(.room-dialog-overlay) .r6-arrival{display:none}
 @keyframes r6Arrival{0%{opacity:0}12%,70%{opacity:1}100%{opacity:0}}
 #game .r6-full .r6-map .r6-cell.current{border-color:#a86e18;outline:2px solid #efca6b;outline-offset:1px;z-index:2}
+/* Optional hint: highlight every move that can still lead to a nine-turn solution. */
+#game .r6-full .r6-map .r6-cell.r6-hint-candidate{
+  border-color:#ab761b;
+  outline:2px solid #f0b43e;
+  outline-offset:1px;
+  box-shadow:0 0 0 2px #fff2bb,0 0 8px 3px #e7aa50;
+  z-index:3;
+}
+#game .r6-map-tools button.r6-hint-toggle{
+  width:53px;
+  font-size:10px;
+  font-weight:700;
+  white-space:nowrap;
+}
+#game .r6-map-tools button.r6-hint-toggle[aria-pressed="true"]{background:#fff0c4;border-color:#b98b2d}
+#game .r6-hint-note{font-size:10px;line-height:1.25;margin:3px 0 0;max-width:190px;color:#79521a}
+
 #game .r6-full .r6-map .r6-cell.is-travel-target{outline:3px solid #efca6b;z-index:3}
 #game .r6-cell.just-arrived{animation:r6Location 700ms ease-out}
 @keyframes r6Location{0%,45%{box-shadow:0 0 0 6px #efca6baa}100%{box-shadow:0 0 0 0 #efca6b00}}

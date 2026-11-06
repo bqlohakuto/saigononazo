@@ -48,16 +48,28 @@ test('no individual panel is judged before all seven are installed',async()=>{
   assert(h.q('.r5-counter-slot.filled:not([disabled])'),'wrong fittings remain removable');
  }finally{await close(h)}
 });
-test('a wrong seventh placement returns every panel, then a correct arrangement opens ordinary dialogue',async()=>{
+test('a wrong seventh placement stays intact; players can replace only their mistakes',async()=>{
  const h=start();try{
   const first={mirror:'尾',fish:'面',butterfly:'頭',flower:'輪',squid:'杯',chair:'脚',cannon:'門'};
   for(const id of items)put(h,id,first[id]);
-  assert.equal(Object.keys(h.save().placed).length,0);
+  assert.equal(Object.keys(h.save().placed).length,7,'all seven attempts remain saved');
+  assert.deepEqual(JSON.parse(JSON.stringify(h.save().placed)),first);
   assert.equal(h.save().codeRevealed,false);
-  assert.match(h.q('#r5BoardFeedback').textContent,/手元に戻る/);
-  assert.equal(h.w.document.querySelectorAll('.r5-counter-slot.filled').length,1);
-  assert.equal(h.w.document.querySelectorAll('[data-tile]').length,7);
-  for(const id of items)put(h,id,correct[id]);
+  assert.match(h.q('#r5BoardFeedback').textContent,/枠を押して外し/);
+  assert.equal(h.w.document.querySelectorAll('.r5-counter-slot.filled').length,8,'seven fitted panels plus fixed rabbit remain visible');
+  assert.equal(h.w.document.querySelectorAll('[data-tile]').length,0,'no pieces return to the tray on a wrong answer');
+  const saved=h.save();
+  h.w.showFifthRoom(saved);h.click('#r5Board');
+  assert.deepEqual(JSON.parse(JSON.stringify(h.save().placed)),first,'all seven wrong placements survive reopening a save');
+  h.click('[data-counter="尾"]');
+  assert.equal(h.save().placed.mirror,undefined,'only the selected panel was removed');
+  assert.equal(h.save().placed.fish,'面','unselected panels stay in place');
+  h.click('[data-counter="面"]');
+  assert.equal(Object.keys(h.save().placed).length,5,'other five are still fitted');
+  for(const id of items.slice(2))assert.equal(h.save().placed[id],correct[id],id+' was not reset');
+  put(h,'mirror','面');
+  assert.equal(h.save().codeRevealed,false,'the correction still waits for the seventh placement');
+  put(h,'fish','尾');
   assert.equal(h.save().codeRevealed,true);
   assert.deepEqual(JSON.parse(JSON.stringify(h.save().placed)),correct);
   assert(h.q('.room-dialog-overlay'));

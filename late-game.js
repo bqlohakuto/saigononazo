@@ -453,8 +453,9 @@
           if(butterflyLast)[line('r5_butterfly_hint_07','主人公','……本当に一頭なんですね。'),line('r5_butterfly_hint_08','ハナ','覚えたね。')].forEach(recordLog);
           r5CompleteBoard(playBoardCompletion);drawSlots();r5RefreshWall();
         }else{
-          boardState.placed={};selected=null;saveGame();drawSlots();drawTray();r5RefreshWall();
-          say([line('r5_board_retry_01','ト書き','七枚そろったが、盤に変化は起きなかった。パネルがすべて手元に戻る。'),line('r5_board_retry_02','主人公','……並べ方を見直してみましょう。')]);
+          // Keep all seven guesses in place. A filled frame can be pressed to
+          // return just that panel, so players only need to revise their choices.
+          say([line('r5_board_retry_01','ト書き','七枚そろったが、盤に変化は起きなかった。パネルは配置したまま残っている。'),line('r5_board_retry_02','主人公','……どこか違うみたいですね。枠を押して外し、並べ直してみましょう。')]);
         }
       }else if(before===0){
         recordLog(line('r5_place_first_01','ト書き','パネルが淡く光る。丸枠へ吸い込まれるように重なり、二つの絵が一つの合体絵へ切り替わる。'));
@@ -463,7 +464,7 @@
         say([line('r5_fit_'+id,'ト書き','――コトッ。')]);
       }
       r5ButterflyHintIfNeeded(say);
-      const next=tray.querySelector('[data-tile]')||panel.querySelector('.device-close');next?.focus({preventScroll:true});
+      const next=tray.querySelector('[data-tile]')||grid.querySelector('.r5-counter-slot.filled:not(:disabled)')||panel.querySelector('.device-close');next?.focus({preventScroll:true});
     }
     const help=panel.querySelector('.r5-board-help'),note=panel.querySelector('.r5-help-note');
     help.onclick=()=>{note.hidden=!note.hidden;help.setAttribute('aria-expanded',String(!note.hidden));};

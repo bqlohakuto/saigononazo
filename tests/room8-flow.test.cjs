@@ -58,7 +58,10 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  assert.ok(!logs.some(e=>e.text.includes('【未確定】')));
  assert.ok(!logs.some(e=>e.speaker==='花音'||e.text.includes('花音')),'name remains hidden before answer');
  click('#r8Paper');click('#r8Back');await tick();
- assert.match(q('#r8BackText').textContent,/最初の部屋/);assert.doesNotMatch(q('#r8BackText').textContent,/未確定|花音/);
+ assert.match(q('#r8BackText').textContent,/二つの文字を組み合わせて/);assert.doesNotMatch(q('#r8BackText').textContent,/未確定|花音/);
+ for(let i=0;i<3;i++)click('#r8MoreHints');
+ assert.match(q('#r8MoreHintText').textContent,/本当の名前の最初の漢字/,'the final hint explicitly establishes which character comes first');
+ assert.doesNotMatch(q('#r8MoreHintText').textContent,/花音/,'the hint must not reveal the answer');
  const progress=saved().rooms.room08;
  click('#r8Submit');assert.match(q('#r8Feedback').textContent,/名前を、思い出そう/);
  q('#r8Answer').value='ハナ';click('#r8Submit');assert.match(q('#r8Feedback').textContent,/この名前じゃない/);

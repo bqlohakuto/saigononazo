@@ -205,7 +205,9 @@ function showTitle(notice=""){
  const hasSave=!!readSavedGame();
  const cleared=!!localStorage.getItem("saigononazo-guide-unlocked-v1")||!!readSavedGame()?.rooms?.room08?.ended;
  const afterwordUnlocked=AUTHOR_PREVIEW||localStorage.getItem("saigononazo-guide-unlocked-v1")==="1"||!!(readSavedGame()?.rooms?.room08?.ended&&readSavedGame()?.rooms?.room08?.epilogueSeen);
- const titleLogo='<img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span>';
+ const titleLogo=cleared
+  ? '<img src="images/ui/title-cleared-handwritten.svg?v=20261108-clear-title" alt="最後の謎が解けても"><span class="title-text-fallback">最後の謎が解けても</span>'
+  : '<img src="images/ui/title-logo.jpg" alt="最後の謎が解けるまで"><span class="title-text-fallback">最後の謎が解けるまで</span>';
  // Keep the public title quiet; contact details appear only when requested.
  const community=`<div class="title-community">
   <button id="titleCommunityButton" class="title-community-trigger" type="button" aria-haspopup="dialog" aria-controls="titleCommunityOverlay" aria-expanded="false">作者・お問い合わせ</button>

@@ -102,10 +102,10 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
  assert.ok(q('#roomNextButton'),'epilogue should play before END');
  for(let i=0;i<100&&saved().rooms.room08.epilogueLogId!=='r8_epilogue_create_04';i++)click('#roomNextButton');
  assert.equal(saved().rooms.room08.epilogueLogId,'r8_epilogue_create_04','the rabbit is revisited in the epilogue');
- assert.match(q('#roomMessage').textContent,/相変わらず、クマみたいだな/);
+ assert.match(q('#roomMessage').textContent,/ウサギの絵も上手くなったな、まだ変だけど/);
  const building=saved().rooms.room08;run('showEighthRoom('+JSON.stringify(building)+')');
  assert.equal(saved().rooms.room08.epilogueLogId,'r8_epilogue_create_04','epilogue resumes the game-making scene');
- assert.match(q('#roomMessage').textContent,/相変わらず、クマみたいだな/);
+ assert.match(q('#roomMessage').textContent,/ウサギの絵も上手くなったな、まだ変だけど/);
  assert.equal(q('.r8-epilogue-stage').dataset.place,'home');
  finish();assert.equal(saved().rooms.room08.epilogueSeen,true);
  assert.ok(q('.ending-pc-transition'),'epilogue connects to credits');

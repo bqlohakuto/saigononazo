@@ -2480,14 +2480,14 @@
     o.innerHTML='<section class="late-panel r8-puzzle"><button class="device-close" aria-label="閉じる">×</button><h2>最後の謎</h2>'+
       '<div class="r8-paper-face"><p class="r8-question">私はだーれだ？</p><p>ヒント！<br>君のことが一番好きな人だよ</p></div>'+
       '<button class="late-sub-action" id="r8Back">紙の裏を見る</button>'+
-      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>「記録」を開いて、ここまでの思い出をもう一度振り返ってみて。</p><p>七つの部屋と、そこで思い出した出来事に繰り返し登場するもの。二つの共通点を、それぞれ一文字で表してみて。</p><p>順番に迷ったら、一番最初の部屋を思い出してね。</p><p>……わかったら、名前を呼んでね。</p><button type="button" class="late-sub-action" id="r8MoreHints">もう少し考えるためのヒント</button><p id="r8MoreHintText" aria-live="polite"></p></div>'+
+      '<div id="r8BackText" class="r8-back '+(room8State.backSeen?"show":"")+'"><p>「記録」を開いて、ここまでの思い出をもう一度振り返ってみて。</p><p>七つの部屋と、そこで思い出した出来事に繰り返し登場するもの。二つの共通点を、それぞれ漢字一文字で表してみて。</p><p>二つの文字を組み合わせて、私の名前を考えてみて。</p><p>……わかったら、名前を呼んでね。</p><button type="button" class="late-sub-action" id="r8MoreHints">もう少し考えるためのヒント</button><p id="r8MoreHintText" aria-live="polite"></p></div>'+
       '<label class="r8-answer">答え<input id="r8Answer" type="text" autocomplete="off" maxlength="12"></label><button class="late-main-action" id="r8Submit">答える</button><p id="r8Feedback"></p></section>';
     game.appendChild(o);activateDeviceModal(o,"r8Paper",o.querySelector("#r8Back"));
     o.querySelector("#r8Back").onclick=()=>{room8State.backSeen=true;saveGame();o.querySelector("#r8BackText").classList.add("show");r8ArmLogHint()};
     const finalHintSteps=[
       '七つの部屋で見たものと、そこで思い出した出来事を振り返ってみよう。何度も登場しているものはないだろうか。',
       '共通点は二つある。一つは目にしてきたもの、もう一つは耳に残っているものだ。',
-      'それぞれの共通点を漢字一文字にしてみよう。二文字を並べる順番は、最初の部屋で出会った彼女の呼び名を思い出してみよう。'
+      'それぞれの共通点を漢字一文字にしてみよう。『ハナ』という呼び名は、本当の名前の最初の漢字から取ったものだよ。その文字を先頭にして、もう一文字を続けてみて。'
     ];
     let finalHintLevel=room8State.finalHintLevel||0;
     const moreHintButton=o.querySelector("#r8MoreHints"),moreHintText=o.querySelector("#r8MoreHintText");

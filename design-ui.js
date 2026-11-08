@@ -13,7 +13,7 @@
     event.preventDefault();event.stopImmediatePropagation();
     titleReadyPromise.then(()=>{if(target.isConnected)target.click()});
   },true);
-  let config=null,sequence=0,dialogueGroup='',inspectionTarget='',modal=null,portraitVisible=false,pendingUse=null;
+  let config=null,sequence=0,dialogueGroup='',inspectionTarget='',modal=null,portraitVisible=false;
   let recordRoom='',recordCategory=localStorage.getItem('saigononazo-record-category')||'all',recordPage=0,expression=0;
   const hooked=new WeakSet(),inputHooked=new WeakSet(),choiceHooked=new WeakSet();
   const roomNames=['第一','第二','第三','第四','第五','第六','第七','第八'];
@@ -329,23 +329,6 @@
     );
     m.content.append(actions);
   }
-  const r5Items=[['mirror','鏡','◇'],['fish','魚','魚'],['butterfly','蝶','蝶'],['flower','花','花'],['squid','イカ','イカ'],['chair','椅子','椅子'],['cannon','大砲','大砲']];
-  function items(){
-    const list=[];
-    if(room5State)r5Items.filter(([id])=>room5State.collected?.includes(id)&&!room5State.placed?.[id]).forEach(([id,name,art])=>list.push({id,name:name+'のパネル',art,description:name+'が描かれたパネル。',target:'r5Board'}));
-    if(room4State&&!room4State.completed)['wall','box','star','lightPuzzle','meteors'].filter(id=>room4State[id]).forEach((id,i)=>list.push({id:'r4-'+id,name:'ガラスパネル',art:'◇',description:'模様のある透明なガラスパネル。',target:'r4Stand'}));
-    if(currentScene==='room07'&&window.Room7LibraryUI)list.push(...Room7LibraryUI.items());
-    return list;
-  }
-  function inventory(){const m=panel('持ち物'),grid=document.createElement('div');grid.className='design-items';m.content.append(grid);const list=items();if(!list.length)m.content.append(paragraph('現在、使える持ち物はありません。'));list.forEach(item=>grid.append(button(item.name,()=>{m.content.replaceChildren();const art=paragraph(item.art);art.className='design-item-art';m.content.append(art,paragraph(item.name),paragraph(item.description),button('一覧に戻る',()=>{m.close();inventory()}),button('使う',()=>{m.close();startUse(item)}))}))) }
-  function cancelUse(){pendingUse=null;game.querySelector('.design-use-prompt')?.remove();game.querySelectorAll('.is-use-target').forEach(el=>el.classList.remove('is-use-target'))}
-  function startUse(item){
-    if(game.querySelector('.room-dialog-overlay'))return;
-    if(currentScene==='room07'&&window.Room7LibraryUI){Room7LibraryUI.use(item.id);return}
-    const tile=game.querySelector(`[data-tile="${item.id}"]`);if(tile){tile.click();return}
-    game.querySelector('.device-overlay .device-close')?.click();cancelUse();pendingUse=item;
-    const p=document.createElement('div');p.className='design-use-prompt';const text=paragraph(item.name+'を使う場所を選んでください。');p.append(text,button('キャンセル',cancelUse));game.append(p);document.getElementById(item.target)?.classList.add('is-use-target');p.querySelector('button').focus({preventScroll:true});
-  }
   function pickup(item){
     const m=panel('入手');
     let art;
@@ -369,7 +352,7 @@
   }
   function help(){
     const m=panel('操作説明');
-    let text='会話パネルを押すと文字をすべて表示し、もう一度押すと次へ進みます。Space / Enter でも送れます。\n\n記録・持ち物・設定は右上から開けます。ヒントはハナとの会話で確認できます。ウィンドウは「閉じる」または Esc で閉じます。';
+    let text='会話パネルを押すと文字をすべて表示し、もう一度押すと次へ進みます。Space / Enter でも送れます。\n\n記録・設定は右上から開けます。ヒントはハナとの会話で確認できます。ウィンドウは「閉じる」または Esc で閉じます。';
     if(currentScene!=='opening')text='黄色の輪は未調査、緑の輪は調査済みです。輪のある場所をクリック / タップして調べます。\n\n'+text;
     if(currentScene==='room02')text+='\n\nいろしるパズル：候補を押した順に１〜５へ入ります。同じ候補で取り消し、同じ記号の別の色で入れ替え。入力済みの枠を２つ押すと交換できます。「解答」で判定します。';
     if(game.querySelector('.device-overlay input,.device-overlay textarea,.room input,.late-room input'))text+='\n\n入力欄では解答ボタンを押して送信します。';
@@ -380,7 +363,7 @@
   function investigationRevision(el){const s=roomStates[currentScene]||{};const base=['doorUnlocked','unlocked','completed','memorySeen'].map(k=>String(!!s[k])).join(':');return el?.id==='hanaButton'?base+'|topics:'+window.HanaChoiceUI.getAvailableChoiceIds().join(','):base}
   function syncHud(){
     if(typeof document==='undefined'||!document.documentElement)return;
-    const actions=game.querySelector('.gameplay-hud-actions');if(actions&&!actions.dataset.design){actions.dataset.design='true';actions.replaceChildren(button('持ち物',inventory,'gameplay-top-button'),button('記録',records,'gameplay-top-button'),button('設定',options,'gameplay-top-button'),fullscreenButton('gameplay-top-button'))}
+    const actions=game.querySelector('.gameplay-hud-actions');if(actions&&!actions.dataset.design){actions.dataset.design='true';actions.replaceChildren(button('記録',records,'gameplay-top-button'),button('設定',options,'gameplay-top-button'),fullscreenButton('gameplay-top-button'))}
     const title=game.querySelector('.title-screen');let titleDisplay=game.querySelector('.design-title-fullscreen');
     if(title&&!titleDisplay){titleDisplay=fullscreenButton('design-title-fullscreen');game.append(titleDisplay)}else if(!title)titleDisplay?.remove();
     syncDisplayButtons();syncRoomImage();
@@ -396,7 +379,7 @@
         world=document.createElement('div');world.className='hana-v2-world';world.setAttribute('role','img');world.setAttribute('aria-label','ハナ');late.append(world);
       }
     }
-    game.querySelectorAll('.object,.late-object,#r5Board,.r7-target').forEach(el=>{const key=currentScene+':'+(el.id||el.dataset.item||el.textContent.trim());const seen=state().investigated[key];el.classList.toggle('is-investigated',(seen===true||seen===investigationRevision(el))&&!(el.id==='hanaButton'&&window.HanaChoiceUI?.hasUnreadChoices()));if(hooked.has(el))return;hooked.add(el);el.addEventListener('click',event=>{if(pendingUse){if(el.id!==pendingUse.target){event.preventDefault();event.stopImmediatePropagation();const p=game.querySelector('.design-use-prompt p');if(p)p.textContent='ここでは使えません。使う場所を選ぶか、キャンセルしてください。';return}const item=pendingUse;cancelUse();setTimeout(()=>game.querySelector(`[data-tile="${item.id}"]`)?.click(),0)}inspectionTarget=el.querySelector('span,strong')?.textContent||el.getAttribute('aria-label')||el.textContent.trim();state().investigated[key]=investigationRevision(el);el.classList.add('is-investigated');saveGame()},{capture:true})});
+    game.querySelectorAll('.object,.late-object,#r5Board,.r7-target').forEach(el=>{const key=currentScene+':'+(el.id||el.dataset.item||el.textContent.trim());const seen=state().investigated[key];el.classList.toggle('is-investigated',(seen===true||seen===investigationRevision(el))&&!(el.id==='hanaButton'&&window.HanaChoiceUI?.hasUnreadChoices()));if(hooked.has(el))return;hooked.add(el);el.addEventListener('click',event=>{inspectionTarget=el.querySelector('span,strong')?.textContent||el.getAttribute('aria-label')||el.textContent.trim();state().investigated[key]=investigationRevision(el);el.classList.add('is-investigated');saveGame()},{capture:true})});
     game.querySelectorAll('.hana-choice-button,[data-choice]').forEach(el=>{if(choiceHooked.has(el))return;choiceHooked.add(el);const born=performance.now();el.addEventListener('click',e=>{if(performance.now()-born<250){e.preventDefault();e.stopImmediatePropagation()}},{capture:true})});
     game.querySelectorAll('.device-overlay section').forEach(section=>{if(section.matches('.room-exit-menu,.r4-ratio-exhibit,.r5-handdrawn-panel')||section.querySelector('[data-choice]')||section.querySelector('.design-op-button')||!section.querySelector('input,.room2-palette,.r4-panels,.r5-counter-grid,.r6-othello,.room3-letterboard'))return;section.append(button('操作説明',help,'design-op-button'))});
     game.querySelectorAll('.device-close,.inspection-close').forEach(el=>{if(el.textContent==='×')el.textContent='閉じる'});
@@ -463,7 +446,7 @@
     // Effects are visual captions only. No independent sound record category.
   }
   function syncPlayback(){game.querySelectorAll('[data-design-auto]').forEach(b=>{b.setAttribute('aria-pressed',String(Dialogue.isAutoEnabled()));b.disabled=!!game.querySelector('.room-dialog .auto-button')?.disabled;const label=Dialogue.isAutoEnabled()?'AUTO ON':'AUTO OFF';if(b.textContent!==label)b.textContent=label});game.querySelectorAll('[data-design-log]').forEach(b=>b.setAttribute('aria-pressed',String(!!game.querySelector('.room-dialog.is-log-open'))));game.querySelectorAll('[data-design-skip]').forEach(b=>{const source=game.querySelector('.room-dialog .skip-button');b.disabled=!source||source.disabled;b.setAttribute('aria-pressed',source?.getAttribute('aria-pressed')||'false')})}
-  function onInstall(c){cancelUse();config=c;recordRoom=c.sceneId||currentScene;inspectionTarget='';if(!state().visited.includes(recordRoom))state().visited.push(recordRoom);queueMicrotask(()=>{if(typeof document==='undefined'||!document.documentElement)return;syncHud();if(!localStorage.getItem('saigononazo-help-seen')){localStorage.setItem('saigononazo-help-seen','1');if(!game.querySelector('.room-dialog-overlay,.device-overlay'))help()}})}
+  function onInstall(c){config=c;recordRoom=c.sceneId||currentScene;inspectionTarget='';if(!state().visited.includes(recordRoom))state().visited.push(recordRoom);queueMicrotask(()=>{if(typeof document==='undefined'||!document.documentElement)return;syncHud();if(!localStorage.getItem('saigononazo-help-seen')){localStorage.setItem('saigononazo-help-seen','1');if(!game.querySelector('.room-dialog-overlay,.device-overlay'))help()}})}
   function beginDialogue(lines){dialogueGroup=currentScene+':'+Date.now()+':'+(++sequence);portraitVisible=lines.some(l=>l.speaker==='ハナ'||l.speaker==='花音')&&!lines.some(l=>window.MemoryVisuals?.get(currentScene,l));expression=0;window.MemoryVisuals?.prepare(currentScene,lines)}
   function endDialogue(){syncWorldExpression(true);window.MemoryVisuals?.sync(null);dialogueGroup='';game.classList.remove('has-dialogue');game.querySelector('.inspection-focus-background')?.remove()}
   function savePreview(){
@@ -474,7 +457,7 @@
     ctx.fillStyle='#faf7ee';ctx.fillRect(0,0,240,22);ctx.font='11px sans-serif';ctx.fillStyle='#35332e';ctx.fillText(roomLabel(currentScene),8,15);return canvas.toDataURL('image/png');
   }
   const orientation=matchMedia('(orientation:portrait) and (pointer:coarse)');orientation.addEventListener('change',()=>{if(orientation.matches)Dialogue.suspend();else if(!modal)Dialogue.resume()});
-  document.addEventListener('keydown',e=>{if(modal||orientation.matches)return;if(e.key==='Escape'&&pendingUse){e.preventDefault();cancelUse();return}if(e.target.closest?.('input,textarea,select,button'))return;if((e.key===' '||e.key==='Enter')&&game.querySelector('.room-dialog:not(.dialog-hidden),.opening .dialog:not(.is-log-open)')){e.preventDefault();Dialogue.advance()}});
+  document.addEventListener('keydown',e=>{if(modal||orientation.matches)return;if(e.target.closest?.('input,textarea,select,button'))return;if((e.key===' '||e.key==='Enter')&&game.querySelector('.room-dialog:not(.dialog-hidden),.opening .dialog:not(.is-log-open)')){e.preventDefault();Dialogue.advance()}});
   document.addEventListener('click',e=>{if(e.target.closest?.('#settingsButton')){e.preventDefault();e.stopImmediatePropagation();options();return}if(e.target.closest?.('#gameplayLogButton')){e.preventDefault();e.stopImmediatePropagation();records()}},{capture:true});
   document.addEventListener('dialogue:autochange',syncPlayback);document.addEventListener('dialogue:skipchange',()=>queueMicrotask(syncPlayback));
   new MutationObserver(syncHud).observe(game,{childList:true,subtree:true});

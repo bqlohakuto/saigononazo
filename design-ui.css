@@ -2732,8 +2732,19 @@ body{background:#0b1322!important;display:grid;place-items:center}
 #game .object>span,#game .late-object>span,#game .ambient-target>span{display:none!important}
 #game:has(.memory-scene) .gameplay-objective,#game:has(.memory-scene) .gameplay-goal-row{display:none!important}
 #game .title-cleared{background-position:center;background-size:cover}
-/* Use the verified handwritten title image; readable text remains as fallback. */
-#game .title-cleared .title-logo{mix-blend-mode:screen}
+/* After clearing, display the supplied handwritten ending title without atlas cropping. */
+#game .title-cleared .title-logo{
+  top:4%;
+  width:min(900px,90%);
+  aspect-ratio:1476/265;
+  mix-blend-mode:screen;
+}
+#game .title-cleared .title-logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  transform:none;
+}
 
 #game .room3-desk::after{top:15%!important;left:85%!important}
 #game .r8-final-door{position:absolute;left:42%;top:8%;height:78%;width:24%;border:0;background:transparent url("images/background/room01/room01_door_closeup.png") center/contain no-repeat;font-size:0;color:transparent}
@@ -2745,7 +2756,7 @@ body{background:#0b1322!important;display:grid;place-items:center}
 
 #game.has-world-expression #openingHanaSprite{animation:none!important}
 
-/* Reuse the original title and menu handwriting over the cleared room. */
+/* Keep handwritten menu artwork over the cleared room. */
 #game .title-cleared:not(.title-art-loading):not(.title-art-fallback){
  background-image:url("images/ui/title-cleared-background-v2.png?v=20261030-restored")!important;
  background-size:100% 100%!important;

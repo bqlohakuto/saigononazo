@@ -1,10 +1,16 @@
 // One active dialogue owns its typing and AUTO timers. Observation screens never do.
 const Dialogue=(()=>{
- let autoEnabled=false,active=null;
+ // AUTO is a reading preference, not a per-dialogue setting.
+ const AUTO_STORAGE_KEY="saigononazo-dialogue-auto-enabled";
+ const storedAutoEnabled=()=>{
+  try{return localStorage.getItem(AUTO_STORAGE_KEY)==="true"}catch{return false}
+ };
+ let autoEnabled=storedAutoEnabled(),active=null;
  const AUTO_DELAY=2000;
  const SKIP_DELAY=80;
  const kindOf=line=>line.speaker==="主人公"||line.thought?"player":["ハナ","花音"].includes(line.speaker)?"heroine":line.speaker==="ト書き"?"narration":line.logType==="dialogue"?"character":"system";
  const emitAutoChange=()=>{
+  try{localStorage.setItem(AUTO_STORAGE_KEY,String(autoEnabled))}catch{}
   if(typeof document?.dispatchEvent==="function"&&typeof CustomEvent==="function")document.dispatchEvent(new CustomEvent("dialogue:autochange",{detail:{enabled:autoEnabled}}));
  };
  const emitSkipChange=(enabled,available)=>{
@@ -110,7 +116,7 @@ const Dialogue=(()=>{
    index++;
    if(index>=lines.length){
     dispose();nextButton.disabled=true;autoButton.disabled=true;
-    autoEnabled=false;emitAutoChange();
+    // Completing a dialogue must not turn off the player's AUTO preference.
     if(onComplete)onComplete();
     return;
    }

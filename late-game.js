@@ -2674,7 +2674,7 @@
       line("r8_epilogue_create_01","ト書き","彼女の書いた謎を、一つずつ画面に映していく。"),
       line("r8_epilogue_create_02","ト書き","思うように動かない仕掛けを、何度も作り直す。"),
       line("r8_epilogue_create_03","ト書き","ノートの端に、小さなウサギの絵が描かれていた。"),
-      line("r8_epilogue_create_04","主人公","……相変わらず、クマみたいだな"),
+      line("r8_epilogue_create_04","主人公","……ウサギの絵も上手くなったな、まだ変だけど"),
       line("r8_epilogue_create_05","ト書き","思わず、小さく笑ってしまった。"),
       line("r8_epilogue_create_06","ト書き","また画面に向き直る。"),
       line("r8_epilogue_09","主人公・心の声","彼女が作った謎を、今度は僕が届けていく。",{thought:true})

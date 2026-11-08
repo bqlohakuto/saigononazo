@@ -14,7 +14,9 @@
 #game .opening-target:focus-visible span{
   outline:2px solid #325c76;outline-offset:2px;
 }
-#game .opening-target-hana{left:65%;bottom:13%;width:20%;height:71%}
+/* The door-facing Hana is approximately door-height, with her feet on the same floor line. */
+#game .opening[data-view="door"] .pixel-opening-hana{left:69%;bottom:29%;height:39%!important}
+#game .opening-target-hana{left:62%;bottom:28%;width:14%;height:41%}
 #game .opening-target-door{left:43.5%;bottom:28%;width:13%;height:41%}
 #game .opening-target span{
   position:absolute;left:50%;bottom:-1px;transform:translate(-50%,100%);

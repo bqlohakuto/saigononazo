@@ -48,7 +48,7 @@ test("only the protagonist's restrained urgency changes as furniture and Hana di
 test("game creation lasts several beats and ends on the original vow",()=>{
  const ids=["r8_epilogue_08","r8_epilogue_create_01","r8_epilogue_create_02","r8_epilogue_create_03","r8_epilogue_create_04","r8_epilogue_create_05","r8_epilogue_create_06","r8_epilogue_09"];
  for(let i=1;i<ids.length;i++)assert.ok(at(epi,ids[i])>at(epi,ids[i-1]),ids[i]);
- assert.equal(byId(epi,"r8_epilogue_create_04").text,"……相変わらず、クマみたいだな");
+ assert.equal(byId(epi,"r8_epilogue_create_04").text,"……ウサギの絵も上手くなったな、まだ変だけど");
  assert.equal(byId(epi,"r8_epilogue_09").text,"彼女が作った謎を、今度は僕が届けていく。");
  assert.equal(new Set(epi.map(x=>x.id)).size,epi.length,"each new and original epilogue log has a unique ID");
  assert.ok(src.includes("room8State.epilogueLogId=lines[index].logId"),"epilogue remains save-resumable");
@@ -69,7 +69,7 @@ test("all three production manuscripts and frontend cache reflect the approved R
  const docs=["SCENARIO.md","scenario/08_final.md","scenario/FULL_SCENARIO.md"];
  for(const name of docs){
   const doc=read(name);
-  for(const phrase of ["何度も隣を歩いた。","ずっと、一緒にいてくれたんだね","手を伸ばした先には、もう誰もいなかった。","……まだ、終わってない","思うように動かない仕掛けを、何度も作り直す。","……相変わらず、クマみたいだな","彼女が作った謎を、今度は僕が届けていく。"]){
+  for(const phrase of ["何度も隣を歩いた。","ずっと、一緒にいてくれたんだね","手を伸ばした先には、もう誰もいなかった。","……まだ、終わってない","思うように動かない仕掛けを、何度も作り直す。","……ウサギの絵も上手くなったな、まだ変だけど","彼女が作った謎を、今度は僕が届けていく。"]){
    assert.ok(doc.includes(phrase),name+" missing "+phrase);
   }
   assert.ok(doc.includes("クマかと思ったやつ。"),name+" must retain the original Room 5 rabbit joke");
